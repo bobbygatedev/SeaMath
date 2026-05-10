@@ -250,7 +250,7 @@ namespace Gate.SeaMath.Sea
          }
          else
          {
-            return myAssignLRtm(lObj, ro.ConvertOrCrash<CRtmObj>());
+            return myAssignLRtm(lObj, ro as CRtmObj);
          }
       }
 
@@ -383,7 +383,7 @@ namespace Gate.SeaMath.Sea
       /// object.</exception>
       /// <exception cref="Crash">Thrown if <paramref name="rRtmObjNonSea"/> is a sea object, or if an invalid runtime object type is
       /// encountered during the assignment.</exception>
-      protected virtual CRtmObj myAssignLRtm(CRtmObj lRtm, CRtmObj rRtmObjNonSea)
+      protected virtual CRtmObj myAssignLRtm(CRtmObj lRtm, CRtmObj? rRtmObjNonSea)
       {
          if (rRtmObjNonSea == null && !(lRtm is SeaTypeRtmObj))
          {

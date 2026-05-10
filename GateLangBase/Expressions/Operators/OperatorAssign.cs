@@ -2,6 +2,7 @@
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 
 namespace Gate.LangBase.Expressions.Operators
 {
@@ -47,7 +48,9 @@ namespace Gate.LangBase.Expressions.Operators
       /// <param name="stack">The stack context used during the evaluation process.</param>
       /// <returns>The result of the evaluation as an <see cref="RtmObj"/>.</returns>
       public override RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack) => 
-         rtmStrategy?.Assign(rtmArgs?.ElementAtOrDefault(0)??throw new Crash(), rtmArgs?.ElementAtOrDefault(1) ?? throw new Crash());
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack) =>
+            rtmStrategy?.Assign(
+               rtmArgs.ElementAtOrCrash(0), 
+               rtmArgs.ElementAtOrCrash(1));
    }
 }

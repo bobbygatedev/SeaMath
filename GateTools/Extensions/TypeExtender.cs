@@ -74,7 +74,7 @@ namespace Gate.Tools.Extensions
       /// <exception cref="Crash"></exception>
       public static T ConvertOrCrash<T>(this object? obj) => obj is T t ?
             t : throw new Crash($"Cannot convert object of type {obj?.GetType().Name ?? "null"} to type {typeof(T).Name}");
- 
+
       /// <summary>
       /// Ensures that the specified object is not null, throwing a Crash exception if it is.
       /// </summary>
@@ -84,6 +84,19 @@ namespace Gate.Tools.Extensions
       /// <exception cref="Crash">Thrown if obj is null.</exception>
       public static T NnOrCrash<T>(this T? obj) where T : class => obj ?? throw new Crash($"Object of type {typeof(T).Name} is null");
 
+      /// <summary>
+      /// Ensures that the specified object is not null, throwing a Crash exception if it is.
+      /// </summary>
+      /// <typeparam name="T">The reference type of the object to check for null.</typeparam>
+      /// <param name="obj">The object to validate for non-nullity.</param>
+      /// <returns>The original object if it is not null.</returns>
+      /// <exception cref="Crash">Thrown if obj is null.</exception>
       public static T NnOrCrash<T>(this T? obj) where T : struct => obj ?? throw new Crash($"Object of type {typeof(T).Name} is null");
+
+      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : class => 
+         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash();
+
+      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : struct =>
+         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash<T>();
    }
 }

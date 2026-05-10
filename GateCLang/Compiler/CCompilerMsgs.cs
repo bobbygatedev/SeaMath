@@ -312,9 +312,10 @@ namespace Gate.CLanguage.Compiler
          myMsgTools.MakeMsg(MsgType.warning, msgId, token, msgSuffix);
 
       private static Msg myMakErr(CCompilerMsgId msgId, TxtToken? token, string? msgSuffix = null) =>
-         myMakErr(msgId, token, msgSuffix);
+         myMsgTools.MakeMsg(MsgType.error, msgId, token, msgSuffix);
 
-      private static Msg myMakInf(string infoMsg, CCompilerMsgId msgId, TxtToken? token) => Msg.FromToken(MsgType.info, infoMsg, msgId, token);
+      private static Msg myMakInf(string infoMsg, CCompilerMsgId msgId, TxtToken? token) => 
+         myMsgTools.MakeMsg2(MsgType.warning, msgId, token, infoMsg);
 
       private static Msg myMakMsg2(MsgType msgType, CCompilerMsgId msgId, TxtToken? token, string msgContent) =>
          myMsgTools.MakeMsg2(msgType, msgId, token, msgContent);
