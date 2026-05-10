@@ -29,6 +29,8 @@ namespace Gate.SeaMath.Console
             Console = console;
          }
 
+         public override string Name => "console_expression";
+
          /// <summary>
          /// 
          /// </summary>
@@ -73,6 +75,8 @@ namespace Gate.SeaMath.Console
             RtmStrategy = rtmStrategy;
             Console = console;
          }
+
+         public override string Name => "console_var";
 
          /// <summary>
          /// 

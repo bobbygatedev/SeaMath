@@ -14,6 +14,9 @@ namespace Gate.CLanguage.Statement
       /// </summary>
       public CCycleIfElse() => myAddSubItem(new BodyType());
 
+      /// <summary>
+      /// Body for <see cref="CCycleIfElse"/>
+      /// </summary>
       public class BodyType : CCycleBody
       {
          public override string Descriptor => throw new NotImplementedException();

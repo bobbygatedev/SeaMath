@@ -19,21 +19,29 @@ namespace Gate.CLanguage.Statement
       /// </summary>
       public CCycleDoWhile() => myAddSubItem(new BodyType());
 
+      /// <summary>
+      /// Body for <see cref="CCycleWhile"/>
+      /// </summary>
       public class BodyType : CCycleBody
       {
-         public override string Descriptor => throw new NotImplementedException();
+         public BodyType() { }
 
-         public override string Rebuilt => throw new NotImplementedException();
+         public override string Descriptor => Rebuilt;
+
+         public override string Rebuilt => $"do .. while({Condition})";
 
          public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) =>
-            throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!");
+            item is CStatement ? true : throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!");
       }
 
       public class TokenInterpret : TokenInterpretBase
       {
          private readonly And myAnd;
 
-         public TokenInterpret(CDeclInterpretFactory declInterpretFactory, CAttributesInterpret attributesInterpret, CExprStatementInterpreter exprInterpret) :
+         public TokenInterpret(
+            CDeclInterpretFactory declInterpretFactory, 
+            CAttributesInterpret attributesInterpret, 
+            CExprStatementInterpreter exprInterpret) :
             base(declInterpretFactory, attributesInterpret, exprInterpret) =>
                myAnd =
                   new Is("do", true) &

@@ -42,6 +42,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          myGoNextInstruction = new RtmDbgEngVirtCpuInstructionSimple(null);
       }
 
+      public override string Name => "goto";
+
       /// <summary>
       /// 
       /// </summary>

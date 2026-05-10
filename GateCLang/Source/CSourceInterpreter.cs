@@ -1,7 +1,6 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.CLanguage.Decl;
 using Gate.CLanguage.Interpreter;
-using Gate.Tools;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 

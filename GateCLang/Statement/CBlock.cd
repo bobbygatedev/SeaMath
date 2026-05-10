@@ -10,7 +10,7 @@
   <Class Name="Gate.CLanguage.Statement.CBlock">
     <Position X="2" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAAABAgACAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAABBAgAAAAAAAAAAA=</HashCode>
       <FileName>Statement\CBlock.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

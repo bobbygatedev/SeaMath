@@ -40,7 +40,7 @@ namespace Gate.CLanguage.DeclInterpreter
                 new CDeclInterpretParams(CDeclInterpretContext.function_def_param, DeclInterpretFactory, exprInterpret, attributesInterpret),
                 new CDeclInterpretTryToAddSpecifier(),
                 new InnerIsFunctionDefValidScope(),
-                new CBlockInterpret(DeclInterpretFactory, attributesInterpret, exprInterpret));
+                new CBlockInterpret(CBlockInterpret.ContextType.function , DeclInterpretFactory, attributesInterpret, exprInterpret));
          }
          else
          {

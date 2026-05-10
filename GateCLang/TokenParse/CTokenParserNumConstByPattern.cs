@@ -1,6 +1,7 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 using System.Text.RegularExpressions;
@@ -67,11 +68,11 @@ namespace Gate.CLanguage.TokenParse
                //moving to end of regex
                inputMarker.CurrIdx += mat?.Length ?? 0;
 
-               var res = myOnMatch(inData, mat ?? throw new Crash(), tok, out var rtm_val);
+               var res = myOnMatch(inData, mat.NnOrCrash(), tok, out var rtm_val);
 
                if (res == TxtElabResult.success)
                {
-                  var c_tok = CToken.MakeConstant(tok, rtm_val ?? throw new Crash());
+                  var c_tok = CToken.MakeConstant(tok, rtm_val.NnOrCrash());
 
                   output.ListProduct.Add(c_tok);
                }

@@ -18,6 +18,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          TxtToken? token, Func<RtmDbgEngStackVirtCpu, IRtmObjStrategy?, RtmObj?>? runAction = null) :
          base(token) => RunAction = runAction;
 
+      public override string Name => "simple";
+
       /// <summary>
       /// 
       /// </summary>

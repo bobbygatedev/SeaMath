@@ -7,6 +7,7 @@ using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using static Gate.CLanguage.Statement.CStatement;
 using static Gate.Tools.HierarchicalItem;
 
@@ -115,7 +116,7 @@ namespace Gate.CLanguage.Runtime
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CExprStatement cExpr) =>
          [new RtmDbgEngVirtCpuInstructionSimple(cExpr.TxtToken, (stk, str) => cExpr.Expr?.Eval(stk, RtmStrategy))];
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleIfElse ifElse) => 
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleIfElse ifElse) =>
          throw new System.NotImplementedException();//todo develop
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleWhile whileCycle)
@@ -125,7 +126,6 @@ namespace Gate.CLanguage.Runtime
          // 2: body 
          // 3: goto if-condition-goto
          // 4: end (pop frame)
-
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
 
          //frame pop(end)
@@ -134,71 +134,135 @@ namespace Gate.CLanguage.Runtime
          /// 0: frame
          lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePush());
 
-         //index of first body instruction
-         var cnd_ist = lst_ins.Count;
+         // 1: if-condition-goto 
+         lst_ins.Add(
+            new RtmDbgEngVirtCpuInstructionGoto(
+               whileCycle.Body.Condition?.TxtToken,
+               null,
+               end_frm_pop,
+               s => whileCycle.Body.Condition.NnOrCrash().Expr?.Eval(s, RtmStrategy)));
 
-         if (whileCycle.Body.Condition != null)//if no condition always true (no check goto '3: body')
-         {
-            // 1: if-condition-goto 
-            lst_ins.Add(
-               new RtmDbgEngVirtCpuInstructionGoto(
-                  whileCycle.Body.Condition.TxtToken, 
-                  null, 
-                  end_frm_pop, 
-                  s => whileCycle.Body.Condition?.Expr?.Eval(s, RtmStrategy)));
-         }
-
-         // 3: body
-         //eg for(;;)a*=2;
-         if (whileCycle.Content is CExprStatement exp) { lst_ins.AddRange(myGetInstructions(exp)); }
-         //eg for(;;){ a*=2; }
-         else if (whileCycle.Content is CCompound cmp) { lst_ins.AddRange(myGetInstructions(cmp)); }
-         //eg for(;;);
-         else if (whileCycle.Content != null) { throw new Crash(); }
+         lst_ins.AddRange(myGetCycleBodyInstructions(whileCycle));
 
          //5: goto if-condition-goto '1: if-condition-goto'
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(null, lst_ins[1], null, null));
+         var got = new RtmDbgEngVirtCpuInstructionGoto(null, lst_ins[1], null, null);
+
+         lst_ins.Add(got);
 
          //6: end(pop frame)
          lst_ins.Add(end_frm_pop);
+
+         myPatchBreakContinue(lst_ins, end_frm_pop, got);
+
+         return lst_ins.ToArray();
+      }
+
+      private static void myPatchBreakContinue(
+         List<RtmDbgEngVirtCpuInstruction> listInstructions,
+         RtmDbgEngVirtCpuInstructionFramePop endFramePop,
+         RtmDbgEngVirtCpuInstruction continueTarget)
+      {
+         foreach (var brk in listInstructions.ToArray().OfType<InnerDummyBreak>())
+         {
+            //break skipping to frame pop
+            listInstructions[listInstructions.IndexOf(brk)] = new RtmDbgEngVirtCpuInstructionGoto(brk.Break.TxtToken, endFramePop, null);
+         }
+
+         foreach (var brk in listInstructions.ToArray().OfType<InnerDummyContinue>())
+         {
+            //break skipping to cycle goto
+            listInstructions[listInstructions.IndexOf(brk)] = new RtmDbgEngVirtCpuInstructionGoto(brk.Continue.TxtToken, continueTarget, null);
+         }
+      }
+
+      private class InnerDummyBreak : RtmDbgEngVirtCpuInstruction
+      {
+         public InnerDummyBreak(Break @break) : base(null) => Break = @break;
+
+         public Break Break { get; }
+
+         public override string Name => "dummy_break";
+
+         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
+      }
+
+      private class InnerDummyContinue : RtmDbgEngVirtCpuInstruction
+      {
+         public InnerDummyContinue(Continue @continue) : base(null) => Continue = @continue;
+
+         public Continue Continue { get; }
+
+         public override string Name => "dummy_continue";
+
+         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
+      }
+
+      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CCycle cycle)
+      {
+         var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
+         var sts = null as CStatement[];
+
+         //eg for(;;){ a*=2; }
+         if (cycle.Content is CCompound cmp) { sts = cmp.Block.Statements; }
+         //eg do a*=2 while(i+<3);
+         else if (cycle.Content is CStatement sta) { sts = [sta]; }
+         //eg for(;;); -> infinite cycle
+         else if (cycle.Content != null) { throw new Crash(); }
+
+         foreach (var sta in sts.NnOrCrash())
+         {
+            if (sta is Break brk)
+            {
+               lst_ins.Add(new InnerDummyBreak(brk));
+            }
+            else if (sta is Continue cnt)
+            {
+               lst_ins.Add(new InnerDummyContinue(cnt));
+            }
+            else
+            {
+               lst_ins.AddRange(GetInstructions(sta));
+            }
+         }
+
+         if (lst_ins.Count == 0)
+         {
+            lst_ins.Add(new RtmDbgEngVirtCpuInstructionSimple(null));//adding "nop"
+         }
 
          return lst_ins.ToArray();
       }
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleDoWhile doWhileCycle)
       {
-         // 0: frame
+         // 0: frame (push frame)
          // 1: body 
          // 2: if-condition-goto (eg 'do { printf(""); } while(i<3);' -> if i < 3 goto '1: body' else goto '3: end')
          // 3: end (pop frame)
 
-         var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
-
-         /// 0: frame
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePush());
-
-         // 1: body
-         //eg for(;;)a*=2;
-         if (doWhileCycle.Content is CExprStatement exp) { lst_ins.AddRange(myGetInstructions(exp)); }
-         //eg for(;;){ a*=2; }
-         else if (doWhileCycle.Content is CCompound cmp) { lst_ins.AddRange(myGetInstructions(cmp)); }
-         //eg for(;;);
-         else if (doWhileCycle.Content != null) { throw new Crash(); }
-
-         if (doWhileCycle.Body.Condition != null)
+         var lst_ins = new List<RtmDbgEngVirtCpuInstruction>
          {
-            // 2: if-condition-goto 
-            lst_ins.Add(
-               new RtmDbgEngVirtCpuInstructionGoto(
-                  doWhileCycle.Body.Condition.TxtToken,
-                  lst_ins[1],
-                  null,
-                  s => doWhileCycle.Body.Condition.Expr?.Eval(s, RtmStrategy)));
-         }
-         else { throw new Crash(); }
+            /// 0: frame
+            new RtmDbgEngVirtCpuInstructionFramePush()
+         };
+
+         lst_ins.AddRange(myGetCycleBodyInstructions(doWhileCycle));
+
+         // 2: if-condition-goto 
+         var got = new RtmDbgEngVirtCpuInstructionGoto(
+               doWhileCycle.Body.Condition?.TxtToken,
+               lst_ins[1],
+               null,
+               s => doWhileCycle.Body.Condition.NnOrCrash().Expr?.Eval(s, RtmStrategy));
+
+         lst_ins.Add(got);
+
+         var end_frm_pop = new RtmDbgEngVirtCpuInstructionFramePop();
 
          //3: end(pop frame)
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePop());
+         lst_ins.Add(end_frm_pop);
+
+         myPatchBreakContinue(lst_ins, end_frm_pop, got);
 
          return lst_ins.ToArray();
       }
@@ -231,50 +295,45 @@ namespace Gate.CLanguage.Runtime
          /// 1: init
          if (forCycle.Body.Initialisation != null) { lst_ins.AddRange(GetInstructions(forCycle.Body.Initialisation)); }
 
-         //index of first body instruction
-         var cnd_ist = lst_ins.Count;
+         var cnd = null as RtmDbgEngVirtCpuInstructionGotoConditionEval;
 
-         if (forCycle.Body.Condition != null)//if no condition always true (no check goto '3: body')
+         //if condition is null infinite cycle
+         if (forCycle.Body.Condition != null)
          {
-            // 2: if-condition-goto 
-            lst_ins.Add(
-               new RtmDbgEngVirtCpuInstructionGoto(
-                  forCycle.Body.Condition.TxtToken,
-                  null,
-                  end_frm_pop,
-                  s => forCycle.Body.Condition?.Expr?.Eval(s, RtmStrategy)));
+            cnd = (s => forCycle.Body.Condition?.Expr?.Eval(s, RtmStrategy));
          }
 
-         // 3: body
-         //eg for(;;)a*=2;
-         if (forCycle.Content is CExprStatement exp) { lst_ins.AddRange(myGetInstructions(exp)); }
-         //eg for(;;){ a*=2; }
-         else if (forCycle.Content is CCompound cmp) { lst_ins.AddRange(myGetInstructions(cmp)); }
-         //eg for(;;);
-         else if (forCycle.Content != null) { throw new Crash(); }
+         var got = new RtmDbgEngVirtCpuInstructionGoto(forCycle.Body.Condition?.TxtToken, null, end_frm_pop, cnd);
+
+         // 2: if-condition-goto 
+         lst_ins.Add(got);
+
+         lst_ins.AddRange(myGetCycleBodyInstructions(forCycle));
+
+         var upd = null as RtmDbgEngVirtCpuInstruction;
 
          // 4: update
-         if (forCycle.Body.Update != null) { lst_ins.AddRange(GetInstructions(forCycle.Body.Update)); }
+         if (forCycle.Body.Update != null)
+         {
+            var new_iss = GetInstructions(forCycle.Body.Update);
 
-         //in case neither a condition nor cycle content nor update are provided a "nop" is added
-         if (cnd_ist >= lst_ins.Count) { lst_ins.Add(new RtmDbgEngVirtCpuInstructionSimple(null)); }
+            upd = new_iss.ElementAtOrCrash(0);
+            lst_ins.AddRange(new_iss);
+         }
 
          //5: goto if-condition-goto 
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(null, lst_ins[cnd_ist], null, null));
+         lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(null, got, null, null));
 
          //6: end(pop frame)
          lst_ins.Add(end_frm_pop);
 
+         //if update is defined continue shall jump to it ( eg for ( i = 0; ; i++ ) continue; -> jump to 'i++')
+         myPatchBreakContinue(lst_ins, end_frm_pop, upd ?? got);
+
          return lst_ins.ToArray();
       }
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleSwitch @switch) => 
-         throw new System.NotImplementedException();//todo develop
-
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(Break @break) => 
-         throw new System.NotImplementedException();//todo develop
-
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(Continue @continue) => 
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleSwitch @switch) =>
          throw new System.NotImplementedException();//todo develop
    }
 }

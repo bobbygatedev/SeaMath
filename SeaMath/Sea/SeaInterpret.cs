@@ -4,6 +4,7 @@ using Gate.CLanguage.Expressions.COperators;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Source;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 
 namespace Gate.SeaMath.Sea
 {
@@ -38,9 +39,13 @@ namespace Gate.SeaMath.Sea
       /// </summary>
       /// <returns></returns>
       protected override CTokenInterpreter[] myMakeRootSubInterpreters() => [
+         new SeaExprEmptyInterpreter(),
          new CDeclInterpret(
-            CDeclInterpretContext.global_var, DeclInterpretFactory ?? throw new Crash(), ExprInterpret, AttributesInterpret) ,
-               new CExprStatementInterpreter.WrapCondition (ExprInterpret,";"),
+            CDeclInterpretContext.global_var, 
+            DeclInterpretFactory.NnOrCrash(), 
+            ExprInterpret, 
+            AttributesInterpret) ,
+         new CExprStatementInterpreter.WrapCondition (ExprInterpret,";"),
       ];
    }
 }

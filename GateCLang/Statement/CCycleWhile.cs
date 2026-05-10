@@ -24,12 +24,14 @@ namespace Gate.CLanguage.Statement
       /// </summary>
       public class BodyType : CCycleBody
       {
-         public override string Descriptor => throw new NotImplementedException();
+         public BodyType() { }
 
-         public override string Rebuilt => throw new NotImplementedException();
+         public override string Descriptor => Rebuilt;
+
+         public override string Rebuilt => $"while({Condition})";
 
          public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) =>
-            throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!");
+            item is CStatement ? true : throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!");
       }
 
       /// <summary>

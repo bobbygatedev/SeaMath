@@ -1341,8 +1341,190 @@ int main(void)
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      public class WhileTest : ExecutionTestBase
+      {
+         public WhileTest() { }
+
+         public override TxtStore SourceCode => new TxtStore(
+            @"int w1 = 0;
+int w2 = 0;
+int w31 = 0;
+int w32 = 0;
+
+void main()
+{
+   while(1) break;
+
+   while(1) 
+   {
+     w1++;
+     break;
+   }
+
+   int i = 0;
+
+   while(i++ < 3) 
+   {
+     w2++;
+     break;
+   }
+
+   i = 0;
+
+   while(i++ < 3) 
+   {
+     w31++;
+     continue;
+     w32++;
+   }
+}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var w1 = myRequireVar(dbgEngProcess, "w1");
+            var w2 = myRequireVar(dbgEngProcess, "w2");
+            var w31 = myRequireVar(dbgEngProcess, "w31");
+            var w32 = myRequireVar(dbgEngProcess, "w32");
+
+            if (
+               w1.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w2.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w31.CSharpObj.ConvertOrCrash<int>() == 3 &&
+               w32.CSharpObj.ConvertOrCrash<int>() == 0)
+            {
+               return TxtElabResult.success;
+            }
+            else
+            {
+               return TxtElabResult.failure;
+            }
+         }
+      }
+
+      public class DoWhileTest : ExecutionTestBase
+      {
+         public DoWhileTest() { }
+
+         public override TxtStore SourceCode => new TxtStore(
+            @"int w1 = 0;
+int w2 = 0;
+int w31 = 0;
+int w32 = 0;
+
+void main()
+{
+   do break; while(1);
+   do continue; while(0);
+
+   do
+   {
+     w1++;
+     break;
+   }while(1);
+
+   int i = 0;
+
+   do 
+   {
+     w2++;
+     break;
+   }while(i++ < 3);
+
+   i = 0;
+
+   do
+   {
+     w31++;
+     continue;
+     w32++;
+   }while(i++ < 3);
+}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var w1 = myRequireVar(dbgEngProcess, "w1");
+            var w2 = myRequireVar(dbgEngProcess, "w2");
+            var w31 = myRequireVar(dbgEngProcess, "w31");
+            var w32 = myRequireVar(dbgEngProcess, "w32");
+
+            if (
+               w1.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w2.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w31.CSharpObj.ConvertOrCrash<int>() == 4 &&
+               w32.CSharpObj.ConvertOrCrash<int>() == 0)
+            {
+               return TxtElabResult.success;
+            }
+            else
+            {
+               return TxtElabResult.failure;
+            }
+         }
+      }
+
+      public class ForTest : ExecutionTestBase
+      {
+         public ForTest() { }
+
+         public override TxtStore SourceCode => new TxtStore(
+            @"int w1 = 0;
+int w2 = 0;
+int w31 = 0;
+int w32 = 0;
+
+void main()
+{
+   for(;;) break;
+   for(;1;) break;
+
+   for(;;) 
+   {
+     w1++;
+     break;
+   }
+
+   for( int i = 0; i < 3 ; i++) 
+   {
+     w2++;
+     break;
+   }
+
+   for( int i = 0; i < 3 ; i++) 
+   {
+     w31++;
+     continue;
+     w32++;
+   }
+}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var w1 = myRequireVar(dbgEngProcess, "w1");
+            var w2 = myRequireVar(dbgEngProcess, "w2");
+            var w31 = myRequireVar(dbgEngProcess, "w31");
+            var w32 = myRequireVar(dbgEngProcess, "w32");
+
+            if (
+               w1.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w2.CSharpObj.ConvertOrCrash<int>() == 1 &&
+               w31.CSharpObj.ConvertOrCrash<int>() == 3 &&
+               w32.CSharpObj.ConvertOrCrash<int>() == 0)
+            {
+               return TxtElabResult.success;
+            }
+            else
+            {
+               return TxtElabResult.failure;
+            }
+         }
+      }
+
       static void Main()
       {
+         //tododo
          var tst = new StatementExecutionTest();
 
          tst.IsVerbose = true;

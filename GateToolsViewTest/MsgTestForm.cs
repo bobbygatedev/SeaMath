@@ -58,7 +58,7 @@ namespace Gate.ToolsViewTest
           */
 
 
-         return;//tododo
+         return;
          var frm = new MsgTestForm();
 
          frm.ShowDialog();
@@ -66,7 +66,7 @@ namespace Gate.ToolsViewTest
 
       private void MsgTestForm_FormClosed(object? sender, FormClosedEventArgs e)
       {
-         myStore.FileInfo.Delete();
+         myStore?.FileInfo?.Delete();
       }
    }
 }

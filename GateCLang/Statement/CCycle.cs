@@ -14,6 +14,11 @@ namespace Gate.CLanguage.Statement
    /// </summary>
    public abstract class CCycle : CStatement
    {
+      /// <summary>
+      /// 
+      /// </summary>
+      protected CCycle() { }
+      
       public abstract class TokenInterpretBase : CTokenInterpreter
       {
          protected TokenInterpretBase(CDeclInterpretFactory declInterpretFactory, CAttributesInterpret attributesInterpret, CExprStatementInterpreter exprInterpret)
@@ -25,23 +30,32 @@ namespace Gate.CLanguage.Statement
 
          protected class ContentInterpret : CTokenInterpreter
          {
-            private Or myOr;
+            private CBlockInterpret myBlockInterpreter;
 
             public ContentInterpret(TokenInterpretBase interpretBase)
             {
                InterpretBase = interpretBase;
-               myOr =
-                  new CBlockInterpret(InterpretBase.DeclInterpretFactory, interpretBase.AttributesInterpreter, InterpretBase.ExprInterpret) |
-                  new May(InterpretBase.ExprInterpret) & new Expect(";", true);
+               myBlockInterpreter =
+                  new CBlockInterpret(
+                     CBlockInterpret.ContextType.cycle,
+                     InterpretBase.DeclInterpretFactory,
+                     interpretBase.AttributesInterpreter,
+                     InterpretBase.ExprInterpret);
             }
 
             public TokenInterpretBase InterpretBase { get; }
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
-               InterpretBase.ExprInterpret.OutputPreCondition = t => t?.Content == ";";
+               var res = myBlockInterpreter.Perform(input, inData, ref output);
 
-               var res = myOr.Perform(input, inData, ref output);
+               //in this case cycle is of type 'while(1) print("Hallo");'
+               if (res == TxtElabResult.success && output.TopItem is CStatement sta)
+               {
+                  var cyc = output.PeekOrDefault<CCycleBody>(1)?.Cycle ?? throw new Crash();
+
+                  cyc.Content = sta;
+               }
 
                return res;
             }
@@ -127,7 +141,12 @@ namespace Gate.CLanguage.Statement
                   else
                   {
                      output.PopOrCrash<CExprStatement>();
-                     output.PeekOrCrash<CCycleBody>().Condition = exp;
+
+                     //cycle body
+                     var cyc_bdy = output.CycleOnTopItem?.Body ?? throw new Crash();
+
+                     //assign cycle condition
+                     cyc_bdy.Condition = exp;
                   }
                }
             }
@@ -136,11 +155,10 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-
       /// <summary>
       /// <br>Content of cycle it can be either </br>
-      /// <br> - a <see cref="CCompound"/> (eg 'while (i < 0 ){ i++ }' ) </br> 
-      /// <br> - a <see cref="CExprStatement"/> (eg 'while (i < 0 ){ i++ }' ) not in </br>
+      /// <br> - a <see cref="CCompound"/> (eg 'while (i !=; 0 ) i++;' ) </br> 
+      /// <br> - a <see cref="CStatement"/> (eg 'while (i !=; 0 )i++' ) not in </br>
       /// </summary>
       public CStatement? Content
       {
@@ -162,7 +180,7 @@ namespace Gate.CLanguage.Statement
          switch (body)
          {
             case CCompound _: return "{..}";
-            case CExprStatement _: return body.Descriptor;
+            case CStatement _: return body.Descriptor;
             default: return null;
          }
       }

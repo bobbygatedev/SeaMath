@@ -3,6 +3,7 @@ using Gate.CLanguage.DeclInterpreter;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Expressions.COperators;
 using Gate.CLanguage.Source;
+using Gate.CLanguage.Statement;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -64,8 +65,9 @@ namespace Gate.CLanguage.Interpreter
       /// 
       /// </summary>
       /// <returns></returns>
-      protected virtual CTokenInterpreter[] myMakeRootSubInterpreters() =>
-         new[] { new CDeclInterpret(CDeclInterpretContext.global_var, DeclInterpretFactory, ExprInterpret, AttributesInterpret) };
+      protected virtual CTokenInterpreter[] myMakeRootSubInterpreters() =>[
+         new CExprEmptyInterpreter(),
+         new CDeclInterpret(CDeclInterpretContext.global_var, DeclInterpretFactory, ExprInterpret, AttributesInterpret),];
 
       /// <summary>
       /// 

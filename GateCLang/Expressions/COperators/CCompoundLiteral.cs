@@ -1,7 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.Tools.Text.Elab;
-using System;
 
 namespace Gate.CLanguage.Expressions.COperators
 {

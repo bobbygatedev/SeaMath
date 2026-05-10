@@ -23,22 +23,7 @@ namespace Gate.CLanguage.Interpreter
       /// <summary>
       /// 
       /// </summary>
-      public CCycle? CurrentCycle
-      {
-         get
-         {
-            var its = myStackItems.ToArray();
-
-            for (var i = 0; i < its.Length; i++)
-            {
-               var cmp = its[i] as CCompound;
-
-               if (cmp?.ParentItem is CCycle cyc) { return cyc; }
-            }
-
-            return null;
-         }
-      }
+      public CCycle? CycleOnTopItem => TopItem?.ParentItemChain.OfType<CCycle>().FirstOrDefault();
 
       /// <summary>
       /// 

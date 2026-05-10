@@ -9,48 +9,28 @@ using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Statement
 {
+   /// <summary>
+   /// <see cref="CStatement"/> abstract + Break/continue statements
+   /// </summary>
    public abstract class CStatement : CItem
    {
-      public CStatement()
-      {
+      /// <summary>
+      /// 
+      /// </summary>
+      public CStatement() { }
 
-      }
-
+      /// <summary>
+      /// 
+      /// </summary>
       public class Break : CStatement
       {
+         public Break() { }
+
          public class TokenInterpret : CTokenInterpreter
          {
-            private And myComposed = new And(new Is("break", true), new Expect(";", true), new Inner());
+            private And myComposed = new And(new Is("break", true), new Expect(";", true), new InnerInterpreter<Break>());
 
-            public TokenInterpret()
-            {
-
-            }
-
-            private class Inner : CTokenInterpreter
-            {
-               public Inner() { }
-
-               public override TxtElabResult Perform(
-                  TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
-               {
-                  //affinity_cycle
-                  var aff_cyc = output.CurrentCycle;
-
-                  if (
-                     aff_cyc == null ||
-                     !(aff_cyc is CCycleFor || aff_cyc is CCycleWhile || aff_cyc is CCycleDoWhile || aff_cyc is CCycleSwitch))
-                  {
-                     var tok = input.Peek(-2);
-
-                     inData.Messages.Add(CCompilerMsgId.break_invalid.GetError(tok));
-
-                     return TxtElabResult.failure;
-                  }
-
-                  return TxtElabResult.success;
-               }
-            }
+            public TokenInterpret()            {            }
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
                => myComposed.Perform(input, inData, ref output);
@@ -64,44 +44,21 @@ namespace Gate.CLanguage.Statement
          public override string Rebuilt => Descriptor;
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public class Continue : CStatement
       {
+         public Continue() { }
+
          public class TokenInterpret : CTokenInterpreter
          {
-            private And myComposed = new And(new Is("continue", true), new Expect(";", true), new Inner());
+            private And myComposed = new And(new Is("continue", true), new Expect(";", true), new InnerInterpreter<Continue>());
 
-            public TokenInterpret()
-            {
-               
-            }
+            public TokenInterpret()            {            }
 
-            private class Inner : CTokenInterpreter
-            {
-               public Inner()
-               {
-                  
-               }
-
-               public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
-               {
-                  var aff_cyc = output.CurrentCycle;
-
-                  if (
-                     aff_cyc == null ||
-                     !(aff_cyc is CCycleFor || aff_cyc is CCycleWhile || aff_cyc is CCycleDoWhile))
-                  {
-                     var tok = input.Peek(-2);
-
-                     inData.Messages.Add(CCompilerMsgId.continue_invalid.GetError(tok));
-
-                     return TxtElabResult.failure;
-                  }
-
-                  return TxtElabResult.success;
-               }
-            }
-
-            public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output) => myComposed.Perform(input, inData, ref output);
+            public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output) => 
+               myComposed.Perform(input, inData, ref output);
          }
 
          /// <summary>
@@ -238,6 +195,63 @@ namespace Gate.CLanguage.Statement
 
          public override string? Descriptor => Expression != null ? $"return {Expression.Descriptor};" : null;
       }
+
+      private class InnerInterpreter<S> : CTokenInterpreter where S : CStatement, new()
+      {
+         public InnerInterpreter() { }
+
+         public override TxtElabResult Perform(
+            TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
+         {
+            //affinity_cycle
+            var aff_cyc = output.CycleOnTopItem;
+            var tok = input.Peek(-2);
+
+            if (
+               aff_cyc == null ||
+               !(aff_cyc is CCycleFor || aff_cyc is CCycleWhile || aff_cyc is CCycleDoWhile || aff_cyc is CCycleSwitch))
+            {
+               inData.Messages.Add(CCompilerMsgId.break_invalid.GetError(tok));
+
+               return TxtElabResult.failure;
+            }
+            else
+            {
+               var stt = new S();//statement break/continue
+               var cmp = output.TopItem as CBlockCompound;
+               var cyc_bdy = output.TopItem as CCycleBody;
+
+               stt.TxtToken = tok;
+
+               if (cmp != null)
+               {
+                  cmp.AddStatements(stt);
+               }
+               else if (cyc_bdy?.Cycle != null)
+               {
+                  cyc_bdy.Cycle.Content = stt;
+               }
+               else
+               {
+                  throw new Crash();
+               }
+
+               return TxtElabResult.success;
+            }
+         }
+      }
+
+      public CBlockFunction? ParentBlockFunction => ParentBlock as CBlockFunction;
+
+      public CBlockCompound? ParentBlockCompound => ParentBlock as CBlockCompound;
+
+      public CBlock ParentBlock =>
+         ParentItem as CBlock ??
+         throw new Gate.CLanguage.CLangException($"Block unedefined for {GetType().Name}");
+
+      public CDeclFunction? Function => ParentItemChain.OfType<CBlockFunction>().FirstOrDefault()?.ParentFunction;
+
+      public CCycle? Cycle => ParentBlockCompound?.ParentCompound?.ParentCycle;
 
       /// <summary>
       /// 

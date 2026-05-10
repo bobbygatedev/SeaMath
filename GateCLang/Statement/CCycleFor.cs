@@ -12,8 +12,14 @@ using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Statement
 {
+   /// <summary>
+   /// 
+   /// </summary>
    public class CCycleFor : CCycle
    {
+      /// <summary>
+      /// 
+      /// </summary>
       public CCycleFor() => myAddSubItem(new BodyType());
 
       /// <summary>
@@ -74,7 +80,7 @@ namespace Gate.CLanguage.Statement
          /// <summary>
          /// 
          /// </summary>
-         public override CDecl[] ScopeDecls => InitSpecifiers != null ? InitSpecifiers.Decls : new CDecl[0];
+         public override CDecl[] ScopeDecls => InitSpecifiers != null ? InitSpecifiers.Decls : [];
 
          public override string Descriptor => Rebuilt;
 
@@ -82,8 +88,9 @@ namespace Gate.CLanguage.Statement
 
          public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages)
          {
+            if (item is CStatement) { return true; }
             ///just declaration (ie <see cref="InitSpecifiers"/> can be in scope space 
-            if (item is CDeclSpecifiers dcl_spc) { return AddDeclSpec(messages, dcl_spc, scopeHelper); }
+            else if (item is CDeclSpecifiers dcl_spc) { return AddDeclSpec(messages, dcl_spc, scopeHelper); }
             else { throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!"); }
          }
       }

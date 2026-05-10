@@ -1,53 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Gate.LangBase.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionGoto">
-    <Position X="0.75" Y="5.25" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAQAAAAEAAAAEAAAAI=</HashCode>
-      <FileName>DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionGoto.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstruction">
-    <Position X="4.75" Y="0.5" Width="2.25" />
+    <Position X="12.75" Y="0.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAQAAAAAAABAAI=</HashCode>
+      <HashCode>AAIAAAAAAAAAAAAEAAAAAAQAAAAAAAAQAAAAAAABAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstruction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionGoto">
-    <Position X="0.75" Y="3.5" Width="2.75" />
+    <Position X="4.75" Y="3.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAQAAAAEAAAAEAAAAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAQAAAAQAAAAEAAAAEAAAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionGoto.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionReturn">
-    <Position X="4.25" Y="3.5" Width="2.75" />
+    <Position X="8.25" Y="3.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionReturn.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionSimple">
-    <Position X="7.75" Y="3.5" Width="2.75" />
+    <Position X="13.75" Y="3.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionSimple.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionFramePop">
-    <Position X="7.25" Y="6.25" Width="3" />
+    <Position X="11.75" Y="6.25" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAQAAAAAAAAAAAA=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionFramePop.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionFramePush">
-    <Position X="10.5" Y="6.25" Width="3" />
+    <Position X="15.5" Y="6.25" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQBAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionFramePush.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionBreak">
+    <Position X="18" Y="3.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionBreak.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionContinue">
+    <Position X="22" Y="3.75" Width="3" />
+    <InheritanceLine Type="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstruction" ManuallyRouted="true">
+      <Path>
+        <Point X="13.875" Y="3.146" />
+        <Point X="13.875" Y="3.552" />
+        <Point X="15.042" Y="3.552" Type="JumpStart" />
+        <Point X="15.208" Y="3.552" Type="JumpEnd" />
+        <Point X="19.292" Y="3.552" Type="JumpStart" />
+        <Point X="19.458" Y="3.552" Type="JumpEnd" />
+        <Point X="23.5" Y="3.552" />
+        <Point X="23.5" Y="3.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionContinue.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

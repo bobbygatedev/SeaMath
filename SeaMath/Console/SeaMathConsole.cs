@@ -44,6 +44,8 @@ namespace Gate.SeaMath.Console
 
          public InnerDummyInstruction(SeaMathConsole console) : base(null) => Console = console;
 
+         public override string Name => "console_dummy";
+
          public SeaMathConsole Console { get; }
 
          /// <summary>

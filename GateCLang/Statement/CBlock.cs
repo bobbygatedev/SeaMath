@@ -4,7 +4,7 @@ using Gate.Tools.Message;
 namespace Gate.CLanguage.Statement
 {
    /// <summary>
-   /// 
+   /// Statement container.
    /// </summary>
    public abstract class CBlock : CItemWithScopeSpace, IBlock
    {
@@ -13,10 +13,30 @@ namespace Gate.CLanguage.Statement
       /// </summary>
       protected CBlock() { }
 
-      public void AddStatements(params CStatement[] statements) => myAddSubItemRange(statements);
+      /// <summary>
+      /// 
+      /// </summary>
+      public CStatement[] Statements => SubItems.OfType<CStatement>().ToArray();
 
+      /// <summary>
+      /// 
+      /// </summary>
       public override string Rebuilt => myGetBraceRebuilt();
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="statements"></param>
+      public void AddStatements(params CStatement[] statements) => myAddSubItemRange(statements);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="item"></param>
+      /// <param name="scopeHelper"></param>
+      /// <param name="messages"></param>
+      /// <returns></returns>
+      /// <exception cref="Gate.Tools.ToolsException"></exception>
       public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages)
       {
          if (item is CStatement sta)

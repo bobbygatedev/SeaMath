@@ -12,6 +12,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       public RtmDbgEngVirtCpuInstructionReturn(TxtToken? token, Expr? expr) : 
          base(token) => Expr = expr;
 
+      public override string Name => "return";
+
       /// <summary>
       /// 
       /// </summary>

@@ -28,7 +28,7 @@ namespace Gate.LangBase.Expressions.Operators
                      (findOperatorData.PrevExprNode == null || !findOperatorData.PrevExprNode.IsRtmValue))
                {
                   operatorNode = findOperatorData.CurrExprNodeOperator;
-                  operandNodes = new ExprNode[] { findOperatorData.NextExprNode };
+                  operandNodes = [findOperatorData.NextExprNode];
 
                   return TxtElabResult.success;
                }
@@ -38,7 +38,7 @@ namespace Gate.LangBase.Expressions.Operators
                if (findOperatorData.PrevExprNode != null && findOperatorData.PrevExprNode.IsRtmValue)
                {
                   operatorNode = findOperatorData.CurrExprNodeOperator;
-                  operandNodes = new ExprNode[] { findOperatorData.PrevExprNode };
+                  operandNodes = [findOperatorData.PrevExprNode];
 
                   return TxtElabResult.success;
                }
