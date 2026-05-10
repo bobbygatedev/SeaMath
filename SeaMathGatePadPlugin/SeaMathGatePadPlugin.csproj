@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GateDockRuntimePlugIn\GateDockRuntimePlugin.csproj" />
+    <ProjectReference Include="..\GateDock\GateDock.csproj" />
+    <ProjectReference Include="..\GateTools\GateTools.csproj" />
+     <ProjectReference Include="..\ScintillaNet\ScintillaNet.csproj" />
+     <ProjectReference Include="..\SeaMathWindows\SeaMathWindows.csproj" />
+     <ProjectReference Include="..\SeaMath\SeaMath.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="mkdir &quot;$(ProjectDir)..\GatePad\$(OutputPath)\PlugIns\$(ProjectName)&quot;&#xD;&#xA;xcopy &quot;$(TargetDir)*.dll&quot; &quot;$(ProjectDir)..\GatePad\$(OutputPath)\PlugIns\$(ProjectName)&quot; /Y /I /D" />
+  </Target>
+
+   <PropertyGroup>
+      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+   </PropertyGroup>
+
+   <PropertyGroup>
+      <NoWarn>$(NoWarn);NU1701;NU1901;NU1902</NoWarn>
+   </PropertyGroup>
+
+</Project>

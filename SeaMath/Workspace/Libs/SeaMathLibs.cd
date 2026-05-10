@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibCsSys">
+    <Position X="0.75" Y="7" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAIAAABAAAAAAAABAAABAAAAAEAAAAAAAAAAICABEAA=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibSys.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibPlot">
+    <Position X="3.5" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ACAAACAAAAAAAAAAAAAAAAAAACAAAACAAAAEAAAAAEI=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibPlot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibCSharp">
+    <Position X="7" Y="0.5" Width="2.75" />
+    <NestedTypes>
+      <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibCSharp.MethodAttribute" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Workspace\Libs\SeaMathLibCSharp.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibCSharp.TypeRtm" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Workspace\Libs\SeaMathLibCSharp.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ChAAAAABAFAACEABAABAAAQAQACAAAEgAEICAIIAAAA=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibCSharp.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibFft">
+    <Position X="6" Y="7" Width="2" />
+    <NestedTypes>
+      <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibFft.InnerFftExecution" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Workspace\Libs\SeaMathLibFft.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EAAAgEICBAQAAAAAAQAAgBAAQAQEAgEAARAAAUgoIEA=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibFft.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibMatrix">
+    <Position X="8.75" Y="7" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AQABAABAAAAEAAAAAhCAAAAACAAAAIAAAAQAoAAIAEI=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibMatrix.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibStdio">
+    <Position X="11.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>4ACAAGAAAAAhAAAAAAAAAAAoAAAAAABCCBBAUEIEAEA=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibStdio.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.SeaMath.Workspace.Libs.SeaMathLibStdioFiles">
+    <Position X="14" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CCCAAAEgIQAiAAAAFUAAIAAAQEAEIABCGAAAAAAECGQ=</HashCode>
+      <FileName>Workspace\Libs\SeaMathLibStdioFiles.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

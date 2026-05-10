@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObj" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAUAAAAQAAAAAAAAAAAAAAAAAAACAAEAAAAAIEA=</HashCode>
+      <FileName>Runtime\Object\CRtmObj.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjArray" Collapsed="true">
+    <Position X="1" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAABAAAIAEAAAwACCBEAAIAAEAIAAEwAAAAAQMAIkA=</HashCode>
+      <FileName>Runtime\Object\CRtmObjArray.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjRecord">
+    <Position X="3.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAACABAAAAAAAAAAIAAAAIAAAAAIEA=</HashCode>
+      <FileName>Runtime\Object\CRtmObjRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjScalar">
+    <Position X="6.25" Y="2" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAQAAAAAAAAAACAEAAAAAAAAAAAAIEA=</HashCode>
+      <FileName>Runtime\Object\CRtmObjScalar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjLiteral">
+    <Position X="5.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Runtime\Object\CRtmObjLiteral.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjPointer">
+    <Position X="7.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAABAAAIAAAAAgACCREAAAAAAAAAAEAAQAAAQIAAgA=</HashCode>
+      <FileName>Runtime\Object\CRtmObjPointer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Runtime.Object.CRtmObjLiteralString">
+    <Position X="0.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>Runtime\Object\CRtmObjLiteralString.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

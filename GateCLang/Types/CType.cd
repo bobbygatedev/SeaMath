@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.Types.CType" Collapsed="true">
+    <Position X="9.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEABAASAAAABIEACAIAAAEAEAAggAAAQcAAAEE=</HashCode>
+      <FileName>Types\CType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeBuiltIn">
+    <Position X="5.5" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IAIAASEEBEAAAAAEBKAACAAAAAEAEQAAgAAAAMAAAEA=</HashCode>
+      <FileName>Types\CTypeBuiltIn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypePrimitive" Collapsed="true">
+    <Position X="9.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAEAAAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Types\CTypePrimitive.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeEnum">
+    <Position X="10.5" Y="9.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAEEBAAAAABIAACAACgAEAAAAggAFAAMAAAEA=</HashCode>
+      <FileName>Types\CTypeEnum.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeIncomplete">
+    <Position X="15.5" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEABEAQAAAABIEACAIAAAUAAgAggQABAMAAAEA=</HashCode>
+      <FileName>Types\CTypeIncomplete.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeUserDefined">
+    <Position X="10.5" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IAAgAAAgFCBEAAIAAAAAAAAAAAAAAAAAAAAQQAAAAAA=</HashCode>
+      <FileName>Types\CTypeUserDefined.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeDecl" Collapsed="true">
+    <Position X="10.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAQAAAAAA=</HashCode>
+      <FileName>Types\CTypeDecl.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeAlias">
+    <Position X="3.25" Y="2.25" Width="1.5" />
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.Types.CTypeAlias.InnerTypeVisitor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Types\CTypeAlias.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>CABAAgFABEE9SSQCBYkAGIIICAkAEgAzgAAAQOIAAFg=</HashCode>
+      <FileName>Types\CTypeAlias.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Cpp.CppTypeClass">
+    <Position X="8.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAAEBAAAQABIAACAAAAAEAAAAAgAAEAMAAgEA=</HashCode>
+      <FileName>Cpp\CppTypeClass.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeStruct">
+    <Position X="13.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAgAgEAAEBAAAQABIGAGAAAAAEAQEAggAAEAMAAgGA=</HashCode>
+      <FileName>Types\CTypeStruct.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

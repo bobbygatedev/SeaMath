@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;">
+    <Position X="8.5" Y="0.5" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.MessageGetter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.Failure" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.IsWord" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.IsFinished" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.IsSign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.Elab.ParserStepGeneric&lt;IN_DATA, OUTPUT&gt;.IsVarName" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>TextElab\ParserStepGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>TextElab\ParserStepGeneric.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.Text.Elab.ParserStepNoOutputGeneric&lt;DATA&gt;">
+    <Position X="11.75" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>TextElab\ParserStepNoOutputGeneric.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;">
+    <Position X="4.75" Y="0.5" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.LookForward" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.Could" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.Composed" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.IterateWhileSuccess" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.DoCrash" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.Or" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.TextElab.TextElabGeneric&lt;INPUT_MARKER, DATA, OUTPUT&gt;.And" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Tools\TextElab\TextElabGeneric.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAgAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Tools\TextElab\TextElabGeneric.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.TextElab.TextElabNoOutputGeneric&lt;INPUT_MARKER, DATA&gt;">
+    <Position X="0.75" Y="0.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tools\TextElab\TextElabNoOutputGeneric.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

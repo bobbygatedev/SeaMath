@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+     <Platforms>x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GateTools\GateTools.csproj" />
+    <ProjectReference Include="..\Scintilla\win32\SciLexer.vcxproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="mkdir runtimes\win-$(Platform)\$(Configuration)&#xD;&#xA;copy $(ProjectDir)..\Scintilla\Output\$(Platform)\$(Configuration)\SciLexer.dll runtimes\win-$(Platform)\$(Configuration)\&#xD;&#xA;" />
+  </Target>
+
+   <ItemGroup>
+
+      <!--runtimes\win-$(Platform)\$(Configuration)-->
+      <None Include="runtimes\win-x86\Debug\SciLexer.dll" Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>SciLexer.dll</Link>
+      </None>
+
+      <None Include="runtimes\win-x64\Debug\SciLexer.dll" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>SciLexer.dll</Link>
+      </None>
+
+      <None Include="runtimes\win-x86\Release\SciLexer.dll" Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>SciLexer.dll</Link>
+      </None>
+
+      <None Include="runtimes\win-x64\Release\SciLexer.dll" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>SciLexer.dll</Link>
+      </None>
+
+   </ItemGroup>
+
+   <PropertyGroup>
+      <NoWarn>$(NoWarn);NU1701;NU1901;NU1902;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8607;CS8618;CS8622;CS8625;CS8765;CS8767</NoWarn>
+   </PropertyGroup>
+
+</Project>

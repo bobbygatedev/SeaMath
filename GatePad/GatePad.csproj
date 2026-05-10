@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>x64;x86</Platforms>
+    <PackageIcon>GatePad.png</PackageIcon>
+    <ApplicationIcon>GatePad.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="GatePad.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GateDock\GateDock.csproj" />
+    <ProjectReference Include="..\GateToolsView\GateToolsView.csproj" />
+    <ProjectReference Include="..\GateTools\GateTools.csproj" />
+     <ProjectReference Include="..\ScintillaNet\ScintillaNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GatePad.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="GatePad.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+   <PropertyGroup>
+      <NoWarn>$(NoWarn);NU1701;NU1901;NU1902</NoWarn>
+      <StartupObject>Gate.Pad.Program</StartupObject>
+   </PropertyGroup>
+
+</Project>

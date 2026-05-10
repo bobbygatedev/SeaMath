@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Look forward for items in text:&#xD;&#xA;- c/c++ style comments&#xD;&#xA;- string &#xD;&#xA;- chars&#xD;&#xA;">
+    <Position X="0.604" Y="3.875" Height="0.969" Width="2.398" />
+  </Comment>
+  <Class Name="Gate.CLanguage.CPrePx.LookForwards.LookFwToken" Collapsed="true">
+    <Position X="4.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CPrePx\LookForwards\LookFwToken.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.LookForwards.LookFwCharToken">
+    <Position X="0.5" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>CPrePx\LookForwards\LookFwChar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.LookForwards.LookFwCommentCToken">
+    <Position X="3" Y="2" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>CPrePx\LookForwards\LookFwCommentC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.LookForwards.LookFwCommentCppToken">
+    <Position X="5.75" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>CPrePx\LookForwards\LookFwCommentCpp.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.LookForwards.LookFwStringToken">
+    <Position X="8.75" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>CPrePx\LookForwards\LookFwString.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

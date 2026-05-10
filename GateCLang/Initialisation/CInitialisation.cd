@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.Initialisation.CInitialisation">
+    <Position X="2" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.Initialisation.CInitialisation.InnerInitVisitor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Initialisation\CInitialisation.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IQEDAAAAAAAIAABACAQAAAQAAAAAAAAgABgAAAAAAAE=</HashCode>
+      <FileName>Initialisation\CInitialisation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Initialisation.CInitialisationArray">
+    <Position X="0.5" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAEAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Initialisation\CInitialisationArray.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Initialisation.CInitialisationScalar">
+    <Position X="3" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Initialisation\CInitialisationScalar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Initialisation.CInitialisationString">
+    <Position X="5.75" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Initialisation\CInitialisationString.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

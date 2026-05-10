@@ -1,0 +1,2 @@
+554
+Notice SciLexer has been recreated (as for Scintilla v4) by merging Lexilla and Scintilla.

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>false</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GateLangBaseSupport\GateLangBaseSupport.vcxproj" />
+    <ProjectReference Include="..\GateTools\GateTools.csproj" />
+  </ItemGroup>
+
+   <PropertyGroup>
+      <NoWarn>$(NoWarn);NU1701;NU1901;NU1902</NoWarn>
+   </PropertyGroup>
+
+</Project>

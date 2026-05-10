@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNode" Collapsed="true">
+    <Position X="5.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAEAAAAIgAAAgAEAQAAAAAAAAAAgIAACAAQAAQBABA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNode.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeBracket" Collapsed="true">
+    <Position X="7.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAEAAAAIAAAAgAAAAAAAAAAAAAAgAAAAAAQAAABAAA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNodeBracket.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperator">
+    <Position X="10" Y="2.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CCAEAAAAMAAAAgAEAAAAAAAAAAAAgAACAAAQAAAFAAA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNodeOperator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.SubExpr" Collapsed="true">
+    <Position X="1" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAUAAAgIAAAAgAMECAAACAAAIAAgAAAAAAQAAAAAAA=</HashCode>
+      <FileName>Expressions\Nodes\SubExpr.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperand" Collapsed="true">
+    <Position X="3.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNodeOperand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperandLiteral" Collapsed="true">
+    <Position X="5.5" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>CAAEAAAAIAAAAgAAAAAAAAAAgAAAgAAAAAAQAAAAAAA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNodeOperandLiteral.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperandVariable">
+    <Position X="3.25" Y="4.25" Width="2" />
+    <NestedTypes>
+      <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperandVariable.Parser&lt;IN_DATA, INT_OUT&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Nodes\ExprNodeOperandVariable.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Nodes.ExprNodeOperandVariable.Interpreter&lt;IN_DATA, INT_OUT&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Nodes\ExprNodeOperandVariable.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>KAAEAAAAIAACAgAAAAAAAQAAAAAAgAAAAAAZQAAAAAA=</HashCode>
+      <FileName>Expressions\Nodes\ExprNodeOperandVariable.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+     <Platforms>x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GateCLang\GateCLang.csproj" />
+    <ProjectReference Include="..\GateLangBase\GateLangBase.csproj" />
+    <ProjectReference Include="..\GateTools\GateTools.csproj" />
+  </ItemGroup>
+
+   <ItemGroup Condition="'$(Platform)' == 'x64'">
+      <Content Include="fftw\x64\libfftw3-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3-3.dll</Link>
+      </Content>
+      <Content Include="fftw\x64\libfftw3f-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3f-3.dll</Link>
+      </Content>
+      <Content Include="fftw\x64\libfftw3l-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3l-3.dll</Link>
+      </Content>
+   </ItemGroup>
+
+   <ItemGroup Condition="'$(Platform)' == 'x86'">
+      <Content Include="fftw\x86\libfftw3-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3-3.dll</Link>
+      </Content>
+      <Content Include="fftw\x86\libfftw3f-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3f-3.dll</Link>
+      </Content>
+      <Content Include="fftw\x86\libfftw3l-3.dll">
+         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+         <Link>libfftw3l-3.dll</Link>
+      </Content>
+   </ItemGroup>
+
+   <PropertyGroup>
+      <NoWarn>$(NoWarn);NU1701;NU1901;NU1902</NoWarn>
+   </PropertyGroup>
+
+</Project>

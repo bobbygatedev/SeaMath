@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.PrePx.Directives.CPrePxDirectiveIncludeHandler" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAEAAAAAAAAAAAAAIQ=</HashCode>
+      <FileName>PrePx\Directives\CPrePxDirectiveIncludeHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.CPrePxDirectiveHandler" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAACAAAEAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\CPrePxDirectiveHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.CPrePxDirectiveEmptyHandler" Collapsed="true">
+    <Position X="4.25" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAEAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\CPrePxDirectiveEmptyHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.CPrePxDirectivePragmaHandler" Collapsed="true">
+    <Position X="10.5" Y="1.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAEAAAAAAQAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\CPrePxDirectivePragmaHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.CPrePxDirectiveUndefHandler" Collapsed="true">
+    <Position X="13.75" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAEAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\CPrePxDirectiveUndefHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.IfDefElif.CPrePxDirectiveIfDefElifHandler&lt;ELSE_ENDIF&gt;" Collapsed="true">
+    <Position X="16.75" Y="1.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAECAAAEAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefElifHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.IfDefElif.CPrePxDirectiveIfDefElifHandlerBase" Collapsed="true">
+    <Position X="20.75" Y="1.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefElifHandlerBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.Macro.CPrePxDirectiveMacroHandler" Collapsed="true">
+    <Position X="1.25" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAEAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>PrePx\Directives\Macro\CPrePxDirectiveMacro.Handler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

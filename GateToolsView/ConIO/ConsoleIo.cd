@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.ToolsView.ConIO.ConsoleController" BaseTypeListCollapsed="true">
+    <Position X="7.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AIIAggAEACigQACIAAgAAAAAgACACogAAgAAAAAAAAA=</HashCode>
+      <FileName>ConsoleController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gate.ToolsView.ConIO.ConsoleTask">
+    <Position X="2.5" Y="0.5" Width="2" />
+    <NestedTypes>
+      <Delegate Name="Gate.ToolsView.ConIO.ConsoleTask.OnTaskThreadFinishedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConsoleTask.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Enum Name="Gate.ToolsView.ConIO.ConsoleTask.AbortReason" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConIO\ConsoleTask.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="Gate.ToolsView.ConIO.ConsoleTask.LoseReason" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConsoleTask.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Class Name="Gate.ToolsView.ConIO.ConsoleTask.AbortActionParams" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConIO\ConsoleTask.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAASAAAChFIAAAAAAAAAAAAAAQABABAAAAAAA=</HashCode>
+      <FileName>ConsoleTask.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.ToolsView.ConIO.ConsoleCmdPromptTask">
+    <Position X="0.75" Y="6.25" Width="3" />
+    <NestedTypes>
+      <Class Name="Gate.ToolsView.ConIO.ConsoleCmdPromptTask.InnerCmdWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConIO\ConsoleCmdPromptTask.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gACAAgAAArAgAYABQACAAAAAKIAAAAAxAABAAQAAAAA=</HashCode>
+      <FileName>ConsoleCmdPromptTask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.ToolsView.ConIO.ConsoleCmdTask">
+    <Position X="4.5" Y="6.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAABAABAAAAAIAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>ConsoleCmdTask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.ToolsView.ConIO.ConsoleIo">
+    <Position X="10" Y="0.5" Width="2.5" />
+    <NestedTypes>
+      <Class Name="Gate.ToolsView.ConIO.ConsoleIo.InnerStdIn" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConsoleIo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.ToolsView.ConIO.ConsoleIo.InnerStdOut" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConsoleIo.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QIFIGADAEAJAIIQIAGAhAAAakAAIEAYIDgkDAEGACAQ=</HashCode>
+      <FileName>ConsoleIo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

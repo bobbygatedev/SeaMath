@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.Tools.Programming.ExtraDll">
+    <Position X="2" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAIAAAAAEAAAABABAAAAACABAA=</HashCode>
+      <FileName>Programming\ExtraDllCppCode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.Programming.ExtraDllPreCompiled">
+    <Position X="3" Y="4" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Programming\ExtraDllCppCode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.Programming.ExtraDllCppCode">
+    <Position X="0.5" Y="4" Width="1.75" />
+    <NestedTypes>
+      <Class Name="Gate.Tools.Programming.ExtraDllCppCode.InnerHashContainer" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Programming\ExtraDllCppCode.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IAAAEAAAAAEBAAAABAEAAgAAIAAAAAAAAAAAAABAAiA=</HashCode>
+      <FileName>Programming\ExtraDllCppCode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

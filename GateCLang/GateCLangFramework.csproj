@@ -1,0 +1,449 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E4648057-0947-4F6C-B7B2-D79757CFB7FB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gate.CLanguage</RootNamespace>
+    <AssemblyName>gateclang</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\SeaMath\packages\Microsoft.Bcl.AsyncInterfaces.10.0.5\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\SeaMath\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=10.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\SeaMath\packages\System.Threading.Channels.10.0.5\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\SeaMath\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CAttributesInterpret.cs" />
+    <Compile Include="CGccStdio.cs" />
+    <Compile Include="CLangException.cs" />
+    <Compile Include="CLangNumericConverterStandard.cs" />
+    <Compile Include="Compiler\CCompiler.cs" />
+    <Compile Include="Cpp\CppClassBody.cs" />
+    <Compile Include="Cpp\CppClassMethod.cs" />
+    <Compile Include="Cpp\CppTypeClassBody.cs" />
+    <Compile Include="CScopeHelper.InnerGetTypeLinkSignatureVisitor.cs" />
+    <Compile Include="CScopeHelperBase.cs" />
+    <Compile Include="CUniversalStdio.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretContext.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretFactory.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretTryToAddSpecifier.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpreterSemicolonCheck.cs" />
+    <Compile Include="Expressions\COperators\COperatorMemberPointer.cs" />
+    <Compile Include="Expressions\COperators\COperatorPointer.cs" />
+    <Compile Include="Initialisation\CInitialisationInterpretMatcher.cs" />
+    <Compile Include="Decl\CDeclClassField.cs" />
+    <Compile Include="Decl\CDeclSubscriptIndices.cs" />
+    <Compile Include="IBlock.cs" />
+    <Compile Include="Initialisation\CInitialisationArray.cs" />
+    <Compile Include="Initialisation\CInitialisationScalar.cs" />
+    <Compile Include="Initialisation\CInitialisationString.cs" />
+    <Compile Include="Interpreter\CPragmaInterpreter.cs" />
+    <Compile Include="PrePx\CPrePxMsgId.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveEmptyHandler.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveEmptyParserStep.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveIncludeHandler.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveIncludeParserStep.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectivePragmaAction.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectivePragmaHandler.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveUndefHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveElifHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveElseHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveEndifHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefElifHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefElifHandlerBase.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfHandler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfndefHandler.cs" />
+    <Compile Include="PrePx\Directives\Macro\CPrePxDirectiveMacroParserStep.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage32TokenisationErrorStep.cs" />
+    <Compile Include="Runtime\CFunctionInstructionTranslator.cs" />
+    <Compile Include="Runtime\CLibraryDll.cs" />
+    <Compile Include="Runtime\CLibraryDllAttribute.cs" />
+    <Compile Include="Runtime\CLibraryDllGccAttributesIds.cs" />
+    <Compile Include="Runtime\CRtmVirtCpuBuilder.cs" />
+    <Compile Include="Runtime\CRtmLinker.cs" />
+    <Compile Include="Runtime\CRtmCompiler.cs" />
+    <Compile Include="Runtime\CRtmOperatorCSharpHandlerModifier.cs" />
+    <Compile Include="Runtime\CRuntimeExtender.cs" />
+    <Compile Include="CStringExtender.cs" />
+    <Compile Include="Runtime\IFunctionInstructionTranslator.cs" />
+    <Compile Include="Runtime\Object\CRtmFormat.cs" />
+    <Compile Include="Runtime\Object\CRtmObj.cs" />
+    <Compile Include="Runtime\Object\CRtmObjAllocator.cs" />
+    <Compile Include="Runtime\Object\CRtmObjArray.cs" />
+    <Compile Include="Runtime\Object\CRtmObjLiteral.cs" />
+    <Compile Include="Runtime\Object\CRtmObjLiteralString.cs" />
+    <Compile Include="Runtime\Object\CRtmObjPointer.cs" />
+    <Compile Include="Runtime\Object\CRtmObjPointerFunction.cs" />
+    <Compile Include="Runtime\Object\CRtmObjPointerLiteral.cs" />
+    <Compile Include="Runtime\Object\CRtmObjRecord.cs" />
+    <Compile Include="Runtime\Object\CRtmObjScalar.cs" />
+    <Compile Include="Runtime\Object\ICRtmObjArray.cs" />
+    <Compile Include="Runtime\Object\ICRtmObjPointer.cs" />
+    <Compile Include="Runtime\Object\ICRtmObjStrategy.cs" />
+    <Compile Include="Standards\CCharEncodingEnv.cs" />
+    <Compile Include="Standards\CCharEncondingAttribute.cs" />
+    <Compile Include="Statement\CCycleBody.cs" />
+    <Compile Include="Statement\CCycleDoWhile.cs" />
+    <Compile Include="Statement\CCycleFor.cs" />
+    <Compile Include="Statement\CCycleIfElse.cs" />
+    <Compile Include="Statement\CCycleSwitch.cs" />
+    <Compile Include="Statement\CCycleWhile.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpretUserTypeCheck.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpreterBitField.cs" />
+    <Compile Include="Decl\CDeclStorage.cs" />
+    <Compile Include="Linker\CLinker.cs" />
+    <Compile Include="Cpp\CppTypeClass.cs" />
+    <Compile Include="Cpp\CppDeclInterpret.cs" />
+    <Compile Include="Cpp\CppScopeHelper.cs" />
+    <Compile Include="Linker\CLinkerResult.cs" />
+    <Compile Include="Runtime\CRtmOperatorModifier.cs" />
+    <Compile Include="Runtime\CRtmObjStrategy.cs" />
+    <Compile Include="CScopeHelper.cs" />
+    <Compile Include="CScopeSettings.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretArraySubscriptAndVarName.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretParams.cs" />
+    <Compile Include="Cpp\CppExterncInterpret.cs" />
+    <Compile Include="Cpp\CppNamespaceInterpret.cs" />
+    <Compile Include="Cpp\CppTypeSpecifierInterpretClassStructUnion.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretPartFunction.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpretPartVar.cs" />
+    <Compile Include="Initialisation\CInitialisationInterpret.cs" />
+    <Compile Include="DeclSpecifiers\CDeclSpecifiersInterpretFunction.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpret.cs" />
+    <Compile Include="Expressions\CExprStatementInterpreter.cs" />
+    <Compile Include="Expressions\CExprNodeInterpretOperand.cs" />
+    <Compile Include="Expressions\CExprNodePopulator.cs" />
+    <Compile Include="Expressions\COperators\CCompoundLiteral.cs" />
+    <Compile Include="Expressions\COperators\CLangFlags.cs" />
+    <Compile Include="Expressions\COperators\COperatorAttribute.cs" />
+    <Compile Include="Expressions\CExprNodeReturnTypeFinder.cs" />
+    <Compile Include="Expressions\CExprSolver.cs" />
+    <Compile Include="Expressions\Nodes\CExprNodeTypeName.cs" />
+    <Compile Include="Expressions\Nodes\CExprNodeTypeNameInterpret.cs" />
+    <Compile Include="Interpreter\CInterpreter.cs" />
+    <Compile Include="Interpreter\CppInterpreter.cs" />
+    <Compile Include="Interpreter\CTokenInterpreter.cs" />
+    <Compile Include="Interpreter\CTokenInterpreterOutput.cs" />
+    <Compile Include="Linker\CLinkerMessages.cs" />
+    <Compile Include="Linker\CLinkerPolicy.cs" />
+    <Compile Include="Linker\CLinkerSettings.cs" />
+    <Compile Include="Linker\CLibrary.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveMap.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\IfElifExpr.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\IIfElif.cs" />
+    <Compile Include="PrePx\Directives\IPrePxDirectiveDefUndef.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderStepMacroCallNameSearch.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderStepBase.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage5MacroExpansion.cs" />
+    <Compile Include="Standards\CharStandardStringFlags.cs" />
+    <Compile Include="Statement\CBlock.cs" />
+    <Compile Include="Statement\CBlockFunction.cs" />
+    <Compile Include="Statement\CBlockCompound.cs" />
+    <Compile Include="Compiler\CCompilerInData.cs" />
+    <Compile Include="TokenParse\CTokenParserHelper.cs" />
+    <Compile Include="TokenParse\CTokenParserNumConstByPattern.cs" />
+    <Compile Include="TokenParse\CTokenParserNumConstFloatComplex.cs" />
+    <Compile Include="TokenParse\CTokenParserNumConstHex.cs" />
+    <Compile Include="TokenParse\CTokenParserNumConstInt.cs" />
+    <Compile Include="TokenParse\CTokenParserOutput.cs" />
+    <Compile Include="TokenParse\CTokenParserStep.cs" />
+    <Compile Include="TokenParse\CTokenParserStepIdentifier.cs" />
+    <Compile Include="TokenParse\CTokenParserStepKeyword.cs" />
+    <Compile Include="TokenParse\CTokenParserStepPunctuator.cs" />
+    <Compile Include="TokenParse\CTokenString.cs" />
+    <Compile Include="PrePx\CPrePx.cs" />
+    <Compile Include="PrePx\CPrePxDirectiveAction.cs" />
+    <Compile Include="PrePx\CPrePxDirectiveHandler.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveMacro.ContentMapType.cs" />
+    <Compile Include="PrePx\Directives\IPrePxDirectiveParserStep.cs" />
+    <Compile Include="PrePx\Directives\PragmaKinds\CPragmaKindOnce.cs" />
+    <Compile Include="PrePx\LookForwards\LookFwToken.cs" />
+    <Compile Include="PrePx\CPrePxOutput.cs" />
+    <Compile Include="PrePx\CPrePxParserStep.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveElse.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfDefElif.cs" />
+    <Compile Include="PrePx\Directives\Macro\CPrePxDirectiveMacro.Handler.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveElif.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIf.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveIdNoParserStep.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveIdParserStep.cs" />
+    <Compile Include="PrePx\Directives\Macro\Predefined\CPredefMacro.cs" />
+    <Compile Include="PrePx\Directives\Macro\Predefined\CPredefMacroData.cs" />
+    <Compile Include="PrePx\Directives\Macro\Predefined\CPredefMacros.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroCall.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderStepMacroCall.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderInData.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderStep.cs" />
+    <Compile Include="PrePx\Directives\Macro\Expansion\MacroExpanderStepCheckArgs.cs" />
+    <Compile Include="PrePx\NoDirectives\CPrePxNoDirectiveChar.cs" />
+    <Compile Include="PrePx\NoDirectives\CPrePxNoDirectiveString.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirective.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveEmpty.cs" />
+    <Compile Include="PrePx\Directives\PragmaKinds\CPragmaKind.cs" />
+    <Compile Include="PrePx\Directives\PragmaKinds\CPragmaKindPack.cs" />
+    <Compile Include="PrePx\Directives\PragmaKinds\CPragmaKindUnspecified.cs" />
+    <Compile Include="PrePx\LookForwards\LookFwChar.cs" />
+    <Compile Include="PrePx\LookForwards\LookFwCommentC.cs" />
+    <Compile Include="PrePx\LookForwards\LookFwCommentCpp.cs" />
+    <Compile Include="PrePx\LookForwards\LookFwString.cs" />
+    <Compile Include="PrePx\Stages\ICPrePxStage.cs" />
+    <Compile Include="IWithIdentifierSettable.cs" />
+    <Compile Include="Standards\CCharEncodingLabel.cs" />
+    <Compile Include="Compiler\CCompilerSettings.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfndef.cs" />
+    <Compile Include="PrePx\CPrePxInData.cs" />
+    <Compile Include="PrePx\CPrePxFileOptions.cs" />
+    <Compile Include="PrePx\CPrePxMessages.cs" />
+    <Compile Include="PrePx\CPrePxOptions.cs" />
+    <Compile Include="PrePx\CPrePxSource.cs" />
+    <Compile Include="PrePx\NoDirectives\CPrePxNoDirective.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveUndef.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage31CommentRemover.cs" />
+    <Compile Include="PrePx\CPrePxProduct.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage33IfDefCheck.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage4DoDirectiveAction.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage32Tokenisation.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage2LinesSplicing.cs" />
+    <Compile Include="PrePx\Stages\CPrePxStage1TrigraphReplacement.cs" />
+    <Compile Include="PrePx\NoDirectives\CPrePxNoDirectiveComment.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveEndif.cs" />
+    <Compile Include="PrePx\Directives\IfDefElif\CPrePxDirectiveIfDef.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectiveInclude.cs" />
+    <Compile Include="PrePx\Directives\CPrePxDirectivePragma.cs" />
+    <Compile Include="CItem.cs" />
+    <Compile Include="PrePx\Directives\Macro\CPrePxDirectiveMacro.cs" />
+    <Compile Include="CScope.cs" />
+    <Compile Include="Decl\CDeclTypedef.cs" />
+    <Compile Include="Decl\CDeclVar.cs" />
+    <Compile Include="DeclSpecifiers\CDeclSpecifiers.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierIncompleteInterpreter.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpretEnum.cs" />
+    <Compile Include="DeclSpecifiers\CDeclSpecifiersInterpretStorageCls.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpreterStructUnion.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpretBuiltIn.cs" />
+    <Compile Include="TypeSpecifierInterpret\CTypeSpecifierInterpretTypedef.cs" />
+    <Compile Include="DeclSpecifiers\CDeclSpecifiersInterpretTypeQualifiers.cs" />
+    <Compile Include="Decl\CDeclDescriptorHelper.cs" />
+    <Compile Include="Expressions\COperators\CppOperatorScopeThrow.cs" />
+    <Compile Include="Expressions\COperators\CppDynamicAllocation.cs" />
+    <Compile Include="Expressions\COperators\CppOperatorScopeResolution.cs" />
+    <Compile Include="Expressions\COperators\COperatorSizeof.cs" />
+    <Compile Include="IMayBeDefinition.cs" />
+    <Compile Include="Initialisation\CInitialisation.cs" />
+    <Compile Include="CItemWithScopeSpace.cs" />
+    <Compile Include="Source\CSourceInterpreter.cs" />
+    <Compile Include="TokenParse\CTokenParserCharConstant.cs" />
+    <Compile Include="Standards\CharStandard.cs" />
+    <Compile Include="CLanguage.cs" />
+    <Compile Include="Compiler\CCompilerMessages.cs" />
+    <Compile Include="TokenParse\CTokenParserConstant.cs" />
+    <Compile Include="Cpp\CppMessages.cs" />
+    <Compile Include="CAttribute.cs" />
+    <Compile Include="Statement\CBlockInterpret.cs" />
+    <Compile Include="Statement\CCycle.cs" />
+    <Compile Include="Types\BuiltIns\BuiltInStdSpecifiers.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinBool.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinChar.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinComplex.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinFloat.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinInt.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinLong.cs" />
+    <Compile Include="Types\BuiltIns\CTypeBinVoid.cs" />
+    <Compile Include="Types\ClassFieldGroupPolicies.cs" />
+    <Compile Include="Types\ClassFieldGroupPolicyId.cs" />
+    <Compile Include="Types\CTypeBuiltInSet.cs" />
+    <Compile Include="Types\CTypeClassFieldGroup.cs" />
+    <Compile Include="Types\CTypeDecl.cs" />
+    <Compile Include="Types\CTypeStructBody.cs" />
+    <Compile Include="Types\CTypeEnumLabel.cs" />
+    <Compile Include="Types\CTypeFunctionContainer.cs" />
+    <Compile Include="Types\CTypeIncomplete.cs" />
+    <Compile Include="Types\CTypeUserTag.cs" />
+    <Compile Include="Types\CTypeBuiltInRepresentEnum.cs" />
+    <Compile Include="DeclInterpret\CDeclInterpret.cs" />
+    <Compile Include="Types\CFunctionSpecifier.cs" />
+    <Compile Include="Types\CType.cs" />
+    <Compile Include="Types\CTypeEnum.cs" />
+    <Compile Include="Types\CTypePrimitive.cs" />
+    <Compile Include="Types\CTypeUserDefined.cs" />
+    <Compile Include="Types\CTypeSubscript.cs" />
+    <Compile Include="Types\CTypeSubscriptSet.cs" />
+    <Compile Include="Types\CTypeSubscriptKind.cs" />
+    <Compile Include="Types\IClassFieldGroupPolicy.cs" />
+    <Compile Include="Types\ITypeClass.cs" />
+    <Compile Include="Types\ICTypeDescriptorGcc.cs" />
+    <Compile Include="Standards\CStandard.cs" />
+    <Compile Include="Cpp\CppStandardCpp11.cs" />
+    <Compile Include="TokenParse\CTokenParserNumConst.cs" />
+    <Compile Include="TokenParse\CTokenParserStringLiteral.cs" />
+    <Compile Include="Standards\CStandardMsvs.cs" />
+    <Compile Include="Types\CTypeStorageClass.cs" />
+    <Compile Include="Types\CTypeModifiersEnum.cs" />
+    <Compile Include="Types\CTypeQualifiersFlags.cs" />
+    <Compile Include="DeclSpecifiers\CDeclSpecifiersInterpret.cs" />
+    <Compile Include="Types\CTypeStruct.cs" />
+    <Compile Include="Statement\CCompound.cs" />
+    <Compile Include="Statement\CStatement.cs" />
+    <Compile Include="Decl\CDeclFunction.cs" />
+    <Compile Include="Expressions\CExprStatement.cs" />
+    <Compile Include="Types\CTypeBuiltIn.cs" />
+    <Compile Include="Decl\CDecl.cs" />
+    <Compile Include="Source\CSource.cs" />
+    <Compile Include="Types\CTypeAlias.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Expressions\COperators\COperatorCast.cs" />
+    <Compile Include="Standards\CStandardC99.cs" />
+    <Compile Include="TokenParse\CToken.cs" />
+    <Compile Include="TokenParse\CTokenType.cs" />
+    <Compile Include="TokenParse\CTokenParser.cs" />
+    <Compile Include="IWithLinkSignature.cs" />
+    <Compile Include="Types\ITypeClassBody.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Runtime\Object\CRtmObj.cd" />
+    <None Include="PrePx\Directives\Macro\CPrePxDirectiveMacro.cd" />
+    <None Include="Initialisation\CInitialisation.cd" />
+    <None Include="PrePx\CPrePxParserStep.cd" />
+    <None Include="CScopeHelper.cd" />
+    <None Include="CItemWithScope.cd" />
+    <None Include="PrePx\Directives\CPrePxDirectiveHandler.cd" />
+    <None Include="PrePx\LookForwards\LookForwards.cd" />
+    <None Include="PrePx\Directives\CPrePxDirective.cd" />
+    <None Include="PrePx\NoDirectives\CPrePxNoDirective.cd" />
+    <None Include="PrePx\Stages\CPrePxStage.cd" />
+    <None Include="Decl\CDecl.cd" />
+    <None Include="CItem.cd" />
+    <None Include="Standards\CStandards.cd" />
+    <None Include="Statement\CCycle.cd" />
+    <None Include="Statement\CBlock.cd" />
+    <None Include="Types\CType.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GateLangBase\C++Support\GateCLangC++Support.vcxproj">
+      <Project>{cc84d351-c17d-4593-92e5-17600095d3e2}</Project>
+      <Name>GateLangBaseSupport</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GateLangBase\GateLangBase.csproj">
+      <Project>{a238ba7f-02d8-4547-9e81-75c3bb4ba09c}</Project>
+      <Name>GateLangBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gatetools\GateTools.csproj">
+      <Project>{ed68a71a-0190-4359-92b0-2201fdceab81}</Project>
+      <Name>GateTools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="stdio_template.c" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

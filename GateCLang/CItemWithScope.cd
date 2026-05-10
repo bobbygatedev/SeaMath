@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.Source.CSource">
+    <Position X="0.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAECAAAUACAAAEgICAEAYEAEAgABA0gGAAQQAAAAA=</HashCode>
+      <FileName>Source\CSource.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Statement.CBlockCompound">
+    <Position X="3.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Statement\CBlockCompound.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Statement.CBlock">
+    <Position X="5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAAABAgACAAAAAAAAA=</HashCode>
+      <FileName>Statement\CBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Statement.CBlockFunction">
+    <Position X="6.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAUAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Statement\CBlockFunction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeFunctionParameters">
+    <Position X="9.5" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IAJAAAAAAUAAABAACAAABAQAAEAAABAkAKAAAAAAAAA=</HashCode>
+      <FileName>Types\CTypeFunctionParameters.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="1.682" />
+  </Class>
+  <Class Name="Gate.CLanguage.CItemWithScopeSpace" Collapsed="true">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAEQAAACAAAAAAAAAAAAAAAFAAAAAAAAAAAAA=</HashCode>
+      <FileName>CItemWithScope.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeStructBody">
+    <Position X="12.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAUAAAAAEAAAAAAAAAAAAABAhACAAAAAAAAI=</HashCode>
+      <FileName>Types\CTypeStructBody.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.CItem" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACkAAAAAEAADAAAAQAAAAAAAgAAAQAIAAAAA=</HashCode>
+      <FileName>CItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CType" Collapsed="true">
+    <Position X="5.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAEABAASAAAABIEACAgAAAEAEAAggAAAQcAAQEE=</HashCode>
+      <FileName>Types\CType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.CAttribute" Collapsed="true">
+    <Position X="8" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAgAAAAgAAAAAAAAAAAAIAgAAAAAAAAAAA=</HashCode>
+      <FileName>CAttribute.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.CPrePxProduct" Collapsed="true">
+    <Position X="12.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAA=</HashCode>
+      <FileName>PrePx\CPrePxProduct.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.CPrePxSource" Collapsed="true">
+    <Position X="14.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQEAAAAAAEECAAAEAAQAAAkAAQoAAAAgAAAAYAIACAA=</HashCode>
+      <FileName>PrePx\CPrePxSource.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Statement.CStatement" Collapsed="true">
+    <Position X="19.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Statement\CStatement.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeEnumLabel" Collapsed="true">
+    <Position X="21.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEACAAAEAAAAAAAAAAQAABAgAAABQAAAAAA=</HashCode>
+      <FileName>Types\CTypeEnumLabel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeSubscript" Collapsed="true">
+    <Position X="24" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SQDAAAAAAEFAAAQAACAAAgJAAAEAgAggAAAABBAAgAE=</HashCode>
+      <FileName>Types\CTypeSubscript.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Types.CTypeSubscriptSet">
+    <Position X="26.25" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>SwABAAAAAEAAACCACAAQgogQAA0AgAAgAgAAADBABQE=</HashCode>
+      <FileName>Types\CTypeSubscriptSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CItemWithScopeSpace" Collapsed="true">
+    <Position X="3.5" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAEQAAACAAAAAAAAAAAAAAAFAAACAAAAAAAAA=</HashCode>
+      <FileName>CItemWithScope.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDecl" Collapsed="true">
+    <Position X="28.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAGQAAAbQQACAQIEAEAFAAAAEAgAAAAEQAYAAAE=</HashCode>
+      <FileName>Decl\CDecl.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Linker.CLibrary" Collapsed="true">
+    <Position X="30.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CBAAAAABAAAAAAAAAAAAAAYAEAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Linker\CLibrary.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.DeclSpecifiers.CDeclSpecifiers" Collapsed="true">
+    <Position X="17" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABBQIAEAAEECQAAAAQACAAAIAAAAAAAgQAAEAAAAAAE=</HashCode>
+      <FileName>DeclSpecifiers\CDeclSpecifiers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Initialisation.CInitialisation" Collapsed="true">
+    <Position X="10.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IQEDAAAAAAAIAABACAQAAAQAAAAAAAAgARgAAAAAAAE=</HashCode>
+      <FileName>Initialisation\CInitialisation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.PragmaKinds.CPragmaKind" Collapsed="true">
+    <Position X="33" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>PrePx\Directives\PragmaKinds\CPragmaKind.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

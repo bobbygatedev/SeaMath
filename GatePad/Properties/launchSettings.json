@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GatePad": {
+      "commandName": "Project",
+      "commandLineArgs": "c:\\erik\\mcalpin\\fep\\dev\\slimboot\\Platform\\FEPBoardPkg\\BoardConfig.py"
+    }
+  }
+}

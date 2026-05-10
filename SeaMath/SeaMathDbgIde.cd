@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.SeaMath.SeaMathDbgIde">
+    <Position X="6.25" Y="0.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>BQCIAAEEAABAASICEYAGIEiRBIUAiUCDICIBSTAGQAQ=</HashCode>
+      <FileName>SeaMathDbgIde.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

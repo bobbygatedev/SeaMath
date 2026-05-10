@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.Decl.CDecl">
+    <Position X="4.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAGQAAAbQQACAQIEAEAFAAAAEAgAAAAEQAYAAAE=</HashCode>
+      <FileName>Decl\CDecl.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDeclFunction">
+    <Position X="3.25" Y="11.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Gate.CLanguage.Decl.CDeclFunction.KindType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Decl\CDeclFunction.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAQAHBRQAAAABABAAAAAAAIAAAgAAAgAAQAAAE=</HashCode>
+      <FileName>Decl\CDeclFunction.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDeclTypedef">
+    <Position X="0.75" Y="8.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAEARQAAAAAAAAAAAAAAAAAAgAAAAAAQAAAA=</HashCode>
+      <FileName>Decl\CDeclTypedef.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDeclVar">
+    <Position X="5.75" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAEARUAAAAAEAAAAAAAAAAAgwAAAAAAQAAAA=</HashCode>
+      <FileName>Decl\CDeclVar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDeclStorage">
+    <Position X="5.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Decl\CDeclStorage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Decl.CDeclClassField">
+    <Position X="8" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAASgEARQAQAAAABMAAAAAAAAAAgAAAAAEQEgAA=</HashCode>
+      <FileName>Decl\CDeclClassField.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

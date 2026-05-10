@@ -1,0 +1,38 @@
+﻿namespace Gate.ToolsView.TextCtrl
+{
+   public enum GateTextMarkerScintillaIdEnum
+   {
+      marker_0_bookmark = 0,
+      marker_1_run_marker,
+      marker_2,
+      marker_3,
+      marker_4,
+      marker_5,
+      marker_6,
+      marker_7,
+      marker_8,
+      marker_9,
+      marker_10,
+      marker_11,
+      marker_12,
+      marker_13,
+      marker_14,
+      marker_15,
+      marker_16,
+      marker_17,
+      marker_18,
+      marker_19,
+      marker_20,
+      marker_21,
+      marker_22,
+      marker_23,
+      marker_24,
+      marker_25,
+      marker_26,
+      marker_27,
+      marker_28,
+      marker_29,
+      marker_30,
+      marker_31,
+   }
+}

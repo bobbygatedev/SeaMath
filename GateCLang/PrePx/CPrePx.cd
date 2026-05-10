@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.CPrePx.CPrePxDirectiveExpanderAction">
+    <Position X="0.75" Y="0.75" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.CPrePx.CPrePxDirectiveExpanderAction.Expand" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\CPrePxDirectiveHandler.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.CLanguage.CPrePx.CPrePxDirectiveExpanderAction.NotExpand" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\CPrePxDirectiveHandler.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>CPrePx\CPrePxDirectiveHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.CPrePxMacroExpander">
+    <Position X="1" Y="4.5" Width="2" />
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.CPrePx.CPrePxMacroExpander.InnerStepData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\CPrePxMacroExpander.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Gate.CLanguage.CPrePx.CPrePxMacroExpander.InnerMacroCallTokenFinder" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\CPrePxMacroExpander.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.CLanguage.CPrePx.CPrePxMacroExpander.InnerStep" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\CPrePxMacroExpander.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGABAAAAAQ=</HashCode>
+      <FileName>CPrePx\CPrePxMacroExpander.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CPrePx.Directives.CPrePxDirectiveLogical">
+    <Position X="4" Y="0.75" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.CPrePx.Directives.CPrePxDirectiveLogical.HandlerForElseEndif&lt;ELSE_ENDIF&gt;">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Class Name="Gate.CLanguage.CPrePx.Directives.CPrePxDirectiveLogical.HandlerForElseEndif&lt;ELSE_ENDIF&gt;.ConcreteExpanderAction" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>CPrePx\Directives\CPrePxDirectiveLogical.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\Directives\CPrePxDirectiveLogical.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.CLanguage.CPrePx.Directives.CPrePxDirectiveLogical.HandlerForIf">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Class Name="Gate.CLanguage.CPrePx.Directives.CPrePxDirectiveLogical.HandlerForIf.ConcreteExpanderAction" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>CPrePx\Directives\CPrePxDirectiveLogical.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>CPrePx\Directives\CPrePxDirectiveLogical.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CPrePx\Directives\CPrePxDirectiveLogical.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

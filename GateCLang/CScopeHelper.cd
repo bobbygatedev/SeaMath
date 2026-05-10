@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.CScopeHelper">
+    <Position X="7" Y="5.25" Width="2.75" />
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.CScopeHelper.InnerScopeDeclVisitor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CScopeHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.CLanguage.CScopeHelper.InnerGetTypeLinkSignatureVisitor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CScopeHelper.InnerGetTypeLinkSignatureVisitor.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAgAESAQAGYAABAgAAAAAAAAIAAAAAKACgAAAABA=</HashCode>
+      <FileName>CScopeHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.CScopeHelperBase">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAECAQAEQAABAAAAAAAAAAIAAAggAAAAAAABBA=</HashCode>
+      <FileName>CScopeHelperBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Cpp.CppScopeHelper">
+    <Position X="4.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAECAQAEQAABAAAAAAAAAAIAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Cpp\CppScopeHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

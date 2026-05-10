@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.CLanguage.PrePx.Directives.Macro.CPrePxDirectiveMacro">
+    <Position X="10.5" Y="1.75" Width="1.75" />
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.PrePx.Directives.Macro.CPrePxDirectiveMacro.ContentMapType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>PrePx\Directives\CPrePxDirectiveMacro.ContentMapType.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QEAEAAWQAECCAABGAAIAAERBAAAAACIAAIAAQBAUAAQ=</HashCode>
+      <FileName>PrePx\Directives\CPrePxDirectiveMacro.ContentMapType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacro">
+    <Position X="5.5" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAIABAAAAAEAAAAAAAAAAAAAAAAAQAAAAAA=</HashCode>
+      <FileName>PrePx\Directives\Macro\Predefined\CPredefMacro.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.Line" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.CPlusPlus" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.File" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.Date" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.Time" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.Stdc" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.CLanguage.PrePx.Directives.Macro.Predefined.CPredefMacros.Standard.StdcHosted" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PrePx\Directives\Macro\Predefined\CPredefMacros.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

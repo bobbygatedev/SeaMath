@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.ToolsView.ControlFeature.CtrlFeatureByWndHook">
+    <Position X="3.75" Y="0.75" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.ToolsView.ControlFeature.CtrlFeatureByWndHook.InnerNativeWindow" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeatureByWndHook.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.ToolsView.ControlFeature.CtrlFeatureByWndHook.Specialized&lt;CTRL&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeatureByWndHook.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAggAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Base\ControlFeature\CtrlFeatureByWndHook.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.ToolsView.ControlFeature.CtrlFeature">
+    <Position X="0.75" Y="0.75" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="Gate.ToolsView.ControlFeature.CtrlFeature.OnFeatureAddedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeature.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="Gate.ToolsView.ControlFeature.CtrlFeature.OnFeatureRemovedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeature.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Class Name="Gate.ToolsView.ControlFeature.CtrlFeature.Specialized&lt;CTRL&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeature.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.ToolsView.ControlFeature.CtrlFeature.InnerFeatureTray" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\ControlFeature\CtrlFeature.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAABBwBAAAAiAABCAAAAgAAAAAAIAAAAAIAAA=</HashCode>
+      <FileName>Base\ControlFeature\CtrlFeature.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

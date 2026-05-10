@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.Tools.AppParams.AppParam">
+    <Position X="2" Y="0.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.Tools.AppParams.AppParam.Union" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParam.Union.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.NotScalar" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParam.NotScalar.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Scalar" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParam.Scalar.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Arry&lt;P&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParam.Arry.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Simple&lt;T&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParam.Simple.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Articulated" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParam.Articulated.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Variant" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParam.Variant.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Delegate Name="Gate.Tools.AppParams.AppParam.OnAnyChangeHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParam.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Class Name="Gate.Tools.AppParams.AppParam.ArryRaw" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParam.ArryRaw.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.AppParams.AppParam.Record" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParam.Record.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>BAAAIABAAEAAAAAEgAAAAAAYBBBAAIAAAQBABAFCAAA=</HashCode>
+      <FileName>AppParams\AppParam.Arry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.AppParams.AppParamContainer">
+    <Position X="5.5" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="Gate.Tools.AppParams.AppParamContainer.OnAppParamChangedHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParamContainer.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Class Name="Gate.Tools.AppParams.AppParamContainer.Specialized&lt;P_R&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>AppParams\AppParamContainer.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAgJIAAAAAIAAAAEAAQIAAEAAAAABAAgAAAQAABCI=</HashCode>
+      <FileName>AppParams\AppParamContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.AppParams.AppParamLoadSaver">
+    <Position X="8.5" Y="0.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.Tools.AppParams.AppParamLoadSaver.ByXml">
+        <NestedTypes>
+          <Class Name="Gate.Tools.AppParams.AppParamLoadSaver.ByXml.InnerTypeParser" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>AppParams\AppParamLoadSaver.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+          <Class Name="Gate.Tools.AppParams.AppParamLoadSaver.ByXml.InnerSaveInflate" Collapsed="true">
+            <TypeIdentifier>
+              <NewMemberFileName>AppParams\AppParamLoadSaver.cs</NewMemberFileName>
+            </TypeIdentifier>
+          </Class>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>Base\AppParams\AppParamLoadSaver.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AppParams\AppParamLoadSaver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

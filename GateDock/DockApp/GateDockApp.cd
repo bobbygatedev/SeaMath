@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.Dock.DockApp.GateDockApp" Collapsed="true">
+    <Position X="9.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAgAAAAACAyABAQUQAAQQAgAIgiQAAIMABAJAAAY=</HashCode>
+      <FileName>DockApp\GateDockApp.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockAppOptContainer" Collapsed="true">
+    <Position X="13.25" Y="0.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockAppOptContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockAppOptions">
+    <Position X="10.75" Y="2.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockAppOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockAppState">
+    <Position X="16" Y="2.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAIAAAAIAAAAAAAACAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockAppState.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockCtrlFactory">
+    <Position X="3" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockCtrlFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockCtrlFactoryDocu">
+    <Position X="4" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockCtrlFactoryDocu.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockCtrlFactoryDocuText">
+    <Position X="7.75" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAIAAAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockCtrlFactoryDocuText.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockCtrlFactoryWidget">
+    <Position X="1" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>DockApp\GateDockCtrlFactoryWidget.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Dock.DockApp.GateDockFormScenario">
+    <Position X="13.25" Y="2.25" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.FormStateWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.WidgetGroupWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.FloatItemsWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.WidgetWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.DocuWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.TabWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Dock.DockApp.GateDockFormScenario.DockItemsWrapper" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DockApp\GateDockFormScenario.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IAACgIAIAEAAAAEAAAAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>DockApp\GateDockFormScenario.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

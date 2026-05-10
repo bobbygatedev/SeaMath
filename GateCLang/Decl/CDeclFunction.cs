@@ -1,0 +1,115 @@
+﻿using Gate.CLanguage.DeclSpecifiers;
+using Gate.CLanguage.Linker;
+using Gate.CLanguage.Statement;
+using Gate.CLanguage.Types;
+using Gate.LangBase.Expressions;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
+using Gate.Tools.Text;
+
+namespace Gate.CLanguage.Decl
+{
+   /// <summary>
+   /// 
+   /// </summary>
+   public class CDeclFunction : CDeclStorage, IDeclFunction
+   {
+      public enum KindType
+      {
+         ordinary = 0,
+         library,
+         init,
+         cleanup
+      }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CDeclFunction(bool hasBody, KindType kind, CDeclSpecifiers? declSpecifiers)
+      {
+         //setting type base permanently
+         declSpecifiers = declSpecifiers ?? new CDeclSpecifiers();
+         declSpecifiers.AddDecl(this);
+         TypeAlias.SetAsFunction(true);
+
+         if (hasBody) { myAddSubItem(new CBlockFunction()); }
+         Kind = kind;
+      }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override bool IsTypedef => false;
+
+      /// <summary>
+      /// Is equal to return type
+      /// </summary>
+      public override CType? TypeBase => TypeAlias.TypeBase;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CTypeFunctionContainer? FunctionContainer => TypeAlias.FunctionContainer;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override bool IsDefinition => Body != null;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override string Rebuilt => throw new NotImplementedException();//todo
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override string Descriptor =>
+         $"{FunctionContainer?.TypeAliasReturned?.TypeSpecifier} " +
+         $"{Identifier}{FunctionContainer?.Descriptor}{(Body != null ? "{...}" : ";")}";
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CBlockFunction? Body => SubItems.OfType<CBlockFunction>().FirstOrDefault();
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public string? AlternateLinkName { get; set; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override bool IsExternalLinkRequired => Body == null && DeclSpecifiers != null && !DeclSpecifiers.IsStatic;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override bool IsInternalLinkRequired => !(Anchestor is CLibrary) && Body == null;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public RtmDbgEngVirtCpuInstruction[] Instructions
+      {
+         get => SubItems.OfType<RtmDbgEngVirtCpuInstruction>().ToArray();
+         set
+         {
+            myRemoveSubItemRange(Instructions);
+            myAddSubItemRange(value ?? new RtmDbgEngVirtCpuInstruction[0]);
+         }
+      }
+
+      public CAttribute[] AttributesAll => Attributes.Concat(DeclSpecifiers?.Attributes ?? []).Distinct().ToArray();
+
+      IDecl[] IDeclFunction.Parameters => (FunctionContainer ?? []).ToArray();
+
+      IDeclType? IDeclFunction.ReturnType => FunctionContainer?.TypeAliasReturned;
+
+      TxtToken? IDeclFunction.BodyToken => Body?.TxtToken;
+
+      bool IDeclFunction.HasVarArgs => FunctionContainer?.HasVarArgs ?? false;
+
+      public KindType Kind { get; }
+   }
+}

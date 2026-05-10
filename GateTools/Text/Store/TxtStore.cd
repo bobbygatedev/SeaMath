@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Gate.Tools.Text.TxtToken">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>IgCIAAAAJgAgAAAEAIgBAAFAAAgoEACAAAAAAQAAQAA=</HashCode>
+      <FileName>Text\TxtToken.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.Text.TxtStore">
+    <Position X="8.5" Y="0.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.Tools.Text.TxtStore.InnerCmp" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text\TxtStore.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Gate.Tools.Text.TxtStore.InnerData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text\TxtStore.InnerData.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.TxtStore.InnerLineHieItem" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.Line.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.Tools.Text.TxtStore.InnerSectorHieItem" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.Line.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Interface Name="Gate.Tools.Text.TxtStore.IWithHie" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.Sector.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Interface>
+      <Class Name="Gate.Tools.Text.TxtStore.Line">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.Line.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Struct Name="Gate.Tools.Text.TxtStore.Replacement" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Class Name="Gate.Tools.Text.TxtStore.Sector">
+        <TypeIdentifier>
+          <NewMemberFileName>Text2\TxtStore.Sector.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>CACAAaAAoiQgMAGECcAaEAwICgAoGCEKlEAAAAJAAHA=</HashCode>
+      <FileName>Text\TxtStore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Gate.Tools.Text.TxtSettings">
+    <Position X="4.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAACAAAIAACAIAAAgAAAAAgABAACAAEAAAA=</HashCode>
+      <FileName>Text\TxtSettings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.Tools.Text.TxtTokenConst">
+    <Position X="2.25" Y="6.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAABEAIIAIAECAAAAAAAEAAAAAQAAAAA=</HashCode>
+      <FileName>Text\TxtTokenConst.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
