@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GateCLangTest": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

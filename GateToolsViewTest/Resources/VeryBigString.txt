@@ -1,0 +1,28 @@
+Numero di serie del volume: A60A-0530
+
+ Directory di c:\erik\batches
+
+19/05/2023  19:16    <DIR>          .
+29/05/2023  09:17    <DIR>          ..
+22/06/2022  09:27           109,056 EcoaLauncher.exe
+22/06/2022  09:32           107,520 EcoaVsTools.exe
+26/05/2022  13:00               210 GambaExport.bat
+17/04/2023  09:51                87 GatePad.bat
+29/10/2021  10:10                63 GatePadDev.bat
+22/06/2022  09:33             5,632 Gcc2.exe
+29/04/2023  10:48               155 git_pull.bat
+17/04/2023  09:53               158 git_push.bat
+06/03/2022  18:57                26 kill.bat
+06/03/2022  11:44               124 killtestecoa.bat
+21/02/2022  14:12            20,992 Launcher.exe
+06/03/2022  11:48               657 launchtestecoa.bat
+28/01/2023  11:23                95 open_winformcache.bat
+06/03/2022  11:59               565 PD_1.exe.stackdump
+06/03/2022  12:13               604 PlatformLoop1.exe.stackdump
+23/10/2021  09:04                87 SamSim.bat
+06/03/2022  12:44                 4 Server_Inst_Server_Module_Impl_Inst_warm_context.bin
+02/05/2022  09:54                16 tman.bat
+15/11/2022  23:41            10,524 vcvarsall.bat
+28/12/2021  15:12                15 vs.bat
+              20 File        256,590 byte
+               2 Directory  678,771,126,272 byte disponibili
