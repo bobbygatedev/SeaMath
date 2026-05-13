@@ -16,6 +16,7 @@ namespace Gate.CLanguage.TokenParse
       public virtual CTokenParserStep[] ConstantParsers => [
          new CTokenParserNumConstFloatComplex(),
          new CTokenParserNumConstHex(),
+         new CTokenParserNumConstBin(),
          new CTokenParserNumConstInt(),      
       ];
 

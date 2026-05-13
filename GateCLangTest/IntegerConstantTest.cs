@@ -24,6 +24,7 @@ namespace Gate.CLanguageTest
          AddSubTests(new SubTest("Test5", "4 * 1024 * 1024 * 1024"));
          AddSubTests(new SubTest("Test6", "4 * 1024 * 1024 * 1024"));
          AddSubTests(new SubTest("Test7", "4 * 1024 * 1024 * 1024"));
+         AddSubTests(new SubTest("Test8", "4 * 1024 * 1024 * 0b01010101"));
       }
 
       public class SubTest : TestBase

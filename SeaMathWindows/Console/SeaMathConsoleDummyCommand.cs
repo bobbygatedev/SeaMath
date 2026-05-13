@@ -28,14 +28,20 @@ namespace Gate.SeaMath.Windows.Console
       {
          get
          {
-            var c_hns = (Console?.PreCompiledHeader ?? throw new Crash()).
-               AllDescendant.OfType<CItem>().SelectMany(i => i.GetHints()).Nn().ToArray();
-            var ojs = Console.ObjVisibleForConsole;
+            var c_hns = Console?.
+               PreCompiledHeader?.
+               AllDescendant.
+               OfType<CItem>().
+               SelectMany(i => i.GetHints()).
+               Nn().
+               ToArray();
+
+            var ojs = Console?.ObjVisibleForConsole ?? [];
             var fns = ojs.OfType<IRtmObjFunction>().ToArray();
             var vrs = ojs.Except(fns.Cast<RtmObj>()).ToArray();
             var hns = ojs.Select(o => o.GetHint()).Nn().ToArray();
 
-            return c_hns.Concat(hns).ToArray();
+            return (c_hns ?? []).Concat(hns).ToArray();
          }
       }
 

@@ -89,7 +89,7 @@ namespace Gate.CLanguage.Runtime.Object
 
          public CRtmObjAllocatorByPrivateHeap Allocator { get; }
 
-         public string ContentPrintOut => PointerBase.DumpHex((nint)NumBytesTotal);
+         public string ContentPrintOut => PointerBase.GetHexDump(NumBytesTotal);
 
          public bool Check
          {

@@ -34,6 +34,7 @@ namespace Gate.Dock.DockWidget
          InitializeComponent();
 
          CtrlImageList.Images.Add(Properties.Resources.CtrlBtnDockState);
+         CtrlButtonDockState.ImageIndex = 0;
          DoubleBuffered = true;
          mySkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
          CtrlLabelTitle_TextChanged(null, new EventArgs());

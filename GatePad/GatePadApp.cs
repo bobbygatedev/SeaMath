@@ -1,5 +1,6 @@
 ﻿using Gate.Dock.DockApp;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Extensions;
 
 namespace Gate.Pad
@@ -23,33 +24,51 @@ namespace Gate.Pad
 
          protected override void myEntryPointWithToken(string[] cmdLine)
          {
-            var fil_nam = myGetFile(cmdLine);
+            var fls = myGetFiles(cmdLine);
 
-            if (fil_nam != null) { myPadApp.OnLoadFinished += (_) => myPadApp.MainForm.PpDocuHandler.OpenPath(myPadApp.MainForm, fil_nam); }
+            if (fls != null)
+            {
+               myPadApp.OnLoadFinished += (_) =>
+               {
+                  foreach (var fil in fls)
+                  {
+                     myPadApp.MainForm.PpDocuHandler.OpenPath(myPadApp.MainForm, fil);
+                  }
+               };
+            }
 
             myPadApp.MainForm.VisibleChanged += (s, e) =>
             {
                //force tab page to be the first tab page of first tab (or null if nothingt is open).
                if (myPadApp.MainForm.Visible)
                {
-                  myPadApp.MainForm.PpTabPageCurrent = myPadApp.MainForm.PpTabPageCurrent ?? myPadApp.MainForm.PpTabsAll.FirstOrDefault();
+                  myPadApp.MainForm.PpTabPageCurrent =
+                     myPadApp.MainForm.PpTabPageCurrent ??
+                        myPadApp.MainForm.PpTabsAll.FirstOrDefault();
                }
             };
 
             myPadApp.MainForm.ShowDialog();
          }
 
-         private string? myGetFile(string[] cmdLine) => (cmdLine ?? []).FirstOrDefault(f => File.Exists(f));
+         private string[] myGetFiles(string[] cmdLine) => cmdLine.Where(f => File.Exists(f)).ToArray();
 
          protected override void myEntryPointNoMutexRemote(string[] cmdLine, object? localToRemoteParams)
          {
-            var fil_nam = myGetFile(cmdLine);
+            var fls = myGetFiles(cmdLine);
 
-            if (fil_nam != null)
+            if (fls.Length > 0)
             {
                //current
-               Directory.SetCurrentDirectory(Path.GetDirectoryName(fil_nam) ?? throw new Crash());
-               myPadApp.MainForm.MthInvoke(() => myPadApp.MainForm.PpDocuHandler.OpenPath(myPadApp.MainForm, fil_nam));
+               Directory.SetCurrentDirectory(Path.GetDirectoryName(fls.FirstOrDefault().NnOrCrash()).NnOrCrash());
+               myPadApp.MainForm.MthInvoke(() =>
+               {
+
+                  foreach (var fil in fls)
+                  {
+                     myPadApp.MainForm.PpDocuHandler.OpenPath(myPadApp.MainForm, fil);
+                  }
+               });
             }
          }
 

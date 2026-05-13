@@ -38,71 +38,127 @@ namespace Gate.Tools.Extensions
       /// and their ASCII representation (non-printable characters are shown as dots).
       /// </summary>
       /// <param name="pointer"></param>
-      /// <param name="len"></param>
-      /// <param name="nbytesPerRaw"></param>
+      /// <param name="numWord"></param>
+      /// <param name="nWordPerRaw"></param>
       /// <returns></returns>
       /// <exception cref="ArgumentOutOfRangeException"></exception>
-      public static string DumpHex(this nint pointer, nint len, nint? offset = null, int? nbytesPerRaw = null)
+      public static string GetHexDump(
+         this nint pointer,
+         uint numWord,
+         BitNumber bitPerWord = BitNumber.Bit8,
+         nint? offset = null,
+         int? nWordPerRaw = null,
+         bool isBigEndian = false)
       {
-         if (pointer == 0 || len <= 0) { return ""; }
+         if (pointer == 0 || numWord <= 0) { return ""; }
 
-         if (len > int.MaxValue) { throw new ArgumentOutOfRangeException(nameof(len)); }
+         if (numWord > int.MaxValue) { throw new ArgumentOutOfRangeException(nameof(numWord)); }
 
          unsafe
          {
-            return myDumpHex(pointer, new ReadOnlySpan<byte>((void*)pointer, (int)len), offset, nbytesPerRaw);
+            var sb = new StringBuilder((int)numWord * 16);
+            var wrdOff = 0;
+
+            unsafe
+            {
+               nWordPerRaw = nWordPerRaw ?? sizeof(nint) / ((int)bitPerWord / 8);
+            }
+
+            //num byte per word
+            var nbw = (int)bitPerWord / 8;
+            var bp = (byte*)pointer;
+
+            while (wrdOff < numWord)
+            {
+               //tododo
+               var cnt = Math.Min((int)nWordPerRaw, numWord - wrdOff);
+
+               // Offset
+               sb.Append((wrdOff + (offset ?? pointer)).ToString("X8"));
+               sb.Append("  ");
+
+               // Hex bytes
+               for (var i = 0; i < nWordPerRaw; i++)
+               {
+                  if (i < cnt)
+                  {
+                     if (isBigEndian)
+                     {
+                        for (int j = 0; j < nbw; j++)
+                        {
+                           sb.Append(bp[i * nbw + j].ToString("X2"));
+                        }
+                     }
+                     else
+                     {
+                        for (int j = nbw - 1; j >= 0; j--)
+                        {
+                           sb.Append(bp[i * nbw + j].ToString("X2"));
+                        }
+                     }
+                  }
+                  else
+                  {
+                     sb.Append("  ");
+                  }
+
+                  sb.Append(i == nWordPerRaw / 2 - 1 ? "  " : " ");
+               }
+
+               sb.Append(" ");
+
+               var k = 0;
+
+               // ASCII representation
+               for (int i = 0; i < cnt; i++)
+               {
+                  for (int j = 0; j < nbw; j++)
+                  {
+                     var b = bp[k++];
+
+                     sb.Append(b >= 32 && b <= 126 ? (char)b : '.');
+                  }
+
+                  sb.Append(' ');
+               }
+
+               sb.AppendLine();
+
+               wrdOff += (int)cnt;
+               bp += (nbw * nWordPerRaw).NnOrCrash();
+            }
+
+            return sb.ToString();
          }
       }
 
-      private static string myDumpHex(nint pointer, ReadOnlySpan<byte> span, nint? offset, int? nbytesPerRaw = null)
+      public static unsafe UInt64 GetBitField(this nint pointer, int from, int to) => GetBitField(pointer, new Interval(from, to));
+
+      public static unsafe UInt64 GetBitField(this nint pointer, Interval intervalBit)
       {
-         var sb = new StringBuilder(span.Length * 4);
-         var off = 0;
-
-         unsafe
+         if (intervalBit.Length > 64)
          {
-            nbytesPerRaw = nbytesPerRaw ?? sizeof(nint);
+            throw new Crash();
          }
-
-         while (off < span.Length)
+         else
          {
-            var cnt = Math.Min((int)nbytesPerRaw, span.Length - off);
-            var sls = span.Slice(off, cnt);
+            var res = (UInt64)0;
+            var bp = (byte*)pointer;
 
-            // Offset
-            sb.Append((off + (offset ?? pointer)).ToString("X8"));
-            sb.Append("  ");
-
-            // Hex bytes
-            for (var i = 0; i < nbytesPerRaw; i++)
+            for (int i = 0; i < intervalBit.Length; i++)
             {
-               if (i < cnt)
-               {
-                  sb.Append(sls[i].ToString("X2"));
-               }
-               else
-               {
-                  sb.Append("  ");
-               }
+               var bit_i = i + intervalBit.From;
+               var b = bp[bit_i / 8];
+               var byt_shi = bit_i % 8;
+               var m_i = (byte)(0x1 << byt_shi);
+               var m_r = 0x1u << i;
 
-               sb.Append(i == 7 ? "  " : " ");
+               res |= ((b & m_i) != 0 ? m_r : 0);
             }
 
-            sb.Append(" ");
-
-            // ASCII representation
-            for (int i = 0; i < cnt; i++)
-            {
-               var b = sls[i];
-
-               sb.Append(b >= 32 && b <= 126 ? (char)b : '.');
-            }
-
-            sb.AppendLine();
-            off += cnt;
+            return res;
          }
-
-         return sb.ToString();
       }
+
    }
 }

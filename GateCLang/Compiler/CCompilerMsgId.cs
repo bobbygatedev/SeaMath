@@ -41,12 +41,11 @@ namespace Gate.CLanguage.Compiler
       too_many_digits_in_hex_constant = 26,
       invalid_suffix = 27,
       expected_hex_number = 28,
-
       [CompilerMessage(Message = "At least a digit for an hex constant.")]
       hex_few_digit = 29,
-
-      too_many_characters_in_constant = 30,
-      not_a_valid_universal_character,
+      expected_bin_number = 30,
+      too_many_characters_in_constant = 31,
+      not_a_valid_universal_character = 32,
 
       assign_to_constant = 40,
       cant_convert_to,

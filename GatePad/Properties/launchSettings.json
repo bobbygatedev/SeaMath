@@ -2,7 +2,7 @@
   "profiles": {
     "GatePad": {
       "commandName": "Project",
-      "commandLineArgs": "c:\\erik\\mcalpin\\fep\\dev\\slimboot\\Platform\\FEPBoardPkg\\BoardConfig.py"
+      "commandLineArgs": "c:\\erik\\git\\seamath\\SeaMath\\dev\\libdirs\\matlib\\complex.c\r\nc:\\erik\\git\\seamath\\SeaMath\\dev\\libdirs\\matlib\\complex.h"
     }
   }
 }

@@ -3,7 +3,6 @@ using Gate.CLanguage.Types.BuiltIns;
 using Gate.LangBase.ExtraTypes;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
-using System;
 using System.Text.RegularExpressions;
 
 namespace Gate.CLanguage.TokenParse
@@ -13,9 +12,11 @@ namespace Gate.CLanguage.TokenParse
       /// <summary>
       /// Pattern for integer value (not hex).
       /// </summary>
-      public const string PATTERN = @"\d+(i|u|l)*";
+      public const string PATTERN = @"\d+(i|u|ll|l)*";
 
       public CTokenParserNumConstInt() : base(PATTERN, true) { }
+
+      protected CTokenParserNumConstInt(string pattern) : base(pattern, true) { }
 
       protected override TxtElabResult myPrecondition(TxtMarker inputMarker, CCompilerInData inData)
       {

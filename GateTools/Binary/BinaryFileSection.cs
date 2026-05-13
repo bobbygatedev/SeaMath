@@ -25,11 +25,14 @@ namespace GateTools.Binary
       public byte[] Bytes => BinaryFile?.Data.Skip(Interval.From).Take(Interval.Length).ToArray() ??
          throw new ToolsException("Binary file pointer not associated.");
 
-      public string DataRepresentation => (Pointer ?? throw new ToolsException()).DumpHex(Interval.Length, Interval.From);
+      public string DataRepresentation => (Pointer ?? throw new ToolsException()).
+         GetHexDump((uint)Interval.Length, BitNumber.Bit8 , Interval.From );
 
       public string DataRepresentationReduced => Interval.Length > RepresentationReducedValue ?
-         $"{(Pointer ?? throw new ToolsException()).DumpHex(RepresentationReducedValue, Interval.From, RepresentationColumns)}\n(...)" :
-         (Pointer ?? throw new ToolsException()).DumpHex(Interval.Length, Interval.From, RepresentationColumns);
+         $"{(Pointer ?? throw new ToolsException()).GetHexDump(
+            (uint)RepresentationReducedValue, BitNumber.Bit8, Interval.From, RepresentationColumns)}\n(...)" :
+         (Pointer ?? throw new ToolsException()).GetHexDump(
+            (uint)Interval.Length, BitNumber.Bit8, Interval.From, RepresentationColumns);
 
       public static int RepresentationReducedValue { get; set; } = 128;
 
