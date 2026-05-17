@@ -14,19 +14,26 @@ namespace Gate.CLanguage
       /// 
       /// </summary>
       /// <param name="parent"></param>
-      public CScope(CItemWithScopeSpace parent) => ItemWithScopeSpace = parent;
+      public CScope(ICItemWithScopeSpace parent) => ItemWithScopeSpace = parent;
 
       /// <summary>
       /// 
       /// </summary>
-      public CScopeHelperBase? Helper =>
-         ItemWithScopeSpace.HeaderSource != null ?
-            ItemWithScopeSpace.HeaderSource.ScopeHelper : CScopeHelperBase.GetDefault(ItemWithScopeSpace.Language);
+      public CScopeHelperBase? Helper
+      {
+         get
+         {
+            var itm = ItemWithScopeSpace as CItem ?? throw new CLangException("Unexpected!");
+            var src = itm?.Source;
+
+            return src != null ? src.ScopeHelper : CScopeHelperBase.GetDefault(itm?.Language ?? CLanguage.c);
+         }
+      }
 
       /// <summary>
       /// 
       /// </summary>
-      public CItemWithScopeSpace ItemWithScopeSpace { get; }
+      public ICItemWithScopeSpace ItemWithScopeSpace { get; }
 
       /// <summary>
       /// Returns first instance of <see cref="CDecl"/> in scope or null.
@@ -53,13 +60,13 @@ namespace Gate.CLanguage
       /// <summary>
       /// 
       /// </summary>
-      public CDecl[] VisibleDeclarations => Helper?.GetDeclStoragesFunctionVisible(ItemWithScopeSpace)??[];
+      public CDecl[] VisibleDeclarations => Helper?.GetDeclStoragesFunctionVisible(ItemWithScopeSpace) ?? [];
 
       /// <summary>
       /// <br> All visible vars inside scope, ie all scope variables plus the variables contained in all parent scope(parent compound, .. , global)</br>
       /// <br> In case of variable of with same name the deepest is considered.</br>
       /// </summary>
-      public CDecl[] VisibleVarDefinitions => Helper?.GetDeclStoragesFunctionVisible(ItemWithScopeSpace).Where(d => d.IsDefinition).ToArray()??[];
+      public CDecl[] VisibleVarDefinitions => Helper?.GetDeclStoragesFunctionVisible(ItemWithScopeSpace).Where(d => d.IsDefinition).ToArray() ?? [];
 
       /// <summary>
       /// All typedef's inside scope.
@@ -75,7 +82,7 @@ namespace Gate.CLanguage
       /// <br> All visible typedefs inside scope, ie all scope variables plus the variables contained in all parent scope(parent compound, .. , global)</br>
       /// <br> In case of variable of with same name the deepest is considered.</br>
       /// </summary>
-      public CTypeUserDefined[] TypesUsersFunctionVisible => Helper?.GetTypesUsersFunctionVisible(ItemWithScopeSpace)??[];
+      public CTypeUserDefined[] TypesUsersFunctionVisible => Helper?.GetTypesUsersFunctionVisible(ItemWithScopeSpace) ?? [];
 
       /// <summary>
       /// 

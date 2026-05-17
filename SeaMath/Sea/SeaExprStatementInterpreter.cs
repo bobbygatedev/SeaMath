@@ -56,7 +56,7 @@ namespace Gate.SeaMath.Sea
                Distinct().
                ToArray();
 
-            var exp_blo = exp_sta.ContainingScope?.ItemWithScopeSpace as CBlock;
+            var exp_cmp = exp_sta.ContainingScope?.ItemWithScopeSpace as CStatementCompound;
 
             //in case of sea declarations sea_dcs are placed before expression statement
             //eg
@@ -74,10 +74,10 @@ namespace Gate.SeaMath.Sea
                }
             }
 
-            if (exp_blo != null)
+            if (exp_cmp != null)
             {
-               exp_blo.RemoveFromScopeSpace(exp_sta);
-               exp_blo.AddStatements(exp_sta);
+               exp_cmp.RemoveFromScopeSpace(exp_sta);
+               exp_cmp.AddStatements(exp_sta);
             }
          }
 

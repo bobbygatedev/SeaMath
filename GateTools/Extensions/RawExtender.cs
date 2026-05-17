@@ -70,7 +70,6 @@ namespace Gate.Tools.Extensions
 
             while (wrdOff < numWord)
             {
-               //tododo
                var cnt = Math.Min((int)nWordPerRaw, numWord - wrdOff);
 
                // Offset
@@ -102,7 +101,8 @@ namespace Gate.Tools.Extensions
                      sb.Append("  ");
                   }
 
-                  sb.Append(i == nWordPerRaw / 2 - 1 ? "  " : " ");
+                  //separate hex digit on same row
+                  sb.Append(" ");
                }
 
                sb.Append(" ");

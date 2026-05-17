@@ -33,16 +33,16 @@ namespace Gate.CLanguage.Statement
 
             exp.TxtToken = input.Dequeue();
 
-            if (output.TopItem is CBlock blo)
+            if (output.TopItem is CStatementCompound cmp)
             {
-               blo.AddStatements(exp);
+               cmp.AddStatements(exp);
 
                return TxtElabResult.success;
             }
-            else if (output.TopItem is CCycleBody cyc_bdy)
+            else if (output.TopItem is CCycle cyc)
             {
-               output.Push(exp);
-
+               cyc.Body = exp;
+        
                return TxtElabResult.success;
             }
             else

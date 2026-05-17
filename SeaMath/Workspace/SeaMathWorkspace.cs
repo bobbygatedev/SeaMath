@@ -213,7 +213,7 @@ namespace Gate.SeaMath.Workspace
             var oth_hdr = Dirs.
                Where(d => d.Exists).
                SelectMany(d => Directory.GetFiles(d.FullName, "*.h")).
-               Where(h => !lst_dll.Any(l => l.HeaderSource?.FileInfo?.FullName.IsEqualNoContent(h) ?? false)).
+               Where(h => !lst_dll.Any(l => l.Source?.FileInfo?.FullName.IsEqualNoContent(h) ?? false)).
                Distinct(new EqualityComparerString()).
                ToArray();
 

@@ -31,7 +31,7 @@ namespace Gate.CLanguage.Decl
          declSpecifiers.AddDecl(this);
          TypeAlias.SetAsFunction(true);
 
-         if (hasBody) { myAddSubItem(new CBlockFunction()); }
+         if (hasBody) { myAddSubItem(new CStatementCompound()); }
          Kind = kind;
       }
 
@@ -68,9 +68,9 @@ namespace Gate.CLanguage.Decl
          $"{Identifier}{FunctionContainer?.Descriptor}{(Body != null ? "{...}" : ";")}";
 
       /// <summary>
-      /// 
+      /// If is a functiomn definition is not null
       /// </summary>
-      public CBlockFunction? Body => SubItems.OfType<CBlockFunction>().FirstOrDefault();
+      public CStatementCompound? Body => SubItems.OfType<CStatementCompound>().FirstOrDefault();
 
       /// <summary>
       /// 

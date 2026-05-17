@@ -4,6 +4,7 @@ using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -117,16 +118,16 @@ namespace Gate.CLanguage.Statement
                      var exp = output.PopOrCrash<CExprStatement>();
                      var ret_sta = output.PopOrCrash<Return>();
                      var fnc = output.ItemsOnStack.OfType<CDeclFunction>().FirstOrDefault() ?? throw new Crash();
-                     var blo = output.PeekOrCrash<CBlock>();
+                     var cmp = output.PeekOrCrash<CStatementCompound>();
 
                      ret_sta.Expression = exp;
 
                      if (input.MarkedText == ";")
                      {
-                        ret_sta.TxtToken = TxtTokenConst.FromTokenInterval(sta_tok, input?.MarkedToken ?? throw new Crash());
+                        ret_sta.TxtToken = TxtTokenConst.FromTokenInterval(sta_tok, input?.MarkedToken.NnOrCrash() ?? throw new Crash());
                      }
 
-                     blo.AddStatements(ret_sta);
+                     cmp.AddStatements(ret_sta);
 
                      if (inData.RtmStrategy.CanAssignTypeTo(
                         fnc.FunctionContainer?.TypeAliasReturned ?? throw new Crash(),
@@ -218,8 +219,8 @@ namespace Gate.CLanguage.Statement
             else
             {
                var stt = new S();//statement break/continue
-               var cmp = output.TopItem as CBlockCompound;
-               var cyc_bdy = output.TopItem as CCycleBody;
+               var cmp = output.TopItem as CStatementCompound;
+               var cyc = output.TopItem as CCycle;
 
                stt.TxtToken = tok;
 
@@ -227,9 +228,9 @@ namespace Gate.CLanguage.Statement
                {
                   cmp.AddStatements(stt);
                }
-               else if (cyc_bdy?.Cycle != null)
+               else if (cyc != null)
                {
-                  cyc_bdy.Cycle.Content = stt;
+                  cyc.Body = stt;
                }
                else
                {
@@ -240,18 +241,6 @@ namespace Gate.CLanguage.Statement
             }
          }
       }
-
-      public CBlockFunction? ParentBlockFunction => ParentBlock as CBlockFunction;
-
-      public CBlockCompound? ParentBlockCompound => ParentBlock as CBlockCompound;
-
-      public CBlock ParentBlock =>
-         ParentItem as CBlock ??
-         throw new Gate.CLanguage.CLangException($"Block unedefined for {GetType().Name}");
-
-      public CDeclFunction? Function => ParentItemChain.OfType<CBlockFunction>().FirstOrDefault()?.ParentFunction;
-
-      public CCycle? Cycle => ParentBlockCompound?.ParentCompound?.ParentCycle;
 
       /// <summary>
       /// 

@@ -130,9 +130,9 @@ namespace Gate.CLanguage.Expressions
 
             c_exp_sta.Expr = exp;
 
-            if (output.TopItem is CBlock cbl)
+            if (output.TopItem is CStatementCompound cmp)
             {
-               cbl.AddStatements(c_exp_sta);
+               cmp.AddStatements(c_exp_sta);
             }
             else
             {

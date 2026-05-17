@@ -6,6 +6,7 @@ using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
@@ -15,86 +16,19 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public class CCycleFor : CCycle
+   public class CCycleFor : CCycle , ICItemWithScopeSpace
    {
+      private CExprStatement? myUpdate;
+      private CExprStatement? myInitExpression;
+
       /// <summary>
       /// 
       /// </summary>
-      public CCycleFor() => myAddSubItem(new BodyType());
+      public CCycleFor() => Scope = new CScope(this);
 
       /// <summary>
-      /// Part of the for containing declaration/condtion/increment/
+      /// 
       /// </summary>
-      public class BodyType : CCycleBody
-      {
-         private CExprStatement? myUpdate;
-         private CExprStatement? myInitExpression;
-
-         public BodyType() { }
-
-         /// <summary>
-         /// 
-         /// </summary>
-         public CExprStatement? InitExpression
-         {
-            get => myInitExpression;
-            set
-            {
-               if (myInitExpression != value)
-               {
-                  myRemoveSubItem(myInitExpression);
-
-                  if ((myInitExpression = value) != null) { myAddSubItem(myInitExpression); }
-               }
-            }
-         }
-
-         /// <summary>
-         /// <br> If <see cref="Initialisation"/> is a declarator (eg 'for(int i = 0;; i++);') associated <see cref="CDeclSpecifiers"/> </br>
-         /// <br> in other cases (eg 'for(i = 0;; i++);','for(;; i++);') </br>
-         /// </summary>
-         public CDeclSpecifiers? InitSpecifiers => SubItems.OfType<CDeclSpecifiers>().FirstOrDefault();
-
-         /// <summary>
-         /// 
-         /// </summary>
-         public CItem? Initialisation => InitExpression as CItem ?? InitSpecifiers;
-
-         /// <summary>
-         /// 
-         /// </summary>
-         public CExprStatement? Update
-         {
-            get => myUpdate;
-            set
-            {
-               if (myUpdate != value)
-               {
-                  myRemoveSubItem(myUpdate);
-
-                  if ((myUpdate = value) != null) { myAddSubItem(myUpdate); }
-               }
-            }
-         }
-
-         /// <summary>
-         /// 
-         /// </summary>
-         public override CDecl[] ScopeDecls => InitSpecifiers != null ? InitSpecifiers.Decls : [];
-
-         public override string Descriptor => Rebuilt;
-
-         public override string Rebuilt => $"for({Initialisation};{Condition};{Update})";
-
-         public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages)
-         {
-            if (item is CStatement) { return true; }
-            ///just declaration (ie <see cref="InitSpecifiers"/> can be in scope space 
-            else if (item is CDeclSpecifiers dcl_spc) { return AddDeclSpec(messages, dcl_spc, scopeHelper); }
-            else { throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!"); }
-         }
-      }
-
       public class TokenInterpret : TokenInterpretBase
       {
          private And myAnd;
@@ -133,11 +67,12 @@ namespace Gate.CLanguage.Statement
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
-               var for_bdy = output.PeekOrCrash<BodyType>();
+               var for_bdy = output.PeekOrCrash<CCycleFor>();
 
                ForInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ";";
 
                var res = myOr.Perform(input, inData, ref output);
+               var ds = (output.ScopeSpaceItem as CItem)?.SubItems.LastOrDefault() as CDeclSpecifiers;
 
                if (res == TxtElabResult.success)
                {
@@ -180,7 +115,7 @@ namespace Gate.CLanguage.Statement
                      var pri_ali = ali.PrimitiveAlias;
 
                      output.PopOrCrash<CExprStatement>();
-                     output.PeekOrCrash<BodyType>().Update = exp;
+                     output.PeekOrCrash<CCycleFor>().Update = exp;
                   }
                }
 
@@ -193,16 +128,71 @@ namespace Gate.CLanguage.Statement
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
             var cyc_for = new CCycleFor();
-            var itm_sco = output.ScopeSpaceItem ?? throw new Crash();
+            var itm_sco = output.ScopeSpaceItem.NnOrCrash();
 
             if (!itm_sco.AddToScopeSpace(cyc_for, inData.ScopeHelper, inData.Messages)) { throw new Crash(); }
 
-            var res = myNested(cyc_for.Body, input, inData, ref output, myAnd, NestedMode.once_continue);
+            var res = myNested(cyc_for, input, inData, ref output, myAnd, NestedMode.once_continue);
 
             if (res == TxtElabResult.success) { }
             else { itm_sco.RemoveFromScopeSpace(cyc_for); }
 
             return res;
+         }
+      }
+
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CExprStatement? InitExpression
+      {
+         get => myInitExpression;
+         set
+         {
+            if (myInitExpression != value)
+            {
+               myRemoveSubItem(myInitExpression);
+
+               if ((myInitExpression = value) != null) { myAddSubItem(myInitExpression); }
+            }
+         }
+      }
+
+      /// <summary>
+      /// <br> If <see cref="Initialisation"/> is a declarator (eg 'for(int i = 0;; i++);') associated <see cref="CDeclSpecifiers"/> </br>
+      /// <br> in other cases (eg 'for(i = 0;; i++);','for(;; i++);') </br>
+      /// </summary>
+      public CDeclSpecifiers? InitSpecifiers
+      {
+         get => SubItems.OfType<CDeclSpecifiers>().FirstOrDefault();
+
+         set
+         {
+            myRemoveSubItem(InitSpecifiers);
+            myAddSubItem(value);
+         }
+      }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CItem? Initialisation => InitExpression as CItem ?? InitSpecifiers;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public CExprStatement? Update
+      {
+         get => myUpdate;
+         set
+         {
+            if (myUpdate != value)
+            {
+               myRemoveSubItem(myUpdate);
+
+               if ((myUpdate = value) != null) { myAddSubItem(myUpdate); }
+            }
          }
       }
 
@@ -213,21 +203,49 @@ namespace Gate.CLanguage.Statement
       {
          get
          {
-            if (Content is CCompound cmp) { return $"{Body.Descriptor}\n{cmp.Descriptor}"; }
-            else if (Content is CExprStatement exp) { return $"{Body.Descriptor} {exp.Descriptor};"; }
-            else { return $"{Body.Descriptor};"; }
+            if (Body is CStatementCompound cmp) { return $"{Descriptor}\n{cmp.Descriptor}"; }
+            else if (Body is CExprStatement exp) { return $"{Descriptor} {exp.Descriptor};"; }
+            else { return $"{Body?.Descriptor};"; }
          }
       }
 
       /// <summary>
       /// 
       /// </summary>
-      public new BodyType Body => SubItems.OfType<BodyType>().First();
+      public override string Descriptor => $"for({Initialisation?.Descriptor};{Condition?.Descriptor};{Update?.Descriptor}){Body?.Descriptor}";
 
-      /// <summary>
-      /// 
-      /// </summary>
-      public override string Descriptor => $"{Body.Descriptor}{myGetBodyStr(Content)}";
+      public CScope Scope { get; }
 
+      public CDecl[] ScopeDecls => 
+         Body is CStatementCompound cmp ? cmp.ScopeDecls : InitSpecifiers?.Decls ?? [];
+
+      public bool AddDeclSpec(MsgCollection messages, CDeclSpecifiers declSpecifier, CScopeHelperBase? scopeHelper = null)
+      {
+         if (InitSpecifiers == null)
+         {
+            InitSpecifiers = declSpecifier.NnOrCrash();
+
+            return true;
+         }
+         else
+         {
+            throw new Crash("Init specifiers already set");
+         }
+      }
+
+      public bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) => 
+         AddDeclSpec(messages, item.ConvertOrCrash<CDeclSpecifiers>(), scopeHelper);
+
+      public void RemoveFromScopeSpace(CItem item)
+      {
+         if (item == InitSpecifiers)
+         {
+            InitSpecifiers = null;
+         }
+         else
+         {
+            throw new Crash("Unexpected!");
+         }
+      }
    }
 }

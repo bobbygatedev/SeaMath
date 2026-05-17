@@ -3,7 +3,6 @@ using Gate.CLanguage.DeclInterpreter;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.Tools;
-using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -17,22 +16,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public CCycleWhile() => myAddSubItem(new BodyType());
-
-      /// <summary>
-      /// 
-      /// </summary>
-      public class BodyType : CCycleBody
-      {
-         public BodyType() { }
-
-         public override string Descriptor => Rebuilt;
-
-         public override string Rebuilt => $"while({Condition})";
-
-         public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) =>
-            item is CStatement ? true : throw new Gate.Tools.ToolsException($"{item.GetType().Name} not allowed!");
-      }
+      public CCycleWhile() { }
 
       /// <summary>
       /// 
@@ -52,13 +36,37 @@ namespace Gate.CLanguage.Statement
          {
             var cyc_whi = new CCycleWhile();
             var itm_sco = output.ScopeSpaceItem ?? throw new Crash();
+            var top_itm = output.TopItem;
+            var c_sco = top_itm as CStatementCompound;
+            var cyc = top_itm as CCycle;
 
-            if (!itm_sco.AddToScopeSpace(cyc_whi, inData.ScopeHelper, inData.Messages)) { throw new Crash(); }
+            if (c_sco != null)
+            {
+               c_sco.AddStatements(cyc_whi);
+            }
+            else if (cyc != null)
+            {
+               cyc.Body = cyc_whi;//nested cycle
+            }
+            else { throw new Crash(); }
 
-            var res = myNested(cyc_whi.Body, input, inData, ref output, myAnd, NestedMode.once_continue);
+            var res = myNested(cyc_whi, input, inData, ref output, myAnd, NestedMode.once_continue);
 
-            if (res == TxtElabResult.success) { }
-            else { itm_sco.RemoveFromScopeSpace(cyc_whi); }
+            if (res != TxtElabResult.success)
+            {
+               if (c_sco != null)
+               {
+                  c_sco.RemoveFromScopeSpace(cyc_whi);
+               }
+               else if (cyc != null)
+               {
+                  cyc.Body = null;
+               }
+               else
+               {
+                  throw new Crash();
+               }
+            }
 
             return res;
          }
@@ -76,8 +84,6 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-      public new BodyType Body => SubItems.OfType<BodyType>().First();
-
-      public override string Descriptor => $"while({StayExpression}){myGetBodyStr(Content)}";
+      public override string Descriptor => $"while({StayExpression}){myGetBodyStr(base.Body)}";
    }
 }

@@ -193,7 +193,7 @@ namespace Gate.CLanguage.DeclSpecifiers
                   d.IsFunction ? ((CDeclFunction)d).FunctionContainer?.Parameters.ToArray() : null,
                   null));
 
-            return $"DeclSpec: {dsc} {string.Join(",", dcs.Select(d => d.Trim()))};";
+            return $"{dsc} {string.Join(",", dcs.Select(d => d.Trim()))};";
          }
       }
 
@@ -217,7 +217,7 @@ namespace Gate.CLanguage.DeclSpecifiers
          var is_exc = messages == null;
 
          messages = messages ?? new MsgCollection();
-         scopeHelper = scopeHelper ?? ContainingScope?.Helper ?? HeaderSource?.ScopeHelper;
+         scopeHelper = scopeHelper ?? ContainingScope?.Helper ?? Source?.ScopeHelper;
 
          if (decl.DeclSpecifiers == this) { return true; }//nothing to to
          else if (decl.DeclSpecifiers != null) { throw new Gate.Tools.ToolsException($"Already bound to other {GetType().Name}"); }
@@ -239,5 +239,7 @@ namespace Gate.CLanguage.DeclSpecifiers
             }
          }
       }
+
+      public override string ToString() => $"Decl Specifier: {Descriptor}";
    }
 }

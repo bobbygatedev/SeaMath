@@ -120,7 +120,7 @@ namespace Gate.CLanguage.Types
          {
             var typ = typeClass as CType ?? throw new Crash();
 
-            return typ.HeaderSource?.PackMap?.ElementAtOrDefault((typ.TxtToken?.To ?? throw new Crash()).Line - 1) ?? CSource.DEFAULT_PACK;
+            return typ.Source?.PackMap?.ElementAtOrDefault((typ.TxtToken?.To ?? throw new Crash()).Line - 1) ?? CSource.DEFAULT_PACK;
          }
       }
 
@@ -134,7 +134,7 @@ namespace Gate.CLanguage.Types
          {
             var typ = typeClass as CType ?? throw new Crash();
 
-            return typ.HeaderSource?.PackMap?.ElementAtOrDefault((typ.TxtToken?.To?.Line ?? throw new Crash()) - 1) ?? CSource.DEFAULT_PACK;
+            return typ.Source?.PackMap?.ElementAtOrDefault((typ.TxtToken?.To?.Line ?? throw new Crash()) - 1) ?? CSource.DEFAULT_PACK;
          }
 
          public (CTypeClassFieldGroup[], int) GetFieldGroupsAndSizeof(ITypeClass typeClass)

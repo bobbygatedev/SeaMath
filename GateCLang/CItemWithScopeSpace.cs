@@ -1,16 +1,14 @@
 ﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.DeclSpecifiers;
 using Gate.Tools;
-using Gate.Tools.Extensions;
 using Gate.Tools.Message;
-using System.Text;
 
 namespace Gate.CLanguage
 {
    /// <summary>
    /// Represents an item which has a scope space (eg function, struct/union/enum body, block).
    /// </summary>
-   public abstract class CItemWithScopeSpace : CItem
+   public abstract class CItemWithScopeSpace : CItem, ICItemWithScopeSpace
    {
       /// <summary>
       /// 
@@ -66,35 +64,6 @@ namespace Gate.CLanguage
             return true;
          }
          else { return false; }
-      }
-
-
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <returns></returns>
-      protected CDecl[] myGetScopeDeclsDefault() => SubItems.
-         OfType<CDeclSpecifiers>().
-         SelectMany(ds => ds.Decls).
-         Where(d => !d.IsAnonimous).
-         Concat(Scope.EnumLabels.Select(l => l.AssociatedDecl)).
-         Nn().ToArray();
-
-      /// <summary>
-      /// For subclass having brace '{}' as border like <see cref="Gate.CLanguage.Types.CTypeStructBody"/> <see cref="Gate.CLanguage.Statement.CBlock"/> 
-      /// </summary>
-      /// <returns></returns>
-      protected string myGetBraceRebuilt()
-      {
-         var sb = new StringBuilder();
-
-         sb.AppendLine("{");
-
-         foreach (var itm in SubItems.OfType<CItem>()) { sb.AppendLine(itm.Rebuilt); }
-
-         sb.AppendLine("}");
-
-         return sb.ToString();
       }
    }
 }

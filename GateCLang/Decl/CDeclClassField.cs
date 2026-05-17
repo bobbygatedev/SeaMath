@@ -43,8 +43,8 @@ namespace Gate.CLanguage.Decl
       /// If <see cref="CSource.PackMap"/> is not null check 
       /// </summary>
       public int Pack =>
-         TxtToken?.From != null && HeaderSource?.PackMap != null ?
-            HeaderSource.PackMap[TxtToken.From.Line - 1] :
+         TxtToken?.From != null && Source?.PackMap != null ?
+            Source.PackMap[TxtToken.From.Line - 1] :
             CSource.DEFAULT_PACK;
 
       /// <summary>

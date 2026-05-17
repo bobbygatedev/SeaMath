@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace Gate.ToolsView.ControlFeature
+﻿namespace Gate.ToolsView.ControlFeature
 {
    /// <summary>
    /// 

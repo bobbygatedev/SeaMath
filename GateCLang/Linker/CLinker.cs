@@ -259,7 +259,7 @@ namespace Gate.CLanguage.Linker
 
                //var is no extern and trying to link to var from another source
                //this is valid for visual studio and for not init globals such as 'int a;' 
-               var is_no_ext = !declToLink.IsExternalLinkRequired && !ReferenceEquals(linkedDeclaration?.HeaderSource, declToLink.HeaderSource);
+               var is_no_ext = !declToLink.IsExternalLinkRequired && !ReferenceEquals(linkedDeclaration?.Source, declToLink.Source);
                if (is_no_ext && Settings.IsExternCompulsoryForVars)
                {
                   //in this case i try to link a simple declarat

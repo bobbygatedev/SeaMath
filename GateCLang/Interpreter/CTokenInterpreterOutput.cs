@@ -33,7 +33,7 @@ namespace Gate.CLanguage.Interpreter
       /// <summary>
       /// 
       /// </summary>
-      public CItemWithScopeSpace? ScopeSpaceItem => ItemsOnStack.OfType<CItemWithScopeSpace>().FirstOrDefault();
+      public ICItemWithScopeSpace? ScopeSpaceItem => ItemsOnStack.OfType<ICItemWithScopeSpace>().FirstOrDefault();
 
       /// <summary>
       /// 

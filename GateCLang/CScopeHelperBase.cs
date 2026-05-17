@@ -42,7 +42,7 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public abstract CDeclStorage[] GetDeclStoragesFunctionVisible(CItemWithScopeSpace itemWithScope);
+      public abstract CDeclStorage[] GetDeclStoragesFunctionVisible(ICItemWithScopeSpace itemWithScope);
 
       /// <summary>
       /// 
@@ -63,20 +63,20 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public abstract CTypeUserDefined[] GetTypesUsersFunctionVisible(CItemWithScopeSpace itemWithScope);
+      public abstract CTypeUserDefined[] GetTypesUsersFunctionVisible(ICItemWithScopeSpace itemWithScope);
 
       /// <summary>
       /// 
       /// </summary>
       /// <param name="itemWithScopeSpace"></param>
       /// <returns></returns>
-      public abstract CDeclTypedef[] GetTypedefsFunctionVisible(CItemWithScopeSpace itemWithScopeSpace);
+      public abstract CDeclTypedef[] GetTypedefsFunctionVisible(ICItemWithScopeSpace itemWithScopeSpace);
 
       /// <summary></summary>
       /// 
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public abstract CTypeUserDefined[] GetUserTypesScope(CItemWithScopeSpace itemWithScope);
+      public abstract CTypeUserDefined[] GetUserTypesScope(ICItemWithScopeSpace itemWithScope);
 
       /// <summary>
       /// 
@@ -85,7 +85,7 @@ namespace Gate.CLanguage
       /// <param name="declSpecs"></param>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public abstract bool CheckDecl(MsgCollection messages, CDecl decl, CItemWithScopeSpace itemWithScope);
+      public abstract bool CheckDecl(MsgCollection messages, CDecl decl, ICItemWithScopeSpace itemWithScope);
 
       /// <summary>
       /// 
@@ -94,7 +94,7 @@ namespace Gate.CLanguage
       /// <param name="typeUserDefined"></param>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public abstract bool CheckUserDefType(MsgCollection messages, CTypeUserDefined typeUserDefined, CItemWithScopeSpace itemWithScope);
+      public abstract bool CheckUserDefType(MsgCollection messages, CTypeUserDefined typeUserDefined, ICItemWithScopeSpace itemWithScope);
 
       /// <summary>
       /// 

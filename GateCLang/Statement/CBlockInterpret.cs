@@ -69,41 +69,36 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var blo = null as CBlock;
+            var cmp = null as CStatementCompound;
             var itm = output.Peek();
 
             var cmp_ini_tok_idx = input.CurrIdx - 1;//token where compound body starts
 
-            if (itm is CDeclFunction fnc) { blo = fnc.Body; }
-            else if (itm is CCycleBody cyc_bdy)
+            if (itm is CDeclFunction fnc) { cmp = fnc.Body?.NnOrCrash(); }
+            else if (itm is CCycle cyc)
             {
-               var cmp = new CCompound();
-
-               blo = cmp.Block;
-               (cyc_bdy.Cycle ?? throw new Crash()).Content = cmp;
+               cyc.Body = cmp = new CStatementCompound();
             }
-            else if (itm is CBlock nst_blo)//nested block
+            else if (itm is CStatementCompound nst_cmp)//nested compound
             {
-               var cmp = new CCompound();
+               cmp = new CStatementCompound();
 
-               blo = cmp.Block;
-
-               if (!nst_blo.AddToScopeSpace(cmp, inData.ScopeHelper, inData.Messages)) { return TxtElabResult.failure; }
+               if (!nst_cmp.AddToScopeSpace(cmp, inData.ScopeHelper, inData.Messages)) { return TxtElabResult.failure; }
             }
             else { throw new Crash(); }
 
             var res = myNestedIterate(
-               blo ?? throw new Crash(), input, inData, ref output, myLazyOr.Value, inp => inp.MarkedText == "}");
+               cmp ?? throw new Crash(), input, inData, ref output, myLazyOr.Value, inp => inp.MarkedText == "}");
 
             if (res == TxtElabResult.success)
             {
                var cmp_end_tok_idx = input.CurrIdx;
 
-               blo.TxtToken = TxtTokenConst.FromTokenInterval(input[cmp_ini_tok_idx], input[cmp_end_tok_idx]);
+               cmp.TxtToken = TxtTokenConst.FromTokenInterval(input[cmp_ini_tok_idx], input[cmp_end_tok_idx]);
 
                if (cmp_end_tok_idx - cmp_ini_tok_idx > 1)
                {
-                  blo.TxtToken = TxtTokenConst.FromTokenInterval(input[cmp_ini_tok_idx + 1], input[cmp_end_tok_idx - 1]);
+                  cmp.TxtToken = TxtTokenConst.FromTokenInterval(input[cmp_ini_tok_idx + 1], input[cmp_end_tok_idx - 1]);
                }
             }
 
@@ -168,8 +163,8 @@ namespace Gate.CLanguage.Statement
             var tok = TxtTokenConst.FromTokenInterval(input[beg_idx], input[input.CurrIdx - 1]);
 
             if (itm is CDeclFunction fnc) { (fnc.Body ?? throw new Crash()).TxtToken = tok; }
-            else if (itm is CBlock sub_blo) { sub_blo.TxtToken = tok; }
-            else if (itm is CCycleBody cyc_bdy) { (cyc_bdy.Cycle?.Content.NnOrCrash() ?? throw new Crash()).TxtToken = tok; }
+            else if (itm is CStatementCompound sub_cmp) { sub_cmp.TxtToken = tok; }
+            else if (itm is CCycle cyc) { (cyc.Body.NnOrCrash()).TxtToken = tok; }
             else if (itm is CStatement sta) { }
             else { throw new Crash(); }
          }

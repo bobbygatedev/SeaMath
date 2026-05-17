@@ -1,33 +1,20 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
-using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Statement
 {
+   /// <summary>
+   /// tododo
+   /// </summary>
    public class CCycleIfElse : CCycle
    {
       /// <summary>
       /// 
       /// </summary>
-      public CCycleIfElse() => myAddSubItem(new BodyType());
-
-      /// <summary>
-      /// Body for <see cref="CCycleIfElse"/>
-      /// </summary>
-      public class BodyType : CCycleBody
-      {
-         public override string Descriptor => throw new NotImplementedException();
-
-         public override string Rebuilt => throw new NotImplementedException();
-
-         public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages)
-         {
-            throw new NotImplementedException();
-         }
-      }
+      public CCycleIfElse() { }
 
       /// <summary>
       /// 
@@ -80,14 +67,11 @@ namespace Gate.CLanguage.Statement
       {
          get
          {
-            if (IsPureElse) { return $"else {myGetBodyStr(Content)}"; }
-            else if (Content is CCycleIfElse) { return $"else {Content.Descriptor}"; }
-            else { return $"if({IfExpression?.Descriptor}){myGetBodyStr(Content)}"; }//compound
+            if (IsPureElse) { return $"else {myGetBodyStr(base.Body)}"; }
+            else if (base.Body is CCycleIfElse) { return $"else {base.Body.Descriptor}"; }
+            else { return $"if({IfExpression?.Descriptor}){myGetBodyStr(base.Body)}"; }//compound
          }
       }
-
-      public new BodyType Body => SubItems.OfType<BodyType>().First();
-
 
       /// <summary>
       /// 

@@ -76,8 +76,8 @@ namespace Gate.CLanguage.Decl
       /// <summary>
       /// <see cref="ExprNodeOperand"/> using me.
       /// </summary>
-      public ExprNodeOperand[] UsingOperands => HeaderSource != null ?
-         HeaderSource.AllDescendant.OfType<ExprNodeOperandVariable>().Where(v => v.Decl == this).ToArray() :
+      public ExprNodeOperand[] UsingOperands => Source != null ?
+         Source.AllDescendant.OfType<ExprNodeOperandVariable>().Where(v => v.Decl == this).ToArray() :
          new ExprNodeOperand[0];
 
       /// <summary>
@@ -158,7 +158,7 @@ namespace Gate.CLanguage.Decl
       /// <summary>
       /// 
       /// </summary>
-      IRtmDbgEngVirtPseudoExeItem? IDecl.ExeItem => HeaderSource;
+      IRtmDbgEngVirtPseudoExeItem? IDecl.ExeItem => Source;
 
       /// <summary>
       /// 

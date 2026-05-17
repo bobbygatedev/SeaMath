@@ -1,15 +1,18 @@
-﻿using Gate.CLanguage.PrePx.Directives;
+﻿using Gate.CLanguage.Decl;
+using Gate.CLanguage.DeclSpecifiers;
+using Gate.CLanguage.PrePx.Directives;
 using Gate.CLanguage.Source;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
+using System.Text;
 
 namespace Gate.CLanguage
 {
    /// <summary>
    /// 
    /// </summary>
-   public abstract class CItem : HierarchicalItem
+   public abstract class CItem : HierarchicalItem , ICItem
    {
       private CLanguage myInternalLanguage = CLanguage.c;
 
@@ -49,7 +52,7 @@ namespace Gate.CLanguage
       /// </summary>
       public CLanguage Language
       {
-         get => this is CSource || HeaderSource == null ? myInternalLanguage : HeaderSource.Language;
+         get => this is CSource || Source == null ? myInternalLanguage : Source.Language;
 
          set => myInternalLanguage = value;
       }
@@ -57,7 +60,7 @@ namespace Gate.CLanguage
       /// <summary>
       /// 
       /// </summary>
-      public virtual CSource? HeaderSource => ParentItemChain.FirstOrDefault(i => i is CSource) as CSource;
+      public virtual CSource? Source => ParentItemChain.FirstOrDefault(i => i is CSource) as CSource;
 
       /// <summary>
       /// 
@@ -73,7 +76,7 @@ namespace Gate.CLanguage
       /// <br> - me if I am a scope.</br>
       /// <br> - closest scopeItem in ParentItemChain which is a scope (ie a compound, a class/struct/union, or null).</br>
       /// </summary>
-      public CScope? ContainingScope => ParentItemChain.OfType<CItemWithScopeSpace>().FirstOrDefault()?.Scope;
+      public CScope? ContainingScope => ParentItemChain.OfType<ICItemWithScopeSpace>().FirstOrDefault()?.Scope;
 
       /// <summary>
       /// 
@@ -87,9 +90,9 @@ namespace Gate.CLanguage
       {
          get
          {
-            if (HasAssociatedPragma && HeaderSource != null && TxtToken != null)
+            if (HasAssociatedPragma && Source != null && TxtToken != null)
             {
-               var ppx_srx = HeaderSource.PrePxSource;
+               var ppx_srx = Source.PrePxSource;
                var ln_idx = TxtToken.From?.Line ?? -1;
                var drs = ppx_srx?.DirectiveMap?.Where(kp => kp.Value is CPrePxDirectivePragma && kp.Key < ln_idx).ToArray() ?? [];
 
@@ -99,7 +102,7 @@ namespace Gate.CLanguage
 
                   for (var li = cnd_kp.Key + 1; li < ln_idx; li++)
                   {
-                     if (HeaderSource.Store != null && !HeaderSource.Store[ln_idx].Content.IsBlank()) { return null; }
+                     if (Source.Store != null && !Source.Store[ln_idx].Content.IsBlank()) { return null; }
                   }
 
                   return cnd_kp.Value as CPrePxDirectivePragma;
@@ -115,5 +118,34 @@ namespace Gate.CLanguage
       /// </summary>
       /// <returns></returns>
       public override string ToString() => $"{Descriptor}(Id={GlobalId})";
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <returns></returns>
+      protected CDecl[] myGetScopeDeclsDefault(CScope scope) => SubItems.
+         OfType<CDeclSpecifiers>().
+         SelectMany(ds => ds.Decls).
+         Where(d => !d.IsAnonimous).
+         Concat(scope.EnumLabels.Select(l => l.AssociatedDecl)).
+         Nn().ToArray();
+
+
+      /// <summary>
+      /// For subclass having brace '{}' as border like <see cref="Gate.CLanguage.Types.CTypeStructBody"/> <see cref="Gate.CLanguage.Statement.CStatementCompoundBlock"/> 
+      /// </summary>
+      /// <returns></returns>
+      protected string myGetBraceRebuilt()
+      {
+         var sb = new StringBuilder();
+
+         sb.AppendLine("{");
+
+         foreach (var itm in SubItems.OfType<CItem>()) { sb.AppendLine(itm.Rebuilt); }
+
+         sb.AppendLine("}");
+
+         return sb.ToString();
+      }
    }
 }

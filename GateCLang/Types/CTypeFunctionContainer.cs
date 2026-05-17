@@ -69,7 +69,7 @@ namespace Gate.CLanguage.Types
 
       public CDeclVar this[int index] => IsVoid ? throw new Gate.CLanguage.CLangException($"void parameter set.") : Parameters[index];
 
-      public override CDecl[] ScopeDecls => myGetScopeDeclsDefault();
+      public override CDecl[] ScopeDecls => myGetScopeDeclsDefault(Scope);
 
       /// <summary>
       /// 

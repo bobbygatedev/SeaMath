@@ -151,7 +151,7 @@ namespace Gate.CLanguage.PrePx.Directives.Macro
 
       public IDecl? Linkage => null;
 
-      public IRtmDbgEngVirtPseudoExeItem? ExeItem => HeaderSource;
+      public IRtmDbgEngVirtPseudoExeItem? ExeItem => Source;
 
       private string myShrink(string @string) => myRegexForShrink.Replace(@string, " ").Trim();
 

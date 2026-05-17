@@ -4,6 +4,7 @@ using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -14,6 +15,9 @@ namespace Gate.CLanguage.Statement
    /// </summary>
    public abstract class CCycle : CStatement
    {
+      private CExprStatement? myCondition;
+      private CStatement? myBody = null;
+
       /// <summary>
       /// 
       /// </summary>
@@ -21,7 +25,10 @@ namespace Gate.CLanguage.Statement
       
       public abstract class TokenInterpretBase : CTokenInterpreter
       {
-         protected TokenInterpretBase(CDeclInterpretFactory declInterpretFactory, CAttributesInterpret attributesInterpret, CExprStatementInterpreter exprInterpret)
+         protected TokenInterpretBase(
+            CDeclInterpretFactory declInterpretFactory, 
+            CAttributesInterpret attributesInterpret, 
+            CExprStatementInterpreter exprInterpret)
          {
             DeclInterpretFactory = declInterpretFactory;
             AttributesInterpreter = attributesInterpret;
@@ -47,14 +54,11 @@ namespace Gate.CLanguage.Statement
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
-               var res = myBlockInterpreter.Perform(input, inData, ref output);
+               var res =  myBlockInterpreter.Perform(input, inData, ref output);
 
-               //in this case cycle is of type 'while(1) print("Hallo");'
-               if (res == TxtElabResult.success && output.TopItem is CStatement sta)
+               if (res == TxtElabResult.success && output.TopItem is CExprStatement exp)
                {
-                  var cyc = output.PeekOrDefault<CCycleBody>(1)?.Cycle ?? throw new Crash();
-
-                  cyc.Content = sta;
+                  output.PeekOrCrash<CCycle>(1).Body = exp;
                }
 
                return res;
@@ -120,7 +124,6 @@ namespace Gate.CLanguage.Statement
             }
             else { throw new Crash(); }
 
-
             var res = myAnd.Perform(input, inData, ref output);
 
             if (res == TxtElabResult.success)
@@ -142,11 +145,11 @@ namespace Gate.CLanguage.Statement
                   {
                      output.PopOrCrash<CExprStatement>();
 
-                     //cycle body
-                     var cyc_bdy = output.CycleOnTopItem?.Body ?? throw new Crash();
+                     //cycle 
+                     var cyc = output.CycleOnTopItem.NnOrCrash();
 
                      //assign cycle condition
-                     cyc_bdy.Condition = exp;
+                     cyc.Condition = exp;
                   }
                }
             }
@@ -157,29 +160,41 @@ namespace Gate.CLanguage.Statement
 
       /// <summary>
       /// <br>Content of cycle it can be either </br>
-      /// <br> - a <see cref="CCompound"/> (eg 'while (i !=; 0 ) i++;' ) </br> 
+      /// <br> - a <see cref="CStatementCompound"/> (eg 'while (i !=; 0 ) i++;' ) </br> 
       /// <br> - a <see cref="CStatement"/> (eg 'while (i !=; 0 )i++' ) not in </br>
       /// </summary>
-      public CStatement? Content
+      public CStatement? Body
       {
-         get => SubItems.OfType<CStatement>().FirstOrDefault();
+         get => myBody;
          set
          {
-            myRemoveSubItem(Content);
-            myAddSubItem(value);
+            myRemoveSubItem(myBody);
+            myAddSubItem(myBody = value);
          }
       }
 
       /// <summary>
-      /// 
+      ///  
       /// </summary>
-      public CCycleBody? Body => SubItems.OfType<CCycleBody>().FirstOrDefault();
+      public CExprStatement? Condition
+      {
+         get => myCondition;
+         set
+         {
+            if (myCondition != value)
+            {
+               myRemoveSubItem(myCondition);
+
+               if ((myCondition = value) != null) { myAddSubItem(myCondition); }
+            }
+         }
+      }
 
       protected static string? myGetBodyStr(CStatement? body)
       {
          switch (body)
          {
-            case CCompound _: return "{..}";
+            case CStatementCompound _: return "{..}";
             case CStatement _: return body.Descriptor;
             default: return null;
          }

@@ -196,11 +196,11 @@ namespace Gate.CLanguage.Types
       {
          var pol = ClassFieldGroupPolicies.Instance[ClassFieldGroupPolicyId.gcc_msys];
 
-         if (HeaderSource != null)
+         if (Source != null)
          {
-            pol = HeaderSource?.Settings?.ClassFieldGroupPolicyId == ClassFieldGroupPolicyId.custom ?
-               ClassFieldGroupPolicies.Instance[HeaderSource.Settings.ClassFieldGroupCustomPolicyName] :
-               ClassFieldGroupPolicies.Instance[HeaderSource?.Settings?.ClassFieldGroupPolicyId??ClassFieldGroupPolicyId.none];
+            pol = Source?.Settings?.ClassFieldGroupPolicyId == ClassFieldGroupPolicyId.custom ?
+               ClassFieldGroupPolicies.Instance[Source.Settings.ClassFieldGroupCustomPolicyName] :
+               ClassFieldGroupPolicies.Instance[Source?.Settings?.ClassFieldGroupPolicyId??ClassFieldGroupPolicyId.none];
          }
 
          return pol;

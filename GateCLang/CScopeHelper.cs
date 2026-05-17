@@ -30,46 +30,42 @@ namespace Gate.CLanguage
       /// </summary>
       private static class InnerGetUserTypesScopeVisitor
       {
-         public static CTypeUserDefined[] GetUserTypesScope(CItemWithScopeSpace itemWithScope) => myGetUserTypesScope((dynamic)itemWithScope);
+         public static CTypeUserDefined[] GetUserTypesScope(ICItemWithScopeSpace itemWithScope) =>
+            myGetUserTypesScope((dynamic)itemWithScope);
 
-         private static CTypeUserDefined[] myGetUserTypesScope(CItemWithScopeSpace itemWithScope) => throw new Crash();
+         private static CTypeUserDefined[] myGetUserTypesScope(ICItemWithScopeSpace itemWithScope) => throw new Crash();
 
          private static CTypeUserDefined[] myGetUserTypesScope(CTypeStructBody structBody) =>
             myGetTypeHierarchy([structBody.ParentStruct?.Anchestor ?? throw new Crash()]);
 
          private static CTypeUserDefined[] myGetUserTypesScope(CSource source) => myGetUserTypesScopeBlock(source);
 
-         private static CTypeUserDefined[] myGetUserTypesScope(CBlockCompound blockCompound) => myGetUserTypesScopeBlock(blockCompound);
-
-         private static CTypeUserDefined[] myGetUserTypesScope(CCycleWhile.BodyType whileBody)
+         private static CTypeUserDefined[] myGetUserTypesScope(CStatementCompound compound)
          {
-            throw new NotImplementedException();//todo
+            if (compound.IsForFunction)
+            {
+               return myGetTypeHierarchy(
+                  myGetUserTypesScopeBlock(compound).Concat(
+                     myGetUserTypesScope(compound.ContainingFunction?.FunctionContainer ?? throw new Crash())));
+            }
+            else if (compound.ContainingCycle is CCycleFor for_cyc)
+            {
+               return for_cyc.InitSpecifiers != null ? myGetUserTypesScope(for_cyc.InitSpecifiers.NnOrCrash()) : [];
+            }
+            else
+            {
+               return myGetUserTypesScopeBlock(compound);
+            }
          }
 
-         private static CTypeUserDefined[] myGetUserTypesScope(CCycleDoWhile.BodyType doWhileBody)
-         {
-            throw new NotImplementedException();//todo
-         }
-
-         private static CTypeUserDefined[] myGetUserTypesScope(CCycleIfElse.BodyType ifElseBody)
-         {
-            throw new NotImplementedException();//todo
-         }
-
-         private static CTypeUserDefined[] myGetUserTypesScope(CCycleSwitch.BodyType switchBody)
-         {
-            throw new NotImplementedException();//todo
-         }
-
-         private static CTypeUserDefined[] myGetUserTypesScope(CCycleFor.BodyType forBody) =>
-            forBody.InitSpecifiers != null ? myGetUserTypesScope(forBody.InitSpecifiers) : [];
-
-         private static CTypeUserDefined[] myGetUserTypesScope(CBlockFunction blockFunction) =>
+         private static CTypeUserDefined[] myGetUserTypesScopeBlock(ICItemWithScopeSpace block) =>
             myGetTypeHierarchy(
-               myGetUserTypesScopeBlock(blockFunction).Concat(myGetUserTypesScope(blockFunction.ParentFunction?.FunctionContainer??throw new Crash())));
-
-         private static CTypeUserDefined[] myGetUserTypesScopeBlock(IBlock block) =>
-            myGetTypeHierarchy(((CItemWithScopeSpace)block).SubItems.OfType<CDeclSpecifiers>().Select(ds => ds.TypeBase).OfType<CTypeUserDefined>());
+               block.
+               ConvertOrCrash<CItem>().
+               SubItems.
+               OfType<CDeclSpecifiers>().
+               Select(ds => ds.TypeBase).
+               OfType<CTypeUserDefined>());
 
          private static CTypeUserDefined[] myGetUserTypesScope(CTypeFunctionContainer functionParameters) =>
             myGetTypeHierarchy(functionParameters.Select(fp => fp.DeclSpecifiers?.TypeBase).OfType<CTypeUserDefined>());
@@ -79,8 +75,8 @@ namespace Gate.CLanguage
             var blo = declSpecifiers.ParentItemChain.OfType<IBlock>().FirstOrDefault();
 
             if (blo != null) { return myGetUserTypesScope((dynamic)blo); }
-            else if (declSpecifiers.TypeBase is CTypeUserDefined typ_usr) { return new[] { typ_usr }; }
-            else { return new CTypeUserDefined[0]; }
+            else if (declSpecifiers.TypeBase is CTypeUserDefined typ_usr) { return [typ_usr]; }
+            else { return []; }
          }
 
          private static CTypeUserDefined[] myGetTypeHierarchy(IEnumerable<CTypeUserDefined> typesUserDefined) =>
@@ -92,14 +88,14 @@ namespace Gate.CLanguage
       /// </summary>
       private static class InnerScopeDeclVisitor
       {
-         public static CDecl[] GetDeclFunctionVisible(CItemWithScopeSpace itemWithScope, CScopeHelper scopeHelper) =>
+         public static CDecl[] GetDeclFunctionVisible(ICItemWithScopeSpace itemWithScope, CScopeHelper scopeHelper) =>
             myGetDeclsFunctionVisible((dynamic)itemWithScope, scopeHelper);
 
          private static CDecl[] myGetDeclsFunctionVisible(CTypeStructBody structBody, CScopeHelper scopeHelper)
          {
             var sco_stk = myGetBlockStack(structBody);
 
-            if (sco_stk.LastOrDefault() is CBlock blo) { return myGetDeclsFunctionVisible((dynamic)blo, scopeHelper); }
+            if (sco_stk.LastOrDefault() is CStatementCompound cmp) { return myGetDeclsFunctionVisible((dynamic)cmp, scopeHelper); }
             else if (sco_stk.LastOrDefault() is CSource sou) { return myGetDeclsFunctionVisible(sou, scopeHelper); }
             else { throw new Crash(); }
          }
@@ -118,22 +114,19 @@ namespace Gate.CLanguage
          private static CDecl[] myGetDeclsFunctionVisible(CDeclSpecifiers declSpecifier, CScopeHelper scopeHelper)
          {
             var sco_stk = myGetBlockStack(declSpecifier.ContainingScope?.ItemWithScopeSpace ?? throw new Crash());
-            var blo = sco_stk.OfType<CBlock>().FirstOrDefault();
+            var cmp = sco_stk.OfType<CStatementCompound>().FirstOrDefault();
 
-            if (blo != null)//function scope 
+            if (cmp != null)//function scope 
             {
-               return myGetDeclsFunctionVisible((dynamic)blo, scopeHelper);
+               return myGetDeclsFunctionVisible((dynamic)cmp, scopeHelper);
             }
             else//global scope
             {
-               return declSpecifier.HeaderSource != null ? myGetDeclsFunctionVisible(declSpecifier.HeaderSource, scopeHelper) : new CDeclStorage[0];
+               return declSpecifier.Source != null ? myGetDeclsFunctionVisible(declSpecifier.Source, scopeHelper) : [];
             }
          }
 
          private static CDecl[] myGetDeclsFunctionVisible(CSource source, CScopeHelper scopeHelper) => scopeHelper.myGetScopeDecls(source);
-
-         private static CDecl[] myGetDeclsFunctionVisible(CBlockFunction blockFunction, CScopeHelper scopeHelper) =>
-            myGetDeclsFunctionVisible(blockFunction.ParentFunction ?? throw new Crash(), scopeHelper);
 
          private static CDecl[] myGetDeclsFunctionVisible(CDeclFunction boundFunction, CScopeHelper scopeHelper)
          {
@@ -141,7 +134,7 @@ namespace Gate.CLanguage
             {
                var fnc_bdy = boundFunction.Body;
                var fnc_cnt = boundFunction.FunctionContainer;
-               var sco_stk = myGetBlockStack(fnc_bdy as CItemWithScopeSpace ?? fnc_cnt ?? throw new Crash());
+               var sco_stk = myGetBlockStack(fnc_bdy as ICItemWithScopeSpace ?? fnc_cnt ?? throw new Crash());
                var lst = new List<CDecl>();
 
                if (sco_stk.FirstOrDefault() is CSource src)
@@ -160,9 +153,12 @@ namespace Gate.CLanguage
                //    //I see g1,f1     
                //  }
                //}
-               foreach (var sco in sco_stk.OfType<CBlock>())
+               foreach (var sco in sco_stk.OfType<CStatementCompound>())
                {
-                  myAddToList(lst, scopeHelper.myGetScopeDecls(sco).OfType<CDeclStorage>().Where(d => !d.IsAnonimous && d.IsPersistent));
+                  myAddToList(lst, 
+                     scopeHelper.myGetScopeDecls(sco).
+                     OfType<CDeclStorage>().
+                     Where(d => !d.IsAnonimous && d.IsPersistent));
                }
 
                //adding parameters and local 
@@ -183,8 +179,27 @@ namespace Gate.CLanguage
             }
          }
 
-         private static CDecl[] myGetDeclsFunctionVisible(CBlockCompound blockCompound, CScopeHelper scopeHelper) =>
-            myGetDeclsFunctionVisibleInsideFunction(blockCompound, scopeHelper);
+         private static CDecl[] myGetDeclsFunctionVisible(CCycleFor forCycle, CScopeHelper scopeHelper)
+         {
+            //tododo debugga
+            var x =  myGetDeclsFunctionVisibleInsideFunction(forCycle, scopeHelper);
+
+            var y = x.Reverse().ToArray();
+
+            return x;
+         }
+
+         private static CDecl[] myGetDeclsFunctionVisible(CStatementCompound compound, CScopeHelper scopeHelper)
+         {
+            if (compound.IsForFunction)
+            {
+               return myGetDeclsFunctionVisible(compound.ContainingFunction.NnOrCrash(), scopeHelper);
+            }
+            else
+            {
+               return myGetDeclsFunctionVisibleInsideFunction(compound, scopeHelper);
+            }
+         }
 
          /// <summary>
          /// 
@@ -193,14 +208,18 @@ namespace Gate.CLanguage
          /// <param name="scopeHelper"></param>
          /// <returns></returns>
          /// <exception cref="Crash"></exception>
-         private static CDecl[] myGetDeclsFunctionVisibleInsideFunction(CItemWithScopeSpace simpleBlock, CScopeHelper scopeHelper)
+         private static CDecl[] myGetDeclsFunctionVisibleInsideFunction(
+            ICItemWithScopeSpace simpleBlock, CScopeHelper scopeHelper)
          {
             //cmp->cmp->blo_fnc->blo_fnc->source
             var lst = new List<CDecl>();
             var sco_stk = myGetBlockStack(simpleBlock);
-            var sup_fnc = sco_stk.OfType<CBlockFunction>().LastOrDefault() ?? throw new Crash();
+            var sup_fnc = 
+               sco_stk.OfType<CStatementCompound>().
+               LastOrDefault(b=>b.IsForFunction).
+               NnOrCrash();
 
-            var sts = myGetDeclsFunctionVisible(sup_fnc.ParentFunction ?? throw new Crash(), scopeHelper);
+            var sts = myGetDeclsFunctionVisible(sup_fnc.ContainingFunction.NnOrCrash(), scopeHelper);
 
             myAddToList(lst, sts);
 
@@ -212,13 +231,6 @@ namespace Gate.CLanguage
             return lst.ToArray();
          }
 
-         private static CDecl[] myGetDeclsFunctionVisible(CCycleFor.BodyType forBody, CScopeHelper scopeHelper) =>
-            myGetDeclsFunctionVisibleInsideFunction(forBody, scopeHelper).
-               Concat((forBody.InitSpecifiers?.Decls ?? new CDecl[0])).ToArray();
-
-         private static CDecl[] myGetDeclsFunctionVisible(CCycleBody cycleBody, CScopeHelper scopeHelper) =>
-            myGetDeclsFunctionVisibleInsideFunction(cycleBody, scopeHelper);
-
          private static void myAddToList(List<CDecl> listDecl, IEnumerable<CDecl> decls)
          {
             var dcl_ids = decls.Select(d => d.Identifier).ToArray();
@@ -227,18 +239,36 @@ namespace Gate.CLanguage
             listDecl.AddRange(decls);
          }
 
-
          /// <summary>
-         /// <br> Array of <see cref="CItemWithScopeSpace"/> from <see cref="CSource"/> to current eg </br>
+         /// <br> Array of <see cref="ICItemWithScopeSpace"/> from <see cref="CSource"/> to current eg </br>
          /// <br> - <paramref name="itemWithScope"/> is <see cref="CBlockCompound"/> result is <see cref="CBlockCompound"/> </br>
          /// <br> - <paramref name="itemWithScope"/> is <see cref="CSource"/> result is <see cref="CSource"/> </br>
          /// <br> - <paramref name="itemWithScope"/> is <see cref="CCycleBody"/> result is containg <see cref="CBlockCompound"/> or <see cref="CBlockFunction"/> </br>
          /// </summary>
-         /// <param name="itemWithScope"><see cref="CSource"/> or <see cref="CBlock"/> at top of scope chain stack </param>
+         /// <param name="itemWithScope"><see cref="CSource"/> or <see cref="CStatementCompoundBlock"/> at top of scope chain stack </param>
          /// <returns></returns>
-         private static CItemWithScopeSpace[] myGetBlockStack(CItemWithScopeSpace itemWithScope) =>
-            itemWithScope.ParentItemChain.OfType<CSource>().Cast<CItemWithScopeSpace>().
-               Concat(itemWithScope.ParentItemChain.OfType<CBlock>().Reverse()).ToArray();
+         private static ICItemWithScopeSpace[] myGetBlockStack(ICItemWithScopeSpace itemWithScope)
+         {
+            var pic = itemWithScope.ConvertOrCrash<CItem>().ParentItemChain;
+
+            var cms = pic.OfType<CSource>().
+               Cast<ICItemWithScopeSpace>().
+               Concat(pic.OfType<CStatementCompound>().Reverse()).ToArray();
+
+            if (itemWithScope is CCycleFor cyc_for)
+            {
+               if (cyc_for.Body is CStatementCompound cmp)
+               {
+                  cms = cms.Append(cmp).ToArray();
+               }
+               else
+               {
+                  cms = cms.Append(cyc_for).ToArray();
+               }
+            }
+
+            return cms;
+         }
       }
 
       /// <summary>
@@ -251,7 +281,7 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public override CDeclStorage[] GetDeclStoragesFunctionVisible(CItemWithScopeSpace itemWithScope) =>
+      public override CDeclStorage[] GetDeclStoragesFunctionVisible(ICItemWithScopeSpace itemWithScope) =>
          InnerScopeDeclVisitor.GetDeclFunctionVisible(itemWithScope, this).OfType<CDeclStorage>().ToArray();
 
       /// <summary>
@@ -259,7 +289,7 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public override CTypeUserDefined[] GetUserTypesScope(CItemWithScopeSpace itemWithScope) =>
+      public override CTypeUserDefined[] GetUserTypesScope(ICItemWithScopeSpace itemWithScope) =>
          InnerGetUserTypesScopeVisitor.GetUserTypesScope(itemWithScope);
 
       /// <summary>
@@ -267,7 +297,7 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public override CTypeUserDefined[] GetTypesUsersFunctionVisible(CItemWithScopeSpace itemWithScope) =>
+      public override CTypeUserDefined[] GetTypesUsersFunctionVisible(ICItemWithScopeSpace itemWithScope) =>
          myGetFunctionVisibleItems(itemWithScope, iws => GetUserTypesScope(iws));
 
       /// <summary>
@@ -275,7 +305,7 @@ namespace Gate.CLanguage
       /// </summary>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public override CDeclTypedef[] GetTypedefsFunctionVisible(CItemWithScopeSpace itemWithScope) =>
+      public override CDeclTypedef[] GetTypedefsFunctionVisible(ICItemWithScopeSpace itemWithScope) =>
          InnerScopeDeclVisitor.GetDeclFunctionVisible(itemWithScope, this).OfType<CDeclTypedef>().ToArray();
 
       /// <summary>
@@ -286,9 +316,9 @@ namespace Gate.CLanguage
       /// <param name="itemGetter"></param>
       /// <returns></returns>
       private static ITEM[] myGetFunctionVisibleItems<ITEM>(
-         CItemWithScopeSpace itemWithScope, Func<CItemWithScopeSpace, ITEM[]> itemGetter) where ITEM : CItem, IWithIdentifier
+         ICItemWithScopeSpace itemWithScope, Func<ICItemWithScopeSpace, ITEM[]> itemGetter) where ITEM : CItem, IWithIdentifier
       {
-         var scp_chn = itemWithScope.Scope.ItemWithScopeSpace.ParentItemChain.OfType<CItemWithScopeSpace>().Reverse().ToArray();
+         var scp_chn = itemWithScope.Scope.ItemWithScopeSpace.ConvertOrCrash<CItem>().ParentItemChain.OfType<ICItemWithScopeSpace>().Reverse().ToArray();
          var dct_vrs = new Dictionary<string, ITEM>();
 
          //starts from global to local(local hides possibly globals with same var-name)
@@ -313,7 +343,7 @@ namespace Gate.CLanguage
       /// <param name="decl"></param>
       /// <param name="itemWithScope"></param>
       /// <returns></returns>
-      public override bool CheckDecl(MsgCollection messages, CDecl decl, CItemWithScopeSpace itemWithScope)
+      public override bool CheckDecl(MsgCollection messages, CDecl decl, ICItemWithScopeSpace itemWithScope)
       {
          var sco_dcs = myGetScopeDecls(itemWithScope).Except([decl]).Where(t => !t.IsAnonimous).ToArray();
          var old_dcl = sco_dcs.LastOrDefault(sd => sd.Identifier == decl.Identifier);
@@ -328,13 +358,14 @@ namespace Gate.CLanguage
          else { return myCompareDecls(old_dcl, decl, messages); }
       }
 
-      public override bool CheckUserDefType(MsgCollection messages, CTypeUserDefined typeUserDefined, CItemWithScopeSpace? itemWithScope)
+      public override bool CheckUserDefType(
+         MsgCollection messages, CTypeUserDefined typeUserDefined, ICItemWithScopeSpace? itemWithScope)
       {
-         var sco_tps = 
+         var sco_tps =
             GetUserTypesScope(itemWithScope ?? throw new Crash()).
             Except([typeUserDefined]).
             Where(t => !t.IsAnonimous).ToArray();
-        
+
          var dup_typ = sco_tps.FirstOrDefault(t => t.Identifier == typeUserDefined.Identifier);
 
          if (dup_typ != null)
@@ -346,7 +377,7 @@ namespace Gate.CLanguage
          else { return true; }
       }
 
-      protected virtual CDecl[] myGetScopeDecls(CItemWithScopeSpace itemWithScopeSpace) => itemWithScopeSpace.ScopeDecls;
+      protected virtual CDecl[] myGetScopeDecls(ICItemWithScopeSpace itemWithScopeSpace) => itemWithScopeSpace.ScopeDecls;
 
 
       /// <summary>

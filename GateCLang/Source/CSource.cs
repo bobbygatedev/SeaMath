@@ -153,7 +153,7 @@ namespace Gate.CLanguage.Source
       /// <summary>
       /// 
       /// </summary>
-      public override CDecl[] ScopeDecls => myGetScopeDeclsDefault();
+      public override CDecl[] ScopeDecls => myGetScopeDeclsDefault(Scope);
 
       /// <summary>
       /// 

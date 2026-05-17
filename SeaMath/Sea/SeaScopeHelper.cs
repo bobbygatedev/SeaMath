@@ -16,7 +16,7 @@ namespace Gate.SeaMath.Sea
       public SeaMathDbgIde DbgIde { get; }
       public bool IsForConsole { get; }
 
-      public override CDeclStorage[] GetDeclStoragesFunctionVisible(CItemWithScopeSpace itemWithScope)
+      public override CDeclStorage[] GetDeclStoragesFunctionVisible(ICItemWithScopeSpace itemWithScope)
       {
          var bas_vis = base.GetDeclStoragesFunctionVisible(itemWithScope);
          var lbs = DbgIde.Workspace.Libs.All.SelectMany(lib => lib.Decls.OfType<CDeclStorage>()).ToArray();

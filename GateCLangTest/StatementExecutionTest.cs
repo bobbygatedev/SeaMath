@@ -33,12 +33,12 @@ namespace Gate.CLanguageTest
          public StaticTestInitVar() { }
 
          public override TxtStore SourceCode => new TxtStore(
-            "static int res = 2; \r\n\r\n" +
+            "static int res = 555; \r\n\r\n" +
             "int tst(void)\r\n{\r\n" +
-            "  static int val = 0;\r\n\r\n" +
-            "  return ++val;\r\n}\r\n\r\n" +
+            "  static int val = 0;\r\n" +
+            "  return ++val;" +
+            "\r\n}\r\n\r\n" +
             "void main(void)\r\n{\r\n" +
-            "   \r\n" +
             "   for ( int i = 0 ; i < 3 ; i++ )\r\n" +
             "   {\r\n" +
             "      res = tst();\r\n" +
@@ -1349,22 +1349,36 @@ int main(void)
          public WhileTest() { }
 
          public override TxtStore SourceCode => new TxtStore(
-            @"int w1 = 0;
+            @"
+int w1 = 0;
 int w2 = 0;
 int w31 = 0;
 int w32 = 0;
+int w4 = 0;
+int w5 = 0;
+int w6 = 0;
 
 void main()
 {
-   while(1) break;
+   int j = 0;
+   int i = 0;
+   
+   while(i++<6) 
+      while(j++<2);
+ 
+   w5 = i;
+   w6 = j;
 
+   while(0);
+   while(1) break;
+   
    while(1) 
    {
      w1++;
      break;
    }
 
-   int i = 0;
+   i = 0;
 
    while(i++ < 3) 
    {
@@ -1380,6 +1394,10 @@ void main()
      continue;
      w32++;
    }
+
+   i = 0;
+   
+   while(i++ < 3) w4++;
 }");
 
          protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
@@ -1388,12 +1406,18 @@ void main()
             var w2 = myRequireVar(dbgEngProcess, "w2");
             var w31 = myRequireVar(dbgEngProcess, "w31");
             var w32 = myRequireVar(dbgEngProcess, "w32");
+            var w4 = myRequireVar(dbgEngProcess, "w4");
+            var w5 = myRequireVar(dbgEngProcess, "w5");
+            var w6 = myRequireVar(dbgEngProcess, "w6");
 
             if (
                w1.CSharpObj.ConvertOrCrash<int>() == 1 &&
                w2.CSharpObj.ConvertOrCrash<int>() == 1 &&
                w31.CSharpObj.ConvertOrCrash<int>() == 3 &&
-               w32.CSharpObj.ConvertOrCrash<int>() == 0)
+               w32.CSharpObj.ConvertOrCrash<int>() == 0 &&
+               w4.CSharpObj.ConvertOrCrash<int>() == 3 &&
+               w5.CSharpObj.ConvertOrCrash<int>() == 7 &&
+               w6.CSharpObj.ConvertOrCrash<int>() == 8 )
             {
                return TxtElabResult.success;
             }
@@ -1416,6 +1440,7 @@ int w32 = 0;
 
 void main()
 {
+   do ; while(0);//empty
    do break; while(1);
    do continue; while(0);
 
@@ -1477,6 +1502,7 @@ int w32 = 0;
 
 void main()
 {
+   for(;0;);
    for(;;) break;
    for(;1;) break;
 
@@ -1522,10 +1548,61 @@ void main()
          }
       }
 
+      //tododo scommenta
+      //      public class IfTest : ExecutionTestBase
+      //      {
+      //         public IfTest() { }
+
+      //         public override TxtStore SourceCode => new TxtStore(
+      //            @"
+      //int w1 = 0;
+      //int w2 = 0;
+      //int w3 = 0;
+
+      //void main()
+      //{
+      //   int a = 3;
+
+      //   if( a == 4 )
+      //   {
+      //      w1++;
+      //   }
+      //   else if ( a <3 )
+      //   {
+      //      w2++;
+      //   }
+      //   else
+      //   {
+      //      w3++;
+      //   }
+      //}");
+
+      //         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+      //         {
+      //            var w1 = myRequireVar(dbgEngProcess, "w1");
+      //            var w2 = myRequireVar(dbgEngProcess, "w2");
+      //            var w3 = myRequireVar(dbgEngProcess, "w3");
+
+      //            if (
+      //               w1.CSharpObj.ConvertOrCrash<int>() == 0 &&
+      //               w2.CSharpObj.ConvertOrCrash<int>() == 0 &&
+      //               w3.CSharpObj.ConvertOrCrash<int>() == 1 )
+      //            {
+      //               return TxtElabResult.success;
+      //            }
+      //            else
+      //            {
+      //               return TxtElabResult.failure;
+      //            }
+      //         }
+      //      }
+
       static void Main()
       {
-         //tododo
+         //tododo aggiungi test per nested for .. 
          var tst = new StatementExecutionTest();
+         //var tst = new IfTest();
+         //var tst = new WhileTest();
 
          tst.IsVerbose = true;
          tst.Go();

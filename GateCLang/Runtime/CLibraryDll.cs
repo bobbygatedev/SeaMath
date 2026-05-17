@@ -45,7 +45,7 @@ namespace Gate.CLanguage.Runtime
       /// <summary>
       /// 
       /// </summary>
-      public override CSource? HeaderSource => SubItems.OfType<CSource>().FirstOrDefault();
+      public override CSource? Source => SubItems.OfType<CSource>().FirstOrDefault();
 
       /// <summary>
       /// 
@@ -100,7 +100,7 @@ namespace Gate.CLanguage.Runtime
          get
          {
             var dcl_fns =
-               HeaderSource?.AllGlobals.OfType<CDeclFunction>().
+               Source?.AllGlobals.OfType<CDeclFunction>().
                Where(f =>
                   !f.GetGccAttributesId<CLibraryDllGccAttributesIds>().
                   Contains(CLibraryDllGccAttributesIds.noimpl)).ToArray();
@@ -137,7 +137,7 @@ namespace Gate.CLanguage.Runtime
 
       public bool Build(MsgCollection messages)
       {
-         var fns = HeaderSource?.AllGlobals.OfType<CDeclFunction>().ToArray();
+         var fns = Source?.AllGlobals.OfType<CDeclFunction>().ToArray();
 
          foreach (var fnc in fns ?? [])
          {
@@ -158,7 +158,7 @@ namespace Gate.CLanguage.Runtime
          if (!IsSuccessfullChecked)
          {
             var dcl_fns =
-               HeaderSource?.AllGlobals.OfType<CDeclFunction>().
+               Source?.AllGlobals.OfType<CDeclFunction>().
                Where(f =>
                   !f.GetGccAttributesId<CLibraryDllGccAttributesIds>().
                   Contains(CLibraryDllGccAttributesIds.noimpl)).ToArray();

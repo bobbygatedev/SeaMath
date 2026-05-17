@@ -11,18 +11,6 @@ namespace Gate.CLanguage.Statement
 {
    public class CCycleSwitch : CCycle
    {
-      public class BodyType : CCycleBody
-      {
-         public override string Descriptor => throw new NotImplementedException();
-
-         public override string Rebuilt => throw new NotImplementedException();
-
-         public override bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages)
-         {
-            throw new NotImplementedException();
-         }
-      }
-
       public class CaseLabel : CStatement
       {
          private CToken? myConstantToken;
@@ -89,8 +77,6 @@ namespace Gate.CLanguage.Statement
       }
 
       public CaseLabel[]? Cases { get; set; }
-
-      public new BodyType Body => SubItems.OfType<BodyType>().First();
 
       public override string Descriptor => $"switch({SwitchExpression?.Descriptor}){{..}}";
    }

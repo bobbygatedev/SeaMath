@@ -23,7 +23,7 @@ namespace Gate.CLanguageTest
 
          if (res)
          {
-            var chs = src?.AllDescendant.OfType<CItemWithScopeSpace>().ToArray();
+            var chs = src?.AllDescendant.OfType<ICItemWithScopeSpace>().ToArray();
 
             foreach (var ch in chs ?? [])
             {
