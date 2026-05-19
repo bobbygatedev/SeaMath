@@ -1,9 +1,9 @@
 ﻿using Gate.CLanguage.Compiler;
+using Gate.CLanguage.DeclInterpreter;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.TokenParse;
 using Gate.Tools;
-using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -45,25 +45,61 @@ namespace Gate.CLanguage.Statement
          public override string Descriptor => $"case {ConstantToken?.Content}:";
       }
 
-      public class TokenInterpret : CTokenInterpreter
+      /// <summary>
+      /// todo develop
+      /// </summary>
+      public class TokenInterpret : TokenInterpretBase
       {
-         public TokenInterpret(CExprStatementInterpreter exprInterpret) => ExprInterpret = exprInterpret;
+         private readonly And myAnd;
 
-         public CExprStatementInterpreter ExprInterpret { get; }
+         public TokenInterpret(
+            CDeclInterpretFactory declInterpretFactory,
+            CAttributesInterpret attributesInterpret,
+            CExprStatementInterpreter exprInterpret) :
+            base(declInterpretFactory, attributesInterpret, exprInterpret) =>
+            myAnd =
+               new Is("switch", true) &
+               new ConditionInterpreter(this) &
+               new ContentInterpret(this);
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            if (input.MarkedText == "switch")
+            var cyc_if = new CCycleIfElse();
+            var top_itm = output.TopItem;
+            var c_sco = top_itm as CStatementCompound;
+            var cyc = top_itm as CCycle;
+
+            if (c_sco != null)
             {
-               throw new NotImplementedException();//todo develop
+               c_sco.AddStatements(cyc_if);
             }
-            else
+            else if (cyc != null)
             {
-               return TxtElabResult.continue_searching;
+               cyc.SetBody(cyc_if);//nested cycle
             }
+            else { throw new Crash(); }
+
+            var res = myNested(cyc_if, input, inData, ref output, myAnd, NestedMode.once_continue);
+
+            if (res != TxtElabResult.success)
+            {
+               if (c_sco != null)
+               {
+                  c_sco.RemoveFromScopeSpace(cyc_if);
+               }
+               else if (cyc != null)
+               {
+                  cyc.SetBody(null);
+               }
+               else
+               {
+                  throw new Crash();
+               }
+            }
+
+            return res;
          }
       }
-
       public override string? Rebuilt => throw new NotImplementedException();
 
       public CExprStatement? SwitchExpression

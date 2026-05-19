@@ -1,4 +1,5 @@
-﻿using Gate.LangBase.Runtime.Object;
+﻿using Gate.LangBase.Expressions;
+using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text;
 
@@ -34,11 +35,11 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          TxtToken? token,
          RtmDbgEngVirtCpuInstruction? targetTrue,
          RtmDbgEngVirtCpuInstruction? targetFalse,
-         RtmDbgEngVirtCpuInstructionGotoConditionEval? conditionEval = null) : base(token)
+         Expr? conditionEval = null) : base(token)
       {
          TargetTrue = targetTrue;
          TargetFalse = targetFalse;
-         ConditionEval = conditionEval;
+         ConditionExpression = conditionEval;
          myGoNextInstruction = new RtmDbgEngVirtCpuInstructionSimple(null);
       }
 
@@ -59,7 +60,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <br>return value shall have <see cref="RtmObj.CSharpObj"/> convertible to int </br>
       /// <br>ie (int)(dynamic)<see cref="RtmObj.CSharpObj"/></br>
       /// </summary>
-      public RtmDbgEngVirtCpuInstructionGotoConditionEval? ConditionEval { get; }
+      public Expr? ConditionExpression { get; }
 
       /// <summary>
       /// 
@@ -71,9 +72,9 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       {
          var is_pas = true;
 
-         if (ConditionEval != null)
+         if (ConditionExpression != null)
          {
-            var res = ConditionEval.Invoke(stack);
+            var res = ConditionExpression.Eval(stack, rtmStrategy);
 
             try
             {
@@ -95,6 +96,18 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             else { throw new Crash("Instruction shall contain target instruction"); }
          }
          else { myGoNextInstruction.Run(stack, rtmStrategy); }
+      }
+
+      public override string ToString()
+      {
+         if (ConditionExpression == null)
+         {
+            return base.ToString() + $"to: {TargetTrue}";
+         }
+         else
+         {
+            return base.ToString() + $"if {ConditionExpression}: {TargetTrue} else {TargetFalse}";
+         }
       }
    }
 }

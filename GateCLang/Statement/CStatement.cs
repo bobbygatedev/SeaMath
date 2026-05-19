@@ -230,7 +230,7 @@ namespace Gate.CLanguage.Statement
                }
                else if (cyc != null)
                {
-                  cyc.Body = stt;
+                  cyc.SetBody(stt);
                }
                else
                {

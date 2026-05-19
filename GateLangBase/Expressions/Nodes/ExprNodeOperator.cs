@@ -66,6 +66,11 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <summary>
       /// 
       /// </summary>
+      public override string? Rebuilt => Operator?.GetRebuilt(OperandNodes.Select(o=>o.Rebuilt).ToArray());
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="operands"></param>
       public void AddOperands(ExprNode[] operands)
       {

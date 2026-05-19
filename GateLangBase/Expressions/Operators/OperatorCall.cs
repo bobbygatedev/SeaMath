@@ -10,6 +10,11 @@ namespace Gate.LangBase.Expressions.Operators
    [BasicOperator(BasicOperatorTypeFlags.c_operator)]
    public class OperatorCall : Operator
    {
+      /// <summary>
+      /// 
+      /// </summary>
+      public OperatorCall()     {        }
+
       public override string Symbol => "f()";
 
       public override bool IsFirstOperandLValue => false;
@@ -17,6 +22,8 @@ namespace Gate.LangBase.Expressions.Operators
       public override bool IsReturningLValue => false;
 
       public override PrecedenceClass PrecedenceClass => PrecedenceClass.Level(1);
+
+      public override string? GetRebuilt(string?[] strings) => $"{strings[0]}({string.Join(",", strings.Skip(1))})";
 
       public override TxtElabResult FindOperatorNode(
          FindOperatorInData findOperatorData, out ExprNodeOperator? operatorNode, out ExprNode[]? operandNodes)

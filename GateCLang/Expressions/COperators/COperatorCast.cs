@@ -44,6 +44,13 @@ namespace Gate.CLanguage.Expressions.COperators
       /// <summary>
       /// 
       /// </summary>
+      /// <param name="strings"></param>
+      /// <returns></returns>
+      public override string? GetRebuilt(string?[] strings) => $"{strings[0]}";
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="findOperatorData"></param>
       /// <param name="operatorNode"></param>
       /// <param name="operandNodes"></param>

@@ -179,15 +179,8 @@ namespace Gate.CLanguage
             }
          }
 
-         private static CDecl[] myGetDeclsFunctionVisible(CCycleFor forCycle, CScopeHelper scopeHelper)
-         {
-            //tododo debugga
-            var x =  myGetDeclsFunctionVisibleInsideFunction(forCycle, scopeHelper);
-
-            var y = x.Reverse().ToArray();
-
-            return x;
-         }
+         private static CDecl[] myGetDeclsFunctionVisible(CCycleFor forCycle, CScopeHelper scopeHelper) => 
+            myGetDeclsFunctionVisibleInsideFunction(forCycle, scopeHelper);
 
          private static CDecl[] myGetDeclsFunctionVisible(CStatementCompound compound, CScopeHelper scopeHelper)
          {

@@ -44,6 +44,11 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <summary>
       /// 
       /// </summary>
+      public override string? Rebuilt => RtmObj?.CSharpObj?.ToString();
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="stack"></param>
       /// <returns></returns>
       public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) => RtmObj;

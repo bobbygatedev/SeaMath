@@ -26,8 +26,8 @@ namespace Gate.CLanguage.Statement
          private readonly And myAnd;
 
          public TokenInterpret(
-            CDeclInterpretFactory declInterpretFactory, 
-            CAttributesInterpret attributesInterpret, 
+            CDeclInterpretFactory declInterpretFactory,
+            CAttributesInterpret attributesInterpret,
             CExprStatementInterpreter exprInterpret) :
             base(declInterpretFactory, attributesInterpret, exprInterpret) =>
                myAnd =
@@ -40,19 +40,13 @@ namespace Gate.CLanguage.Statement
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
             var cyc_whi = new CCycleDoWhile();
-            var itm_sco = output.ScopeSpaceItem ?? throw new Crash();
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
             var cyc = top_itm as CCycle;
 
-            if (c_sco != null)
-            {
-               c_sco.AddStatements(cyc_whi);
-            }
-            else if (cyc != null)
-            {
-               cyc.Body = cyc_whi;//nested cycle
-            }
+            if (input.MarkedText != "do") { return TxtElabResult.continue_searching; }
+            else if (c_sco != null) { c_sco.AddStatements(cyc_whi); }
+            else if (cyc != null) { cyc.SetBody(cyc_whi); }//nested cycle
             else { throw new Crash(); }
 
             var res = myNested(cyc_whi, input, inData, ref output, myAnd, NestedMode.once_continue);
@@ -65,7 +59,7 @@ namespace Gate.CLanguage.Statement
                }
                else if (cyc != null)
                {
-                  cyc.Body = null;
+                  cyc.SetBody(null);
                }
                else
                {

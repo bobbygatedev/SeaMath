@@ -1417,7 +1417,7 @@ void main()
                w32.CSharpObj.ConvertOrCrash<int>() == 0 &&
                w4.CSharpObj.ConvertOrCrash<int>() == 3 &&
                w5.CSharpObj.ConvertOrCrash<int>() == 7 &&
-               w6.CSharpObj.ConvertOrCrash<int>() == 8 )
+               w6.CSharpObj.ConvertOrCrash<int>() == 8)
             {
                return TxtElabResult.success;
             }
@@ -1548,58 +1548,58 @@ void main()
          }
       }
 
-      //tododo scommenta
-      //      public class IfTest : ExecutionTestBase
-      //      {
-      //         public IfTest() { }
 
-      //         public override TxtStore SourceCode => new TxtStore(
-      //            @"
-      //int w1 = 0;
-      //int w2 = 0;
-      //int w3 = 0;
+      public class IfTest : ExecutionTestBase
+      {
+         public IfTest() { }
 
-      //void main()
-      //{
-      //   int a = 3;
+         public override TxtStore SourceCode => new TxtStore(
+            @"
+      int w1 = 0;
+      int w2 = 0;
+      int w3 = 0;
 
-      //   if( a == 4 )
-      //   {
-      //      w1++;
-      //   }
-      //   else if ( a <3 )
-      //   {
-      //      w2++;
-      //   }
-      //   else
-      //   {
-      //      w3++;
-      //   }
-      //}");
+      void main()
+      {
+         int a = 3;
 
-      //         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
-      //         {
-      //            var w1 = myRequireVar(dbgEngProcess, "w1");
-      //            var w2 = myRequireVar(dbgEngProcess, "w2");
-      //            var w3 = myRequireVar(dbgEngProcess, "w3");
+         if( a == 4 )
+         {
+            w1++;
+         }
+         else if ( a <3 )
+         {
+            w2++;
+         }
+         else
+         {
+            w3++;
+         }
+      }");
 
-      //            if (
-      //               w1.CSharpObj.ConvertOrCrash<int>() == 0 &&
-      //               w2.CSharpObj.ConvertOrCrash<int>() == 0 &&
-      //               w3.CSharpObj.ConvertOrCrash<int>() == 1 )
-      //            {
-      //               return TxtElabResult.success;
-      //            }
-      //            else
-      //            {
-      //               return TxtElabResult.failure;
-      //            }
-      //         }
-      //      }
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var w1 = myRequireVar(dbgEngProcess, "w1");
+            var w2 = myRequireVar(dbgEngProcess, "w2");
+            var w3 = myRequireVar(dbgEngProcess, "w3");
+
+            if (
+               w1.CSharpObj.ConvertOrCrash<int>() == 0 &&
+               w2.CSharpObj.ConvertOrCrash<int>() == 0 &&
+               w3.CSharpObj.ConvertOrCrash<int>() == 1)
+            {
+               return TxtElabResult.success;
+            }
+            else
+            {
+               return TxtElabResult.failure;
+            }
+         }
+      }
 
       static void Main()
       {
-         //tododo aggiungi test per nested for .. 
+         //tododo aggiungi test per nested for .. switch
          var tst = new StatementExecutionTest();
          //var tst = new IfTest();
          //var tst = new WhileTest();

@@ -11,6 +11,18 @@ namespace Gate.LangBase.Expressions.Operators
       /// <summary>
       /// 
       /// </summary>
+      protected OperatorBinary() { }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="strings"></param>
+      /// <returns></returns>
+      public override string? GetRebuilt(string?[] strings) => $"{strings[0]}{Symbol}{strings[1]}";
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="findOperatorData"></param>
       /// <param name="operatorNode"></param>
       /// <param name="operandNodes"></param>

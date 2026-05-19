@@ -72,5 +72,7 @@ namespace Gate.LangBase.Expressions.Operators
 
          return res ?? throw new Gate.LangBase.Runtime.RtmException();
       }
+
+      public override string? GetRebuilt(string?[] strings) => $"{strings[0]}?{strings[1]}:{strings[2]}";
    }
 }

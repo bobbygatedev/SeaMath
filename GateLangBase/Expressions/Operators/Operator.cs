@@ -63,6 +63,13 @@ namespace Gate.LangBase.Expressions.Operators
       public abstract TxtElabResult FindOperatorNode(FindOperatorInData findOperatorData, out ExprNodeOperator? operatorNode, out ExprNode[]? operandNodes);
 
       /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="strings"></param>
+      /// <returns></returns>
+      public abstract string? GetRebuilt(string?[] strings);
+
+      /// <summary>
       /// Evaluates the specified operator node using the provided arguments and strategy.
       /// </summary>
       /// <remarks>This method evaluates the operator node by applying the provided strategy to the

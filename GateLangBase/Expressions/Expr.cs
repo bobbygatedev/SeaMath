@@ -63,9 +63,11 @@ namespace Gate.LangBase.Expressions
          }
       }
 
+      public string? Rebuilt => RootNode?.Rebuilt;
+
       public string Descriptor => string.Join(",", ExprNodes.Select(n => n.Content));
 
-      public RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy = null) => 
+      public RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy = null) =>
          LastEvalResult = RootNode?.Eval(stack, rtmStrategy ?? DefaultStrategy);
 
       public RtmObj? LastEvalResult { get; private set; }

@@ -64,7 +64,7 @@ namespace Gate.LangBase.Expressions.Nodes
          {
             switch (SubExprNodes.Length)
             {
-               case 0: return new ExprNode[0];//eg empty sub expression empty argument call '()'
+               case 0: return [];//eg empty sub expression empty argument call '()'
 
                case 1: return myGetCommaNodes(SubExprNodes[0]);
 
@@ -82,6 +82,11 @@ namespace Gate.LangBase.Expressions.Nodes
       /// 
       /// </summary>
       public override bool IsLValue => SubExprNodes.Length == 1 && SubExprNodes[0].IsLValue;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override string? Rebuilt => $"{BracketOpen.Rebuilt}{string.Join(" ",SubExprNodes.Select(n=>n.Rebuilt))}{BracketClose.Rebuilt}";
 
       /// <summary>
       /// 

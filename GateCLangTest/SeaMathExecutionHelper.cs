@@ -259,16 +259,16 @@ namespace Gate.CLanguageTest
          mySession = new InnerSession(hasConsole);
 
          mySession.OptionPage.CompileLinkSettings.PredefinedHeaderDirs = [
-            new DirectoryInfo(@"c:\erik\git\ecoa\GateSwFactory\SeaMath\dev\predef_headers"),
+            new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\predef_headers"),
             new DirectoryInfo(@"c:\erik\mcalpin\fep\tools\seamath\predef_headers")  ];
 
          if (!SkipDllLibs)
          {
             mySession.OptionPage.CompileLinkSettings.LibraryOnlyIncludeDirs =
-               [new DirectoryInfo(@"c:\erik\git\ecoa\GateSwFactory\SeaMath\dev\library_only_include")];
+               [new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\library_only_include")];
 
             mySession.OptionPage.CompileLinkSettings.LibDirs =
-               new DirectoryInfo(@"c:\erik\git\ecoa\GateSwFactory\SeaMath\dev\libdirs").EnumerateDirectories().ToArray();
+               new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\libdirs").EnumerateDirectories().ToArray();
          }
 
          mySession.Init(SkipCSLibs, SkipDllLibs);

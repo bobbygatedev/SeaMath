@@ -138,6 +138,8 @@ namespace Gate.SeaMath.Sea
          }
       }
 
+      public override string? GetRebuilt(string?[] strings) => "{" + string.Join(",", strings) + "}";
+
       /// <summary>
       /// <br> Returns array dimensions of a bracketed array size plus array-item (built-in) type. </br>
       /// <br> eg {1, 2, 3}: return {3} </br>

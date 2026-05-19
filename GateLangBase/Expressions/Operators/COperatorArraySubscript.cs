@@ -24,6 +24,8 @@ namespace Gate.LangBase.Expressions.Operators
 
       public override ValueType CSharpHandler(params dynamic[] pp) => pp[0][pp[1]];
 
+      public override string? GetRebuilt(string?[] strings) => $"{strings[0]}[{strings[1]}]";
+
       public override TxtElabResult FindOperatorNode(
          FindOperatorInData findOperatorData, out ExprNodeOperator? operatorNode, out ExprNode[]? operandNodes)
       {

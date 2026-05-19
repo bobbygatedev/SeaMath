@@ -41,7 +41,7 @@ namespace Gate.CLanguage.Statement
             }
             else if (output.TopItem is CCycle cyc)
             {
-               cyc.Body = exp;
+               cyc.SetBody(exp);
         
                return TxtElabResult.success;
             }

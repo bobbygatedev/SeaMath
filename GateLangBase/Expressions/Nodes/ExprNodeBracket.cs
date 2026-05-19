@@ -42,6 +42,11 @@ namespace Gate.LangBase.Expressions.Nodes
       public override bool IsLValue => false;
 
       /// <summary>
+      /// 
+      /// </summary>
+      public override string? Rebuilt => Token.Content;
+
+      /// <summary>
       /// Unimplemented.
       /// </summary>
       /// <param name="stack"></param>

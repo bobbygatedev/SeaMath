@@ -40,14 +40,9 @@ namespace Gate.CLanguage.Statement
             var c_sco = top_itm as CStatementCompound;
             var cyc = top_itm as CCycle;
 
-            if (c_sco != null)
-            {
-               c_sco.AddStatements(cyc_whi);
-            }
-            else if (cyc != null)
-            {
-               cyc.Body = cyc_whi;//nested cycle
-            }
+            if (input.MarkedText != "while") { return TxtElabResult.continue_searching; }
+            else if (c_sco != null) { c_sco.AddStatements(cyc_whi); }
+            else if (cyc != null) { cyc.SetBody(cyc_whi); }//nested cycle
             else { throw new Crash(); }
 
             var res = myNested(cyc_whi, input, inData, ref output, myAnd, NestedMode.once_continue);
@@ -60,7 +55,7 @@ namespace Gate.CLanguage.Statement
                }
                else if (cyc != null)
                {
-                  cyc.Body = null;
+                  cyc.SetBody(null);
                }
                else
                {
@@ -72,18 +67,9 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-      public override string? Rebuilt => throw new NotImplementedException();
+      public override string? Rebuilt =>
+         $"while({StayCondition?.Rebuilt})\n{Body?.Rebuilt}";
 
-      public CExprStatement? StayExpression
-      {
-         get => SubItems.OfType<CExprStatement>().FirstOrDefault();
-         set
-         {
-            myRemoveSubItem(StayExpression);
-            myAddSubItem(value);
-         }
-      }
-
-      public override string Descriptor => $"while({StayExpression}){myGetBodyStr(base.Body)}";
+      public override string Descriptor => $"while({StayCondition}){myGetBodyStr(base.Body)}";
    }
 }

@@ -63,5 +63,10 @@ namespace Gate.CLanguage.Expressions.Nodes
       /// </summary>
       /// <returns></returns>
       public override ExprNode GetCopy() => new CExprNodeTypeName(TypeAlias?.PrimitiveAlias ?? throw new Crash());
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override string? Rebuilt => $"({TypeAlias.Rebuilt})";
    }
 }

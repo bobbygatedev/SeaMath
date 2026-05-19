@@ -3,7 +3,7 @@
   <Class Name="Gate.LangBase.Expressions.Operators.Operator">
     <Position X="14.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAEAAIAAAAASEACAAACAEAAAAAAAAAAAAAAAACAA=</HashCode>
+      <HashCode>AAAAAEAgIAAAAASEACAAACAEAAAAAAAAAAAAAAAACAA=</HashCode>
       <FileName>Expressions\Operators\Operator.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -31,14 +31,14 @@
   <Class Name="Gate.LangBase.Expressions.Operators.COperatorArraySubscript">
     <Position X="28.5" Y="4.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAEAAAAAAAASAACAAACAEAAAAAAAAAAAAAAAACAA=</HashCode>
+      <HashCode>AAAAAEAgAAAAAASAACAAACAEAAAAAAAAAAAAAAAACAA=</HashCode>
       <FileName>Expressions\Operators\COperatorArraySubscript.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinary">
     <Position X="12.75" Y="6.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAgAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Expressions\Operators\OperatorBinary.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -60,7 +60,7 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAACAAAAAACAEAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Expressions\Operators\OperatorIncrement.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -89,11 +89,11 @@
   <Class Name="Gate.LangBase.Expressions.Operators.OperatorUnary">
     <Position X="24" Y="6.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAQAAAAAAAgAAAAAA=</HashCode>
+      <HashCode>AAAAAAAgAAAAAAQAAAAAAAAAAAAAQAAAAAAAgAAAAAA=</HashCode>
       <FileName>Expressions\Operators\OperatorUnary.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Expressions.Operators.OperatorAssign" Collapsed="true">
+  <Class Name="Gate.LangBase.Expressions.Operators.OperatorAssign">
     <Position X="6" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAEAAAAAAACCAACAAACAEAAAAAAAAAAAAAAAAAAA=</HashCode>
@@ -167,14 +167,69 @@
       <FileName>Expressions\Operators\OperatorBinaryBasic.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise" Collapsed="true">
+  <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise">
     <Position X="10.5" Y="8.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.And" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.Or" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.XorAssign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.AndAssign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.Xor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.LeftBitShiftAssign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.LeftBitShift" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.RightBitShift" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.OrAssign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorBinaryBitwise.RightBitShiftAssign" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorBinaryBitwise.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Expressions\Operators\OperatorBinaryBitwise.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Expressions.Operators.OperatorComma" Collapsed="true">
+  <Class Name="Gate.LangBase.Expressions.Operators.OperatorComma">
     <Position X="12.75" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAEAAAAAAACSAACAAACAEAAAAAAAAAAAAAAAAAAA=</HashCode>
@@ -203,8 +258,18 @@
       <FileName>Expressions\Operators\OperatorLogical.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Expressions.Operators.OperatorMember" Collapsed="true">
+  <Class Name="Gate.LangBase.Expressions.Operators.OperatorMember">
     <Position X="17.25" Y="8.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.LangBase.Expressions.Operators.OperatorMember.Value" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Expressions\Operators\OperatorMember.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAAEAAAAAAACSAACAAAAAEAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Expressions\Operators\OperatorMember.cs</FileName>

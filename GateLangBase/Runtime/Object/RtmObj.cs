@@ -87,7 +87,7 @@ namespace Gate.LangBase.Runtime.Object
       /// </summary>
       /// <param name="runTimeFormat"></param>
       /// <returns></returns>
-      public virtual string? GetDisplayValue(RtmFormat? runTimeFormat = null) => runTimeFormat?.Format(this);
+      public virtual string? GetDisplayValue(RtmFormat? runTimeFormat = null) => (runTimeFormat ?? CurrentFormat)?.Format(this);
 
       /// <summary>
       /// Descriptor of content + type of content(variable,const,ref).
@@ -105,7 +105,7 @@ namespace Gate.LangBase.Runtime.Object
       /// </summary>
       /// <param name="objects"></param>
       /// <returns></returns>
-      public static RtmObj[] GetUniqueById(IEnumerable<RtmObj> objects) => 
+      public static RtmObj[] GetUniqueById(IEnumerable<RtmObj> objects) =>
          objects.Where(o => !o.VarName.IsBlank()).OrderBy(o => o.GlobalId).GroupBy(o => o.VarName).Select(g => g.Last()).ToArray();
 
       /// <summary>

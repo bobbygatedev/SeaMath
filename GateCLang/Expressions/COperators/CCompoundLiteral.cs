@@ -22,6 +22,8 @@ namespace Gate.CLanguage.Expressions.COperators
 
       public override string Symbol => "(type){list}";
 
+      public override string? GetRebuilt(string?[] strings) => throw new NotImplementedException();//todo
+
       public override TxtElabResult FindOperatorNode(FindOperatorInData findOperatorData, out ExprNodeOperator? operatorNode, out ExprNode[]? operandNodes)
       {
          operatorNode = null;

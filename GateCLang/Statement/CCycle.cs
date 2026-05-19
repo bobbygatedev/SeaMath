@@ -22,12 +22,12 @@ namespace Gate.CLanguage.Statement
       /// 
       /// </summary>
       protected CCycle() { }
-      
+
       public abstract class TokenInterpretBase : CTokenInterpreter
       {
          protected TokenInterpretBase(
-            CDeclInterpretFactory declInterpretFactory, 
-            CAttributesInterpret attributesInterpret, 
+            CDeclInterpretFactory declInterpretFactory,
+            CAttributesInterpret attributesInterpret,
             CExprStatementInterpreter exprInterpret)
          {
             DeclInterpretFactory = declInterpretFactory;
@@ -54,11 +54,13 @@ namespace Gate.CLanguage.Statement
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
-               var res =  myBlockInterpreter.Perform(input, inData, ref output);
+               var res = myBlockInterpreter.Perform(input, inData, ref output);
 
                if (res == TxtElabResult.success && output.TopItem is CExprStatement exp)
                {
-                  output.PeekOrCrash<CCycle>(1).Body = exp;
+                  var cyc = output.PeekOrCrash<CCycle>(1);
+
+                  cyc.SetBody(exp);
                }
 
                return res;
@@ -84,7 +86,11 @@ namespace Gate.CLanguage.Statement
             {
                myAnd = new May(TokenInterpret.ExprInterpret) & new Expect(";", true);
             }
-            else if (tokenInterpret is CCycleDoWhile.TokenInterpret || tokenInterpret is CCycleWhile.TokenInterpret)
+            else if (
+               tokenInterpret is CCycleDoWhile.TokenInterpret ||
+               tokenInterpret is CCycleWhile.TokenInterpret ||
+               tokenInterpret is CCycleIfElse.TokenInterpret ||
+               tokenInterpret is CCycleSwitch.TokenInterpret)
             {
                myAnd = new Expect("(", true) & (TokenInterpret.ExprInterpret | new InnerErrorInterpret()) & new Expect(")", true);
             }
@@ -118,7 +124,11 @@ namespace Gate.CLanguage.Statement
             {
                TokenInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ";";
             }
-            else if (TokenInterpret is CCycleDoWhile.TokenInterpret || TokenInterpret is CCycleWhile.TokenInterpret)
+            else if (
+               TokenInterpret is CCycleDoWhile.TokenInterpret ||
+               TokenInterpret is CCycleWhile.TokenInterpret ||
+               TokenInterpret is CCycleIfElse.TokenInterpret ||
+               TokenInterpret is CCycleSwitch.TokenInterpret)
             {
                TokenInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ")";
             }
@@ -149,7 +159,7 @@ namespace Gate.CLanguage.Statement
                      var cyc = output.CycleOnTopItem.NnOrCrash();
 
                      //assign cycle condition
-                     cyc.Condition = exp;
+                     cyc.StayCondition = exp;
                   }
                }
             }
@@ -166,7 +176,8 @@ namespace Gate.CLanguage.Statement
       public CStatement? Body
       {
          get => myBody;
-         set
+
+         private set
          {
             myRemoveSubItem(myBody);
             myAddSubItem(myBody = value);
@@ -176,7 +187,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       ///  
       /// </summary>
-      public CExprStatement? Condition
+      public CExprStatement? StayCondition
       {
          get => myCondition;
          set
@@ -189,6 +200,8 @@ namespace Gate.CLanguage.Statement
             }
          }
       }
+
+      public virtual void SetBody(CStatement? body) => Body = body;
 
       protected static string? myGetBodyStr(CStatement? body)
       {

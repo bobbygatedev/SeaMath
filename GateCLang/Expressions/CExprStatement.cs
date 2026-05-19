@@ -23,7 +23,7 @@ namespace Gate.CLanguage.Expressions
       /// <summary>
       /// 
       /// </summary>
-      public override string? Rebuilt => Descriptor;
+      public override string? Rebuilt => Expr?.Rebuilt;
 
       /// <summary>
       /// 

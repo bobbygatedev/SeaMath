@@ -109,7 +109,7 @@ namespace Gate.CLanguage.Runtime
 
          //items inside of function body's block 
          var its = lnk_fnc?.Body?.SubItems.OfType<CItem>().ToArray() ?? [];
-         
+
          //items after tranlation into instructions
          var iss = its.SelectMany(i => GetInstructions(i)).ToArray();
 
@@ -119,8 +119,90 @@ namespace Gate.CLanguage.Runtime
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CExprStatement cExpr) =>
          [new RtmDbgEngVirtCpuInstructionSimple(cExpr.TxtToken, (stk, str) => cExpr.Expr?.Eval(stk, RtmStrategy))];
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleIfElse ifElse) =>
-         throw new System.NotImplementedException();//tododo
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="ifElse"></param>
+      /// <returns></returns>
+      /// <exception cref="System.NotImplementedException"></exception>
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleIfElse ifElse)
+      {
+         // 0: frame
+         // 1: if cond1 body1 end else cond2
+         // 2: body1 
+         // 3: goto end
+         // 4: if cond2 body2 end else else_body
+         // 5: body2 
+         // 6: goto end
+         // 7: else_body
+         // 8: end (pop frame)
+
+         ///list of all if-else's
+         var if_els = new[] { ifElse }.Concat(ifElse.IfElses).ToArray();
+
+         var lst_ins = new List<RtmDbgEngVirtCpuInstruction?>();
+
+         //frame pop(end)
+         var end_frm_pop = new RtmDbgEngVirtCpuInstructionFramePop();
+
+         /// 0: frame
+         lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePush());
+
+         for (int i = 0; i < if_els.Length; i++)
+         {
+            lst_ins.Add(null);//goto later
+
+            // body instructions 
+            lst_ins.AddRange(myGetCycleBodyInstructions(if_els[i]));
+
+            //always goto end frame
+            lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(if_els[i].TxtToken, end_frm_pop, null));
+         }
+
+         var els_0 = null as RtmDbgEngVirtCpuInstruction;
+
+         //if else is defined
+         if (if_els.LastOrDefault().NnOrCrash().ElseBody != null)
+         {
+            var iss = myGetCycleBodyInstructions(if_els.LastOrDefault().NnOrCrash(), true);
+
+            els_0 = iss.FirstOrDefault().NnOrCrash();
+
+            // else body instructions goto end not needed
+            lst_ins.AddRange(iss);
+         }
+
+         //placing gotos where instruction is null yet
+         var got_ids = Enumerable.Range(0, lst_ins.Count).Where(i => lst_ins[i] == null).NnOrCrash().ToArray();
+
+         if (got_ids.Length != if_els.Length) { throw new Crash(); }
+         else
+         {
+            for (var i = got_ids.Length - 1; i >= 0; i--)
+            {
+               var id = got_ids[i];
+               var exp = if_els[i].StayCondition.NnOrCrash().Expr.NnOrCrash();
+
+               if (i == got_ids.Length - 1)
+               {
+                  //if true next instruction otherwise else_body or end
+                  lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
+                     if_els[i].TxtToken, null, els_0 ?? end_frm_pop, exp);
+               }
+               else
+               {
+                  //if true next instruction otherwise else_body or end
+                  lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
+                     if_els[i].TxtToken, null, lst_ins[got_ids[i + 1]], exp);
+               }
+            }
+         }
+
+         //6: end(pop frame)
+         lst_ins.Add(end_frm_pop);
+
+         return lst_ins.Select(i => i.NnOrCrash()).ToArray();
+      }
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleWhile whileCycle)
       {
@@ -140,10 +222,10 @@ namespace Gate.CLanguage.Runtime
          // 1: if-condition-goto 
          lst_ins.Add(
             new RtmDbgEngVirtCpuInstructionGoto(
-               whileCycle.Condition?.TxtToken,
+               whileCycle.StayCondition?.TxtToken,
                null,
                end_frm_pop,
-               s => whileCycle.Condition.NnOrCrash().Expr?.Eval(s, RtmStrategy)));
+               whileCycle.StayCondition.NnOrCrash().Expr.NnOrCrash()));
 
          lst_ins.AddRange(myGetCycleBodyInstructions(whileCycle));
 
@@ -200,17 +282,19 @@ namespace Gate.CLanguage.Runtime
          public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
       }
 
-      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CCycle cycle)
+      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CCycle cycle, bool isElse = false)
       {
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
          var sts = null as CStatement[];
 
+         var bdy = isElse ? cycle.ConvertOrCrash<CCycleIfElse>().ElseBody : cycle.Body;
+
          //eg for(;;){ a*=2; }
-         if (cycle.Body is CStatementCompound cmp) { sts = cmp.Statements; }
+         if (bdy is CStatementCompound cmp) { sts = cmp.Statements; }
          //eg do a*=2 while(i+<3);
-         else if (cycle.Body is CStatement sta) { sts = [sta]; }
+         else if (bdy is CStatement sta) { sts = [sta]; }
          //eg for(;;); -> infinite cycle
-         else if (cycle.Body != null) { throw new Crash(); }
+         else if (bdy != null) { throw new Crash(); }
 
          foreach (var sta in sts.NnOrCrash())
          {
@@ -253,10 +337,10 @@ namespace Gate.CLanguage.Runtime
 
          // 2: if-condition-goto 
          var got = new RtmDbgEngVirtCpuInstructionGoto(
-               doWhileCycle.Condition?.TxtToken,
+               doWhileCycle.StayCondition?.TxtToken,
                lst_ins[1],
                null,
-               s => doWhileCycle.Condition.NnOrCrash().Expr?.Eval(s, RtmStrategy));
+               doWhileCycle.StayCondition.NnOrCrash().Expr.NnOrCrash());
 
          lst_ins.Add(got);
 
@@ -298,15 +382,15 @@ namespace Gate.CLanguage.Runtime
          /// 1: init
          if (forCycle.Initialisation != null) { lst_ins.AddRange(GetInstructions(forCycle.Initialisation)); }
 
-         var cnd = null as RtmDbgEngVirtCpuInstructionGotoConditionEval;
+         var cnd = null as Expr;
 
          //if condition is null infinite cycle
-         if (forCycle.Condition != null)
+         if (forCycle.StayCondition != null)
          {
-            cnd = (s => forCycle.Condition?.Expr?.Eval(s, RtmStrategy));
+            cnd = forCycle.StayCondition?.Expr.NnOrCrash();
          }
 
-         var got = new RtmDbgEngVirtCpuInstructionGoto(forCycle.Condition?.TxtToken, null, end_frm_pop, cnd);
+         var got = new RtmDbgEngVirtCpuInstructionGoto(forCycle.StayCondition?.TxtToken, null, end_frm_pop, cnd);
 
          // 2: if-condition-goto 
          lst_ins.Add(got);

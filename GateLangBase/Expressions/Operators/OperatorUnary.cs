@@ -9,8 +9,22 @@ namespace Gate.LangBase.Expressions.Operators
    /// </summary>
    public abstract class OperatorUnary : OperatorPunctuator
    {
+      /// <summary>
+      /// 
+      /// </summary>
       public abstract bool IsPostfix { get; }
+
+      /// <summary>
+      /// 
+      /// </summary>
       public abstract bool IsPrefix { get; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="strings"></param>
+      /// <returns></returns>
+      public override string? GetRebuilt(string?[] strings) => IsPrefix ? $"{Symbol}{strings[0]}" : $"{strings[0]}{Symbol}";
 
       public override TxtElabResult FindOperatorNode(FindOperatorInData findOperatorData, out ExprNodeOperator? operatorNode, out ExprNode[]? operandNodes)
       {

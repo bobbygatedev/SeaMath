@@ -48,6 +48,11 @@ namespace Gate.LangBase.Expressions.Nodes
       /// </summary>
       public abstract bool IsLValue { get; }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      public abstract string? Rebuilt { get; }
+
       public ExprNode? ParentExprNode => ParentItem as ExprNode;
 
       public string Content => Token != null ? Token.Content : "";

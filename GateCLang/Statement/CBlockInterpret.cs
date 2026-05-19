@@ -49,7 +49,7 @@ namespace Gate.CLanguage.Statement
             case ContextType.cycle:
                myCompose =
                   new And(new Is("{", true), new InnerInterpretForCompound(this), new Expect("}", true)) |
-                  new InnerInterpretForCycle(this);
+                  new InnerInterpretForSingleStatement(this);
                break;
 
             default: throw new Crash();
@@ -77,7 +77,7 @@ namespace Gate.CLanguage.Statement
             if (itm is CDeclFunction fnc) { cmp = fnc.Body?.NnOrCrash(); }
             else if (itm is CCycle cyc)
             {
-               cyc.Body = cmp = new CStatementCompound();
+               cyc.SetBody(cmp = new CStatementCompound());
             }
             else if (itm is CStatementCompound nst_cmp)//nested compound
             {
@@ -106,12 +106,12 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-      private class InnerInterpretForCycle : CTokenInterpreter
+      private class InnerInterpretForSingleStatement : CTokenInterpreter
       {
          private readonly CBlockInterpret myParent;
          private readonly Lazy<Or> myLazyOr;
 
-         public InnerInterpretForCycle(CBlockInterpret parent)
+         public InnerInterpretForSingleStatement(CBlockInterpret parent)
          {
             myParent = parent;
             //all interpreters but declspecifer
@@ -140,8 +140,8 @@ namespace Gate.CLanguage.Statement
             new CBlockInterpret(ContextType.cycle , DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatement.Break.TokenInterpret(),
             new CStatement.Continue.TokenInterpret(),
-            new CCycleIfElse.TokenInterpret(ExprInterpret),
-            new CCycleSwitch.TokenInterpret(ExprInterpret),
+            new CCycleIfElse.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
+            new CCycleSwitch.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CCycleFor.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CCycleWhile.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CCycleDoWhile.TokenInterpret(DeclInterpretFactory, AttributesInterpret, ExprInterpret),

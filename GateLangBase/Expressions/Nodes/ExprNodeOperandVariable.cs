@@ -138,6 +138,11 @@ namespace Gate.LangBase.Expressions.Nodes
       public override bool IsLValue => !IsClassMember;
 
       /// <summary>
+      /// 
+      /// </summary>
+      public override string? Rebuilt => Identifier;
+
+      /// <summary>
       /// If true variable when variable is member name (eg is second operand of a struct/class/union member operator)
       /// </summary>
       public bool IsClassMember => ParentExprNode is ExprNodeOperator opr_nod && opr_nod.Operator is OperatorMember && opr_nod.OperandNodes[1] == this;

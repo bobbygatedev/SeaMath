@@ -5,6 +5,7 @@ using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
@@ -16,7 +17,7 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public class CCycleFor : CCycle , ICItemWithScopeSpace
+   public class CCycleFor : CCycle, ICItemWithScopeSpace
    {
       private CExprStatement? myUpdate;
       private CExprStatement? myInitExpression;
@@ -130,6 +131,8 @@ namespace Gate.CLanguage.Statement
             var cyc_for = new CCycleFor();
             var itm_sco = output.ScopeSpaceItem.NnOrCrash();
 
+            if (input.MarkedText != "for") { return TxtElabResult.continue_searching; }
+
             if (!itm_sco.AddToScopeSpace(cyc_for, inData.ScopeHelper, inData.Messages)) { throw new Crash(); }
 
             var res = myNested(cyc_for, input, inData, ref output, myAnd, NestedMode.once_continue);
@@ -212,11 +215,11 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public override string Descriptor => $"for({Initialisation?.Descriptor};{Condition?.Descriptor};{Update?.Descriptor}){Body?.Descriptor}";
+      public override string Descriptor => $"for({Initialisation?.Descriptor};{StayCondition?.Descriptor};{Update?.Descriptor}){Body?.Descriptor}";
 
       public CScope Scope { get; }
 
-      public CDecl[] ScopeDecls => 
+      public CDecl[] ScopeDecls =>
          Body is CStatementCompound cmp ? cmp.ScopeDecls : InitSpecifiers?.Decls ?? [];
 
       public bool AddDeclSpec(MsgCollection messages, CDeclSpecifiers declSpecifier, CScopeHelperBase? scopeHelper = null)
@@ -233,7 +236,7 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-      public bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) => 
+      public bool AddToScopeSpace(CItem item, CScopeHelperBase? scopeHelper, MsgCollection messages) =>
          AddDeclSpec(messages, item.ConvertOrCrash<CDeclSpecifiers>(), scopeHelper);
 
       public void RemoveFromScopeSpace(CItem item)
