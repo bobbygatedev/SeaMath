@@ -67,15 +67,6 @@ namespace Gate.ToolsView.ConIO
          }
       }
 
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="action"></param>
-      public void CriticalAction(Action action)
-      {
-         using (myCriticalSection.GetLock()) { action(); }
-      }
-
       protected override void myFreeManaged()
       {
          var tks = ConsoleTasks.ToArray();

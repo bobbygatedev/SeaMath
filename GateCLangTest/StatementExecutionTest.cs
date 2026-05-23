@@ -1597,13 +1597,43 @@ void main()
          }
       }
 
+      public class ForBreakTest : ExecutionTestBase
+      {
+         public override TxtStore SourceCode => new TxtStore(
+            "int w1=0;\r\n" +
+            "\r\nvoid main()\r\n" +
+            "{\r\n" +
+            "   for(int i = 0 ; i < 10 ;i++)\r\n" +
+            "   {\r\n" +
+            "      w1 = i;\r\n" +
+            "\r\n" +
+            "      if(i > 7)\r\n" +
+            "      {\r\n" +
+            "         break;\r\n" +
+            "      }     \r\n" +
+            "   }" +
+            "\r\n}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var w1 = myRequireVar(dbgEngProcess, "w1");
+
+            if (w1.CSharpObj.ConvertOrCrash<int>() == 8)
+            {
+               return TxtElabResult.success;
+            }
+            else
+            {
+               return TxtElabResult.failure;
+            }
+         }
+      }
+
       static void Main()
       {
          //tododo aggiungi test per nested for .. switch
          var tst = new StatementExecutionTest();
-         //var tst = new IfTest();
-         //var tst = new WhileTest();
-
+        
          tst.IsVerbose = true;
          tst.Go();
          Console.WriteLine(tst.ReportString);

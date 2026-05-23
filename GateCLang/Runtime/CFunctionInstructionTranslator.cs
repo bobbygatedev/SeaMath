@@ -113,7 +113,21 @@ namespace Gate.CLanguage.Runtime
          //items after tranlation into instructions
          var iss = its.SelectMany(i => GetInstructions(i)).ToArray();
 
-         return iss;
+         if (iss.Length == 0 || iss.All(i => i.Token == null))
+         {
+            //last position inside function body (or null)
+            var to_fnc_pos = lnk_fnc?.Body?.TxtToken?.To?.Primitive;
+
+            //token to last line inside function body (or null)
+            var to_fnc_tok = to_fnc_pos != null ? to_fnc_pos.Store?[to_fnc_pos.Line] : null;
+
+            //adds a nop at last function line because a empty function causes an infinite loop 
+            return [new RtmDbgEngVirtCpuInstructionSimple(to_fnc_tok)];
+         }
+         else
+         {
+            return iss;
+         }
       }
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CExprStatement cExpr) =>
@@ -187,13 +201,13 @@ namespace Gate.CLanguage.Runtime
                {
                   //if true next instruction otherwise else_body or end
                   lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
-                     if_els[i].TxtToken, null, els_0 ?? end_frm_pop, exp);
+                     if_els[i].StayCondition?.TxtToken, null, els_0 ?? end_frm_pop, exp);
                }
                else
                {
                   //if true next instruction otherwise else_body or end
                   lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
-                     if_els[i].TxtToken, null, lst_ins[got_ids[i + 1]], exp);
+                     if_els[i].StayCondition?.TxtToken, null, lst_ins[got_ids[i + 1]], exp);
                }
             }
          }

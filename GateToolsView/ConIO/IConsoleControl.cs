@@ -94,5 +94,11 @@ namespace Gate.ToolsView.ConIO
       /// <remarks>The selection range is inclusive of the start position and exclusive of the end position.
       /// If the start and end positions are the same, the selection is considered empty (a caret position).</remarks>
       (TxtPos? start, TxtPos? end) Selection { get; set; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="action"></param>
+      void InQueueInvoke(Action action);
    }
 }

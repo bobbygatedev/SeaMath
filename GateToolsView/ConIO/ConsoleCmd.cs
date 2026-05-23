@@ -23,7 +23,7 @@ namespace Gate.ToolsView.ConIO
 
       public abstract void OnFinished();
 
-      protected internal abstract object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params);
+      protected internal abstract object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params);
 
       /// <summary>
       /// Task associated to parent console prompt (<see cref="ConsoleCmdPromptTask"/>).

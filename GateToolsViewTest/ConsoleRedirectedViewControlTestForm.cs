@@ -1,9 +1,6 @@
 using Gate.Tools.Extensions;
 using Gate.Tools.Text.Elab;
 using Gate.ToolsView.ConIO;
-using System;
-using System.Text;
-using System.Windows.Forms;
 
 namespace Gate.ToolsViewTest
 {
@@ -35,12 +32,12 @@ namespace Gate.ToolsViewTest
 
          public override TxtElabResult Parse(string text, out object[] inParams)
          {
-            inParams = new object[0];
+            inParams = [];
 
             return text.ExtTrim() == "run" ? TxtElabResult.success : TxtElabResult.continue_searching;
          }
 
-         protected override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+         protected override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
          {
             consoleTask.Conio.WriteLine("RUN");
 

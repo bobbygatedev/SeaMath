@@ -41,7 +41,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             }
             else
             {
-               throw new Gate.LangBase.Runtime.RtmException("Not a valid current instruction");
+               return null;
             }
          }
       }

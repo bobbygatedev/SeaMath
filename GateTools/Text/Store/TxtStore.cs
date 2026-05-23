@@ -547,16 +547,30 @@ namespace Gate.Tools.Text
 
          if (replacements.Length > 0)
          {
+            //lst_tmp is used to store the sectors to be replaced and the replacement tokens before performing the replacement,
             var lst_tmp = new List<(SectorOwned[] to_be_rep, SectorOwned[] rps)>();
+
+            //in case interval is of lenght = 0 , new sectors are simply inserted
+            var lst_ins = new List<(SectorOwned? sec_bef, SectorOwned[] rps)>();
             var rps = replacements.SelectMany(r => new int[] { r.Interval.From, r.Interval.To + 1 }).Distinct().ToArray();
 
             SplitSector(rps);
 
             foreach (var rep in replacements)
             {
-               var rep_scs = OwnedSectors.Where(s => rep.Interval.Contains(s.Interval)).ToArray();
+               if (rep.Interval.Length == 0)
+               {
+                  var sec_bef = rep.Interval.From == 0 ? null : OwnedSectors.FirstOrDefault(
+                     s => s.To?.StoreIdx + 1 == rep.Interval.From).NnOrCrash();
 
-               lst_tmp.Add((rep_scs, myGetSectorsPrimitized(rep.ReplaceTokens)));
+                  lst_ins.Add((sec_bef, myGetSectorsPrimitized(rep.ReplaceTokens)));
+               }
+               else
+               {
+                  var rep_scs = OwnedSectors.Where(s => rep.Interval.Contains(s.Interval)).ToArray();
+
+                  lst_tmp.Add((rep_scs, myGetSectorsPrimitized(rep.ReplaceTokens)));
+               }
             }
 
             foreach (var itm in lst_tmp)
@@ -564,6 +578,16 @@ namespace Gate.Tools.Text
                var frs_sec = itm.to_be_rep[0];
 
                myData.ReplaceSectors(frs_sec, itm.to_be_rep.Length, itm.rps);
+            }
+
+            foreach (var itm in lst_ins.Where(i => i.sec_bef == null))
+            {
+               myData.InsertSectors(0, itm.rps);
+            }
+
+            foreach (var itm in lst_ins.Where(i => i.sec_bef != null))
+            {
+               myData.InsertSectors(OwnedSectors.ToList().IndexOf(itm.sec_bef) + 1, itm.rps);
             }
 
             //primitive to false only if some replacement is made.
@@ -662,7 +686,17 @@ namespace Gate.Tools.Text
          var ln = this[atlineIdx];
          var str = string.Join(Settings.NewLine, newLines);
 
-         Replace(new TxtStoreReplacement(ln.Interval, new TxtTokenConst(str)));
+         if (atlineIdx == LineCount && ln.Content.Length == 0)
+         {
+            if (!str.IsEmpty())
+            {
+               Replace(new TxtStoreReplacement(ln.IntervalNL, new TxtTokenConst(str)));
+            }
+         }
+         else
+         {
+            Replace(new TxtStoreReplacement(ln.Interval, new TxtTokenConst(str)));
+         }
 
          return Content == "" ? [] : Enumerable.Range(atlineIdx, newLines.Length).Select(i => this[i]).ToArray();
       }
@@ -742,7 +776,7 @@ namespace Gate.Tools.Text
          return cpy;
       }
 
-      public override string ToString() => 
+      public override string ToString() =>
          (Tag != null ? $"{Tag}: " : "") + Content.Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 
       private static string myReTab(string inString, int numTabChars, bool isUseTab)
@@ -762,7 +796,7 @@ namespace Gate.Tools.Text
                sb.Append(isUseTab ? "\t" : new string(' ', d));
             }
             else if (
-               tab_off == 0 && 
+               tab_off == 0 &&
                Enumerable.Range(i, numTabChars).
                Select(i_c => i_c < inString.Length ? inString[i_c] : (char)0).
                All(c => char.IsWhiteSpace(c)))

@@ -195,19 +195,6 @@ namespace Gate.LangBase.Runtime.DbgEng
          if (CurrentBreakThread != null) { CurrentBreakThread.StepInto(); }
          else if (DbgIdeReady2Start != null) { myStepIntoFirstInstruction(); }
       }
-
-      private void myStepIntoFirstInstruction()
-      {
-         var dbg_pro = DbgIdeReady2Start?.MakeDbgProcessReady2Start(true);
-
-         if (dbg_pro != null)
-         {
-            AttachProcess(dbg_pro);
-            dbg_pro.Start();
-            dbg_pro.WaitForBreak();
-         }
-      }
-
       public void StepOver()
       {
          if (CurrentBreakThread != null) { CurrentBreakThread.StepOver(); }
@@ -254,7 +241,7 @@ namespace Gate.LangBase.Runtime.DbgEng
       /// 
       /// </summary>
       /// <param name="runDebugInfrastructure"></param>
-      protected virtual void myActionOnChangeDebugInfrastructure(IRtmDbgEngIde? runDebugInfrastructure) => 
+      protected virtual void myActionOnChangeDebugInfrastructure(IRtmDbgEngIde? runDebugInfrastructure) =>
          OnCurrentInfrastructureChange?.Invoke(runDebugInfrastructure);
 
       private IRtmDbgEngProcess? myStartNewInstance(bool isStepInto)
@@ -275,13 +262,26 @@ namespace Gate.LangBase.Runtime.DbgEng
          return null;
       }
 
-      private void myUpdateCurrentInfrastructure() => 
+      private void myUpdateCurrentInfrastructure() =>
          DbgIdeReady2Start = myListRunDebugInfrastructure.FirstOrDefault(i => i.LaunchObjectName != null);
 
-      private bool myIsValidBreakThread(IRtmDbgEngThread thread) => 
+      private bool myIsValidBreakThread(IRtmDbgEngThread thread) =>
          AllThreads.Where(t => t.ThreadState == RtmDbgEngRunState.halt).Contains(thread);
 
-      private void Process_ThreadFinished(IRtmDbgEngThread thread, RtmDbgEngFinishedReason reason, Msg[] errorMessages) => 
+      private void myStepIntoFirstInstruction()
+      {
+         var dbg_pro = DbgIdeReady2Start?.MakeDbgProcessReady2Start(true);
+
+         if (dbg_pro != null)
+         {
+            AttachProcess(dbg_pro);
+            dbg_pro.Start();
+            dbg_pro.WaitForBreak();
+         }
+      }
+
+
+      private void Process_ThreadFinished(IRtmDbgEngThread thread, RtmDbgEngFinishedReason reason, Msg[] errorMessages) =>
          OnAnyThreadFinished?.Invoke(thread, reason, errorMessages);
 
       private void Process_ThreadRuns(IRtmDbgEngThread? thread) => OnAnyThreadStarts?.Invoke(thread);
@@ -305,7 +305,7 @@ namespace Gate.LangBase.Runtime.DbgEng
          OnAnyProcessChangeState?.Invoke(process, newState, oldState);
       }
 
-      private void RunDebugInfrastructure_OnChangedObjectName(IRtmDbgEngIde runDebugInfrastructure, string? launchObjectName) => 
+      private void RunDebugInfrastructure_OnChangedObjectName(IRtmDbgEngIde runDebugInfrastructure, string? launchObjectName) =>
          myUpdateCurrentInfrastructure();
    }
 }

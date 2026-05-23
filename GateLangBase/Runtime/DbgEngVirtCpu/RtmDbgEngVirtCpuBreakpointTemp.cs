@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
+using System.Windows.Forms;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
@@ -7,25 +8,40 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// </summary>
    public class RtmDbgEngVirtCpuBreakpointTemp
    {
-      private RtmDbgEngVirtCpuBreakpointTemp() { }
-
-      public static RtmDbgEngVirtCpuBreakpointTemp MakeHaltAtNextInstruction()
+      private RtmDbgEngVirtCpuBreakpointTemp(RtmDbgEngVirtCpuStackItemFrameFunction? callingFrameStop)
       {
-         var res = new RtmDbgEngVirtCpuBreakpointTemp();
-
-         res.IsHaltAtNextInstruction = true;
-
-         return res;
+         CallingFrameStop = callingFrameStop;
+         Frames = callingFrameStop?.Stack.FunctionFrames ?? [];
       }
 
-      public static RtmDbgEngVirtCpuBreakpointTemp MakeHaltACall(IRtmDbgEngPoint instruction)
+      public static RtmDbgEngVirtCpuBreakpointTemp MakeHaltAtNextInstruction(
+         RtmDbgEngVirtCpuStackItemFrameFunction? callingFrameStop = null) =>
+         new RtmDbgEngVirtCpuBreakpointTemp(callingFrameStop);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="stack"></param>
+      /// <returns></returns>
+      /// <exception cref="NotImplementedException"></exception>
+      public bool IsStop(RtmDbgEngStackVirtCpu stack, RtmDbgEngVirtCpuInstruction instruction)
       {
-         var res = new RtmDbgEngVirtCpuBreakpointTemp();
-
-         res.HaltAtCall = instruction;
-         res.HaltAtCallCount = 1;
-
-         return res;
+         //not token - no stop
+         if (instruction.Token == null)
+         {
+            return false;
+         }
+         else if (
+            CallingFrameStop == null || //step-into 
+            CallingFrameStop == stack.TopFunctionFrame ||  //step-over but in calling function frame
+            !stack.FunctionFrames.Contains(CallingFrameStop)) //step-over but frame instance no longer in stack
+         {
+            return true;
+         }
+         else 
+         {
+            return false;
+         }
       }
 
       public bool IsHaltAtNextInstruction { get; private set; }
@@ -33,5 +49,15 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       public IRtmDbgEngPoint? HaltAtCall { get; private set; }
 
       public int HaltAtCallCount { get; private set; }
+
+      /// <summary>
+      /// If not null stop occurs when current instructions return to calling function or any of its parents
+      /// </summary>
+      public RtmDbgEngVirtCpuStackItemFrameFunction? CallingFrameStop { get; }
+
+      /// <summary>
+      /// Save frames at breakpoint set.
+      /// </summary>
+      public RtmDbgEngVirtCpuStackItemFrameFunction[] Frames { get; }
    }
 }

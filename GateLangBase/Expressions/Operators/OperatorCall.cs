@@ -13,7 +13,7 @@ namespace Gate.LangBase.Expressions.Operators
       /// <summary>
       /// 
       /// </summary>
-      public OperatorCall()     {        }
+      public OperatorCall() { }
 
       public override string Symbol => "f()";
 

@@ -1,6 +1,7 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Text;
 using System.Diagnostics;
@@ -158,7 +159,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          if (ThreadState == RtmDbgEngRunState.halt)
          {
             TempBreakpoint = RtmDbgEngVirtCpuBreakpointTemp.MakeHaltAtNextInstruction();
-            (Process ?? throw new Crash()).Continue();
+            Process.NnOrCrash().Continue();
          }
       }
 
@@ -174,18 +175,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       {
          if (ThreadState == RtmDbgEngRunState.halt)
          {
-            //if last instruction (pointing on a return or at last instruction of function)
-            var is_lst =
-               Stack.TopFunctionFrame?.InstructionCurrent is RtmDbgEngVirtCpuInstructionReturn ||
-               Stack.TopFunctionFrame?.InstructionCurrent == Stack.TopFunctionFrame?.Instructions.LastOrDefault();
-
-            if (is_lst) { StepInto(); }//if pointing to last instruction stepinto
-            else
-            {
-               //place temp break point at next instruction in same function 
-               TempBreakpoint = RtmDbgEngVirtCpuBreakpointTemp.MakeHaltACall(Stack.TopFunctionFrame?.InstructionNextHalt ?? throw new Crash());
-               (Process ?? throw new Crash()).Continue();
-            }
+            TempBreakpoint = RtmDbgEngVirtCpuBreakpointTemp.MakeHaltAtNextInstruction(Stack.TopFunctionFrame);
+            Process.NnOrCrash().Continue();
          }
       }
 
@@ -365,7 +356,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          var tmp_brk = TempBreakpoint;
 
          if (instruction == null || instruction.Token == null || !(StartSettings?.IsDebugEnabled ?? false)) { return false; }
-         else if (tmp_brk != null && tmp_brk.IsHaltAtNextInstruction)
+         else if (tmp_brk != null && tmp_brk.IsStop(Stack, instruction))
          {
             TempBreakpoint = null;
 

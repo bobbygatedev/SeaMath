@@ -348,12 +348,23 @@ namespace Gate.ToolsView.ConIO
          {
             if (line1 == 0) { line1 = myCurrentPos.Line; }
 
-            var ln = myTxtStore.Lines[line1 - 1];
+            var ln = null as TxtStore.LineToken;
 
-            var sta = ln.Interval.From;
-            var end = ln.Interval.To;
+            if (line1 > myTxtStore.LineCount)
+            {
+               myTxtStore.AddLines(Enumerable.Range(0, line1-myTxtStore.LineCount).Select(_=>"").ToArray());   
+               ln = myTxtStore.Lines[line1 - 1];
+            }
+            else
+            {
+               ln = myTxtStore.Lines[line1 - 1];
 
-            myTxtStore.ReplaceLine(line1, lineText);
+               var sta = ln.Interval.From;
+               var end = ln.Interval.To;
+
+               myTxtStore.ReplaceLine(line1, lineText);
+            }
+
             myScintilla.Text = myTxtStore.Content;
 
             if (myTxtStore.Content != "")
@@ -588,5 +599,11 @@ namespace Gate.ToolsView.ConIO
             }
          }
       }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="action"></param>
+      void IConsoleControl.InQueueInvoke(Action action) => this.MthInvoke(action);
    }
 }

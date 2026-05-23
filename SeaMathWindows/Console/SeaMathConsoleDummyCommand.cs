@@ -47,7 +47,7 @@ namespace Gate.SeaMath.Windows.Console
 
       public override void OnFinished() { }
 
-      protected override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+      protected override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
       {
          var mgs = new MsgCollection();
          var txt = @params[0];

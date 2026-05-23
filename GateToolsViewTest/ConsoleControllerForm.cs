@@ -3,11 +3,7 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Text.Elab;
 using Gate.ToolsView.ConIO;
 using Gate.ToolsViewTest.Properties;
-using System;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
 
 namespace Gate.ToolsViewTest
 {
@@ -25,7 +21,7 @@ namespace Gate.ToolsViewTest
 
          myConsoleController = new ConsoleController(CtrlConsoleRedirectedViewControl);
          myPrompt = new InnerConsolePromptTask();
-         CtrlConsoleRedirectedViewControl.Font = new System.Drawing.Font("Courier New", 14);
+         CtrlConsoleRedirectedViewControl.Font = new Font("Courier New", 14);
 
          myConsoleController.PushTask(myPrompt);
       }
@@ -38,21 +34,21 @@ namespace Gate.ToolsViewTest
          {
             var tps = type.GetNestedTypes(BindingFlags.NonPublic).Where(t => myFilter(t)).ToArray();
 
-            return tps.Select(t => t.GetConstructor(new Type[0]).Invoke(new object[0]) as ConsoleCmd).ToArray();
+            return tps.
+               Select(t => t.InstanciateOrCrash() as ConsoleCmd ?? throw new Crash()).ToArray();
          }
 
-         private static bool myFilter(Type type) => type.GetConstructor(new Type[0]) != null && type.IsSubclassOf(typeof(CmdTemplate));
+         private static bool myFilter(Type type) => 
+            type.GetConstructor([]) != null && type.IsSubclassOf(typeof(CmdTemplate));
       }
 
       private abstract class CmdTemplate : ConsoleCmd
       {
-         public InnerConsolePromptTask PromptTask => ConsolePromptTask as InnerConsolePromptTask;
-
          public abstract string CmdName { get; }
 
          public override TxtElabResult Parse(string text, out object[] inParams)
          {
-            inParams = new object[0];
+            inParams = [];
 
             if (text == CmdName) { return TxtElabResult.success; }
             else { return TxtElabResult.continue_searching; }
@@ -93,7 +89,7 @@ namespace Gate.ToolsViewTest
 
          public override ConsoleCmdHint[] Hints => throw new NotImplementedException();//todo
 
-         protected override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+         protected override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
          {
             var vbs = Resources.VeryBigString;
 
@@ -111,13 +107,13 @@ namespace Gate.ToolsViewTest
          {
             if (text.Trim().ToLower() == "cls")
             {
-               inParams = new object[0];
+               inParams = [];
 
                return TxtElabResult.success;
             }
             else
             {
-               inParams = null;
+               inParams = [];
 
                return TxtElabResult.continue_searching;
             }
@@ -125,9 +121,9 @@ namespace Gate.ToolsViewTest
 
          public override bool IsSupervisor => false;
 
-         protected override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+         protected override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
          {
-            consoleTask.ConsoleController.IControl.ClearScreen();
+            consoleTask.ConsoleController?.IControl.ClearScreen();
 
             return null;
          }
@@ -163,7 +159,7 @@ namespace Gate.ToolsViewTest
             }
          }
 
-         protected unsafe override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+         protected unsafe override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
          {
             var th1 = new Thread(() => myBody(consoleTask));
             var th2 = new Thread(() => myBody(consoleTask));
@@ -187,7 +183,7 @@ namespace Gate.ToolsViewTest
 
          public override bool IsSupervisor => true;
 
-         protected override object myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
+         protected override object? myCmdBody(ConsoleTask consoleTask, params dynamic[] @params)
          {
             //todo
 

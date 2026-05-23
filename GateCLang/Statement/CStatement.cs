@@ -31,7 +31,7 @@ namespace Gate.CLanguage.Statement
          {
             private And myComposed = new And(new Is("break", true), new Expect(";", true), new InnerInterpreter<Break>());
 
-            public TokenInterpret()            {            }
+            public TokenInterpret() { }
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
                => myComposed.Perform(input, inData, ref output);
@@ -56,9 +56,9 @@ namespace Gate.CLanguage.Statement
          {
             private And myComposed = new And(new Is("continue", true), new Expect(";", true), new InnerInterpreter<Continue>());
 
-            public TokenInterpret()            {            }
+            public TokenInterpret() { }
 
-            public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output) => 
+            public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output) =>
                myComposed.Perform(input, inData, ref output);
          }
 
@@ -167,10 +167,23 @@ namespace Gate.CLanguage.Statement
             {
                public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
                {
-                  var fnc = output.ItemsOnStack.OfType<CDeclFunction>().FirstOrDefault() ?? throw new Crash();
+                  var fnc = output.ItemsOnStack.OfType<CDeclFunction>().FirstOrDefault().NnOrCrash();
 
-                  return fnc.FunctionContainer?.TypeAliasReturned?.PrimitiveAlias.TypeSpecifier == "void" ?
-                     TxtElabResult.success : TxtElabResult.continue_searching;
+                  if (fnc.FunctionContainer?.TypeAliasReturned?.PrimitiveAlias.TypeSpecifier == "void")
+                  {
+                     var cmp = output.PeekOrCrash<CStatementCompound>();
+                     var ret_sta = new Return();
+                     var sta_tok = input[input.CurrIdx - 1];//point to ->return
+
+                     ret_sta.TxtToken = sta_tok;
+                     cmp.AddStatements(ret_sta);
+
+                     return TxtElabResult.success;
+                  }
+                  else
+                  {
+                     return TxtElabResult.continue_searching;
+                  }
                }
             }
 
@@ -204,21 +217,11 @@ namespace Gate.CLanguage.Statement
          public override TxtElabResult Perform(
             TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            //affinity_cycle
-            var aff_cyc = output.CycleOnTopItem;
             var tok = input.Peek(-2);
+            var stt = new S();//statement break/continue
 
-            if (
-               aff_cyc == null ||
-               !(aff_cyc is CCycleFor || aff_cyc is CCycleWhile || aff_cyc is CCycleDoWhile || aff_cyc is CCycleSwitch))
+            if (myCheck(stt, output))
             {
-               inData.Messages.Add(CCompilerMsgId.break_invalid.GetError(tok));
-
-               return TxtElabResult.failure;
-            }
-            else
-            {
-               var stt = new S();//statement break/continue
                var cmp = output.TopItem as CStatementCompound;
                var cyc = output.TopItem as CCycle;
 
@@ -239,6 +242,37 @@ namespace Gate.CLanguage.Statement
 
                return TxtElabResult.success;
             }
+            else
+            {
+               //is break or continue?
+               var is_brk = stt is Break || stt is Continue ? false : throw new Crash();
+
+               if (is_brk)
+               {
+                  inData.Messages.Add(CCompilerMsgId.break_invalid.GetError(tok));
+               }
+               else
+               {
+                  inData.Messages.Add(CCompilerMsgId.continue_invalid.GetError(tok));
+               }
+
+               return TxtElabResult.failure;
+            }
+         }
+
+         private bool myCheck(S stt, CTokenInterpreterOutput output)
+         {
+            //affinity_cycle
+            var ccs = output.TopItem.NnOrCrash().ParentItemChain.OfType<CCycle>().ToArray();
+            var ccs_typ = ccs.Select(c=>c.GetType()).ToArray();   
+
+            //is break or continue?
+            var is_brk = stt is Break || stt is Continue ? false : throw new Crash();
+            var all_tps = is_brk ?
+               [typeof(CCycleFor), typeof(CCycleWhile), typeof(CCycleDoWhile), typeof(CCycleSwitch)] :
+               new[] { typeof(CCycleFor), typeof(CCycleWhile), typeof(CCycleDoWhile) };
+
+            return ccs_typ.Intersect(all_tps).Any();
          }
       }
 
