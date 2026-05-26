@@ -1,10 +1,12 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.CLanguage.Expressions.Nodes;
+using Gate.CLanguage.Runtime;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Expressions.COperators
@@ -93,13 +95,21 @@ namespace Gate.CLanguage.Expressions.COperators
          ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
       {
          var fin_typ_ali = ((CExprNodeTypeName)operatorNode.OperandNodes[0]).TypeAlias;
-         var a0 = rtmArgs?.ElementAtOrDefault(0)?.CSharpObj;
+         var x0 = rtmArgs?.ElementAtOrDefault(0) ?? throw new Gate.LangBase.Runtime.RtmException($"Not an input value for {operatorNode}"); ;
+         var a0 = x0.CSharpObj;
 
          if (fin_typ_ali.IsPointer)
          {
-            return a0 is IntPtr ptr ?
-               rtmStrategy?.MakeConstant(ptr, operatorNode.DeclType) :
+            var bt = x0.DeclType?.GetBuiltInType();
+
+            if (bt != null && bt.IsInteger)
+            {
+               return rtmStrategy?.MakeConstant(a0.NnOrCrash(), operatorNode.DeclType);
+            }
+            else
+            {
                throw new Gate.LangBase.Runtime.RtmException($"Not a valid pointer '{a0}'");
+            }
          }
          else if (fin_typ_ali.IsBuiltIn)
          {

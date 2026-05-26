@@ -10,9 +10,12 @@ namespace Gate.LangBase.Expressions.Operators
       public class LeftBitShift : OperatorBinaryBitwise
       {
          public override PrecedenceClass PrecedenceClass => PrecedenceClass.Level(6);
+         
          public override string Punctuator => "<<";
+         
          public override bool IsFirstOperandLValue => false;
-         public override ValueType CSharpHandler(params dynamic[] pp) => pp[0] << pp[1];
+
+         public override ValueType CSharpHandler(params dynamic[] pp) => pp[0] << (int)pp[1];
       }
 
       [BasicOperator(BasicOperatorTypeFlags.c_always)]
@@ -20,8 +23,10 @@ namespace Gate.LangBase.Expressions.Operators
       {
          public override PrecedenceClass PrecedenceClass => PrecedenceClass.Level(6);
          public override string Punctuator => ">>";
+
          public override bool IsFirstOperandLValue => false;
-         public override ValueType CSharpHandler(params dynamic[] pp)  => pp[0] >> pp[1];
+
+         public override ValueType CSharpHandler(params dynamic[] pp)  => pp[0] >> (int)pp[1];
       }
 
       [BasicOperator(BasicOperatorTypeFlags.c_operator)]

@@ -191,7 +191,7 @@ namespace Gate.CLanguage.Runtime
       {
          if (typeAlias.IsPointer)
          {
-            return new CRtmObjPointerLiteral(this, (IntPtr)constValue, typeAlias);
+            return new CRtmObjPointerLiteral(this, (IntPtr)(dynamic)constValue, typeAlias);
          }
          else if (typeAlias.IsBuiltIn)
          {
