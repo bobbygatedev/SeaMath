@@ -17,7 +17,7 @@ namespace Gate.Tools.Arry.Extensions
       /// </summary>
       /// <param name="array"></param>
       /// <returns></returns>
-      public static ArrayIndicesEnumerable EnumerateIndices(this Array array) => 
+      public static ArrayIndicesEnumerable EnumerateIndices(this Array array) =>
          new ArrayIndicesEnumerable(ArrayIndicesEnumerable.DirectionId.right2left, array.GetSizes());
 
       /// <summary>
@@ -244,5 +244,42 @@ namespace Gate.Tools.Arry.Extensions
 
          return res;
       }
+
+
+      public static bool ArrayCompare(this Array a, Array b)
+      {
+         // same reference
+         if (ReferenceEquals(a, b)) { return true; }
+         // different rank 
+         else if (a == null || b == null || a.Rank != b.Rank || a.GetType().GetElementType() != b.GetType().GetElementType())
+         {
+            return false;
+         }
+
+         // dimensioni diverse
+         for (int i = 0; i < a.Rank; i++)
+         {
+            if (a.GetLength(i) != b.GetLength(i))
+            {
+               return false;
+            }
+         }
+
+         // confronto elemento per elemento
+         var enu_a = a.GetEnumerator();
+         var enu_b = b.GetEnumerator();
+
+         while (enu_a.MoveNext() && enu_b.MoveNext())
+         {
+            var va = enu_a.Current;
+            var vb = enu_b.Current;
+
+            if (!Equals(va, vb)) { return false; }
+         }
+
+         return true;
+      }
+
    }
 }
+

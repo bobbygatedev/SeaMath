@@ -48,7 +48,7 @@ namespace Gate.CLanguage
                   myGetUserTypesScopeBlock(compound).Concat(
                      myGetUserTypesScope(compound.ContainingFunction?.FunctionContainer ?? throw new Crash())));
             }
-            else if (compound.ContainingCycle is CCycleFor for_cyc)
+            else if (compound.ContainingCycle is CStatementLoopFor for_cyc)
             {
                return for_cyc.InitSpecifiers != null ? myGetUserTypesScope(for_cyc.InitSpecifiers.NnOrCrash()) : [];
             }
@@ -179,7 +179,7 @@ namespace Gate.CLanguage
             }
          }
 
-         private static CDecl[] myGetDeclsFunctionVisible(CCycleFor forCycle, CScopeHelper scopeHelper) => 
+         private static CDecl[] myGetDeclsFunctionVisible(CStatementLoopFor forCycle, CScopeHelper scopeHelper) => 
             myGetDeclsFunctionVisibleInsideFunction(forCycle, scopeHelper);
 
          private static CDecl[] myGetDeclsFunctionVisible(CStatementCompound compound, CScopeHelper scopeHelper)
@@ -248,7 +248,7 @@ namespace Gate.CLanguage
                Cast<ICItemWithScopeSpace>().
                Concat(pic.OfType<CStatementCompound>().Reverse()).ToArray();
 
-            if (itemWithScope is CCycleFor cyc_for)
+            if (itemWithScope is CStatementLoopFor cyc_for)
             {
                if (cyc_for.Body is CStatementCompound cmp)
                {

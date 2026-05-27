@@ -9,7 +9,7 @@ using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Statement
 {
-   public class CCycleSwitch : CCycle
+   public class CStatementSwitch : CStatementConditional
    {
       public class CaseLabel : CStatement
       {
@@ -64,10 +64,10 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var cyc_if = new CCycleIfElse();
+            var cyc_if = new CStatementIfElse();
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
-            var cyc = top_itm as CCycle;
+            var cyc = top_itm as CStatementConditional;
 
             if (c_sco != null)
             {

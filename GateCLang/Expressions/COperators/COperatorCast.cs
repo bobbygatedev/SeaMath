@@ -106,10 +106,15 @@ namespace Gate.CLanguage.Expressions.COperators
             {
                return rtmStrategy?.MakeConstant(a0.NnOrCrash(), operatorNode.DeclType);
             }
+            else if (a0 is IntPtr ptr)
+            {
+               return rtmStrategy?.MakeConstant(ptr, operatorNode.DeclType);
+            }
             else
             {
                throw new Gate.LangBase.Runtime.RtmException($"Not a valid pointer '{a0}'");
             }
+
          }
          else if (fin_typ_ali.IsBuiltIn)
          {

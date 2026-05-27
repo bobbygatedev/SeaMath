@@ -11,12 +11,12 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public class CCycleWhile : CCycle
+   public class CStatementLoopWhile : CStatementLoop
    {
       /// <summary>
       /// 
       /// </summary>
-      public CCycleWhile() { }
+      public CStatementLoopWhile() { }
 
       /// <summary>
       /// 
@@ -34,11 +34,11 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var cyc_whi = new CCycleWhile();
+            var cyc_whi = new CStatementLoopWhile();
             var itm_sco = output.ScopeSpaceItem ?? throw new Crash();
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
-            var cyc = top_itm as CCycle;
+            var cyc = top_itm as CStatementConditional;
 
             if (input.MarkedText != "while") { return TxtElabResult.continue_searching; }
             else if (c_sco != null) { c_sco.AddStatements(cyc_whi); }

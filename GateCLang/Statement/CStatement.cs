@@ -223,7 +223,7 @@ namespace Gate.CLanguage.Statement
             if (myCheck(stt, output))
             {
                var cmp = output.TopItem as CStatementCompound;
-               var cyc = output.TopItem as CCycle;
+               var cyc = output.TopItem as CStatementConditional;
 
                stt.TxtToken = tok;
 
@@ -263,14 +263,14 @@ namespace Gate.CLanguage.Statement
          private bool myCheck(S stt, CTokenInterpreterOutput output)
          {
             //affinity_cycle
-            var ccs = output.TopItem.NnOrCrash().ParentItemChain.OfType<CCycle>().ToArray();
+            var ccs = output.TopItem.NnOrCrash().ParentItemChain.OfType<CStatementConditional>().ToArray();
             var ccs_typ = ccs.Select(c=>c.GetType()).ToArray();   
 
             //is break or continue?
             var is_brk = stt is Break || stt is Continue ? false : throw new Crash();
             var all_tps = is_brk ?
-               [typeof(CCycleFor), typeof(CCycleWhile), typeof(CCycleDoWhile), typeof(CCycleSwitch)] :
-               new[] { typeof(CCycleFor), typeof(CCycleWhile), typeof(CCycleDoWhile) };
+               [typeof(CStatementLoopFor), typeof(CStatementLoopWhile), typeof(CStatementLoopDoWhile), typeof(CStatementSwitch)] :
+               new[] { typeof(CStatementLoopFor), typeof(CStatementLoopWhile), typeof(CStatementLoopDoWhile) };
 
             return ccs_typ.Intersect(all_tps).Any();
          }

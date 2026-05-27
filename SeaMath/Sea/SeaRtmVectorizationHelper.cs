@@ -4,12 +4,14 @@ using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
+using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Arry;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
+using System.Management;
 
 namespace Gate.SeaMath.Sea
 {
@@ -57,7 +59,6 @@ namespace Gate.SeaMath.Sea
          myCheckSizes(rtmArgs, operatorNode);
 
          var enr = new ArrayIndicesEnumerable(ArrayIndicesEnumerable.DirectionId.right2left, res.Sizes);
-         var ext = rtmStrategy.OperatorModifier;
 
          //array (operator) array
          if (rts_arr.All(t => t != null))
@@ -188,28 +189,69 @@ namespace Gate.SeaMath.Sea
          }
       }
 
-      public static bool IsVectorializationPossible(ExprNodeOperator operatorNode, RtmObj?[] rtmArgs, SeaRtmStrategy seaStrategy)
+      public static bool IsVectorializationPossible(
+         ExprNodeOperator operatorNode, out RtmObj[]? rtmArgs, SeaRtmStrategy seaStrategy, IRtmDbgEngStackExecutable? stack)
       {
-         if (rtmArgs.All(a => a != null))
+         var ope_pnc = operatorNode.Operator as OperatorPunctuator;
+
+         if (ope_pnc == null || ope_pnc.Punctuator == "," || ope_pnc.Punctuator == "=")
          {
-            var ope_pnc = operatorNode.Operator as OperatorPunctuator;
+            rtmArgs = null;
 
-            if (ope_pnc == null || ope_pnc.Punctuator == ",") { return false; }
-            else
-            {
-               var ars = rtmArgs.Select(r => r?.GetRtmFromSea()).ToArray();
-               var typ_als = ars.Select(r => r?.DeclType as CTypeAlias).Nn().ToArray();
-
-               var err = CExprNodeReturnTypeFinder.GetReturnTypeForPointers(
-                  operatorNode, typ_als, seaStrategy.Settings.BuiltInSet.NnOrCrash(), out var exp_typ);
-
-               if (err == null && exp_typ != null) { return false; }
-               else if (ope_pnc != null && ope_pnc.Punctuator != "=" && rtmArgs.Any(r => r?.GetRtmArrayFromSea() != null)) { return true; }
-               else { return false; }
-            }
+            return false;
          }
+         else
+         {
+            var typ_als = operatorNode.OperandNodes.Select(n => n.DeclType.ConvertOrCrash<CTypeAlias>()).ToArray();
 
-         return false;
+            if (typ_als.Any(t => t.IsSeaType()))
+            {
+               // in this case vectorialise is possible in this case
+               // all operands are ctype
+               /// all operands are <see cref="ExprNodeOperand"/>
+               var is_log = operatorNode.Operator is OperatorLogical;
+
+               if (!is_log || operatorNode.OperandNodes.All(o => !myHasCall(o)))
+               {
+                  var ars = operatorNode.OperandNodes.Select(n => n.Eval(stack, seaStrategy)?.GetRtmFromSea()).ToArray();
+
+                  if (ars.Any(r => r?.GetRtmArrayFromSea() != null))
+                  {
+                     rtmArgs = ars.Select(a => a.NnOrCrash()).ToArray();
+
+                     return true;
+                  }
+               }
+            }
+            else if (typ_als.All(t => t != null))
+            {
+               //if operator is valid c pointer algebric operator and all operands are ctype or pointer to ctype then vectorialisation is not possible
+               var err = CExprNodeReturnTypeFinder.GetReturnTypeForPointers(
+                 operatorNode, typ_als, seaStrategy.Settings.BuiltInSet.NnOrCrash(), out var exp_typ);
+
+               if (err != null || exp_typ == null)
+               {
+                  if (typ_als.Any(t => t.IsArray))
+                  {
+                     rtmArgs = operatorNode.OperandNodes.Select(n => n.Eval(stack, seaStrategy).NnOrCrash()).ToArray();
+
+                     return true;
+                  }
+               }
+            }
+            else { throw new Crash(); }
+
+            rtmArgs = null;
+
+            return false;
+         }
       }
+
+      /// <summary>
+      /// Determines whether the specified expression node has any descendant operator calls.
+      /// </summary>
+      /// <param name="node">The expression node to evaluate for descendant operator calls.</param>
+      /// <returns>True if the expression node has at least one descendant operator call; otherwise, false.</returns>
+      private static bool myHasCall(ExprNode node) => node.AllDescendant.OfType<ExprNodeOperator>().Any(o => o.Operator is OperatorCall);
    }
 }

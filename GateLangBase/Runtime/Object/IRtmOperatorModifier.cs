@@ -13,10 +13,9 @@ namespace Gate.LangBase.Runtime.Object
       /// Perform operator if result is not null otherwise normal behaviour is performed.
       /// </summary>
       /// <param name="operatorNode"></param>
-      /// <param name="rtmArgs"></param>
       /// <param name="rtmStrategy"></param>
       /// <returns></returns>
-      RtmObj? EvalRtmArgsModified(ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack);
+      RtmObj? EvalModified(ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack);
    }
 }
 

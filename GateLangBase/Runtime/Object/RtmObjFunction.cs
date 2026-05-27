@@ -1,7 +1,6 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.Tools;
-using Gate.Tools.Extensions;
 
 namespace Gate.LangBase.Runtime.Object
 {

@@ -39,7 +39,7 @@ namespace Gate.CLanguage.Statement
 
                return TxtElabResult.success;
             }
-            else if (output.TopItem is CCycle cyc)
+            else if (output.TopItem is CStatementConditional cyc)
             {
                cyc.SetBody(exp);
         

@@ -278,9 +278,9 @@ namespace Gate.CLanguageTest
          //#define SEATR(...) __attribute__(( __VA_ARGS__ ))
 
          //return;
-         //using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
-         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll
-         using (var hlp = new SeaMathExecutionHelper(false, false))
+          using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
+         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll //tododo
+         //using (var hlp = new SeaMathExecutionHelper(false, false))
          {
             var aim = Aim.run_test;
 

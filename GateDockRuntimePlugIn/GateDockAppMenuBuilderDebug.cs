@@ -36,6 +36,7 @@ namespace Gate.DockRuntimePlugin
 
       [CmdDef(Id = CMD_START_DEBUGGING, Caption = "&Start Debugging", ShortCut = Keys.F5)]
       public virtual void StartDebugging(Cmd command) => Plugin.DbgDbgEng.StartDebugging();
+
       [CmdDef(Id = CMD_CONTINUE_DEBUGGING, Caption = "&Continue", ShortCut = Keys.F5)]
       public virtual void ContinueDebugging(Cmd command) => Plugin.DbgDbgEng.Continue();
 

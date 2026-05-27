@@ -427,10 +427,10 @@ namespace Gate.CLanguage.Expressions
       }
 
       protected virtual bool myFindOperatorReturnType(
-         OperatorBinaryBasic operatorBasic, 
-         ExprNodeOperator operatorNode, 
-         CCompilerInData inData, 
-         ExprNode[] operandNodes, 
+         OperatorBinaryBasic operatorBasic,
+         ExprNodeOperator operatorNode,
+         CCompilerInData inData,
+         ExprNode[] operandNodes,
          out CTypeAlias? expectedType)
       {
          expectedType = null;
@@ -444,9 +444,9 @@ namespace Gate.CLanguage.Expressions
 
       protected virtual bool myFindOperatorReturnType(
          OperatorBinaryBasic.PlusMinus operatorBasic,
-         ExprNodeOperator operatorNode, 
-         CCompilerInData inData, 
-         ExprNode[] operandNodes, 
+         ExprNodeOperator operatorNode,
+         CCompilerInData inData,
+         ExprNode[] operandNodes,
          out CTypeAlias? expectedType)
       {
          expectedType = null;
@@ -566,9 +566,9 @@ namespace Gate.CLanguage.Expressions
       }
 
       protected virtual bool myGetDeclTypeBasicBinary(
-         ExprNodeOperator nodeOperator, 
-         CCompilerInData inData, 
-         CTypeAlias[] typesAliases, 
+         ExprNodeOperator nodeOperator,
+         CCompilerInData inData,
+         CTypeAlias[] typesAliases,
          out CTypeAlias? expectedType)
       {
          var bs = inData.Settings.BuiltInSet.NnOrCrash();

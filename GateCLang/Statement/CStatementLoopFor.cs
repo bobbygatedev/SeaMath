@@ -5,7 +5,6 @@ using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
-using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
@@ -17,7 +16,7 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public class CCycleFor : CCycle, ICItemWithScopeSpace
+   public class CStatementLoopFor : CStatementLoop, ICItemWithScopeSpace
    {
       private CExprStatement? myUpdate;
       private CExprStatement? myInitExpression;
@@ -25,7 +24,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public CCycleFor() => Scope = new CScope(this);
+      public CStatementLoopFor() => Scope = new CScope(this);
 
       /// <summary>
       /// 
@@ -68,7 +67,7 @@ namespace Gate.CLanguage.Statement
 
             public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
-               var for_bdy = output.PeekOrCrash<CCycleFor>();
+               var for_bdy = output.PeekOrCrash<CStatementLoopFor>();
 
                ForInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ";";
 
@@ -116,7 +115,7 @@ namespace Gate.CLanguage.Statement
                      var pri_ali = ali.PrimitiveAlias;
 
                      output.PopOrCrash<CExprStatement>();
-                     output.PeekOrCrash<CCycleFor>().Update = exp;
+                     output.PeekOrCrash<CStatementLoopFor>().Update = exp;
                   }
                }
 
@@ -128,7 +127,7 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var cyc_for = new CCycleFor();
+            var cyc_for = new CStatementLoopFor();
             var itm_sco = output.ScopeSpaceItem.NnOrCrash();
 
             if (input.MarkedText != "for") { return TxtElabResult.continue_searching; }

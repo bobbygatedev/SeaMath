@@ -808,9 +808,9 @@ namespace Gate.CLanguageTest
          }
       }
 
-      public class AndExprTest : ExecutionTestBase
+      public class AndExprTest1 : ExecutionTestBase
       {
-         public AndExprTest() { }
+         public AndExprTest1() { }
 
          public override TxtStore SourceCode => new TxtStore(SourceCodeTxt);
 
@@ -839,20 +839,70 @@ namespace Gate.CLanguageTest
             var pro = dbgEngProcess as RtmDbgEngVirtCpuProcess ?? throw new Crash();
 
             var res = myRequireRtmArray(dbgEngProcess, "res");
-            var sz = res.Sizes[0];
 
-            var cmp = new[] { 0, 1, 0 };
+            var res_cmp = res.AsArray.ArrayCompare(new[] { 0, 1, 0 });
 
-            if (sz == cmp.Length)
-            {
-               var res_cmp = cmp.SequenceEqual((int[])res.AsArray);
+            return res_cmp ? TxtElabResult.success : TxtElabResult.failure;
+         }
+      }
 
-               return res_cmp ? TxtElabResult.success : TxtElabResult.failure;
-            }
-            else
-            {
-               return TxtElabResult.failure;
-            }
+      public class AndExprTest2 : ExecutionTestBase
+      {
+         public AndExprTest2() { }
+
+         public override TxtStore SourceCode => new TxtStore(SourceCodeTxt);
+
+         public string SourceCodeTxt =>
+                  "int ca[4][2];\r\n" +
+                  "int co[4][2];\r\n" +
+                  "int r_and[4];\r\n" +
+                  "int r_or[4];\r\n" +
+                  "\r\n" +
+                  "int cand(int c, int i , int j)\r\n" +
+                  "{\r\n" +
+                  "   ca[i][j] = 1;\r\n" +
+                  "\r\n" +
+                  "   return c;\r\n" +
+                  "}\r\n\r\n" +
+                  "int cor(int c, int i , int j)\r\n" +
+                  "{\r\n" +
+                  "   co[i][j] = 1;\r\n" +
+                  "\r\n   return c;\r\n" +
+                  "}\r\n" +
+                  "\r\n" +
+                  "void main(void)\r\n" +
+                  "{\r\n" +
+                  "   int i = 0;\r\n" +
+                  "\r\n" +
+                  "   r_and[i++] = cand(0,0,0) && cand(0,0,1);\r\n" +
+                  "   r_and[i++] = cand(0,1,0) && cand(1,1,1);\r\n" +
+                  "   r_and[i++] = cand(1,2,0) && cand(0,2,1);\r\n" +
+                  "   r_and[i++] = cand(1,3,0) && cand(1,3,1);\r\n" +
+                  "   \r\n" +
+                  "   i = 0;\r\n" +
+                  "   r_or[i++] = cor(0,0,0) || cor(0,0,1);\r\n" +
+                  "   r_or[i++] = cor(0,1,0) || cor(1,1,1);\r\n" +
+                  "   r_or[i++] = cor(1,2,0) || cor(0,2,1);\r\n" +
+                  "   r_or[i++] = cor(1,3,0) || cor(1,3,1);\r\n}";
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var vis_ojs = dbgEngProcess.ObjVisibleFromBreakThreadAll;
+            var pro = dbgEngProcess as RtmDbgEngVirtCpuProcess ?? throw new Crash();
+
+            var ca = myRequireRtmArray(dbgEngProcess, "ca");
+            var co = myRequireRtmArray(dbgEngProcess, "co");
+            var r_and = myRequireRtmArray(dbgEngProcess, "r_and");
+            var r_or = myRequireRtmArray(dbgEngProcess, "r_or");
+            var sz = ca.Sizes[0];
+
+            var res_cmp =
+               r_and.AsArray.ArrayCompare(new int[] { 0, 0, 0, 1 }) &&
+               r_or.AsArray.ArrayCompare(new int[] { 0, 1, 1, 1 }) &&
+               ca.AsArray.ArrayCompare(new int[,] { { 1, 0 }, { 1, 0 }, { 1, 1 }, { 1, 1 } }) &&
+               co.AsArray.ArrayCompare(new int[,] { { 1, 1 }, { 1, 1 }, { 1, 0 }, { 1, 0 } });
+
+            return res_cmp ? TxtElabResult.success : TxtElabResult.failure;
          }
       }
 
@@ -1315,8 +1365,6 @@ int main(void)
    return 3;
 }}");
 
-
-
          protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
          {
             var pro = dbgEngProcess as RtmDbgEngVirtCpuProcess ?? throw new Crash();
@@ -1633,7 +1681,7 @@ void main()
       {
          //tododo aggiungi test per nested for .. switch
          var tst = new StatementExecutionTest();
-        
+
          tst.IsVerbose = true;
          tst.Go();
          Console.WriteLine(tst.ReportString);

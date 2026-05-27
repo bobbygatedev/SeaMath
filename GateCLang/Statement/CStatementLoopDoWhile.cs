@@ -11,12 +11,12 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public class CCycleDoWhile : CCycle
+   public class CStatementLoopDoWhile : CStatementLoop
    {
       /// <summary>
       /// 
       /// </summary>
-      public CCycleDoWhile() { }
+      public CStatementLoopDoWhile() { }
 
       /// <summary>
       /// 
@@ -39,10 +39,10 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var cyc_whi = new CCycleDoWhile();
+            var cyc_whi = new CStatementLoopDoWhile();
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
-            var cyc = top_itm as CCycle;
+            var cyc = top_itm as CStatementConditional;
 
             if (input.MarkedText != "do") { return TxtElabResult.continue_searching; }
             else if (c_sco != null) { c_sco.AddStatements(cyc_whi); }

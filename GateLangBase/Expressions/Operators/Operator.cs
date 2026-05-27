@@ -95,7 +95,7 @@ namespace Gate.LangBase.Expressions.Operators
             throw new Crash();
 
          //creating RtmObj result
-         return 
+         return
             (rtmStrategy ?? operatorNode.Expr?.DefaultStrategy ?? throw new Crash()).
                MakeConstant(ope_res, operatorNode.DeclType ?? throw new Crash());
       }
@@ -113,14 +113,20 @@ namespace Gate.LangBase.Expressions.Operators
       /// the runtime strategy if applicable.</returns>
       public virtual RtmObj? Eval(ExprNodeOperator operatorNode, IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
       {
-         var rtm_ars = operatorNode.OperandNodes.Where(o => o.IsRtmValue).Select(on => on.Eval(stack, rtmStrategy)).ToArray();
-         var res = null as RtmObj;
+         var res = rtmStrategy?.OperatorModifier?.EvalModified(operatorNode, rtmStrategy, stack);
 
-         res =
-            rtmStrategy?.OperatorModifier?.EvalRtmArgsModified(operatorNode, rtm_ars, rtmStrategy, stack) ??
-            EvalRtmArgs(operatorNode, rtm_ars, rtmStrategy, stack);
+         if (res == null)
+         {
+            var rtm_ars = operatorNode.OperandNodes.
+               Where(o => o.IsRtmValue).
+               Select(on => on.Eval(stack, rtmStrategy)).ToArray();
 
-         return res;
+            return EvalRtmArgs(operatorNode, rtm_ars, rtmStrategy, stack);
+         }
+         else
+         {
+            return res;
+         }
       }
 
       /// <summary>

@@ -1,9 +1,11 @@
 ﻿using Gate.CLanguage.Runtime.Object;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
+using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using System.Runtime.InteropServices;
 
 namespace Gate.CLanguage.Runtime
@@ -26,43 +28,88 @@ namespace Gate.CLanguage.Runtime
       /// <param name="rtmStrategy"></param>
       /// <param name="stack"></param>
       /// <returns></returns>
-      public virtual RtmObj? EvalRtmArgsModified(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+      public virtual RtmObj? EvalModified(
+         ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
       {
-         if (operatorNode.Operator is OperatorBinaryBasic ob)
+         if (operatorNode.Operator is OperatorBinaryBasic ob) { return myModifyOperator(ob, operatorNode, rtmStrategy, stack); }
+         else if (operatorNode.Operator is OperatorLogical ol)
          {
-            return myModifyOperator(ob, rtmArgs, operatorNode, rtmStrategy, stack);
+            var tps = operatorNode.OperandNodes.Select(o => o.DeclType?.GetTypeAlias()).ToArray();
+            var op1 = operatorNode.OperandNodes[0].Eval(stack, rtmStrategy);
+            var v1 = myIsTrue(op1);
+
+            if (ol is OperatorLogical.Or)
+            {
+               if (v1) { return rtmStrategy?.MakeConstant(1, operatorNode?.DeclType); }
+               else { return myEval2(operatorNode, rtmStrategy, stack); }
+            }
+            else if (ol is OperatorLogical.And)
+            {
+               if (!v1) { return rtmStrategy?.MakeConstant(0, operatorNode?.DeclType); }
+               else { return myEval2(operatorNode, rtmStrategy, stack); }
+            }
+            else { throw new Crash(); }
          }
-         else
+         else { return null; }
+      }
+
+      private RtmObj? myEval2(ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+      {
+         var op2 = operatorNode.OperandNodes[1].Eval(stack, rtmStrategy);
+
+         return rtmStrategy?.MakeConstant(myIsTrue(op2) ? 1 : 0, operatorNode?.DeclType);
+      }
+
+      private bool myIsTrue(RtmObj? obj)
+      {
+         if (obj is CRtmObjScalar s)
          {
-            return null;
+            try
+            {
+               return (dynamic)s.CSharpObj.NnOrCrash() != 0;
+            }
+            catch
+            {
+               throw new RtmException($"Can't get a boolean from {obj}");
+            }
          }
+         else { throw new RtmException("Expected a scalar expression"); }
       }
 
       private RtmObj? myModifyOperator(
          OperatorBinaryBasic? operatorBasic,
-         RtmObj?[]? rtmArgs,
          ExprNodeOperator operatorNode,
          IRtmObjStrategy? rtmStrategy,
          IRtmDbgEngStackExecutable? stack)
       {
-         if ((rtmArgs ?? []).All(r => r is ICRtmObjPointer))
+         var tps = operatorNode.OperandNodes.Select(o => o.DeclType?.GetTypeAlias()).ToArray();
+
+         //bool vector is item an array or a pointer
+         var ass = tps.Select(r => (r?.IsPointer ?? false) || (r?.IsArray ?? false)).ToArray();
+
+         if (ass.All(i => i))
          {
             return myModifyOperatorBasic(
                operatorBasic,
-               rtmArgs?.ElementAtOrDefault(0) as ICRtmObjPointer,
-               rtmArgs?.ElementAtOrDefault(1) as ICRtmObjPointer,
+               operatorNode.OperandNodes[0].Eval(stack, rtmStrategy) as ICRtmObjPointer,
+               operatorNode.OperandNodes[1].Eval(stack, rtmStrategy) as ICRtmObjPointer,
                operatorNode,
                rtmStrategy,
                stack);
          }
-         else if (rtmArgs?[0] is ICRtmObjPointer p0)
+         else if (ass[0])
          {
-            return myModifyOperatorBasic(operatorBasic, p0, rtmArgs?.ElementAtOrDefault(1) as CRtmObjScalar, operatorNode, rtmStrategy, stack);
+            var p0 = operatorNode.OperandNodes[0].Eval(stack, rtmStrategy) as ICRtmObjPointer ?? throw new RtmException("Param 1 expected a pointer/array");
+            var p1 = operatorNode.OperandNodes[1].Eval(stack, rtmStrategy) as CRtmObjScalar ?? throw new RtmException("Param 2 expected a scalar value");
+
+            return myModifyOperatorBasic(operatorBasic, p0, p1, operatorNode, rtmStrategy, stack);
          }
-         else if (rtmArgs?[1] is ICRtmObjPointer p1)
+         else if (ass[1])
          {
-            return myModifyOperatorBasic(operatorBasic, rtmArgs?.FirstOrDefault() as CRtmObjScalar, p1, operatorNode, rtmStrategy, stack);
+            var p0 = operatorNode.OperandNodes[0].Eval(stack, rtmStrategy) as CRtmObjScalar ?? throw new RtmException("Param 2 expected a scalar value");
+            var p1 = operatorNode.OperandNodes[1].Eval(stack, rtmStrategy) as ICRtmObjPointer ?? throw new RtmException("Param 1 expected a pointer/array");
+
+            return myModifyOperatorBasic(operatorBasic, p0, p1, operatorNode, rtmStrategy, stack);
          }
          else { return null; }
       }

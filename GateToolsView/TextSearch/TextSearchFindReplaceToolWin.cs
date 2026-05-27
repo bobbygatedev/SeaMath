@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace Gate.ToolsView.TextSearch
+﻿namespace Gate.ToolsView.TextSearch
 {
    /// <summary>
    /// 

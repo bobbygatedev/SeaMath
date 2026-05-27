@@ -23,7 +23,7 @@ namespace Gate.CLanguage.Interpreter
       /// <summary>
       /// 
       /// </summary>
-      public CCycle? CycleOnTopItem => TopItem?.ParentItemChain.OfType<CCycle>().FirstOrDefault();
+      public CStatementConditional? CycleOnTopItem => TopItem?.ParentItemChain.OfType<CStatementConditional>().FirstOrDefault();
 
       /// <summary>
       /// 

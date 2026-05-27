@@ -13,14 +13,14 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// Encapsulates a if()else if() else cycle.
    /// </summary>
-   public class CCycleIfElse : CCycle
+   public class CStatementIfElse : CStatementConditional
    {
       private CStatement? myElseBody;
 
       /// <summary>
       /// 
       /// </summary>
-      public CCycleIfElse() { }
+      public CStatementIfElse() { }
 
       /// <summary>
       /// 
@@ -48,9 +48,9 @@ namespace Gate.CLanguage.Statement
 
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
-            var cyc = top_itm as CCycle;
+            var cyc = top_itm as CStatementConditional;
 
-            var cyc_if = new CCycleIfElse();
+            var cyc_if = new CStatementIfElse();
 
             if (c_sco != null) { c_sco.AddStatements(cyc_if); }
             else if (cyc != null) { cyc.SetBody(cyc_if); }
@@ -74,7 +74,7 @@ namespace Gate.CLanguage.Statement
 
                   if (input.MarkedText == "if")
                   {
-                     cyc_if.SetBody(cyc_if = new CCycleIfElse());
+                     cyc_if.SetBody(cyc_if = new CStatementIfElse());
                      continue;
                   }
                   else
@@ -120,13 +120,13 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public CCycleIfElse[] IfElses
+      public CStatementIfElse[] IfElses
       {
          get
          {
-            var lst = new List<CCycleIfElse>();
+            var lst = new List<CStatementIfElse>();
 
-            if (myElseBody is CCycleIfElse eli)
+            if (myElseBody is CStatementIfElse eli)
             {
                lst.AddRange(new[] { eli }.Concat(eli.IfElses));
             }
@@ -247,6 +247,6 @@ namespace Gate.CLanguage.Statement
       /// </summary>
       /// <param name="ifElseExpression"></param>
       /// <returns></returns>
-      public bool RemoveElse(CCycleIfElse ifElseExpression) => myRemoveSubItem(ifElseExpression);
+      public bool RemoveElse(CStatementIfElse ifElseExpression) => myRemoveSubItem(ifElseExpression);
    }
 }

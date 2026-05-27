@@ -163,7 +163,19 @@ namespace Gate.ToolsView.TextSearch
 
          CtrlComboLookIn.Text = myLookInSet.CurrentLookItem?.DropDownText;
          myLookInSet.CurrentLookItem = myLookInSet.CurrentLookItem;
-         CtrlComboSearch.Focus();
+
+         if (isForReplace)
+         {
+            CtrlButtonFindAll.Visible = false;
+            CtrlButtonReplaceAll.Visible = true;
+            CtrlComboReplaceWith.Focus();
+         }
+         else
+         {
+            CtrlButtonFindAll.Visible = true;
+            CtrlButtonReplaceAll.Visible = false;
+            CtrlComboSearch.Focus();
+         }
       }
 
       private void myDoFindClose()
@@ -299,6 +311,22 @@ namespace Gate.ToolsView.TextSearch
 
       private string myDoGetPattern() => CtrlComboFileTypes.Text.Trim() != "" ? CtrlComboFileTypes.Text.Trim() : "*.*";
 
+      private void myDoFindOrReplaceAllAction(Action findReplaceAllAction)
+      {
+         lock (CtrlButtonFindAll)
+         {
+            myIsContinue = false;
+
+            if (myFindTask != null && !myFindTask.IsFinished)
+            {
+               myFindTask.Abort();
+               return;
+            }
+         }
+
+         findReplaceAllAction();
+      }
+
       private void CtrlCheck_CheckedChanged(object? sender, EventArgs e) =>
          mySearchFlagHelper.CheckChange(sender as CheckBox ?? throw new Crash());
 
@@ -337,22 +365,6 @@ namespace Gate.ToolsView.TextSearch
                myDoGetPattern());
             myIsContinue = true;
          }
-      }
-
-      private void myDoFindOrReplaceAllAction(Action findReplaceAllAction)
-      {
-         lock (CtrlButtonFindAll)
-         {
-            myIsContinue = false;
-
-            if (myFindTask != null && !myFindTask.IsFinished)
-            {
-               myFindTask.Abort();
-               return;
-            }
-         }
-
-         findReplaceAllAction();
       }
 
       private void CtrlButtonReplaceAll_Click(object? sender, EventArgs e) => myDoFindOrReplaceAllAction(myDoReplaceAll);

@@ -13,7 +13,7 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// 
    /// </summary>
-   public abstract class CCycle : CStatement
+   public abstract class CStatementConditional : CStatement
    {
       private CExprStatement? myCondition;
       private CStatement? myBody = null;
@@ -21,7 +21,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      protected CCycle() { }
+      protected CStatementConditional() { }
 
       public abstract class TokenInterpretBase : CTokenInterpreter
       {
@@ -58,7 +58,7 @@ namespace Gate.CLanguage.Statement
 
                if (res == TxtElabResult.success && output.TopItem is CExprStatement exp)
                {
-                  var cyc = output.PeekOrCrash<CCycle>(1);
+                  var cyc = output.PeekOrCrash<CStatementConditional>(1);
 
                   cyc.SetBody(exp);
                }
@@ -82,15 +82,15 @@ namespace Gate.CLanguage.Statement
          {
             TokenInterpret = tokenInterpret;
 
-            if (tokenInterpret is CCycleFor.TokenInterpret)
+            if (tokenInterpret is CStatementLoopFor.TokenInterpret)
             {
                myAnd = new May(TokenInterpret.ExprInterpret) & new Expect(";", true);
             }
             else if (
-               tokenInterpret is CCycleDoWhile.TokenInterpret ||
-               tokenInterpret is CCycleWhile.TokenInterpret ||
-               tokenInterpret is CCycleIfElse.TokenInterpret ||
-               tokenInterpret is CCycleSwitch.TokenInterpret)
+               tokenInterpret is CStatementLoopDoWhile.TokenInterpret ||
+               tokenInterpret is CStatementLoopWhile.TokenInterpret ||
+               tokenInterpret is CStatementIfElse.TokenInterpret ||
+               tokenInterpret is CStatementSwitch.TokenInterpret)
             {
                myAnd = new Expect("(", true) & (TokenInterpret.ExprInterpret | new InnerErrorInterpret()) & new Expect(")", true);
             }
@@ -120,15 +120,15 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            if (TokenInterpret is CCycleFor.TokenInterpret)
+            if (TokenInterpret is CStatementLoopFor.TokenInterpret)
             {
                TokenInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ";";
             }
             else if (
-               TokenInterpret is CCycleDoWhile.TokenInterpret ||
-               TokenInterpret is CCycleWhile.TokenInterpret ||
-               TokenInterpret is CCycleIfElse.TokenInterpret ||
-               TokenInterpret is CCycleSwitch.TokenInterpret)
+               TokenInterpret is CStatementLoopDoWhile.TokenInterpret ||
+               TokenInterpret is CStatementLoopWhile.TokenInterpret ||
+               TokenInterpret is CStatementIfElse.TokenInterpret ||
+               TokenInterpret is CStatementSwitch.TokenInterpret)
             {
                TokenInterpret.ExprInterpret.OutputPreCondition = t => t?.Content == ")";
             }

@@ -75,7 +75,7 @@ namespace Gate.CLanguage.Statement
             var cmp_ini_tok_idx = input.CurrIdx - 1;//token where compound body starts
 
             if (itm is CDeclFunction fnc) { cmp = fnc.Body?.NnOrCrash(); }
-            else if (itm is CCycle cyc)
+            else if (itm is CStatementConditional cyc)
             {
                cyc.SetBody(cmp = new CStatementCompound());
             }
@@ -140,12 +140,12 @@ namespace Gate.CLanguage.Statement
             new CBlockInterpret(ContextType.cycle , DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatement.Break.TokenInterpret(),
             new CStatement.Continue.TokenInterpret(),
-            new CCycleIfElse.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
-            new CCycleSwitch.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
-            new CCycleFor.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
-            new CCycleWhile.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
-            new CCycleDoWhile.TokenInterpret(DeclInterpretFactory, AttributesInterpret, ExprInterpret),
-            new CCycleSwitch.CaseLabel.TokenInterpret(ExprInterpret),
+            new CStatementIfElse.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
+            new CStatementSwitch.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
+            new CStatementLoopFor.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
+            new CStatementLoopWhile.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
+            new CStatementLoopDoWhile.TokenInterpret(DeclInterpretFactory, AttributesInterpret, ExprInterpret),
+            new CStatementSwitch.CaseLabel.TokenInterpret(ExprInterpret),
             new CStatement.Return.TokenInterpret(ExprInterpret),
             dcl_inp ,
             new CExprStatementInterpreter.WrapCondition (ExprInterpret,";") ,
@@ -164,7 +164,7 @@ namespace Gate.CLanguage.Statement
 
             if (itm is CDeclFunction fnc) { (fnc.Body ?? throw new Crash()).TxtToken = tok; }
             else if (itm is CStatementCompound sub_cmp) { sub_cmp.TxtToken = tok; }
-            else if (itm is CCycle cyc) { (cyc.Body.NnOrCrash()).TxtToken = tok; }
+            else if (itm is CStatementConditional cyc) { (cyc.Body.NnOrCrash()).TxtToken = tok; }
             else if (itm is CStatement sta) { }
             else { throw new Crash(); }
          }

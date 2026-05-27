@@ -29,8 +29,8 @@ namespace Gate.SeaMath.Sea
       /// <param name="rtmStrategy"></param>
       /// <returns></returns>
       /// <exception cref="Crash"></exception>
-      public unsafe override RtmObj? EvalRtmArgsModified(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+      public unsafe override RtmObj? EvalModified(
+         ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
       {
          var ope_pnc = operatorNode.Operator as OperatorPunctuator;
          var sea_str = rtmStrategy as SeaRtmStrategy ?? throw new Crash();
@@ -39,10 +39,13 @@ namespace Gate.SeaMath.Sea
          var ovr_fnc =
             stack?.TopCall?.ObjAll.
             OfType<RtmObjFunction>().
-            Where(f => f.Decl is SeaMathLibCSharpDeclFunction df && df.IsOperatorOverride(operatorNode.Operator, rtmArgs?.Length ?? 0)).
+            Where(f => f.Decl is SeaMathLibCSharpDeclFunction df && df.IsOperatorOverride(operatorNode.Operator, operatorNode.OperandNodes.Length)).
             FirstOrDefault();
 
-         var ovr_res = ovr_fnc?.Exec(stack, rtmStrategy, rtmArgs ?? []);
+         var ovr_res = ovr_fnc?.Exec(
+            stack,
+            rtmStrategy,
+            operatorNode.OperandNodes.Select(o => o.Eval(stack, rtmStrategy)).ToArray());
 
          if (ovr_res != null)
          {
@@ -51,13 +54,13 @@ namespace Gate.SeaMath.Sea
          else
          {
             //check on arguments 
-            if (SeaRtmVectorizationHelper.IsVectorializationPossible(operatorNode, rtmArgs ?? [], sea_str))
+            if (SeaRtmVectorizationHelper.IsVectorializationPossible(operatorNode, out var ars, sea_str, stack))
             {
-               return myVectorizationHelper.Exec(operatorNode, (rtmArgs ?? []).Select(a => a.NnOrCrash()).ToArray(), sea_str);
+               return myVectorizationHelper.Exec(operatorNode, ars.NnOrCrash().Select(a => a.NnOrCrash()).ToArray(), sea_str);
             }
             else
             {
-               return base.EvalRtmArgsModified(operatorNode, rtmArgs, rtmStrategy, stack);
+               return base.EvalModified(operatorNode, rtmStrategy, stack);
             }
          }
       }

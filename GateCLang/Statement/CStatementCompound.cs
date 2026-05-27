@@ -35,7 +35,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public CCycle? ContainingCycle => ParentItemChain.OfType<CCycle>().FirstOrDefault();
+      public CStatementConditional? ContainingCycle => ParentItemChain.OfType<CStatementConditional>().FirstOrDefault();
 
       /// <summary>
       /// 
@@ -45,12 +45,12 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public CCycle? ParentCycle => ParentItem as CCycle;
+      public CStatementConditional? ParentCycle => ParentItem as CStatementConditional;
 
       /// <summary>
       /// 
       /// </summary>
-      public CCycleFor? ParentCycleFor => ParentItem as CCycleFor;
+      public CStatementLoopFor? ParentCycleFor => ParentItem as CStatementLoopFor;
 
       /// <summary>
       /// 

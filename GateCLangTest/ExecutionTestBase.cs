@@ -78,8 +78,22 @@ namespace Gate.CLanguageTest
          return cs_obj is T t_obj ? t_obj : throw new Crash($"Expected a c-sharp type {typeof(T).Name}");
       }
 
-      protected static CRtmObjArray myRequireRtmArray(IRtmDbgEngProcess dbgEngProcess, string varName) =>
-         myRequireVar<SeaTypeRtmObj>(dbgEngProcess, varName).GetRtmArrayFromSea() ?? throw new Crash($"Expected a {typeof(CRtmObjArray).Name}");
+      protected static CRtmObjArray myRequireRtmArray(IRtmDbgEngProcess dbgEngProcess, string varName)
+      {
+         var var = myRequireVar(dbgEngProcess,varName);
 
+         if (var is CRtmObjArray arr)
+         {
+            return arr;
+         }
+         else if(var is SeaTypeRtmObj sea)
+         {
+            return sea.GetRtmArrayFromSea() ?? throw new Crash($"Expected a {typeof(CRtmObjArray).Name}");
+         }
+         else
+         {
+            throw new Crash();
+         }
+      }
    }
 }

@@ -8,7 +8,6 @@ using Gate.Tools.Arry;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 
 namespace Gate.SeaMath.Workspace.Libs
 {
@@ -135,7 +134,7 @@ namespace Gate.SeaMath.Workspace.Libs
       public RtmObj? DoMultiplyOverride(RtmObj matrix1, RtmObj matrix2)
       {
          var m1 = matrix1.GetRtmArrayFromSea();
-         var m2 = matrix1.GetRtmArrayFromSea();
+         var m2 = matrix2.GetRtmArrayFromSea();
          var m1_bt = m1?.GetRtmArrayItemType()?.IsBuiltIn ?? false;
          var m2_bt = m2?.GetRtmArrayItemType()?.IsBuiltIn ?? false;
 

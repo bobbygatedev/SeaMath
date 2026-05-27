@@ -218,7 +218,7 @@ namespace Gate.SeaMath
       /// <summary>
       /// 
       /// </summary>
-      public void StartNoDebugProcess() => (myBuildVirtualProcess(false, false) ?? throw new Crash()).Start();
+      public void StartNoDebugProcess() => myBuildVirtualProcess(false, false)?.Start();
 
       /// <summary>
       /// 

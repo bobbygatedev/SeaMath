@@ -139,7 +139,7 @@ namespace Gate.CLanguage.Runtime
       /// <param name="ifElse"></param>
       /// <returns></returns>
       /// <exception cref="System.NotImplementedException"></exception>
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleIfElse ifElse)
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementIfElse ifElse)
       {
          // 0: frame
          // 1: if cond1 body1 end else cond2
@@ -218,7 +218,7 @@ namespace Gate.CLanguage.Runtime
          return lst_ins.Select(i => i.NnOrCrash()).ToArray();
       }
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleWhile whileCycle)
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementLoopWhile whileCycle)
       {
          // 0: frame
          // 1: if-condition-goto (eg 'while(i<3) { printf(""); }' -> if i < 3 '2: body' else goto '4: end'
@@ -296,12 +296,12 @@ namespace Gate.CLanguage.Runtime
          public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
       }
 
-      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CCycle cycle, bool isElse = false)
+      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CStatementConditional cycle, bool isElse = false)
       {
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
          var sts = null as CStatement[];
 
-         var bdy = isElse ? cycle.ConvertOrCrash<CCycleIfElse>().ElseBody : cycle.Body;
+         var bdy = isElse ? cycle.ConvertOrCrash<CStatementIfElse>().ElseBody : cycle.Body;
 
          //eg for(;;){ a*=2; }
          if (bdy is CStatementCompound cmp) { sts = cmp.Statements; }
@@ -334,7 +334,7 @@ namespace Gate.CLanguage.Runtime
          return lst_ins.ToArray();
       }
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleDoWhile doWhileCycle)
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementLoopDoWhile doWhileCycle)
       {
          // 0: frame (push frame)
          // 1: body 
@@ -374,7 +374,7 @@ namespace Gate.CLanguage.Runtime
       /// <param name="forCycle"></param>
       /// <returns></returns>
       /// <exception cref="Crash"></exception>
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleFor forCycle)
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementLoopFor forCycle)
       {
          // 0: frame
          // 1: init (optional)
@@ -434,7 +434,7 @@ namespace Gate.CLanguage.Runtime
          return lst_ins.ToArray();
       }
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CCycleSwitch @switch) =>
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementSwitch @switch) =>
          throw new System.NotImplementedException();//todo develop
    }
 }
