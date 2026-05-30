@@ -1,51 +1,43 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 
-namespace Gate.LangBase.Runtime.Object
+namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
    /// <summary>
    /// Function object for execution <see cref="IRtmDbgEngIde"/> like Seamath. 
    /// </summary>
-   public class RtmObjFunction : RtmObj, IRtmObjFunction
+   public class RtmDbgEngVirtCpuFunction : RtmObj, IRtmObjFunction
    {
       /// <summary>
       /// 
       /// </summary>
       /// <param name="declFunction"></param>
-      public RtmObjFunction(IDeclFunction declFunction) : base(declFunction) { }
+      public RtmDbgEngVirtCpuFunction(IDeclFunction declFunction) : base(declFunction) { }
 
       /// <summary>
-      /// 
+      /// Executes the function with the given stack, strategy, and parameters.
       /// </summary>
-      /// <param name="stack"></param>
-      /// <param name="rtmStrategy"></param>
-      /// <param name="params"></param>
-      /// <returns></returns>
+      /// <param name="stack">The stack to use for execution.</param>
+      /// <param name="rtmStrategy">The strategy for handling runtime objects.</param>
+      /// <param name="params">The parameters to pass to the function.</param>
+      /// <returns>The result of the function execution, if any.</returns>
       public RtmObj? Exec(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params)
       {
-         (stack ?? throw new Crash()).Push(stack.MakeStackCall(this));
-         stack.Push(@params);
+         var stk = stack.NnOrCrash();
 
-         return myExec(stack, rtmStrategy);
-      }
+         stk.Push(stk.MakeStackCall(this, @params));
 
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="stack"></param>
-      /// <returns></returns>
-      protected virtual RtmObj? myExec(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
-      {
          if (Decl?.Instructions.Length == 0) { return null; }
          else
          {
             var res = null as RtmObj;
-            var stk = stack ?? throw new Crash();
-            var ttf = stk.TopFunctionFrame ?? throw new Crash();
+            var ttf = stk.TopFunctionFrame.NnOrCrash();
 
-            ttf.InstructionCurrent = ttf.Instructions.FirstOrDefault();
-
+            ttf.MoveToInstruction(ttf.Instructions.FirstOrDefault().NnOrCrash(), stack.NnOrCrash(), rtmStrategy);
+          
             //stay until a return/end_function occurs
             while (stack?.TopFunctionFrame?.RtmObjFunction == this)
             {

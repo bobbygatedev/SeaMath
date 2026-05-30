@@ -2,6 +2,7 @@
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -94,35 +95,15 @@ namespace Gate.LangBase.Expressions.Operators
             GetFunction(rtmArgs?.FirstOrDefault()) ??
             throw new Gate.LangBase.Runtime.RtmException($"Arg#0 {var_nam} not a function!");
 
-         var dcl_fun = fnc.DeclFunction ?? throw new Gate.LangBase.Runtime.RtmException($"Not a function associated to {var_nam}");
+         var dcl_fun = 
+            fnc.DeclFunction ?? 
+            throw new Gate.LangBase.Runtime.RtmException($"Not a function associated to {var_nam}");
 
          //value of function input parameters (skipping first argument which is the function itself)
-         var arg_rtm_vls = rtmArgs?.Skip(1).ToArray();
-
-         //copies of arguments to function input parameters
-         var arg_rtm_cps = Enumerable.Range(0, arg_rtm_vls?.Length ?? 0).Select(i =>
-         {
-            //declaration parameters
-            var dcl_par = i < fnc.DeclFunction.Parameters.Length ? fnc.DeclFunction.Parameters[i] : null;
-            var cpy_par_val = null as RtmObj;
-            var par_val = arg_rtm_vls?.ElementAtOrDefault(i) ?? throw new Crash();
-
-            if (dcl_par != null)
-            {
-               cpy_par_val = (dcl_par.DeclType ?? throw new Crash()).IsReference ?
-                  rtmStrategy.CopyFunctionParamByRef(par_val, dcl_par) :
-                  rtmStrategy.CopyFunctionParamByValue(par_val, dcl_par);
-            }
-            else //optional parameters ( eg printf(const char*,...); )
-            {
-               cpy_par_val = rtmStrategy.CopyFunctionOptionalParamByValue(par_val);
-            }
-
-            return cpy_par_val;
-         }).ToArray();
+         var arg_rtm_vls = rtmArgs?.Skip(1).ToArray() ?? [];
 
          //notice parameter are passed as are they are handling of by value/by ref is demanded to function Invoke 
-         return fnc.Exec(stack, rtmStrategy, arg_rtm_cps);
+         return fnc.Exec(stack, rtmStrategy, arg_rtm_vls);
       }
 
       public override ValueType? CSharpHandler(params dynamic[] ins) => null;

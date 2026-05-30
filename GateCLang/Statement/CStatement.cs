@@ -267,7 +267,7 @@ namespace Gate.CLanguage.Statement
             var ccs_typ = ccs.Select(c=>c.GetType()).ToArray();   
 
             //is break or continue?
-            var is_brk = stt is Break || stt is Continue ? false : throw new Crash();
+            var is_brk = stt is Break;
             var all_tps = is_brk ?
                [typeof(CStatementLoopFor), typeof(CStatementLoopWhile), typeof(CStatementLoopDoWhile), typeof(CStatementSwitch)] :
                new[] { typeof(CStatementLoopFor), typeof(CStatementLoopWhile), typeof(CStatementLoopDoWhile) };

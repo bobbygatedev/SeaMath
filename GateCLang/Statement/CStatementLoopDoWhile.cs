@@ -39,23 +39,23 @@ namespace Gate.CLanguage.Statement
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
-            var cyc_whi = new CStatementLoopDoWhile();
+            var cyc_do = new CStatementLoopDoWhile();
             var top_itm = output.TopItem;
             var c_sco = top_itm as CStatementCompound;
             var cyc = top_itm as CStatementConditional;
 
             if (input.MarkedText != "do") { return TxtElabResult.continue_searching; }
-            else if (c_sco != null) { c_sco.AddStatements(cyc_whi); }
-            else if (cyc != null) { cyc.SetBody(cyc_whi); }//nested cycle
+            else if (c_sco != null) { c_sco.AddStatements(cyc_do); }
+            else if (cyc != null) { cyc.SetBody(cyc_do); }//nested cycle
             else { throw new Crash(); }
 
-            var res = myNested(cyc_whi, input, inData, ref output, myAnd, NestedMode.once_continue);
+            var res = myNested(cyc_do, input, inData, ref output, myAnd, NestedMode.once_continue);
 
             if (res != TxtElabResult.success)
             {
                if (c_sco != null)
                {
-                  c_sco.RemoveFromScopeSpace(cyc_whi);
+                  c_sco.RemoveFromScopeSpace(cyc_do);
                }
                else if (cyc != null)
                {
@@ -68,7 +68,6 @@ namespace Gate.CLanguage.Statement
             }
 
             return res;
-
          }
       }
 

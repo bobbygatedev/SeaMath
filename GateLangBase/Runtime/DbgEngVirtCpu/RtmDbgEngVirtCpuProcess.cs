@@ -129,12 +129,12 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// 
       /// </summary>
-      public RtmObjFunction[] FunctionsGlobal => ObjsGlobal.OfType<RtmObjFunction>().ToArray();
+      public RtmDbgEngVirtCpuFunction[] FunctionsGlobal => ObjsGlobal.OfType<RtmDbgEngVirtCpuFunction>().ToArray();
 
       /// <summary>
       /// 
       /// </summary>
-      public RtmObjFunction[] FunctionsAll => ObjsPersistant.OfType<RtmObjFunction>().ToArray();
+      public RtmDbgEngVirtCpuFunction[] FunctionsAll => ObjsPersistant.OfType<RtmDbgEngVirtCpuFunction>().ToArray();
 
       /// <summary>
       /// 
@@ -260,7 +260,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// All visible object from "point of view" of <see cref="BreakThread"/> that are functions.
       /// </summary>
-      public RtmObjFunction[] ObjVisibleFromBreakThreadFunction => ObjVisibleFromBreakThreadAll.OfType<RtmObjFunction>().ToArray();
+      public RtmDbgEngVirtCpuFunction[] ObjVisibleFromBreakThreadFunction => ObjVisibleFromBreakThreadAll.OfType<RtmDbgEngVirtCpuFunction>().ToArray();
 
       /// <summary>
       /// All visible object from "point of view" of <see cref="BreakThread"/> that are variable(not function).

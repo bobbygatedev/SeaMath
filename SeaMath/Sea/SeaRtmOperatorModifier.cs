@@ -2,6 +2,7 @@
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Workspace.Libs;
 using Gate.Tools;
@@ -38,7 +39,7 @@ namespace Gate.SeaMath.Sea
          //try to override 
          var ovr_fnc =
             stack?.TopCall?.ObjAll.
-            OfType<RtmObjFunction>().
+            OfType<RtmDbgEngVirtCpuFunction>().
             Where(f => f.Decl is SeaMathLibCSharpDeclFunction df && df.IsOperatorOverride(operatorNode.Operator, operatorNode.OperandNodes.Length)).
             FirstOrDefault();
 

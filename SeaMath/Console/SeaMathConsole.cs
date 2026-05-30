@@ -57,11 +57,11 @@ namespace Gate.SeaMath.Console
          public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
          {
             var iss = null as RtmDbgEngVirtCpuInstruction[];
-            var thr = stack.Thread ?? throw new Crash();
+            var thr = stack.Thread.NnOrCrash();
 
             try
             {
-               iss = myQueueInstructions.Take() ?? throw new Crash();//wait for instructions to be added
+               iss = myQueueInstructions.Take().NnOrCrash();//wait for instructions to be added
                thr.ThreadState = RtmDbgEngRunState.running;
 
                foreach (var ins in iss) { ins.Run(stack, rtmStrategy); }
@@ -91,7 +91,7 @@ namespace Gate.SeaMath.Console
 #pragma warning restore CS8604 // Possible null reference argument.
             }
 
-            stack.Thread.ThreadState = RtmDbgEngRunState.halt;
+            stack.Thread.NnOrCrash().ThreadState = RtmDbgEngRunState.halt;
          }
 
          /// <summary>
@@ -140,10 +140,17 @@ namespace Gate.SeaMath.Console
          public IDeclType[] Types => [];
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       private class InnerDummyFunction : HierarchicalItem, IDeclFunction
       {
-         public InnerDummyFunction(SeaMathConsole console) =>
-            myAddSubItem((Console = (console ?? throw new Crash())).myDummyInstruction ?? throw new Crash());
+         public InnerDummyFunction(SeaMathConsole console)
+         {
+            myAddSubItem(new RtmDbgEngVirtCpuInstructionPushFunctionFrame());
+            myAddSubItem((Console = (console.NnOrCrash())).myDummyInstruction.NnOrCrash());
+            myAddSubItem(new RtmDbgEngVirtCpuInstructionFramePop());
+         }
 
          public IDecl[] Parameters => [];
 

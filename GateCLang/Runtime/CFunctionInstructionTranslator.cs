@@ -3,12 +3,13 @@ using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Statement;
 using Gate.CLanguage.Types;
-using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
+using GateCLang.Statement;
 using static Gate.CLanguage.Statement.CStatement;
+using static Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionGotoNext;
 using static Gate.Tools.HierarchicalItem;
 
 namespace Gate.CLanguage.Runtime
@@ -22,6 +23,28 @@ namespace Gate.CLanguage.Runtime
       /// 
       /// </summary>
       public CFunctionInstructionTranslator(CRtmObjStrategy rtmStrategy) => RtmStrategy = rtmStrategy;
+
+      private class InnerDummyBreak : RtmDbgEngVirtCpuInstruction
+      {
+         public InnerDummyBreak(Break @break) : base(null) => Break = @break;
+
+         public Break Break { get; }
+
+         public override string Name => "dummy_break";
+
+         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
+      }
+
+      private class InnerDummyContinue : RtmDbgEngVirtCpuInstruction
+      {
+         public InnerDummyContinue(Continue @continue) : base(null) => Continue = @continue;
+
+         public Continue Continue { get; }
+
+         public override string Name => "dummy_continue";
+
+         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
+      }
 
       public CRtmObjStrategy RtmStrategy { get; }
 
@@ -42,6 +65,13 @@ namespace Gate.CLanguage.Runtime
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(object obj) => throw new Crash($"Object of type {obj.GetType()} not allowed");
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="declVar"></param>
+      /// <returns></returns>
+      /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
+      /// <exception cref="Crash"></exception>
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CDeclVar declVar)
       {
          //persistant (global)
@@ -49,53 +79,18 @@ namespace Gate.CLanguage.Runtime
             declVar.IsGlobal && declVar.IsDefinition ||
             declVar.StorageClass == CTypeStorageClass.@static;
 
-         var ini_glo_cnt = 0;
-
-         return [ new RtmDbgEngVirtCpuInstructionSimple(declVar.DeclSpecifiers?.TxtToken,  (rtm_stk,rtm_str) =>
-            {
-               if (is_prs)
-               {
-                  //is persistant (eg in C/C++ a static or not extern global object) and not yet init
-                  var rtm_ojs_prs = rtm_stk.Thread?.Process?.ObjsPersistant;
-                  var rtm_obj_prs =
-                     rtm_ojs_prs?.FirstOrDefault(g => g.Decl == declVar) ??
-                     throw new Gate.LangBase.Runtime.RtmException($"Can't find '{declVar}'");
-
-                  //performs init of object if not done yet
-                  if ( ini_glo_cnt++ == 0 && declVar.OwnedInit != null)
-                  {
-                     declVar.OwnedInit.DoInit(rtm_obj_prs, rtm_stk, RtmStrategy);
-                  }
-
-                  //static(non global) object shall be visible only in context of its function 
-                  if (rtm_obj_prs?.Decl?.Visibility == ExprDeclVisibility.local_static)
-                  {
-                     rtm_stk.Push(rtm_obj_prs);
-                  }
-               }
-               else
-               {
-                  //is local object (eg n C/C++ local var or function param)
-                  var var_rtm_loc = null as RtmObj;
-
-                  var_rtm_loc = rtm_stk?.TopFunctionFrame?.ObjAll.FirstOrDefault(o=>o.Decl == declVar);
-
-                  if ( var_rtm_loc == null )
-                  {
-                     var_rtm_loc = RtmStrategy.MakeNewObject(declVar);
-                  }
-
-                  rtm_stk?.Push(var_rtm_loc);
-
-                  if (declVar.OwnedInit != null) { declVar.OwnedInit.DoInit(var_rtm_loc, rtm_stk??throw new Crash(), RtmStrategy); }
-               }
-
-               return null;
-            }) ];
+         if (is_prs)
+         {
+            return [new CRtmDbgEngVirtCpuInstructionDecl.Persistant(declVar)];
+         }
+         else
+         {
+            return [new CRtmDbgEngVirtCpuInstructionDecl.Automatic(declVar)];
+         }
       }
 
       /// <summary>
-      /// 
+      /// Gets all instruction excluding push function
       /// </summary>
       /// <param name=""></param>
       /// <param name="runTimeModule"></param>
@@ -107,11 +102,15 @@ namespace Gate.CLanguage.Runtime
             declFunction.Linkage as CDeclFunction ??
             throw new Gate.LangBase.Runtime.RtmException($"Declared {declFunction.Descriptor} has not linkage");
 
+         var frm_psh = new RtmDbgEngVirtCpuInstructionPushStackFrame(myMakeStatementDecls(lnk_fnc.Body.NnOrCrash()), declFunction);
+
          //items inside of function body's block 
          var its = lnk_fnc?.Body?.SubItems.OfType<CItem>().ToArray() ?? [];
 
          //items after tranlation into instructions
          var iss = its.SelectMany(i => GetInstructions(i)).ToArray();
+
+         var pop = new RtmDbgEngVirtCpuInstructionFramePop();
 
          if (iss.Length == 0 || iss.All(i => i.Token == null))
          {
@@ -121,17 +120,24 @@ namespace Gate.CLanguage.Runtime
             //token to last line inside function body (or null)
             var to_fnc_tok = to_fnc_pos != null ? to_fnc_pos.Store?[to_fnc_pos.Line] : null;
 
-            //adds a nop at last function line because a empty function causes an infinite loop 
-            return [new RtmDbgEngVirtCpuInstructionSimple(to_fnc_tok)];
+            //adds a nop at last function line because a empty function causes an infinite loop
+            return
+               new RtmDbgEngVirtCpuInstruction[] { frm_psh }.
+               Append(new Nop(to_fnc_tok)).
+               Append(pop).
+               ToArray();
          }
          else
          {
-            return iss;
+            return new RtmDbgEngVirtCpuInstruction[] { frm_psh }.
+               Concat(iss).
+               Append(pop).
+               ToArray();
          }
       }
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CExprStatement cExpr) =>
-         [new RtmDbgEngVirtCpuInstructionSimple(cExpr.TxtToken, (stk, str) => cExpr.Expr?.Eval(stk, RtmStrategy))];
+         [new CRtmDbgEngVirtCpuInstructionExpr(cExpr)];
 
       /// <summary>
       /// 
@@ -160,7 +166,9 @@ namespace Gate.CLanguage.Runtime
          var end_frm_pop = new RtmDbgEngVirtCpuInstructionFramePop();
 
          /// 0: frame
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePush());
+         lst_ins.Add(
+            new RtmDbgEngVirtCpuInstructionPushStackFrame(
+               myMakeStatementDecls(ifElse.Body as CStatementCompound), ifElse));
 
          for (int i = 0; i < if_els.Length; i++)
          {
@@ -170,7 +178,7 @@ namespace Gate.CLanguage.Runtime
             lst_ins.AddRange(myGetCycleBodyInstructions(if_els[i]));
 
             //always goto end frame
-            lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(if_els[i].TxtToken, end_frm_pop, null));
+            lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(if_els[i].TxtToken, end_frm_pop));
          }
 
          var els_0 = null as RtmDbgEngVirtCpuInstruction;
@@ -195,19 +203,19 @@ namespace Gate.CLanguage.Runtime
             for (var i = got_ids.Length - 1; i >= 0; i--)
             {
                var id = got_ids[i];
-               var exp = if_els[i].StayCondition.NnOrCrash().Expr.NnOrCrash();
+               var exp = if_els[i].StayConditionExpr.NnOrCrash().Expr.NnOrCrash();
 
                if (i == got_ids.Length - 1)
                {
                   //if true next instruction otherwise else_body or end
                   lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
-                     if_els[i].StayCondition?.TxtToken, null, els_0 ?? end_frm_pop, exp);
+                     if_els[i].StayConditionExpr?.TxtToken, null, els_0 ?? end_frm_pop, exp);
                }
                else
                {
                   //if true next instruction otherwise else_body or end
                   lst_ins[id] = new RtmDbgEngVirtCpuInstructionGoto(
-                     if_els[i].StayCondition?.TxtToken, null, lst_ins[got_ids[i + 1]], exp);
+                     if_els[i].StayConditionExpr?.TxtToken, null, lst_ins[got_ids[i + 1]], exp);
                }
             }
          }
@@ -216,6 +224,25 @@ namespace Gate.CLanguage.Runtime
          lst_ins.Add(end_frm_pop);
 
          return lst_ins.Select(i => i.NnOrCrash()).ToArray();
+      }
+
+      protected virtual CDecl[] myMakeStatementDecls(CStatementCompound? compound)
+      {
+         if (compound != null)
+         {
+            var dcs = compound.Content.OfType<CDeclSpecifiers>().SelectMany(d => d.Decls).ToArray();
+
+            if (
+               compound.ParentCycleFor != null &&
+               compound.ParentCycleFor.Initialisation is CDeclSpecifiers ds)
+            {
+               dcs = ds.Decls.Concat(dcs).ToArray();
+            }
+
+            return dcs.Where(d => (d.StorageClass & CTypeStorageClass.@static) == 0x0).ToArray();
+         }
+
+         return [];
       }
 
       protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementLoopWhile whileCycle)
@@ -231,20 +258,21 @@ namespace Gate.CLanguage.Runtime
          var end_frm_pop = new RtmDbgEngVirtCpuInstructionFramePop();
 
          /// 0: frame
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionFramePush());
+         lst_ins.Add(new RtmDbgEngVirtCpuInstructionPushStackFrame(
+            myMakeStatementDecls(whileCycle.Body as CStatementCompound), whileCycle));
 
          // 1: if-condition-goto 
          lst_ins.Add(
             new RtmDbgEngVirtCpuInstructionGoto(
-               whileCycle.StayCondition?.TxtToken,
+               whileCycle.StayConditionExpr?.TxtToken,
                null,
                end_frm_pop,
-               whileCycle.StayCondition.NnOrCrash().Expr.NnOrCrash()));
+               whileCycle.StayConditionExpr.NnOrCrash().Expr.NnOrCrash()));
 
          lst_ins.AddRange(myGetCycleBodyInstructions(whileCycle));
 
          //5: goto if-condition-goto '1: if-condition-goto'
-         var got = new RtmDbgEngVirtCpuInstructionGoto(null, lst_ins[1], null, null);
+         var got = new RtmDbgEngVirtCpuInstructionGoto(null, lst_ins[1]);
 
          lst_ins.Add(got);
 
@@ -259,52 +287,38 @@ namespace Gate.CLanguage.Runtime
       private static void myPatchBreakContinue(
          List<RtmDbgEngVirtCpuInstruction> listInstructions,
          RtmDbgEngVirtCpuInstructionFramePop endFramePop,
-         RtmDbgEngVirtCpuInstruction continueTarget)
+         RtmDbgEngVirtCpuInstruction? continueTarget)
       {
          foreach (var brk in listInstructions.ToArray().OfType<InnerDummyBreak>())
          {
             //break skipping to frame pop
-            listInstructions[listInstructions.IndexOf(brk)] = new RtmDbgEngVirtCpuInstructionGoto(brk.Break.TxtToken, endFramePop, null);
+            listInstructions[listInstructions.IndexOf(brk)] =
+               new RtmDbgEngVirtCpuInstructionGoto(brk.Break.TxtToken, endFramePop);
          }
 
-         foreach (var brk in listInstructions.ToArray().OfType<InnerDummyContinue>())
+         if (continueTarget != null)
          {
-            //break skipping to cycle goto
-            listInstructions[listInstructions.IndexOf(brk)] = new RtmDbgEngVirtCpuInstructionGoto(brk.Continue.TxtToken, continueTarget, null);
+            foreach (var brk in listInstructions.ToArray().OfType<InnerDummyContinue>())
+            {
+               //break skipping to cycle goto
+               listInstructions[listInstructions.IndexOf(brk)] =
+                  new RtmDbgEngVirtCpuInstructionGoto(brk.Continue.TxtToken, continueTarget);
+            }
          }
       }
 
-      private class InnerDummyBreak : RtmDbgEngVirtCpuInstruction
-      {
-         public InnerDummyBreak(Break @break) : base(null) => Break = @break;
+      IRtmObjStrategy IFunctionInstructionTranslator.RtmStrategy => RtmStrategy;
 
-         public Break Break { get; }
-
-         public override string Name => "dummy_break";
-
-         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
-      }
-
-      private class InnerDummyContinue : RtmDbgEngVirtCpuInstruction
-      {
-         public InnerDummyContinue(Continue @continue) : base(null) => Continue = @continue;
-
-         public Continue Continue { get; }
-
-         public override string Name => "dummy_continue";
-
-         public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => throw new Crash("Dummy");
-      }
-
-      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(CStatementConditional cycle, bool isElse = false)
+      private RtmDbgEngVirtCpuInstruction[] myGetCycleBodyInstructions(
+         CStatementConditional statementCondtional, bool isElse = false)
       {
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>();
-         var sts = null as CStatement[];
+         var sts = null as CItem[];
 
-         var bdy = isElse ? cycle.ConvertOrCrash<CStatementIfElse>().ElseBody : cycle.Body;
+         var bdy = isElse ? statementCondtional.ConvertOrCrash<CStatementIfElse>().ElseBody : statementCondtional.Body;
 
          //eg for(;;){ a*=2; }
-         if (bdy is CStatementCompound cmp) { sts = cmp.Statements; }
+         if (bdy is CStatementCompound cmp) { sts = cmp.Content; }
          //eg do a*=2 while(i+<3);
          else if (bdy is CStatement sta) { sts = [sta]; }
          //eg for(;;); -> infinite cycle
@@ -328,7 +342,7 @@ namespace Gate.CLanguage.Runtime
 
          if (lst_ins.Count == 0)
          {
-            lst_ins.Add(new RtmDbgEngVirtCpuInstructionSimple(null));//adding "nop"
+            lst_ins.Add(new RtmDbgEngVirtCpuInstructionByAction.Nop(null));//adding "nop"
          }
 
          return lst_ins.ToArray();
@@ -344,17 +358,18 @@ namespace Gate.CLanguage.Runtime
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>
          {
             /// 0: frame
-            new RtmDbgEngVirtCpuInstructionFramePush()
+            new RtmDbgEngVirtCpuInstructionPushStackFrame(
+               myMakeStatementDecls(doWhileCycle.Body as CStatementCompound), doWhileCycle)
          };
 
          lst_ins.AddRange(myGetCycleBodyInstructions(doWhileCycle));
 
          // 2: if-condition-goto 
          var got = new RtmDbgEngVirtCpuInstructionGoto(
-               doWhileCycle.StayCondition?.TxtToken,
+               doWhileCycle.StayConditionExpr?.TxtToken,
                lst_ins[1],
                null,
-               doWhileCycle.StayCondition.NnOrCrash().Expr.NnOrCrash());
+               doWhileCycle.StayConditionExpr.NnOrCrash().Expr.NnOrCrash());
 
          lst_ins.Add(got);
 
@@ -387,7 +402,8 @@ namespace Gate.CLanguage.Runtime
          var lst_ins = new List<RtmDbgEngVirtCpuInstruction>
             {
                /// 0: frame
-               new RtmDbgEngVirtCpuInstructionFramePush()
+               new RtmDbgEngVirtCpuInstructionPushStackFrame(
+                  myMakeStatementDecls(forCycle.Body as CStatementCompound), forCycle)
             };
 
          //frame pop(end)
@@ -396,19 +412,23 @@ namespace Gate.CLanguage.Runtime
          /// 1: init
          if (forCycle.Initialisation != null) { lst_ins.AddRange(GetInstructions(forCycle.Initialisation)); }
 
-         var cnd = null as Expr;
+         var got = null as RtmDbgEngVirtCpuInstructionGoto;
 
          //if condition is null infinite cycle
-         if (forCycle.StayCondition != null)
+         if (forCycle.StayConditionExpr != null)
          {
-            cnd = forCycle.StayCondition?.Expr.NnOrCrash();
-         }
+            var cnd = (forCycle.StayConditionExpr?.Expr).NnOrCrash();
 
-         var got = new RtmDbgEngVirtCpuInstructionGoto(forCycle.StayCondition?.TxtToken, null, end_frm_pop, cnd);
+            got = new RtmDbgEngVirtCpuInstructionGoto(
+               forCycle.StayConditionExpr?.TxtToken, null, end_frm_pop, cnd);
+         }
+         else
+         {
+            got = new RtmDbgEngVirtCpuInstructionGoto(null, end_frm_pop);
+         }
 
          // 2: if-condition-goto 
          lst_ins.Add(got);
-
          lst_ins.AddRange(myGetCycleBodyInstructions(forCycle));
 
          var upd = null as RtmDbgEngVirtCpuInstruction;
@@ -423,7 +443,7 @@ namespace Gate.CLanguage.Runtime
          }
 
          //5: goto if-condition-goto 
-         lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(null, got, null, null));
+         lst_ins.Add(new RtmDbgEngVirtCpuInstructionGoto(null, got));
 
          //6: end(pop frame)
          lst_ins.Add(end_frm_pop);
@@ -434,7 +454,41 @@ namespace Gate.CLanguage.Runtime
          return lst_ins.ToArray();
       }
 
-      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementSwitch @switch) =>
-         throw new System.NotImplementedException();//todo develop
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementSwitch.CaseLabel caseLabel) =>
+         [new Nop(null, caseLabel)];
+
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementSwitch.DefaultLabel defaultLabel) =>
+         [new Nop(null, defaultLabel)];
+
+
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementSwitch switchStatement)
+      {
+         // every label and default correspond to a nop tagged with label/default
+         // 0: frame
+         // 1: evaluate condition and goto
+         // 2: end (pop frame)
+         var lst_ins = new List<RtmDbgEngVirtCpuInstruction>
+         {
+            /// 0: frame
+            new RtmDbgEngVirtCpuInstructionPushStackFrame(
+               myMakeStatementDecls(switchStatement.Body as CStatementCompound), switchStatement),
+            new CRtmDbgEngVirtCpuInstructionSwitch(switchStatement)
+         };
+
+         lst_ins.AddRange(myGetCycleBodyInstructions(switchStatement));
+
+         var end_frm_pop = new RtmDbgEngVirtCpuInstructionFramePop();
+
+         //6: end(pop frame)
+         lst_ins.Add(end_frm_pop);
+         myPatchBreakContinue(lst_ins, end_frm_pop, null);
+
+         return lst_ins.ToArray();
+      }
+
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementGoto @goto) =>
+         throw new System.NotImplementedException();//tododo develop
+
+      protected virtual RtmDbgEngVirtCpuInstruction[] myGetInstructions(CStatementGotoLabel gotoLabel) => [];
    }
 }

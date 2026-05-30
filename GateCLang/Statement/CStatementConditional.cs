@@ -159,7 +159,7 @@ namespace Gate.CLanguage.Statement
                      var cyc = output.CycleOnTopItem.NnOrCrash();
 
                      //assign cycle condition
-                     cyc.StayCondition = exp;
+                     cyc.StayConditionExpr = exp;
                   }
                }
             }
@@ -187,7 +187,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       ///  
       /// </summary>
-      public CExprStatement? StayCondition
+      public CExprStatement? StayConditionExpr
       {
          get => myCondition;
          set

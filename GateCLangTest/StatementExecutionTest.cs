@@ -1680,7 +1680,8 @@ void main()
       static void Main()
       {
          //tododo aggiungi test per nested for .. switch
-         var tst = new StatementExecutionTest();
+         //var tst = new StatementExecutionTest();
+         var tst = new FunctionParamaterTest();
 
          tst.IsVerbose = true;
          tst.Go();

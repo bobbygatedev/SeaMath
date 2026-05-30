@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Runtime.DbgEngVirtCpu;
+using Gate.LangBase.Runtime.Object;
 
 namespace Gate.CLanguage.Runtime
 {
@@ -6,6 +7,6 @@ namespace Gate.CLanguage.Runtime
    {
       RtmDbgEngVirtCpuInstruction[] GetInstructions(CItem item);
 
-      CRtmObjStrategy RtmStrategy { get; }
+      IRtmObjStrategy RtmStrategy { get; }
    }
 }

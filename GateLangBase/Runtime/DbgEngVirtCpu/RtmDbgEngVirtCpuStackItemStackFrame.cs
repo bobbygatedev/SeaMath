@@ -7,9 +7,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// </summary>
    public class RtmDbgEngVirtCpuStackItemStackFrame : IRtmDbgEngStackFrame
    {
-      public RtmDbgEngVirtCpuStackItemStackFrame()
-      {
-      }
+      public RtmDbgEngVirtCpuStackItemStackFrame() { }
 
       public override string ToString() => "Stack Frame";
    }

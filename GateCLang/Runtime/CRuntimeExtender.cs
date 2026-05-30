@@ -3,6 +3,7 @@ using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
 using Gate.LangBase;
 using Gate.LangBase.Expressions;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -228,19 +229,19 @@ namespace Gate.CLanguage.Runtime
       }
 
       /// <summary>
-      /// Retrieves the <see cref="RtmObjFunction"/> instance associated with the specified <see cref="RtmObj"/>.
+      /// Retrieves the <see cref="RtmDbgEngVirtCpuFunction"/> instance associated with the specified <see cref="RtmObj"/>.
       /// </summary>
       /// <remarks>This method checks the type of the provided <paramref name="rtmObj"/> and returns the
-      /// associated  <see cref="RtmObjFunction"/> if available. If <paramref name="rtmObj"/> is neither an  <see
-      /// cref="RtmObjFunction"/> nor a <see cref="CRtmObjPointerFunction"/>, the method returns <see
+      /// associated  <see cref="RtmDbgEngVirtCpuFunction"/> if available. If <paramref name="rtmObj"/> is neither an  <see
+      /// cref="RtmDbgEngVirtCpuFunction"/> nor a <see cref="CRtmObjPointerFunction"/>, the method returns <see
       /// langword="null"/>.</remarks>
-      /// <param name="rtmObj">The <see cref="RtmObj"/> to extract the function from. This can be an <see cref="RtmObjFunction"/> or a <see
+      /// <param name="rtmObj">The <see cref="RtmObj"/> to extract the function from. This can be an <see cref="RtmDbgEngVirtCpuFunction"/> or a <see
       /// cref="CRtmObjPointerFunction"/>.</param>
-      /// <returns>The <see cref="RtmObjFunction"/> instance if <paramref name="rtmObj"/> is an <see cref="RtmObjFunction"/>  or
+      /// <returns>The <see cref="RtmDbgEngVirtCpuFunction"/> instance if <paramref name="rtmObj"/> is an <see cref="RtmDbgEngVirtCpuFunction"/>  or
       /// a <see cref="CRtmObjPointerFunction"/>; otherwise, <see langword="null"/>.</returns>
-      public static RtmObjFunction? GetRtmObjFunction(this RtmObj rtmObj)
+      public static RtmDbgEngVirtCpuFunction? GetRtmObjFunction(this RtmObj rtmObj)
       {
-         if (rtmObj is RtmObjFunction f) { return f; }
+         if (rtmObj is RtmDbgEngVirtCpuFunction f) { return f; }
          else if (rtmObj is CRtmObjPointerFunction pf) { return pf.ObjFunction; }
          else { return null; }
       }

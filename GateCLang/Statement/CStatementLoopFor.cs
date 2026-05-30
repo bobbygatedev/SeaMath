@@ -111,8 +111,8 @@ namespace Gate.CLanguage.Statement
 
                   if (exp != null)
                   {
-                     var ali = (exp.Expr ?? throw new Crash()).RootNode?.DeclType as CTypeAlias ?? throw new Crash();
-                     var pri_ali = ali.PrimitiveAlias;
+                     var ali = exp.Expr.NnOrCrash().RootNode?.DeclType.ConvertOrCrash<CTypeAlias>();
+                     var pri_ali = ali?.PrimitiveAlias;
 
                      output.PopOrCrash<CExprStatement>();
                      output.PeekOrCrash<CStatementLoopFor>().Update = exp;
@@ -214,7 +214,7 @@ namespace Gate.CLanguage.Statement
       /// <summary>
       /// 
       /// </summary>
-      public override string Descriptor => $"for({Initialisation?.Descriptor};{StayCondition?.Descriptor};{Update?.Descriptor}){Body?.Descriptor}";
+      public override string Descriptor => $"for({Initialisation?.Descriptor};{StayConditionExpr?.Descriptor};{Update?.Descriptor}){Body?.Descriptor}";
 
       public CScope Scope { get; }
 

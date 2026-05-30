@@ -7,6 +7,7 @@ using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
+using GateCLang.Statement;
 
 namespace Gate.CLanguage.Statement
 {
@@ -145,7 +146,10 @@ namespace Gate.CLanguage.Statement
             new CStatementLoopFor.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatementLoopWhile.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatementLoopDoWhile.TokenInterpret(DeclInterpretFactory, AttributesInterpret, ExprInterpret),
-            new CStatementSwitch.CaseLabel.TokenInterpret(ExprInterpret),
+            new CStatementSwitch.CaseLabel.TokenInterpret(),
+            new CStatementSwitch.DefaultLabel.TokenInterpret(),
+            new CStatementGoto.TokenInterpreter(),
+            new CStatementGotoLabel.TokenInterpreter(),
             new CStatement.Return.TokenInterpret(ExprInterpret),
             dcl_inp ,
             new CExprStatementInterpreter.WrapCondition (ExprInterpret,";") ,

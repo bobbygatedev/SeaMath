@@ -468,7 +468,7 @@ namespace Gate.Tools
       /// <exception cref="System.ArgumentOutOfRangeException"></exception>
       protected void myInsertSubItemRange(IEnumerable<HierarchicalItem> subItems, int atIndex)
       {
-         var sis = (subItems ?? new HierarchicalItem[0]).Where(s => s != null).ToArray();
+         var sis = (subItems ?? []).Where(s => s != null).ToArray();
 
          ///all item shall be (by ref) different
          var sis_ne = sis.Distinct(new InnerRefEqualComparer()).ToArray();//sub-items not equal

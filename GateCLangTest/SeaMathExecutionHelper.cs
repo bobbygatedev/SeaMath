@@ -279,7 +279,7 @@ namespace Gate.CLanguageTest
 
          //return;
           using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
-         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll //tododo
+         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll 
          //using (var hlp = new SeaMathExecutionHelper(false, false))
          {
             var aim = Aim.run_test;

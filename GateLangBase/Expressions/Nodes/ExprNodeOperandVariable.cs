@@ -156,7 +156,7 @@ namespace Gate.LangBase.Expressions.Nodes
       public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
       {
          var vis_ojs = rtmStrategy?.GetFunctionVisibleObject(stack) ?? [];
-
+     
          //associate expression declaration to runtime object
          //if language is 'declared' (vars have explicit)
          var rtm_obj =

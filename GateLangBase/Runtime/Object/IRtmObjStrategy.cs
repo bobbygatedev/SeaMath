@@ -136,6 +136,14 @@ namespace Gate.LangBase.Runtime.Object
       /// <param name="stack"></param>
       /// <returns></returns>
       RtmObj[]? GetFunctionVisibleObject(IRtmDbgEngStackExecutable? stack);
+
+      /// <summary>
+      /// Get function parameters by declaration and arguments.
+      /// </summary>
+      /// <param name="declParams"></param>
+      /// <param name="rtmArgs"></param>
+      /// <returns></returns>
+      RtmObj[] GetParams(IDecl[] declParams, RtmObj[] rtmArgs);
    }
 }
 

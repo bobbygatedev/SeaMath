@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.ExtraTypes;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -43,7 +44,7 @@ namespace Gate.LangBase.Runtime
          /// </summary>
          /// <param name="objFunction"></param>
          /// <returns></returns>
-         public virtual string Visit(RtmObjFunction objFunction) => $"Function {objFunction.Decl?.Identifier}";
+         public virtual string Visit(RtmDbgEngVirtCpuFunction objFunction) => $"Function {objFunction.Decl?.Identifier}";
 
          /// <summary>
          /// Provides access to an instance of the BuiltInVisitor class, 

@@ -34,8 +34,21 @@ namespace Gate.CLanguage.Initialisation
 
          public CInitialisation Initialisation { get; }
 
-         public void DoInit(RtmObj runTimeObj, RtmDbgEngStackVirtCpu stack, CRtmObjStrategy rtmStrategy) =>
-            myDoInit((dynamic)runTimeObj, stack, (dynamic)Initialisation, rtmStrategy);
+         public void DoInit(RtmObj runTimeObj, RtmDbgEngStackVirtCpu stack, CRtmObjStrategy rtmStrategy)
+         {
+            lock (runTimeObj)
+            {
+               if (!runTimeObj.HasInit)
+               {
+                  myDoInit((dynamic)runTimeObj, stack, (dynamic)Initialisation, rtmStrategy);
+                  runTimeObj.HasInit = true;
+               }
+               else
+               {
+                  throw new Crash("Object already init");
+               }
+            }
+         }
 
          protected static void myDoInit(
             CRtmObjPointerFunction function, RtmDbgEngStackVirtCpu? stack, CInitialisation init, CRtmObjStrategy? rtmStrategy)

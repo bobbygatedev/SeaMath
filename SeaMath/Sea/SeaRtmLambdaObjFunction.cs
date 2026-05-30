@@ -1,5 +1,5 @@
 ﻿using Gate.CLanguage.Decl;
-using Gate.LangBase.Runtime.Object;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.Tools;
 
 namespace Gate.SeaMath.Sea
@@ -7,10 +7,10 @@ namespace Gate.SeaMath.Sea
    /// <summary>
    /// Represents a specialized RTM object function that incorporates a lambda expression.
    /// </summary>
-   /// <remarks>This class extends <see cref="RtmObjFunction"/> to provide additional functionality for
+   /// <remarks>This class extends <see cref="RtmDbgEngVirtCpuFunction"/> to provide additional functionality for
    /// handling lambda expressions in conjunction with a declared function. It is designed to work with <see
    /// cref="CDeclFunction"/> and exposes the lambda expression as a display value.</remarks>
-   public class SeaRtmLambdaObjFunction : RtmObjFunction
+   public class SeaRtmLambdaObjFunction : RtmDbgEngVirtCpuFunction
    {
       public SeaRtmLambdaObjFunction(CDeclFunction declFunction, string lambda) : base(declFunction) => Lambda = lambda;
 

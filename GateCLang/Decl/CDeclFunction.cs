@@ -3,7 +3,9 @@ using Gate.CLanguage.Linker;
 using Gate.CLanguage.Statement;
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions;
+using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
+using Gate.Tools;
 using Gate.Tools.Text;
 
 namespace Gate.CLanguage.Decl
@@ -87,6 +89,26 @@ namespace Gate.CLanguage.Decl
       /// </summary>
       public override bool IsInternalLinkRequired => !(Anchestor is CLibrary) && Body == null;
 
+      public RtmDbgEngVirtCpuInstruction[] InstructionsNoFrame
+      {
+         get
+         {
+            var iss = Instructions;
+
+            if (
+               iss.FirstOrDefault() is RtmDbgEngVirtCpuInstructionPushFunctionFrame && 
+               iss.LastOrDefault() is RtmDbgEngVirtCpuInstructionFramePop)
+            {
+               return iss.Skip(1).SkipLast(1).ToArray();
+            }
+            else
+            {
+               throw new RtmException(
+                  "Function frame push and pop instructions are expected at the beginning and at the end of the instruction sequence.");
+            }
+         }
+      }
+
       /// <summary>
       /// 
       /// </summary>
@@ -95,8 +117,27 @@ namespace Gate.CLanguage.Decl
          get => SubItems.OfType<RtmDbgEngVirtCpuInstruction>().ToArray();
          set
          {
+            var iss = value ?? [];
+
             myRemoveSubItemRange(Instructions);
-            myAddSubItemRange(value ?? new RtmDbgEngVirtCpuInstruction[0]);
+
+            if (iss.FirstOrDefault() is RtmDbgEngVirtCpuInstructionPushFunctionFrame)
+            {
+               if (iss.LastOrDefault() is not RtmDbgEngVirtCpuInstructionFramePop)
+               {
+                  throw new Crash("Function frame pop instruction missing at the end of the instruction sequence.");
+               }
+            }
+            else
+            {
+               //in case function frame has not been added
+               iss = 
+                  new[] { new RtmDbgEngVirtCpuInstructionPushFunctionFrame() }.
+                  Concat(iss).
+                  Append(new RtmDbgEngVirtCpuInstructionFramePop()).ToArray();
+            }
+
+            myAddSubItemRange(iss);
          }
       }
 

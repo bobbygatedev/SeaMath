@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <StartupObject>Gate.CLanguageTest.StatementExecutionTest</StartupObject>
+    <StartupObject>Gate.CLanguageTest.SeaMathExecutionHelper</StartupObject>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 

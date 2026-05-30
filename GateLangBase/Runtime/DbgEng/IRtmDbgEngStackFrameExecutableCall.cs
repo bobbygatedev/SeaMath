@@ -1,18 +1,18 @@
-﻿using Gate.LangBase.Runtime.Object;
+﻿using Gate.LangBase.Runtime.DbgEngVirtCpu;
+using Gate.LangBase.Runtime.Object;
 
 namespace Gate.LangBase.Runtime.DbgEng
 {
-
    /// <summary>
    /// 
    /// </summary>
-   public interface IRtmDbgEngStackFrameExecutableCall : IRtmDbgEngStackFrame , IRtmDbgEngStackCall
+   public interface IRtmDbgEngStackFrameExecutableCall : IRtmDbgEngStackFrame, IRtmDbgEngStackCall
    {
       /// <summary>
       /// 
       /// </summary>
-      IRtmDbgEngInstruction? InstructionCurrent { get; set; }
-      
+      IRtmDbgEngInstruction? InstructionCurrent { get; }
+
       /// <summary>
       /// 
       /// </summary>
@@ -21,6 +21,20 @@ namespace Gate.LangBase.Runtime.DbgEng
       /// <summary>
       /// 
       /// </summary>
-      RtmObjFunction RtmObjFunction { get; }
+      RtmDbgEngVirtCpuFunction RtmObjFunction { get; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      RtmObj?[] CallParams { get; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="targetInstruction"></param>
+      /// <param name="stack"></param>
+      /// <param name="rtmStrategy"></param>
+      void MoveToInstruction(
+         IRtmDbgEngInstruction targetInstruction, IRtmDbgEngStackExecutable stack, IRtmObjStrategy? rtmStrategy);
    }
 }

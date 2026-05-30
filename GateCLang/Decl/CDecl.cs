@@ -148,6 +148,11 @@ namespace Gate.CLanguage.Decl
       /// <summary>
       /// 
       /// </summary>
+      public bool IsStatic => (StorageClass & CTypeStorageClass.@static) != 0;
+
+      /// <summary>
+      /// 
+      /// </summary>
       IDeclType? IDecl.DeclType => TypeAlias?.PrimitiveAlias;
 
       /// <summary>

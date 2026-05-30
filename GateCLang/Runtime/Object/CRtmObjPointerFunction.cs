@@ -2,6 +2,7 @@
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 
@@ -12,7 +13,7 @@ namespace Gate.CLanguage.Runtime.Object
    /// </summary>
    public unsafe class CRtmObjPointerFunction : CRtmObjPointer, IRtmObjFunction
    {
-      public CRtmObjPointerFunction(ICRtmObjStrategy rtmStrategy, RtmObjFunction objFunction) : base(
+      public CRtmObjPointerFunction(ICRtmObjStrategy rtmStrategy, RtmDbgEngVirtCpuFunction objFunction) : base(
          rtmStrategy, IntPtr.Zero, (objFunction?.DeclType as CTypeAlias ?? throw new Crash()).AddressOfType) => ObjFunction = objFunction;
 
       public CRtmObjPointerFunction(ICRtmObjStrategy rtmStrategy, CDecl decl) :
@@ -21,7 +22,7 @@ namespace Gate.CLanguage.Runtime.Object
 
       public static CRtmObjPointerFunction Make(IRtmObjFunction rtmObjFunction, CRtmObjStrategy cRtmObjStrategy)
       {
-         if (rtmObjFunction is RtmObjFunction fnc)
+         if (rtmObjFunction is RtmDbgEngVirtCpuFunction fnc)
          {
             return new CRtmObjPointerFunction(cRtmObjStrategy, fnc);
          }
@@ -34,7 +35,7 @@ namespace Gate.CLanguage.Runtime.Object
 
       public CTypeAlias? TypeAlias => DeclType as CTypeAlias;
 
-      public RtmObjFunction? ObjFunction { get; set; }
+      public RtmDbgEngVirtCpuFunction? ObjFunction { get; set; }
 
       public IDeclFunction? DeclFunction => ObjFunction?.Decl;
 
@@ -45,7 +46,7 @@ namespace Gate.CLanguage.Runtime.Object
 
       public void Assign(IRtmObjFunction rtmObjFunction)
       {
-         if (rtmObjFunction is RtmObjFunction fnc) { ObjFunction = fnc; }
+         if (rtmObjFunction is RtmDbgEngVirtCpuFunction fnc) { ObjFunction = fnc; }
          else if (rtmObjFunction is CRtmObjPointerFunction pf) { ObjFunction = pf.ObjFunction; }
          else { throw new Crash(); }
       }

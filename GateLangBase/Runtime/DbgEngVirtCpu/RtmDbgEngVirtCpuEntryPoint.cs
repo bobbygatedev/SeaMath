@@ -36,7 +36,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       
       public IRtmDbgEngVirtCpuPseudoSource? PseudoSource { get; }
 
-      internal (RtmDbgEngVirtCpuRtmModule?, RtmObjFunction?) GetStartupObjects(RtmDbgEngVirtCpuRtmModule[] rtmModules)
+      internal (RtmDbgEngVirtCpuRtmModule?, RtmDbgEngVirtCpuFunction?) GetStartupObjects(RtmDbgEngVirtCpuRtmModule[] rtmModules)
       {
          if (Mode == ModeType.module)
          {
@@ -48,7 +48,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
             if (mod != null) 
             {
-               return (mod,mod.ObjectsPersistant.FirstOrDefault(op => op.Decl == Function) as RtmObjFunction);
+               return (mod,mod.ObjectsPersistant.FirstOrDefault(op => op.Decl == Function) as RtmDbgEngVirtCpuFunction);
             }
             else
             {

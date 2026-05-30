@@ -308,6 +308,9 @@ namespace Gate.CLanguage.Compiler
       public static Msg GetError(this CCompilerMsgId msgId, TxtToken? token, string? msgSuffix = null) =>
          myMsgTools.MakeMsg(MsgType.error, msgId, token, msgSuffix);
 
+      public static Msg GetFatalError(this CCompilerMsgId msgId, TxtToken? token, string? msgSuffix = null) =>
+         myMsgTools.MakeMsg(MsgType.fatal, msgId, token, msgSuffix);
+
       public static Msg GetWarning(this CCompilerMsgId msgId, TxtToken? token, string? msgSuffix = null) =>
          myMsgTools.MakeMsg(MsgType.warning, msgId, token, msgSuffix);
 

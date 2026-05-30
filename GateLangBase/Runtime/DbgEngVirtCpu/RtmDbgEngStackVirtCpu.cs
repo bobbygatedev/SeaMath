@@ -24,9 +24,17 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          Items.OfType<RtmDbgEngVirtCpuStackItemFrameFunction>().ToArray();
 
       /// <summary>
+      /// <see cref="RtmDbgEngVirtCpuStackItemFrameFunction"/> instances "stack ordered"(ie from top to bottom).
+      /// </summary>
+      public RtmDbgEngVirtCpuStackItemStackFrame[] StackFrames =>
+         Items.OfType<RtmDbgEngVirtCpuStackItemStackFrame>().ToArray();
+
+      /// <summary>
       /// On top stack call (current call)
       /// </summary>
       public RtmDbgEngVirtCpuStackItemFrameFunction? TopFunctionFrame => FunctionFrames?.FirstOrDefault();
+
+      public RtmDbgEngVirtCpuStackItemStackFrame? TopStackFrame => StackFrames.FirstOrDefault();
 
       /// <summary>
       /// Items "stack ordered"(ie from top to bottom).
@@ -53,9 +61,9 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// </summary>
       /// <param name="returnValue"></param>
       /// <exception cref="Crash"></exception>
-      public void Return(RtmObj? returnValue)
+      public void Return(RtmObj? returnValue, RtmDbgEngVirtCpuStackItemFrameFunction functionFrame)
       {
-         ExitFrame(FunctionFrames.FirstOrDefault() ?? throw new Crash());
+         ExitFrame(functionFrame);
          Push(returnValue);
       }
 
@@ -65,13 +73,21 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <param name="frame"></param>
       public void ExitFrame(RtmDbgEngVirtCpuStackItemStackFrame frame)
       {
-         var frm_idx = myListItems.IndexOf(frame);
-
-         if (frm_idx >= 0)
+         if (myListItems.Contains(frame))
          {
-            var its_2_rem = myListItems.Skip(frm_idx).ToArray();
+            var frm_idx = myListItems.IndexOf(frame);
 
-            myListItems = Enumerable.Range(0, myListItems.Count).Where(i => i < frm_idx).Select(i => myListItems[i]).ToList();
+            if (frm_idx >= 0)
+            {
+               var its_2_rem = myListItems.Skip(frm_idx).ToArray();
+
+               foreach (var rtm_obj in its_2_rem.OfType<RtmObj>())
+               {
+                  rtm_obj.Dispose();
+               }
+
+               myListItems = Enumerable.Range(0, myListItems.Count).Where(i => i < frm_idx).Select(i => myListItems[i]).ToList();
+            }
          }
       }
 
@@ -107,7 +123,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
             return itm as ITM;
          }
-         else { throw new Gate.LangBase.Runtime.RtmException("Can't pop empty stack!"); }
+         else { return null; }
       }
 
       /// <summary>
@@ -120,8 +136,9 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       public override string ToString() => Descriptor;
 
-      IRtmDbgEngStackFrameExecutableCall IRtmDbgEngStackExecutable.MakeStackCall(RtmObjFunction rtmFunction) => 
-         new RtmDbgEngVirtCpuStackItemFrameFunction(rtmFunction, this);
+      IRtmDbgEngStackFrameExecutableCall IRtmDbgEngStackExecutable.MakeStackCall(
+         RtmDbgEngVirtCpuFunction rtmFunction, RtmObj?[] @params) => 
+         new RtmDbgEngVirtCpuStackItemFrameFunction(rtmFunction, this, @params);
 
       RtmObj? IRtmDbgEngStackExecutable.Pop() => Pop<RtmObj>();
 
@@ -129,5 +146,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       void IRtmDbgEngStackExecutable.ExitFrame(IRtmDbgEngStackFrame frame) => ExitFrame(frame as RtmDbgEngVirtCpuStackItemStackFrame ??
             throw new Crash("Invalid frame type for exit!"));
+
+      public RtmObj? Peek() => myListItems.Last() as RtmObj;
    }
 }

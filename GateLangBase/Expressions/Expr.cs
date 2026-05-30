@@ -22,7 +22,7 @@ namespace Gate.LangBase.Expressions
       }
 
       /// <summary>
-      /// 
+      /// All expression nodes.
       /// </summary>
       public ExprNode[] ExprNodes => AllDescendant.OfType<ExprNode>().ToArray();
 

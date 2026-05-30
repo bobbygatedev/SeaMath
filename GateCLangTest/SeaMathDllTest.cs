@@ -93,7 +93,7 @@ namespace Gate.CLanguageTest
 
                var dum = new CRtmObjLiteral(2, typ);
 
-               var fnc_rtm = new RtmObjFunction(fnc_dcl);
+               var fnc_rtm = new RtmDbgEngVirtCpuFunction(fnc_dcl);
 
                fnc_rtm.Exec(new RtmDbgEngStackVirtCpu(null), null);
             }

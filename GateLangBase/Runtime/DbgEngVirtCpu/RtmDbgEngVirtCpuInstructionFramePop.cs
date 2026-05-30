@@ -1,49 +1,23 @@
 ﻿using Gate.LangBase.Runtime.Object;
-using Gate.Tools;
 using Gate.Tools.Extensions;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
    /// <summary>
-   /// 
+   /// Pops a stack/function frame
    /// </summary>
-   public class RtmDbgEngVirtCpuInstructionFramePop : RtmDbgEngVirtCpuInstructionSimple
+   public class RtmDbgEngVirtCpuInstructionFramePop : RtmDbgEngVirtCpuInstructionGotoNext
    {
       /// <summary>
       /// 
       /// </summary>
-      public RtmDbgEngVirtCpuInstructionFramePop() : base(null, myDoFramePop) { }
+      public RtmDbgEngVirtCpuInstructionFramePop() : base(null) { }
 
       public override string Name => "pop";
 
-      public RtmDbgEngVirtCpuInstructionGoto? NextGoto
+      protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
-         get
-         {
-            var iss = DeclFunction?.Instructions;
-
-            if (iss != null)
-            {
-               var frm = Frame;
-               var psh_i = frm?.push.Idx;
-
-               for (var i = Idx.NnOrCrash(); i > psh_i; i--)
-               {
-                  if (iss[i] is RtmDbgEngVirtCpuInstructionGoto got)
-                  {
-                     return got;
-                  }
-               }
-            }
-
-            return null;
-         }
-      }
-
-
-      private static RtmObj? myDoFramePop(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
-      {
-         var frm = stack.Items.OfType<RtmDbgEngVirtCpuStackItemStackFrame>().FirstOrDefault() ?? throw new Crash();
+         var frm = stack.Items.OfType<RtmDbgEngVirtCpuStackItemStackFrame>().FirstOrDefault().NnOrCrash();
 
          stack.ExitFrame(frm);
 

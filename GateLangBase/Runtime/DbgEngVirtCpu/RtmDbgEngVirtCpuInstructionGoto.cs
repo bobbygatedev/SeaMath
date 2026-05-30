@@ -1,7 +1,9 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
+using System.Windows.Forms;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
@@ -14,16 +16,16 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// <returns></returns>
    public delegate RtmObj? RtmDbgEngVirtCpuInstructionGotoConditionEval(RtmDbgEngStackVirtCpu stack);
 
+   public static class RtmGotoHelper
+   {
+
+   }
+
    /// <summary>
    /// 
    /// </summary>
    public class RtmDbgEngVirtCpuInstructionGoto : RtmDbgEngVirtCpuInstruction
    {
-      /// <summary>
-      /// Dummy instruction move to next instruction if no target is defined
-      /// </summary>
-      private readonly RtmDbgEngVirtCpuInstructionSimple myGoNextInstruction;
-
       /// <summary>
       /// 
       /// </summary>
@@ -35,12 +37,28 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          TxtToken? token,
          RtmDbgEngVirtCpuInstruction? targetTrue,
          RtmDbgEngVirtCpuInstruction? targetFalse,
-         Expr? conditionEval = null) : base(token)
+         Expr conditionEval) : base(token)
       {
          TargetTrue = targetTrue;
          TargetFalse = targetFalse;
+
+         if (TargetTrue == null && TargetFalse == null)
+         {
+            throw new Crash("At least one TargetTrue or TargetFalse shall be not null");
+         }
+
          ConditionExpression = conditionEval;
-         myGoNextInstruction = new RtmDbgEngVirtCpuInstructionSimple(null);
+      }
+
+      /// <summary>
+      /// No condition goto constructor.
+      /// </summary>
+      /// <param name="token"></param>
+      /// <param name="target"></param>
+      public RtmDbgEngVirtCpuInstructionGoto(TxtToken? token, RtmDbgEngVirtCpuInstruction target) :
+         this(token, target, null, null)
+      {
+
       }
 
       public override string Name => "goto";
@@ -84,18 +102,21 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          }
 
          var trg = is_pas ? TargetTrue : TargetFalse;
+         var tff = stack.TopFunctionFrame ?? throw new Crash();
 
          if (trg != null)
          {
-            var tff = stack.TopFunctionFrame ?? throw new Crash();
-
             if (tff.Instructions.Contains(trg))
             {
-               tff.InstructionCurrent = trg;
+               stack.TopFunctionFrame.MoveToInstruction(trg, stack, rtmStrategy.NnOrCrash());
             }
             else { throw new Crash("Instruction shall contain target instruction"); }
          }
-         else { myGoNextInstruction.Run(stack, rtmStrategy); }
+         else 
+         {
+            //move to next
+            stack.TopFunctionFrame.MoveInstructionNext(stack, rtmStrategy.NnOrCrash());
+         }
       }
 
       public override string ToString()

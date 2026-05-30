@@ -33,7 +33,7 @@ namespace Gate.SeaMath.Sea
             if (ini_fnc != null)
             {
                //with respect to simple C language , we add the expression statements instructions (after INIT)
-               ini_fnc.Instructions = ini_fnc.Instructions.Concat(src_exc_ins).ToArray();
+               ini_fnc.Instructions = ini_fnc.InstructionsNoFrame.Concat(src_exc_ins).ToArray();
             }
          }
 

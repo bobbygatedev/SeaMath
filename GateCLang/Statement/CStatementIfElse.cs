@@ -2,6 +2,7 @@
 using Gate.CLanguage.DeclInterpreter;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
+using Gate.LangBase.Runtime;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
@@ -11,7 +12,7 @@ using System.Text;
 namespace Gate.CLanguage.Statement
 {
    /// <summary>
-   /// Encapsulates a if()else if() else cycle.
+   /// Encapsulates a if() else if() else cycle.
    /// </summary>
    public class CStatementIfElse : CStatementConditional
    {
@@ -84,7 +85,9 @@ namespace Gate.CLanguage.Statement
 
                      if (c_sco != null)
                      {
-                        var sta = c_sco.NnOrCrash().Statements.LastOrDefault();
+                        var sta = 
+                           c_sco.NnOrCrash().Content.LastOrDefault() as CStatement ?? 
+                           throw new RtmException("Expected a statement ");
 
                         c_sco.NnOrCrash().RemoveFromScopeSpace(sta.NnOrCrash());
                         cyc_if.ElseBody = sta;
@@ -144,7 +147,7 @@ namespace Gate.CLanguage.Statement
          {
             var sb = new StringBuilder();
 
-            sb.Append($"if({StayCondition?.Rebuilt})");
+            sb.Append($"if({StayConditionExpr?.Rebuilt})");
 
             if (Body is CStatementCompound c1)
             {
@@ -184,7 +187,7 @@ namespace Gate.CLanguage.Statement
          {
             var sb = new StringBuilder();
 
-            sb.Append($"if({StayCondition?.Descriptor})");
+            sb.Append($"if({StayConditionExpr?.Descriptor})");
 
             if (Body is CStatementCompound c1)
             {
@@ -240,7 +243,6 @@ namespace Gate.CLanguage.Statement
             ElseBody = body;
          }
       }
-
 
       /// <summary>
       /// 

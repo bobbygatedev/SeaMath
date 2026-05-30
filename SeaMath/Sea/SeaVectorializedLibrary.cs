@@ -181,13 +181,13 @@ namespace Gate.SeaMath.Sea
                switch (Classification)
                {
                   case ClassificationType.scalar_to_scalar:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionSimple(null, (stk, str) => myRunActionScalar2Scalar(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionScalar2Scalar(stk, str))];
                      break;
                   case ClassificationType.vectorial_to_scalar:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionSimple(null, (stk, str) => myRunActionVectorial(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionVectorial(stk, str))];
                      break;
                   case ClassificationType.vectorial_to_vectorial:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionSimple(null, (stk, str) => myRunActionVectorial(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionVectorial(stk, str))];
                      break;
                   case ClassificationType.scalar_to_vectorial:
                   default: throw new Crash();
@@ -235,7 +235,7 @@ namespace Gate.SeaMath.Sea
                myCheckScalar2ScalarParams(in_prs, out var is_arr);
 
                var fnc_dsc = mySelectDescriptor(in_prs, sea_str);
-               var rtm_fnc = new RtmObjFunction(fnc_dsc.DeclFunction);
+               var rtm_fnc = new RtmDbgEngVirtCpuFunction(fnc_dsc.DeclFunction);
                var dcl_fnc = rtm_fnc.DeclFunction as CDeclFunction ?? throw new Crash();
 
                if (is_arr)
@@ -312,7 +312,7 @@ namespace Gate.SeaMath.Sea
 
                var fnc_dsc = mySelectDescriptor(in_prs, sea_str);
 
-               var rtm_fnc = new RtmObjFunction(fnc_dsc.DeclFunction);
+               var rtm_fnc = new RtmDbgEngVirtCpuFunction(fnc_dsc.DeclFunction);
                var out_siz = -1;//output vector size (-1 means scalar out)
                var is_out_vec = Classification == ClassificationType.vectorial_to_vectorial;
 

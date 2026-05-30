@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.Object;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
@@ -24,6 +25,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// </summary>
       /// <param name="stack"></param>
       /// <returns></returns>
-      public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => stack.Return(Expr?.Eval(stack,rtmStrategy));
+      public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => stack.Return(
+         Expr?.Eval(stack,rtmStrategy), stack.TopFunctionFrame.NnOrCrash());
    }
 }

@@ -1,6 +1,8 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
+using Gate.Tools;
+using Gate.Tools.Extensions;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
@@ -10,21 +12,333 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// </summary>
    public class RtmDbgEngVirtCpuStackItemFrameFunction : RtmDbgEngVirtCpuStackItemStackFrame, IRtmDbgEngStackFrameExecutableCall
    {
-      public RtmDbgEngVirtCpuStackItemFrameFunction(RtmObjFunction rtmObjFunction, RtmDbgEngStackVirtCpu stack)
+      public RtmDbgEngVirtCpuStackItemFrameFunction(
+         RtmDbgEngVirtCpuFunction rtmObjFunction, RtmDbgEngStackVirtCpu stack, RtmObj?[] @params)
       {
          Stack = stack;
          RtmObjFunction = rtmObjFunction;
+         CallParams = @params;
+      }
+
+      private class InnerFrameHelper
+      {
+         private class Frame : HierarchicalItem
+         {
+            public enum TypeType
+            {
+               function,
+               stack_frame,
+            }
+
+            public Frame(
+               RtmDbgEngVirtCpuInstructionPush push,
+               RtmDbgEngVirtCpuInstructionFramePop pop,
+               RtmDbgEngVirtCpuInstruction[] instructionsAll)
+            {
+               Push = push;
+               Pop = pop;
+               InstructionsAll = instructionsAll;
+               InstrucionsOfFrame =
+                  Enumerable.Range(Push.Idx.NnOrCrash(), Pop.Idx.NnOrCrash() - Push.Idx.NnOrCrash() + 1).
+                  Select(i => InstructionsAll[i]).ToArray();
+            }
+
+            public Frame GetInstructionFrame(RtmDbgEngVirtCpuInstruction instruction) =>
+               AllDescendant.OfType<Frame>().FirstOrDefault(f => f.InstrucionsOfFrame.Contains(instruction)).NnOrCrash();
+
+            public TypeType Type =>
+               Push is RtmDbgEngVirtCpuInstructionPushFunctionFrame ? TypeType.function : TypeType.stack_frame;
+
+
+            public Frame? ParentFrame => ParentItem as Frame;
+
+            public Frame[] AnchestorFrames => ParentItemChain.OfType<Frame>().ToArray();
+
+            public RtmDbgEngVirtCpuInstructionPush Push { get; }
+            public RtmDbgEngVirtCpuInstructionFramePop Pop { get; }
+            public RtmDbgEngVirtCpuInstruction[] InstructionsAll { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public RtmDbgEngVirtCpuInstruction[] InstrucionsOfFrame { get; private set; }
+
+            public void MoveInsideFrame(RtmDbgEngVirtCpuInstruction targetInstruction, RtmDbgEngStackVirtCpu stack)
+            {
+               if (InstrucionsOfFrame.Contains(targetInstruction))
+               {
+                  stack.TopFunctionFrame.NnOrCrash().InstructionCurrent = targetInstruction;
+               }
+               else
+               {
+                  throw new Crash();
+               }
+            }
+
+            public RtmDbgEngVirtCpuInstructionPush? FramePush =>
+               InstrucionsOfFrame.FirstOrDefault() as RtmDbgEngVirtCpuInstructionPush;
+
+            public Frame MoveToFrame(Frame targetFrame, RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+            {
+               var lst_pic = targetFrame.ParentItemChain.OfType<Frame>().Reverse().ToList();
+
+               if (lst_pic.Contains(this))
+               {
+                  var idx = lst_pic.IndexOf(this) + 1;
+
+                  for (int i = idx; i < lst_pic.Count; i++)
+                  {
+                     lst_pic[i].FramePush?.NnOrCrash().Run(stack, rtmStrategy);
+                  }
+
+                  return targetFrame;
+               }
+               else
+               {
+                  throw new Crash($"Frame {targetFrame} not under {this}");
+               }
+            }
+
+            public void AddFrames(Frame[] frames)
+            {
+               if (frames.Length != 0)
+               {
+                  myAddSubItemRange(frames);
+
+                  var min = frames.Min(f => f.InstrucionsOfFrame.First().Idx).NnOrCrash();
+                  var max = frames.Max(f => f.InstrucionsOfFrame.Last().Idx).NnOrCrash();
+
+                  var it = new Interval(min, max);
+
+                  InstrucionsOfFrame = InstrucionsOfFrame.Where(i => !it.Contains(i.Idx.NnOrCrash())).ToArray();
+               }
+            }
+
+            public Frame[] SubFrames => SubItems.OfType<Frame>().ToArray();
+
+            public override string ToString() => $"{Type} Frame {InstrucionsOfFrame.First()}-{InstrucionsOfFrame.Last()}";
+
+         }
+
+         /// <summary>
+         /// Move virtual CPU execution context to the specified instruction,
+         /// updating the stack through frame push/pop operations.
+         /// </summary>
+         public static void MoveToInstruction(
+            RtmDbgEngVirtCpuInstruction targetInstruction, RtmDbgEngStackVirtCpu stack, IRtmObjStrategy rtmStrategy)
+         {
+            var tgt_idx = targetInstruction.Idx;
+            var tff = stack.TopFunctionFrame.NnOrCrash();
+            var ic = tff.InstructionCurrent;
+            var iss = tff.Instructions;
+
+            if (tgt_idx == 0)
+            {
+               if (targetInstruction is RtmDbgEngVirtCpuInstructionPushFunctionFrame)
+               {
+                  tff.InstructionCurrent = targetInstruction;
+
+                  return;
+               }
+               else
+               {
+                  throw new Crash();
+               }
+            }
+            else if (tgt_idx == tff.InstructionCurrentIdx + 1)
+            {
+               tff.InstructionCurrent = targetInstruction;
+               return;
+            }
+
+            //instructions
+            var fun_frm = GetFunctionFrame(iss).NnOrCrash();
+            var frm_cur = fun_frm.GetInstructionFrame(ic.NnOrCrash());
+            var tgt_frm = fun_frm.GetInstructionFrame(targetInstruction);
+
+            // same frame
+            if (frm_cur == tgt_frm)
+            {
+               frm_cur.MoveInsideFrame(targetInstruction, stack);
+               return;
+            }
+
+            // current frame anchestor chain
+            var cur_anc = frm_cur.AnchestorFrames;
+
+            // target frame anchestor chain
+            var tgt_anc = tgt_frm.AnchestorFrames;
+
+            // Lowest Common Ancestor
+            var lca = cur_anc.Intersect(tgt_anc).FirstOrDefault();
+
+            if (lca == null)
+            {
+               throw new Crash("No common frame ancestor found.");
+            }
+
+            var frm = frm_cur;
+
+            //
+            // 1. walk downwards to LCA
+            //
+            while (frm != lca)
+            {
+               stack.ExitFrame(stack.TopStackFrame.NnOrCrash());
+               frm = frm.ParentFrame.NnOrCrash();
+            }
+
+            frm = frm.MoveToFrame(tgt_frm, stack, rtmStrategy);
+            frm.MoveInsideFrame(targetInstruction, stack);
+         }
+
+         private static Frame? GetFunctionFrame(RtmDbgEngVirtCpuInstruction[] instructions)
+         {
+            if (instructions.Length != 0)
+            {
+               var roo = new Frame(
+                  (instructions?.FirstOrDefault()).ConvertOrCrash<RtmDbgEngVirtCpuInstructionPush>(),
+                  (instructions?.LastOrDefault()).ConvertOrCrash<RtmDbgEngVirtCpuInstructionFramePop>(),
+                  instructions.NnOrCrash());
+
+               var frs = myGetSubFrames(roo);
+
+               roo.AddFrames(frs);
+
+               return roo;
+            }
+
+            return null;
+         }
+
+         private static Frame[] myGetSubFrames(Frame frame)
+         {
+            var cnt = 0;
+            var lst = new List<Frame>();
+            var psh = null as RtmDbgEngVirtCpuInstructionPush;
+
+            //last and first instruction (function frame stack) shall be discarded, so skip 1 and take length - 2
+            var iss = frame.InstrucionsOfFrame.Skip(1).Take(frame.InstrucionsOfFrame.Length - 2).ToArray();
+
+            foreach (var ins in iss)
+            {
+               if (ins is RtmDbgEngVirtCpuInstructionPush p)
+               {
+                  if (cnt++ == 0)
+                  {
+                     if (psh != null)
+                     {
+                        throw new Crash();
+                     }
+                     else
+                     {
+                        psh = p;
+                     }
+                  }
+               }
+               else if (ins is RtmDbgEngVirtCpuInstructionFramePop pop)
+               {
+                  if (--cnt == 0)
+                  {
+                     if (psh != null)
+                     {
+                        var frm = new Frame(psh, pop, frame.InstructionsAll);
+
+                        psh = null;
+                        lst.Add(frm);
+                        frm.AddFrames(myGetSubFrames(frm));
+                     }
+                  }
+                  else if (cnt < 0)
+                  {
+                     throw new Crash();
+                  }
+               }
+            }
+
+            if (psh != null)
+            {
+               throw new Crash();
+            }
+            else
+            {
+               return lst.ToArray();
+            }
+         }
       }
 
       /// <summary>
       /// 
       /// </summary>
-      public RtmObjFunction RtmObjFunction { get; }
+      public RtmDbgEngVirtCpuFunction RtmObjFunction { get; }
+
+      public RtmObj?[] CallParams { get; }
 
       /// <summary>
       /// 
       /// </summary>
-      public RtmDbgEngVirtCpuInstruction? InstructionCurrent { get; set; }
+      public int InstructionCurrentIdx =>
+         InstructionCurrent != null ? Instructions.ToList().IndexOf(InstructionCurrent) : -1;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public RtmDbgEngVirtCpuInstruction? InstructionCurrent { get; private set; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="targetInstruction"></param>
+      /// <param name="stack"></param>
+      /// <param name="rtmStrategy"></param>
+      public void MoveToInstruction(
+         RtmDbgEngVirtCpuInstruction targetInstruction, RtmDbgEngStackVirtCpu stack, IRtmObjStrategy rtmStrategy) =>
+            InnerFrameHelper.MoveToInstruction(targetInstruction, stack, rtmStrategy);
+
+      public void MoveInstructionNext(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy rtmStrategy)
+      {
+         var idx = InstructionCurrentIdx;
+
+         if (idx < 0 || idx + 1 >= Instructions.Length)
+         {
+            throw new Crash("Can't set target instruction");
+         }
+         else
+         {
+            MoveToInstruction(Instructions[idx + 1], stack, rtmStrategy);
+         }
+      }
+
+      /// <summary>
+      /// Move to end of current stack-frame
+      /// assumption you are already inside the frame
+      /// </summary>
+      /// <param name="stack"></param>
+      /// <param name="rtmStrategy"></param>
+      /// <exception cref="Crash"></exception>
+      public void MoveStackFrameEnd(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy rtmStrategy)
+      {
+         var cnt = 0;
+         var idx = InstructionCurrentIdx;
+
+         for (int i = idx + 1; i < Instructions.Length; i++)
+         {
+            if (Instructions[i] is RtmDbgEngVirtCpuInstructionPush)
+            {
+               cnt++;
+            }
+            else if (Instructions[i] is RtmDbgEngVirtCpuInstructionFramePop)
+            {
+               if (--cnt == 0)
+               {
+                  MoveToInstruction(Instructions[i], stack, rtmStrategy);
+                  return;
+               }
+            }
+         }
+
+         throw new Crash("End frame not found");
+      }
 
       /// <summary>
       /// 
@@ -99,7 +413,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
             if (RtmObjFunction?.Module != null)
             {
-               lst_ojs.AddRange(RtmObjFunction.Module.ObjectsPersistant.Where(o => o.Decl?.Visibility == ExprDeclVisibility.global_static));
+               lst_ojs.AddRange(RtmObjFunction.Module.ObjectsPersistant);
             }
 
             if (Stack?.Thread?.Process?.ObjsGlobal != null)
@@ -162,11 +476,17 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       IRtmDbgEngInstruction? IRtmDbgEngStackFrameExecutableCall.InstructionCurrent
       {
          get => InstructionCurrent;
-         set => InstructionCurrent = value as RtmDbgEngVirtCpuInstruction;
       }
 
       IRtmDbgEngInstruction[] IRtmDbgEngStackFrameExecutableCall.Instructions => Instructions;
 
       public override string ToString() => $"Function Frame: {FunctionInfo}";
+
+      void IRtmDbgEngStackFrameExecutableCall.MoveToInstruction(
+         IRtmDbgEngInstruction targetInstruction, IRtmDbgEngStackExecutable stack, IRtmObjStrategy? rtmStrategy) =>
+         MoveToInstruction(
+            targetInstruction.ConvertOrCrash<RtmDbgEngVirtCpuInstruction>(),
+            stack.ConvertOrCrash<RtmDbgEngStackVirtCpu>(),
+            rtmStrategy.NnOrCrash());
    }
 }

@@ -587,7 +587,7 @@ namespace Gate.Tools.Text
 
             foreach (var itm in lst_ins.Where(i => i.sec_bef != null))
             {
-               myData.InsertSectors(OwnedSectors.ToList().IndexOf(itm.sec_bef) + 1, itm.rps);
+               myData.InsertSectors(OwnedSectors.ToList().IndexOf(itm.sec_bef.NnOrCrash()) + 1, itm.rps);
             }
 
             //primitive to false only if some replacement is made.

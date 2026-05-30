@@ -116,7 +116,7 @@ namespace Gate.CLanguage.Runtime
                foreach (var dcl_fnc in dcl_fns ?? [])
                {
                   dcl_fnc.Instructions = [
-                     new RtmDbgEngVirtCpuInstructionSimple(null, (stk,str) => myRunAction(dcl_fnc, stk))];
+                     new RtmDbgEngVirtCpuInstructionByAction(null, (stk,str) => myRunAction(dcl_fnc, stk))];
                }
 
                return dcl_fns ?? [];

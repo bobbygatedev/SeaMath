@@ -6,6 +6,7 @@ using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.ExtraTypes;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Arry;
@@ -71,15 +72,15 @@ namespace Gate.SeaMath.Sea
       public static RtmObj? GetRtmObjFromSea(this RtmObj rtmObj) => rtmObj is SeaTypeRtmObj sea ? sea.RtmValue : rtmObj;
 
       /// <summary>
-      /// Retrieves the <see cref="RtmObjFunction"/> associated with the specified <see cref="RtmObj"/>  after applying
+      /// Retrieves the <see cref="RtmDbgEngVirtCpuFunction"/> associated with the specified <see cref="RtmObj"/>  after applying
       /// any necessary cleaning operations.
       /// </summary>
       /// <remarks>This method first cleans the provided <see cref="RtmObj"/> by invoking <see
-      /// cref="GetRtmFromSea(RtmObj)"/>  and then retrieves the corresponding <see cref="RtmObjFunction"/> using <see
+      /// cref="GetRtmFromSea(RtmObj)"/>  and then retrieves the corresponding <see cref="RtmDbgEngVirtCpuFunction"/> using <see
       /// cref="CRuntimeExtender.GetRtmObjFunction(RtmObj)"/>.</remarks>
       /// <param name="rtmObj">The <see cref="RtmObj"/> instance to process and retrieve the function from.</param>
-      /// <returns>The <see cref="RtmObjFunction"/> associated with <paramref name="rtmObj"/>.</returns>
-      public static RtmObjFunction? GetRtmObjFunctionSea(this RtmObj rtmObj) => rtmObj.GetRtmObjFromSea()?.GetRtmObjFunction();
+      /// <returns>The <see cref="RtmDbgEngVirtCpuFunction"/> associated with <paramref name="rtmObj"/>.</returns>
+      public static RtmDbgEngVirtCpuFunction? GetRtmObjFunctionSea(this RtmObj rtmObj) => rtmObj.GetRtmObjFromSea()?.GetRtmObjFunction();
 
 
       /// <summary>

@@ -75,12 +75,12 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// 
       /// </summary>
-      public RtmObjFunction? InitFunction { get; private set; }
+      public RtmDbgEngVirtCpuFunction? InitFunction { get; private set; }
 
       /// <summary>
       /// 
       /// </summary>
-      public RtmObjFunction? CleanupFunction { get; private set; }
+      public RtmDbgEngVirtCpuFunction? CleanupFunction { get; private set; }
 
       /// <summary>
       /// All persistant runtime objects instanciated by module ie all functions global and (functional internal) static variables.  
@@ -155,13 +155,13 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
             myAreObjectsPersistantMade = true;
 
-            if (ExeItem.InitDeclFunction != null) { InitFunction = new RtmObjFunction(ExeItem.InitDeclFunction); }
+            if (ExeItem.InitDeclFunction != null) { InitFunction = new RtmDbgEngVirtCpuFunction(ExeItem.InitDeclFunction); }
 
-            if (CleanupFunction != null) { CleanupFunction = new RtmObjFunction(ExeItem.CleanupDeclFunction.NnOrCrash()); }
+            if (CleanupFunction != null) { CleanupFunction = new RtmDbgEngVirtCpuFunction(ExeItem.CleanupDeclFunction.NnOrCrash()); }
 
-            myObjectsPersistant = ini_dcs.Select(f => new RtmObjFunction(f)).ToArray();
+            myObjectsPersistant = ini_dcs.Select(f => new RtmDbgEngVirtCpuFunction(f)).ToArray();
             myObjectsPersistant = myObjectsPersistant.Concat(
-               ExeItem.Functions.Select(f => new RtmObjFunction(f))).ToArray();
+               ExeItem.Functions.Select(f => new RtmDbgEngVirtCpuFunction(f))).ToArray();
             myObjectsPersistant = myObjectsPersistant.Concat(
                ExeItem.PersistantVariables.Select(v => RtmStrategy.MakeNewObject(v))).ToArray();
             myAddSubItemRange(myObjectsPersistant);

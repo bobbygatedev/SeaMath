@@ -113,5 +113,11 @@ namespace Gate.CLanguage.Compiler
 
       [CompilerMessage(Message = "type of condition shall be a built-in pointer type.")]
       condition_type_invalid = 303,
+      
+      [CompilerMessage(Message = "case label not within a switch.")]
+      case_label_not_within_a_switch = 304,
+
+      [CompilerMessage(Message = "default label not within a switch.")]
+      default_label_not_within_a_switch = 305,
    }
 }

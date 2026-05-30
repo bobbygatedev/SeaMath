@@ -85,6 +85,11 @@ namespace Gate.LangBase.Runtime.Object
       /// <summary>
       /// 
       /// </summary>
+      public bool HasInit { get; set; } = false;
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="runTimeFormat"></param>
       /// <returns></returns>
       public virtual string? GetDisplayValue(RtmFormat? runTimeFormat = null) => (runTimeFormat ?? CurrentFormat)?.Format(this);

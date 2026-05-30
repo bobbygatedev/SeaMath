@@ -3,44 +3,61 @@
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstruction">
     <Position X="10.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAICAAAAAAAAAAAEAAAAEAQAAEAAAAAQAAAAAAABAAM=</HashCode>
+      <HashCode>AAICAAAAAAAgAAAEAAAAAAQAAAAAAAAQAAAAAAABAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstruction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionGoto">
-    <Position X="4.75" Y="4.75" Width="2.75" />
+    <Position X="4.75" Y="4.25" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAGQAAAAAQAAAAAAAAAEAAAAEAAAAI=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAGAAAAAAQAAAAAAAAAEAAAAEAAAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionGoto.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionReturn">
-    <Position X="8.25" Y="4.75" Width="2.75" />
+    <Position X="8.25" Y="4.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAI=</HashCode>
       <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionReturn.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionSimple">
-    <Position X="13.75" Y="4.75" Width="2.75" />
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionStackFramePop">
+    <Position X="11.75" Y="7.75" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAIAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAI=</HashCode>
-      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionSimple.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionStackFramePop.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionFramePop">
-    <Position X="11.75" Y="7.5" Width="3" />
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionStackFramePush">
+    <Position X="15.5" Y="7.75" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQACAAAAAQAAAAAAAAAAAA=</HashCode>
-      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionFramePop.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionStackFramePush.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionFramePush">
-    <Position X="15.5" Y="7.5" Width="3" />
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionNoFlowControl">
+    <Position X="13.5" Y="4.25" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionNoFlowControl.Nop" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionNoFlowControl.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQBCAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionFramePush.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionNoFlowControl.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.LangBase.Runtime.DbgEngVirtCpu.RtmDbgEngVirtCpuInstructionByAction">
+    <Position X="18.5" Y="1.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Runtime\DbgEngVirtCpu\RtmDbgEngVirtCpuInstructionByAction.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

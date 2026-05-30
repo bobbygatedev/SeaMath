@@ -1,6 +1,5 @@
 ﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.DeclSpecifiers;
-using Gate.CLanguage.Initialisation;
 using Gate.Tools;
 using Gate.Tools.Message;
 
@@ -9,11 +8,11 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// Space of source code containing statements (ie Declarations,Expression, Other statements (if,while,goto,..)
    /// </summary>
-   public class CStatementCompound : CStatement , ICItemWithScopeSpace
+   public class CStatementCompound : CStatement , ICItemWithScopeSpace 
    {
       public CStatementCompound() => Scope = new CScope(this);
 
-      public CStatement[] Statements => SubItems.OfType<CStatement>().ToArray();
+      public CItem[] Content => SubItems.Where(i=>i is CStatement || i is CDeclSpecifiers).Cast<CItem>().ToArray();
 
       public override string Rebuilt => myGetBraceRebuilt();
 
@@ -28,9 +27,6 @@ namespace Gate.CLanguage.Statement
             else { return "{" + sub_its.First().Descriptor + "(..)}"; }
          }
       }
-
-      public CItem[] ExecutableLines => AllDescendant.Where(
-         d => d is CDeclVar || (d is CStatement && !(d.ParentItem is CInitialisation))).OfType<CItem>().ToArray();
 
       /// <summary>
       /// 

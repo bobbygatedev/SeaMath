@@ -447,7 +447,6 @@ namespace Gate.CLanguage.Runtime
          return rtm_obj;
       }
 
-
       RtmObj IRtmObjStrategy.MakeConstant(ValueType constValue, IDeclType? declType) =>
          MakeConstant(constValue, declType as CTypeAlias ?? throw new Crash($"Not a {typeof(CTypeAlias).Name}"));
 
@@ -509,5 +508,35 @@ namespace Gate.CLanguage.Runtime
       protected override void myFreeManaged() => Allocator.Dispose();
 
       protected override void myFreeUnmanaged() { }
+
+      public RtmObj[] GetParams(IDecl[] declParams, RtmObj[] rtmArgs)
+      {
+         var lst = new List<RtmObj>();
+
+         //copies of arguments to function input parameters eg printf(ar,...)
+         //with ar as argument and ... as optional parameters
+         for (int i = 0; i < declParams.Length; i++)
+         {
+            var dcl_par = declParams[i].ConvertOrCrash<CDecl>();
+            var par_val = (rtmArgs.ElementAt(i)).ConvertOrCrash<CRtmObj>();
+
+            var cpy_par_val = dcl_par.TypeAlias.IsReference ?
+               CopyFunctionParamByRef(par_val, dcl_par) :
+               CopyFunctionParamByValue(par_val, dcl_par);
+
+            lst.Add(cpy_par_val);
+         }
+
+         //optional parameters ( eg printf(const char*,...); ) are always copied by value
+         for (int i = declParams.Length; i < rtmArgs.Length; i++)
+         {
+            var par_val = rtmArgs.ElementAtOrCrash(i);
+            var cpy_par_val = CopyFunctionOptionalParamByValue(par_val.ConvertOrCrash<CRtmObj>());
+
+            lst.Add(cpy_par_val);
+         }
+
+         return lst.ToArray();
+      }
    }
 }

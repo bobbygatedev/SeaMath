@@ -1,4 +1,5 @@
-﻿using Gate.LangBase.Runtime.DbgEngVirtCpu;
+﻿using Gate.LangBase.Expressions;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 
 namespace Gate.LangBase.Runtime.DbgEng
@@ -28,9 +29,15 @@ namespace Gate.LangBase.Runtime.DbgEng
       /// <summary>
       /// 
       /// </summary>
+      /// <returns></returns>
+      RtmObj? Peek();
+
+      /// <summary>
+      /// 
+      /// </summary>
       /// <param name="rtmFunction"></param>
       /// <returns></returns>
-      IRtmDbgEngStackFrameExecutableCall MakeStackCall(RtmObjFunction rtmFunction);
+      IRtmDbgEngStackFrameExecutableCall MakeStackCall(RtmDbgEngVirtCpuFunction rtmFunction, RtmObj?[] @params);
 
       /// <summary>
       ///  

@@ -128,7 +128,7 @@ namespace Gate.SeaMath
       /// <returns><see langword="true"/> if the function meets the requirements for a scalar-to-scalar plot function; otherwise,
       /// <see langword="false"/>.</returns>
       /// <exception cref="Crash">Thrown if the function declaration is invalid or cannot be processed.</exception>
-      public bool CheckPlotFunction(RtmObjFunction function)
+      public bool CheckPlotFunction(RtmDbgEngVirtCpuFunction function)
       {
          // Check scalar-to-scalar function requirements
          var fnc_dcl = function.DeclFunction as CDeclFunction ?? throw new Crash();
@@ -180,7 +180,7 @@ namespace Gate.SeaMath
       /// <returns>An array of Y-axis values computed by applying the <paramref name="rtmObjFunction"/> to each value in the
       /// <paramref name="xAxis"/> array.</returns>
       /// <exception cref="Crash"></exception>
-      public double[] GetYDouble(RtmObjFunction rtmObjFunction, double[] xAxis) =>
+      public double[] GetYDouble(RtmDbgEngVirtCpuFunction rtmObjFunction, double[] xAxis) =>
          myGetY(rtmObjFunction, xAxis).Select(o => o.GetValue<double>() ?? throw new Crash()).ToArray();
 
       /// <summary>
@@ -192,7 +192,7 @@ namespace Gate.SeaMath
       /// <param name="xAxis">An array of x-axis values to be used as input for the computation. Cannot be null.</param>
       /// <returns>An array of <see cref="ComplexDouble"/> values corresponding to the computed results for the given x-axis
       /// values.</returns>
-      public ComplexDouble[] GetYComplexDouble(RtmObjFunction rtmObjFunction, double[] xAxis) =>
+      public ComplexDouble[] GetYComplexDouble(RtmDbgEngVirtCpuFunction rtmObjFunction, double[] xAxis) =>
          myGetY(rtmObjFunction, xAxis).Select(o => o.GetValue<ComplexDouble>() ?? throw new Crash()).ToArray();
 
       public (double[] xAxis, string? title) GetXAxisAndTitle(RtmObj[] @params)
@@ -291,7 +291,7 @@ namespace Gate.SeaMath
          }
       }
 
-      private RtmObj[] myGetY(RtmObjFunction rtmObjFunction, double[] xAxis)
+      private RtmObj[] myGetY(RtmDbgEngVirtCpuFunction rtmObjFunction, double[] xAxis)
       {
          var thr = RtmDbgEngVirtCpuThread.GetRunningThread() ?? throw new Crash();
          var stk = thr?.Stack ?? throw new Crash();
