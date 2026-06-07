@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Expressions;
+using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
@@ -10,7 +11,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// Represent a function call inside <see cref="RtmDbgEngStackVirtCpu"/>, 
    /// which consist of a stack of <see cref="RtmDbgEngVirtCpuStackItemFrameFunction"/>
    /// </summary>
-   public class RtmDbgEngVirtCpuStackItemFrameFunction : RtmDbgEngVirtCpuStackItemStackFrame, IRtmDbgEngStackFrameExecutableCall
+   public class RtmDbgEngVirtCpuStackItemFrameFunction : RtmDbgEngVirtCpuStackItemStackFrame, IRtmDbgEngStackCall
    {
       public RtmDbgEngVirtCpuStackItemFrameFunction(
          RtmDbgEngVirtCpuFunction rtmObjFunction, RtmDbgEngStackVirtCpu stack, RtmObj?[] @params)
@@ -38,9 +39,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
                Push = push;
                Pop = pop;
                InstructionsAll = instructionsAll;
-               InstrucionsOfFrame =
-                  Enumerable.Range(Push.Idx.NnOrCrash(), Pop.Idx.NnOrCrash() - Push.Idx.NnOrCrash() + 1).
-                  Select(i => InstructionsAll[i]).ToArray();
             }
 
             public Frame GetInstructionFrame(RtmDbgEngVirtCpuInstruction instruction) =>
@@ -49,20 +47,44 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             public TypeType Type =>
                Push is RtmDbgEngVirtCpuInstructionPushFunctionFrame ? TypeType.function : TypeType.stack_frame;
 
-
             public Frame? ParentFrame => ParentItem as Frame;
 
             public Frame[] AnchestorFrames => ParentItemChain.OfType<Frame>().ToArray();
 
             public RtmDbgEngVirtCpuInstructionPush Push { get; }
+
             public RtmDbgEngVirtCpuInstructionFramePop Pop { get; }
+
             public RtmDbgEngVirtCpuInstruction[] InstructionsAll { get; }
+
+            public RtmDbgEngVirtCpuInstruction[] InstructionsInterval => InstructionsAll.Skip(Push.Idx ?? 0).Take(Width).ToArray();
+
+            public int Width => (Pop.Idx ?? 0) - (Push.Idx ?? 0) + 1;
 
             /// <summary>
             /// 
             /// </summary>
-            public RtmDbgEngVirtCpuInstruction[] InstrucionsOfFrame { get; private set; }
+            public RtmDbgEngVirtCpuInstruction[] InstrucionsOfFrame
+            {
+               get
+               {
+                  var iss = InstructionsInterval;
 
+                  foreach (var frm in SubFrames)
+                  {
+                     iss = iss.Except(frm.InstructionsInterval).ToArray();
+                  }
+
+                  return iss;
+               }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="targetInstruction"></param>
+            /// <param name="stack"></param>
+            /// <exception cref="Crash"></exception>
             public void MoveInsideFrame(RtmDbgEngVirtCpuInstruction targetInstruction, RtmDbgEngStackVirtCpu stack)
             {
                if (InstrucionsOfFrame.Contains(targetInstruction))
@@ -75,9 +97,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
                }
             }
 
-            public RtmDbgEngVirtCpuInstructionPush? FramePush =>
-               InstrucionsOfFrame.FirstOrDefault() as RtmDbgEngVirtCpuInstructionPush;
-
             public Frame MoveToFrame(Frame targetFrame, RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
             {
                var lst_pic = targetFrame.ParentItemChain.OfType<Frame>().Reverse().ToList();
@@ -88,7 +107,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
                   for (int i = idx; i < lst_pic.Count; i++)
                   {
-                     lst_pic[i].FramePush?.NnOrCrash().Run(stack, rtmStrategy);
+                     lst_pic[i].Push.Run(stack, rtmStrategy);
                   }
 
                   return targetFrame;
@@ -99,18 +118,22 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
                }
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="frames"></param>
             public void AddFrames(Frame[] frames)
             {
                if (frames.Length != 0)
                {
-                  myAddSubItemRange(frames);
-
-                  var min = frames.Min(f => f.InstrucionsOfFrame.First().Idx).NnOrCrash();
-                  var max = frames.Max(f => f.InstrucionsOfFrame.Last().Idx).NnOrCrash();
-
-                  var it = new Interval(min, max);
-
-                  InstrucionsOfFrame = InstrucionsOfFrame.Where(i => !it.Contains(i.Idx.NnOrCrash())).ToArray();
+                  if (frames.All(f => f.Push.Idx >= Push.Idx + 1 && f.Pop.Idx <= Pop.Idx - 1))
+                  {
+                     myAddSubItemRange(frames);
+                  }
+                  else
+                  {
+                     throw new Crash();
+                  }
                }
             }
 
@@ -473,20 +496,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       public RtmDbgEngVirtCpuInstruction[] Instructions => RtmObjFunction?.Decl?.Instructions ?? [];
 
-      IRtmDbgEngInstruction? IRtmDbgEngStackFrameExecutableCall.InstructionCurrent
-      {
-         get => InstructionCurrent;
-      }
-
-      IRtmDbgEngInstruction[] IRtmDbgEngStackFrameExecutableCall.Instructions => Instructions;
-
       public override string ToString() => $"Function Frame: {FunctionInfo}";
-
-      void IRtmDbgEngStackFrameExecutableCall.MoveToInstruction(
-         IRtmDbgEngInstruction targetInstruction, IRtmDbgEngStackExecutable stack, IRtmObjStrategy? rtmStrategy) =>
-         MoveToInstruction(
-            targetInstruction.ConvertOrCrash<RtmDbgEngVirtCpuInstruction>(),
-            stack.ConvertOrCrash<RtmDbgEngStackVirtCpu>(),
-            rtmStrategy.NnOrCrash());
    }
 }

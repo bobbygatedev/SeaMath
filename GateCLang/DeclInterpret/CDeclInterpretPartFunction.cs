@@ -5,7 +5,6 @@ using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Statement;
 using Gate.CLanguage.Types;
-using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
@@ -200,7 +199,7 @@ namespace Gate.CLanguage.DeclInterpreter
          if (res == TxtElabResult.success && dcl is CDeclFunction fnc && fnc.Body != null)
          {
             /// add instructions to <see cref="CDeclFunction"/>
-            fnc.Instructions = inData.FunctionInstructionTranslator.GetInstructions(fnc);
+            fnc.Instructions = inData.FunctionInstructionTranslator.TranslateFunction(fnc);
          }
 
          return res;

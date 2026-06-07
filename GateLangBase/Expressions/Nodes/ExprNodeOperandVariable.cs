@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -153,7 +154,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <param name="stack"></param>
       /// <returns></returns>
       /// <exception cref="Gate.LangBase.Expressions.ExprSolverException"></exception>
-      public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
+      public override RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy)
       {
          var vis_ojs = rtmStrategy?.GetFunctionVisibleObject(stack) ?? [];
      

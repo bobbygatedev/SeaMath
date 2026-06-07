@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Text;
 
@@ -83,7 +84,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// </summary>
       /// <param name="thread"></param>
       /// <returns></returns>
-      public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) => Operator?.Eval(this, stack, rtmStrategy);
+      public override RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy) => Operator?.Eval(this, stack, rtmStrategy);
 
       public override string ToString() => Operator != null ?
          $"{Operator.Symbol}({string.Join(",", OperandNodes.Select(n => n.Content))})" :

@@ -10,13 +10,17 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// <summary>
    /// 
    /// </summary>
-   public abstract class RtmDbgEngVirtCpuInstruction : HierarchicalItem, IRtmDbgEngInstruction
+   public abstract class RtmDbgEngVirtCpuInstruction : HierarchicalItem, IRtmDbgEngPoint
    {
       /// <summary>
       /// 
       /// </summary>
       /// <param name="token"></param>
-      protected RtmDbgEngVirtCpuInstruction(TxtToken? token) => Token = token;
+      protected RtmDbgEngVirtCpuInstruction(TxtToken? token, object? tag = null)
+      {
+         Token = token;
+         Tag = tag;
+      }
 
       /// <summary>
       /// 
@@ -39,7 +43,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// 
       /// </summary>
-      public TxtToken? Token { get; }
+      public TxtToken? Token { get; set; }
 
       public int? Idx
       {
@@ -52,15 +56,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       }
 
       public object? Tag { get; set; }
-
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="stack"></param>
-      /// <param name="rtmStrategy"></param>
-      /// <exception cref="Crash"></exception>
-      void IRtmDbgEngInstruction.Run(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) =>
-         Run(stack as RtmDbgEngStackVirtCpu ?? throw new Crash(), rtmStrategy);
 
       /// <summary>
       /// 

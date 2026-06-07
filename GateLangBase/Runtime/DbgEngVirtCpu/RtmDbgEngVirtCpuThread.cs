@@ -393,11 +393,11 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          }
       }
 
-      bool IRtmDbgEngThread.TryHalt(IRtmDbgEngInstruction? instruction) => TryHalt(instruction as RtmDbgEngVirtCpuInstruction);
+      bool IRtmDbgEngThread.TryHalt(IRtmDbgEngPoint? instruction) => TryHalt(instruction as RtmDbgEngVirtCpuInstruction);
 
       IRtmDbgEngProcess? IRtmDbgEngThread.Process => Process;
 
-      IRtmDbgEngStackRO IRtmDbgEngThread.Stack => Stack;
+      IRtmDbgEngStack IRtmDbgEngThread.Stack => Stack;
 
       public RtmErrno ErrorNo => (RtmErrno)ErrorNoCode;
 

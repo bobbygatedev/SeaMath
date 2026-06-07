@@ -87,6 +87,10 @@
          public override TxtElabResult Perform(INPUT input, IN_DATA inData, ref OUTPUT output) => TxtElabResult.success;
       }
 
+      /// <summary>
+      /// Return success if the inner <see cref="TextElab"/> returns success or continue_searching, 
+      /// otherwise returns failure or failure_unrecoverable.
+      /// </summary>
       public class May : TxtElab<INPUT, IN_DATA, OUTPUT>
       {
          public May(TxtElab<INPUT, IN_DATA, OUTPUT> textElab) => TextElab = textElab;

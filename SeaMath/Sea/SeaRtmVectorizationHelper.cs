@@ -4,14 +4,12 @@ using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
-using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Arry;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
-using System.Management;
 
 namespace Gate.SeaMath.Sea
 {
@@ -190,7 +188,7 @@ namespace Gate.SeaMath.Sea
       }
 
       public static bool IsVectorializationPossible(
-         ExprNodeOperator operatorNode, out RtmObj[]? rtmArgs, SeaRtmStrategy seaStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, out RtmObj[]? rtmArgs, SeaRtmStrategy seaStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          var ope_pnc = operatorNode.Operator as OperatorPunctuator;
 

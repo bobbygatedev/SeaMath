@@ -4,6 +4,7 @@ using Gate.CLanguage.Runtime;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -92,7 +93,7 @@ namespace Gate.CLanguage.Expressions.COperators
       }
 
       public override RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          var fin_typ_ali = ((CExprNodeTypeName)operatorNode.OperandNodes[0]).TypeAlias;
          var x0 = rtmArgs?.ElementAtOrDefault(0) ?? throw new Gate.LangBase.Runtime.RtmException($"Not an input value for {operatorNode}"); ;

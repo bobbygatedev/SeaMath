@@ -21,7 +21,7 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
 
       public IRtmDbgEngProcess? Process { get; }
 
-      public IRtmDbgEngStackRO Stack => throw new System.NotImplementedException();
+      public IRtmDbgEngStack Stack => throw new System.NotImplementedException();
 
       public TxtToken CurrentExeToken => throw new System.NotImplementedException();
 
@@ -51,7 +51,7 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
          throw new System.NotImplementedException();
       }
 
-      public bool TryHalt(IRtmDbgEngInstruction? ins)
+      public bool TryHalt(IRtmDbgEngPoint? instruction)
       {
          throw new System.NotImplementedException();
       }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="Gate.CLanguage.Statement.CStatementConditional">
-    <Position X="5.25" Y="0.5" Width="2" />
+    <Position X="5.5" Y="6.25" Width="2" />
     <NestedTypes>
       <Class Name="Gate.CLanguage.Statement.CStatementConditional.TokenInterpretBase" Collapsed="true">
         <TypeIdentifier>
@@ -15,12 +15,12 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAIAAQAAwAACAAAAAAABAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAIAAQAAgAACAAAAAAABQAAAAEAAIAAAAACAAAAAAAA=</HashCode>
       <FileName>Statement\CStatementConditional.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementLoopDoWhile">
-    <Position X="0.5" Y="6.5" Width="2" />
+    <Position X="0.5" Y="12.75" Width="2" />
     <NestedTypes>
       <Class Name="Gate.CLanguage.Statement.CStatementLoopDoWhile.TokenInterpret" Collapsed="true">
         <TypeIdentifier>
@@ -34,7 +34,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementLoopFor">
-    <Position X="3.25" Y="6.5" Width="2" />
+    <Position X="3.25" Y="12.75" Width="2" />
     <NestedTypes>
       <Class Name="Gate.CLanguage.Statement.CStatementLoopFor.TokenInterpret" Collapsed="true">
         <TypeIdentifier>
@@ -49,7 +49,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementIfElse">
-    <Position X="8.5" Y="4.5" Width="1.5" />
+    <Position X="8.75" Y="12.75" Width="1.5" />
     <NestedTypes>
       <Class Name="Gate.CLanguage.Statement.CStatementIfElse.TokenInterpret" Collapsed="true">
         <TypeIdentifier>
@@ -63,8 +63,16 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementSwitch">
-    <Position X="10.5" Y="4.5" Width="1.5" />
+    <Position X="11" Y="12.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
     <NestedTypes>
+      <Class Name="Gate.CLanguage.Statement.CStatementSwitch.DefaultLabel" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Statement\CStatementSwitch.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
       <Class Name="Gate.CLanguage.Statement.CStatementSwitch.CaseLabel" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Statement\CStatementSwitch.cs</NewMemberFileName>
@@ -77,12 +85,12 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAEAAAACAAAAAAAAEAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAEEAAAAAAAAAAIAAAAAAAAAAgEAAAAAAAAAA=</HashCode>
       <FileName>Statement\CStatementSwitch.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementLoopWhile">
-    <Position X="6" Y="6.5" Width="2" />
+    <Position X="6" Y="12.75" Width="2" />
     <NestedTypes>
       <Class Name="Gate.CLanguage.Statement.CStatementLoopWhile.TokenInterpret" Collapsed="true">
         <TypeIdentifier>
@@ -96,14 +104,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatementLoop">
-    <Position X="3.25" Y="4.5" Width="1.5" />
+    <Position X="3.5" Y="10.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Statement\CStatementLoop.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Gate.CLanguage.Statement.CStatement">
-    <Position X="13.25" Y="0.5" Width="1.5" />
+    <Position X="5.75" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
@@ -132,6 +140,13 @@
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Statement\CStatement.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gate.CLanguage.Statement.CStatementSelection">
+    <Position X="9.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Statement\CStatementSelection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

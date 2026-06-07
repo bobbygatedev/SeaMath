@@ -165,7 +165,7 @@ namespace Gate.Tools
       public DescriptorType Compare(string path1, string path2) =>
          Compare(File.ReadAllBytes(LastPath1 = path1), File.ReadAllBytes(LastPath2 = path2));
 
-      private DescriptorType Compare(byte[] data1, byte[] data2)
+      public DescriptorType Compare(byte[] data1, byte[] data2)
       {
          Data1 = data1;
          Data2 = data2;

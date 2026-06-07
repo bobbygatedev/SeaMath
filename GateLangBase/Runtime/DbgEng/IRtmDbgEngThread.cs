@@ -48,7 +48,7 @@ namespace Gate.LangBase.Runtime.DbgEng
       /// <summary>
       /// 
       /// </summary>
-      IRtmDbgEngStackRO Stack { get; }
+      IRtmDbgEngStack Stack { get; }
 
       /// <summary>
       /// 
@@ -78,8 +78,8 @@ namespace Gate.LangBase.Runtime.DbgEng
       /// <summary>
       /// 
       /// </summary>
-      /// <param name="ins"></param>
+      /// <param name="instruction"></param>
       /// <returns></returns>
-      bool TryHalt(IRtmDbgEngInstruction? ins);
+      bool TryHalt(IRtmDbgEngPoint? instruction);
    }
 }

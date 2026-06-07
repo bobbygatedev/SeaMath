@@ -12,11 +12,14 @@ using Gate.Tools.Text.Elab;
 
 namespace Gate.CLanguage.Statement
 {
-   public class CStatementSwitch : CStatementConditional
+   /// <summary>
+   /// switch-statement
+   /// </summary>
+   public class CStatementSwitch : CStatementSelection
    {
       public CStatementSwitch() { }
 
-      public class DefaultLabel : CStatement
+      public class DefaultLabel : CStatementLabeled
       {
          /// <summary>
          /// 
@@ -29,7 +32,8 @@ namespace Gate.CLanguage.Statement
 
             public TokenInterpret() { }
 
-            public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
+            public override TxtElabResult Perform(
+               TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
             {
                var sta_idx = input.CurrIdx;
 
@@ -44,21 +48,11 @@ namespace Gate.CLanguage.Statement
                else
                {
                   var def = new DefaultLabel();
-                  var c_sco = output.TopItem as CStatementCompound;
+                  var cmp = output.TopItem as CStatementCompound;
                   var lab_tok = TxtTokenConst.FromTokenInterval(input[sta_idx], input[input.CurrIdx - 1]);
 
-                  if (myIsWithinASwitch(c_sco))
-                  {
-                     c_sco.NnOrCrash().AddStatements(def);
-
-                     return TxtElabResult.success;
-                  }
-                  else
-                  {
-                     inData.Messages.Add(CCompilerMsgId.default_label_not_within_a_switch.GetError(lab_tok));
-
-                     return TxtElabResult.failure;
-                  }
+                  return myAddLabeledStatement(
+                     inData, output, lab_tok, def, CCompilerMsgId.default_label_not_within_a_switch);
                }
             }
          }
@@ -86,7 +80,7 @@ namespace Gate.CLanguage.Statement
          public override string? Rebuilt => "default;";
       }
 
-      public class CaseLabel : CStatement
+      public class CaseLabel : CStatementLabeled
       {
          private CToken? myConstantToken;
 
@@ -127,20 +121,8 @@ namespace Gate.CLanguage.Statement
                      lab.TxtToken = lab_tok;
                      lab.ConstantToken = c_tok;
 
-                     var c_sco = output.TopItem as CStatementCompound;
-
-                     if (myIsWithinASwitch(c_sco))
-                     {
-                        c_sco.NnOrCrash().AddStatements(lab);
-
-                        return TxtElabResult.success;
-                     }
-                     else
-                     {
-                        inData.Messages.Add(CCompilerMsgId.case_label_not_within_a_switch.GetError(lab_tok));
-
-                        return TxtElabResult.failure;
-                     }
+                     return myAddLabeledStatement(
+                        inData, output, lab_tok, lab, CCompilerMsgId.case_label_not_within_a_switch);
                   }
                   else
                   {
@@ -258,13 +240,44 @@ namespace Gate.CLanguage.Statement
 
       public override string Descriptor => $"switch({StayConditionExpr?.Descriptor}){{..}}";
 
-      private static bool myIsWithinASwitch(CStatementCompound? compound)
+      private static bool myIsWithinASwitch(CStatement? compound)
       {
          var fnc = compound?.ParentItemChain.OfType<CDeclFunction>().FirstOrDefault();
          var swi = compound?.ParentItemChain.OfType<CStatementSwitch>().FirstOrDefault();
 
          //same languages could allow switch on global scope
          return swi != null && (fnc == null || swi.ParentItemChain.Contains(fnc));
+      }
+
+      private static TxtElabResult myAddLabeledStatement(
+         CCompilerInData inData,
+         CTokenInterpreterOutput output,
+         TxtTokenConst labelToken,
+         CStatementLabeled labelStatement,
+         CCompilerMsgId msgId)
+      {
+         //scope compound
+         var sco_cmp = output.TopItem as CStatementCompound;
+         var sco_sta = output.TopItem as CStatementConditional;
+
+         if (sco_cmp != null && myIsWithinASwitch(sco_cmp))
+         {
+            sco_cmp.NnOrCrash().AddStatements(labelStatement);
+
+            return TxtElabResult.success;
+         }
+         else if (sco_sta != null && myIsWithinASwitch(sco_sta))
+         {
+            sco_sta.AddLabeledStatement(labelStatement);
+
+            return TxtElabResult.success;
+         }
+         else
+         {
+            inData.Messages.Add(msgId.GetError(labelToken));
+
+            return TxtElabResult.failure;
+         }
       }
    }
 }

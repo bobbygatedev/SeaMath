@@ -26,7 +26,7 @@ namespace Gate.SeaMath.Sea
             var src = output.Peek() as SeaSource ?? throw new Crash();
             var src_exs = src.SubItems.OfType<CExprStatement>().ToArray();
             var src_exc_ins = src_exs.SelectMany(g =>
-               inData.FunctionInstructionTranslator.GetInstructions(g)).ToArray();
+               inData.FunctionInstructionTranslator.Translate(g)).ToArray();
 
             var ini_fnc = src.InitDeclFunction;
 

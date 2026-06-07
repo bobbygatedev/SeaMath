@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 
 namespace Gate.LangBase.Runtime.Object
 {
@@ -13,7 +14,7 @@ namespace Gate.LangBase.Runtime.Object
    /// on the specific implementation.</remarks>
    public interface IRtmObjFunction
    {
-      RtmObj? Exec(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params);
+      RtmObj? Exec(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params);
 
       IDeclFunction? DeclFunction { get; }
    }

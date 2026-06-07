@@ -65,7 +65,10 @@ namespace Gate.CLanguage.Statement
          public InnerInterpretForCompound(CBlockInterpret parent)
          {
             myParent = parent;
-            myLazyOr = new Lazy<Or>(() => new Or(myParent.myMakeSubInterpreters()));
+            myLazyOr = new Lazy<Or>(() =>
+               new Or(
+                  myParent.myMakeSubInterpretersLabeledStatement().Concat(myParent.myMakeSubInterpreters()).ToArray())
+               );
          }
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
@@ -76,9 +79,9 @@ namespace Gate.CLanguage.Statement
             var cmp_ini_tok_idx = input.CurrIdx - 1;//token where compound body starts
 
             if (itm is CDeclFunction fnc) { cmp = fnc.Body?.NnOrCrash(); }
-            else if (itm is CStatementConditional cyc)
+            else if (itm is CStatementConditional cnd_sta)
             {
-               cyc.SetBody(cmp = new CStatementCompound());
+               cnd_sta.SetBody(cmp = new CStatementCompound());
             }
             else if (itm is CStatementCompound nst_cmp)//nested compound
             {
@@ -101,29 +104,49 @@ namespace Gate.CLanguage.Statement
                {
                   cmp.TxtToken = TxtTokenConst.FromTokenInterval(input[cmp_ini_tok_idx + 1], input[cmp_end_tok_idx - 1]);
                }
+
+               if (cmp.ParentFunction != null)
+               {
+                  //associate got with labels
+                  var lbs = cmp.Labels;
+
+                  foreach (var got in cmp.Gotos)
+                  {
+                     if (got.TargetLabel == null)
+                     {
+                        inData.Messages.Add(CCompilerMsgId.goto_without_label.GetError(got.TxtToken));
+                        res = TxtElabResult.failure;
+                     }
+                  }
+               }
             }
 
             return res;
          }
       }
 
+      /// <summary>
+      /// Inside a if,switch,for,while,do-while statement the body can be either a block or a single statement. 
+      /// eg if(a) return 0;
+      /// </summary>
       private class InnerInterpretForSingleStatement : CTokenInterpreter
       {
          private readonly CBlockInterpret myParent;
-         private readonly Lazy<Or> myLazyOr;
+         private readonly Lazy<And> myLazyAnd;
 
          public InnerInterpretForSingleStatement(CBlockInterpret parent)
          {
             myParent = parent;
             //all interpreters but declspecifer
-            myLazyOr = new Lazy<Or>(() =>
+            myLazyAnd = new Lazy<And>(() =>
+               new IterateWhileSuccess(new Or(myParent.myMakeSubInterpretersLabeledStatement())) &
                new Or(
                   myParent.myMakeSubInterpreters().
                   Where(i => !(i is CDeclInterpret) && !(i is CBlockInterpret)).ToArray()));
          }
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output) =>
-            myLazyOr.Value.Perform(input, inData, ref output);
+            myLazyAnd.Value.Perform(input, inData, ref output);
       }
 
       public CExprStatementInterpreter ExprInterpret { get; }
@@ -132,9 +155,16 @@ namespace Gate.CLanguage.Statement
       public ContextType Context { get; }
       public CDeclInterpretFactory DeclInterpretFactory { get; }
 
-      protected virtual TxtElab<TxtTokenList, CCompilerInData, CTokenInterpreterOutput>[] myMakeSubInterpreters()
+      protected virtual CTokenInterpreter[] myMakeSubInterpretersLabeledStatement() => [
+         new CStatementGotoLabel.TokenInterpreter(),
+         new CStatementSwitch.CaseLabel.TokenInterpret(),
+         new CStatementSwitch.DefaultLabel.TokenInterpret(),
+      ];
+
+      protected virtual CTokenInterpreter[] myMakeSubInterpreters()
       {
-         var dcl_inp = new CDeclInterpret(CDeclInterpretContext.local_var, DeclInterpretFactory, ExprInterpret, AttributesInterpret);
+         var dcl_inp = new CDeclInterpret(
+            CDeclInterpretContext.local_var, DeclInterpretFactory, ExprInterpret, AttributesInterpret);
 
          return [
             new CExprEmptyInterpreter(),
@@ -146,10 +176,7 @@ namespace Gate.CLanguage.Statement
             new CStatementLoopFor.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatementLoopWhile.TokenInterpret(DeclInterpretFactory,AttributesInterpret,ExprInterpret),
             new CStatementLoopDoWhile.TokenInterpret(DeclInterpretFactory, AttributesInterpret, ExprInterpret),
-            new CStatementSwitch.CaseLabel.TokenInterpret(),
-            new CStatementSwitch.DefaultLabel.TokenInterpret(),
             new CStatementGoto.TokenInterpreter(),
-            new CStatementGotoLabel.TokenInterpreter(),
             new CStatement.Return.TokenInterpret(ExprInterpret),
             dcl_inp ,
             new CExprStatementInterpreter.WrapCondition (ExprInterpret,";") ,

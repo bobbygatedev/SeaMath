@@ -1681,7 +1681,7 @@ void main()
       {
          //tododo aggiungi test per nested for .. switch
          //var tst = new StatementExecutionTest();
-         var tst = new FunctionParamaterTest();
+         var tst = new MatrixMultiplicationTest();
 
          tst.IsVerbose = true;
          tst.Go();

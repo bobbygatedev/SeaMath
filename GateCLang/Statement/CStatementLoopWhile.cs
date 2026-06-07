@@ -67,8 +67,7 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-      public override string? Rebuilt =>
-         $"while({StayConditionExpr?.Rebuilt})\n{Body?.Rebuilt}";
+      public override string? Rebuilt => $"while({StayConditionExpr?.Rebuilt})\n{Body?.Rebuilt}";
 
       public override string Descriptor => $"while({StayConditionExpr}){myGetBodyStr(base.Body)}";
    }

@@ -7,6 +7,7 @@ using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
+using GateCLang.Statement;
 
 namespace Gate.CLanguage.Statement
 {
@@ -184,6 +185,10 @@ namespace Gate.CLanguage.Statement
          }
       }
 
+      public CStatementLabeled[] StatementLabeleds => SubItems.OfType<CStatementLabeled>().ToArray();
+
+      public CStatement[] StatementAll => SubItems.OfType<CStatement>().ToArray();
+
       /// <summary>
       ///  
       /// </summary>
@@ -201,7 +206,11 @@ namespace Gate.CLanguage.Statement
          }
       }
 
+      public CStatementGotoLabel? GotoLabel => SubItems.OfType<CStatementGotoLabel>().FirstOrDefault();
+
       public virtual void SetBody(CStatement? body) => Body = body;
+
+      public void AddLabeledStatement(CStatementLabeled statementLabeled) => myAddSubItem(statementLabeled);
 
       protected static string? myGetBodyStr(CStatement? body)
       {

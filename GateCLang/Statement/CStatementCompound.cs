@@ -2,6 +2,7 @@
 using Gate.CLanguage.DeclSpecifiers;
 using Gate.Tools;
 using Gate.Tools.Message;
+using GateCLang.Statement;
 
 namespace Gate.CLanguage.Statement
 {
@@ -57,20 +58,9 @@ namespace Gate.CLanguage.Statement
 
       public CDeclFunction? ContainingFunction => ParentItemChain.OfType<CDeclFunction>().FirstOrDefault();
 
-      public bool AddDeclSpec(MsgCollection messages, CDeclSpecifiers declSpecifier, CScopeHelperBase? scopeHelper = null)
-      {
-         scopeHelper = scopeHelper ?? CScopeHelperBase.GetDefault(Language) ?? throw new Crash();
+      public CStatementGotoLabel[] Labels => AllDescendant.OfType<CStatementGotoLabel>().ToArray();
 
-         if (declSpecifier.Decls.Where(d => !d.IsAnonimous).All(dcl => scopeHelper.CheckDecl(messages, dcl, this)))
-         {
-            myAddSubItem(declSpecifier);
-
-            return true;
-         }
-         else { return false; }
-      }
-
-      public void RemoveFromScopeSpace(CItem item) => myRemoveSubItem(item);
+      public CStatementGoto[] Gotos => AllDescendant.OfType<CStatementGoto>().ToArray();
 
       /// <summary>
       /// 
@@ -92,6 +82,21 @@ namespace Gate.CLanguage.Statement
             }
          }
       }
+
+      public bool AddDeclSpec(MsgCollection messages, CDeclSpecifiers declSpecifier, CScopeHelperBase? scopeHelper = null)
+      {
+         scopeHelper = scopeHelper ?? CScopeHelperBase.GetDefault(Language) ?? throw new Crash();
+
+         if (declSpecifier.Decls.Where(d => !d.IsAnonimous).All(dcl => scopeHelper.CheckDecl(messages, dcl, this)))
+         {
+            myAddSubItem(declSpecifier);
+
+            return true;
+         }
+         else { return false; }
+      }
+
+      public void RemoveFromScopeSpace(CItem item) => myRemoveSubItem(item);
 
       /// <summary>
       /// 

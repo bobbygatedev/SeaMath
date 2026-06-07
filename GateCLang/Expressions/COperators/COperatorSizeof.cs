@@ -4,6 +4,7 @@ using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Text.Elab;
 
@@ -61,7 +62,7 @@ namespace Gate.CLanguage.Expressions.COperators
       }
 
       public override RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          // this is null if expression format is like 'sizeof(float)'
          // otherwise contains subexpr (eg 'sizeof(a=3*2)')

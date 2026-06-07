@@ -41,8 +41,10 @@ namespace Gate.CLanguage.Compiler
       too_many_digits_in_hex_constant = 26,
       invalid_suffix = 27,
       expected_hex_number = 28,
+
       [CompilerMessage(Message = "At least a digit for an hex constant.")]
       hex_few_digit = 29,
+
       expected_bin_number = 30,
       too_many_characters_in_constant = 31,
       not_a_valid_universal_character = 32,
@@ -119,5 +121,8 @@ namespace Gate.CLanguage.Compiler
 
       [CompilerMessage(Message = "default label not within a switch.")]
       default_label_not_within_a_switch = 305,
+
+      [CompilerMessage(Message = "goto without label")]
+      goto_without_label = 306,
    }
 }

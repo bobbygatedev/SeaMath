@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text.Elab;
@@ -83,21 +84,31 @@ namespace Gate.LangBase.Expressions.Operators
       /// <returns>An <see cref="RtmObj"/> representing the result of the operation. The result is constructed using the
       /// specified strategy and the declared type of the operator node.</returns>
       public virtual RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
-         //input ValueType's
-         var in_vls = (rtmArgs ?? []).Select(ra => ra?.CSharpObj ?? throw new Crash()).ToArray();
+         //tododo override qui
+         var mod_rtm = rtmStrategy?.OperatorModifier.EvalRtmArgsModified(operatorNode, rtmArgs, rtmStrategy, stack);
 
-         // computing operator result 
-         var ope_res =
-            rtmStrategy?.CSharpHandlerModifier?.CsharpHandlerModified(operatorNode.Operator ?? throw new Crash(), in_vls, rtmStrategy) ??
-            CSharpHandler(in_vls) ??
-            throw new Crash();
+         if (mod_rtm != null)
+         {
+            return mod_rtm;
+         }
+         else
+         {
+            //input ValueType's
+            var in_vls = (rtmArgs ?? []).Select(ra => ra?.CSharpObj ?? throw new Crash()).ToArray();
 
-         //creating RtmObj result
-         return
-            (rtmStrategy ?? operatorNode.Expr?.DefaultStrategy ?? throw new Crash()).
-               MakeConstant(ope_res, operatorNode.DeclType ?? throw new Crash());
+            // computing operator result 
+            var ope_res =
+               rtmStrategy?.CSharpHandlerModifier?.CsharpHandlerModified(operatorNode.Operator ?? throw new Crash(), in_vls, rtmStrategy) ??
+               CSharpHandler(in_vls) ??
+               throw new Crash();
+
+            //creating RtmObj result
+            return
+               (rtmStrategy ?? operatorNode.Expr?.DefaultStrategy ?? throw new Crash()).
+                  MakeConstant(ope_res, operatorNode.DeclType ?? throw new Crash());
+         }
       }
 
       /// <summary>
@@ -111,7 +122,7 @@ namespace Gate.LangBase.Expressions.Operators
       /// <param name="rtmStrategy">The runtime strategy that defines how operators and operands are processed during evaluation.</param>
       /// <returns>An <see cref="RtmObj"/> representing the result of evaluating the operator node. The result may be modified by
       /// the runtime strategy if applicable.</returns>
-      public virtual RtmObj? Eval(ExprNodeOperator operatorNode, IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
+      public virtual RtmObj? Eval(ExprNodeOperator operatorNode, RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy)
       {
          var res = rtmStrategy?.OperatorModifier?.EvalModified(operatorNode, rtmStrategy, stack);
 

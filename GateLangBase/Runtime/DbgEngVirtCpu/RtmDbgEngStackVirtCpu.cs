@@ -7,7 +7,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// <summary>
    /// 
    /// </summary>
-   public class RtmDbgEngStackVirtCpu : IRtmDbgEngStackExecutable
+   public class RtmDbgEngStackVirtCpu : IRtmDbgEngStack 
    {
       private List<IRtmDbgEngVirtCpuStackItem?> myListItems = new List<IRtmDbgEngVirtCpuStackItem?>();
 
@@ -91,16 +91,11 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          }
       }
 
-      /// <summary>
-      /// 
-      /// </summary>
-      IRtmDbgEngStackFrameExecutableCall? IRtmDbgEngStackExecutable.TopFunctionFrame => TopFunctionFrame;
+      IRtmDbgEngThread? IRtmDbgEngStack.Thread => Thread;
 
-      IRtmDbgEngThread? IRtmDbgEngStackRO.Thread => Thread;
+      IRtmDbgEngStackCall[] IRtmDbgEngStack.Calls => FunctionFrames;
 
-      IRtmDbgEngStackCall[] IRtmDbgEngStackRO.Calls => FunctionFrames;
-
-      IRtmDbgEngStackCall? IRtmDbgEngStackRO.TopCall => TopFunctionFrame;
+      IRtmDbgEngStackCall? IRtmDbgEngStack.TopCall => TopFunctionFrame;
 
       /// <summary>
       /// 
@@ -134,19 +129,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       public void Push<ITM>(params ITM?[] items) where ITM : class, IRtmDbgEngVirtCpuStackItem =>
          myListItems.AddRange(items);
 
-      public override string ToString() => Descriptor;
-
-      IRtmDbgEngStackFrameExecutableCall IRtmDbgEngStackExecutable.MakeStackCall(
-         RtmDbgEngVirtCpuFunction rtmFunction, RtmObj?[] @params) => 
-         new RtmDbgEngVirtCpuStackItemFrameFunction(rtmFunction, this, @params);
-
-      RtmObj? IRtmDbgEngStackExecutable.Pop() => Pop<RtmObj>();
-
-      void IRtmDbgEngStackExecutable.Push(params IRtmDbgEngVirtCpuStackItem?[] @params) => Push(@params);
-
-      void IRtmDbgEngStackExecutable.ExitFrame(IRtmDbgEngStackFrame frame) => ExitFrame(frame as RtmDbgEngVirtCpuStackItemStackFrame ??
-            throw new Crash("Invalid frame type for exit!"));
-
       public RtmObj? Peek() => myListItems.Last() as RtmObj;
+
+      public override string ToString() => Descriptor;
    }
 }

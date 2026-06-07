@@ -42,8 +42,8 @@ namespace Gate.CLanguage.Source
          {
             var vrs_prs = src.AllDescendant.OfType<CDeclVar>().Where(v => v.IsGlobal).ToArray();
             var var_gls = vrs_prs.Where(v => v.IsGlobal).ToArray();
-            var vrs_glo_ins = var_gls.SelectMany(g =>
-               inData.FunctionInstructionTranslator.GetInstructions(g)).ToArray();
+            var vrs_glo_ins = var_gls.Select(g =>
+               inData.FunctionInstructionTranslator.TranslateDeclVar(g)).ToArray();
 
             var dcl_fnc = new CDeclFunction(true, CDeclFunction.KindType.init, null);
 

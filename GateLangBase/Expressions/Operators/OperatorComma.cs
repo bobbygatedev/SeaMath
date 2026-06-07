@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Text.Elab;
 using System;
@@ -37,6 +38,6 @@ namespace Gate.LangBase.Expressions.Operators
          base.FindOperatorNode(findOperatorData, out operatorNode, out operandNodes);
 
       public override RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack) => null;
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack) => null;
    }
 }

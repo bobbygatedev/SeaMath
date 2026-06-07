@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -52,14 +53,14 @@ namespace Gate.LangBase.Expressions.Operators
       }
 
       /// <summary>
-      /// Different from <see cref="Operator.Eval(ExprNodeOperator, IRtmDbgEngStackExecutable, IRtmObjStrategy)"/> 
+      /// Different from <see cref="Operator.Eval(ExprNodeOperator, RtmDbgEngStackVirtCpu, IRtmObjStrategy)"/> 
       /// this method evaluates rtm-values before calling <see cref="EvalRtmArgs"/>.
       /// </summary>
       /// <param name="operatorNode"></param>
       /// <param name="stack"></param>
       /// <param name="rtmStrategy"></param>
       /// <returns></returns>
-      public override RtmObj? Eval(ExprNodeOperator operatorNode, IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
+      public override RtmObj? Eval(ExprNodeOperator operatorNode, RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy)
       {
          var op1 = operatorNode.OperandNodes[0];
          var op2 = operatorNode.OperandNodes[1] as SubExpr ?? throw new Crash();
@@ -83,7 +84,7 @@ namespace Gate.LangBase.Expressions.Operators
       /// <returns></returns>
       /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
       public override RtmObj? EvalRtmArgs(
-         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          var sub_exp =
             operatorNode.OperandNodes[1] as SubExpr ??

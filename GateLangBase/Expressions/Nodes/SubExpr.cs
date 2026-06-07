@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text;
@@ -126,7 +127,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <param name="thread"></param>
       /// <returns></returns>
       /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
-      public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy)
+      public override RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy)
       {
          if (SubExprNodes.Length == 1) { return SubExprNodes.FirstOrDefault()?.Eval(stack, rtmStrategy); }
          else if (SubExprNodes.Length == 0) { return null; }
@@ -140,7 +141,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <param name="stack"></param>
       /// <param name="rtmStrategy"></param>
       /// <returns></returns>
-      public virtual RtmObj?[] EvalForFunctionCall(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) => 
+      public virtual RtmObj?[] EvalForFunctionCall(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy) => 
          FunctionArgumentsNodes.Select(n => n.Eval(stack, rtmStrategy)).ToArray();
 
       /// <summary>

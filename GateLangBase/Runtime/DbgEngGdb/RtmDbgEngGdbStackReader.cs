@@ -6,7 +6,7 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
    /// <summary>
    /// todo future
    /// </summary>
-   public class RtmDbgEngGdbStackReader : IRtmDbgEngStackRO
+   public class RtmDbgEngGdbStackReader : IRtmDbgEngStack
    {
       public RtmDbgEngGdbStackReader(RtmDbgEngGdbThread thread) => Thread = thread;
 
@@ -21,10 +21,10 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
       /// </summary>
       public RtmObj[] StackVisibleObjects => throw new System.NotImplementedException();
 
-      IRtmDbgEngThread IRtmDbgEngStackRO.Thread => Thread;
+      IRtmDbgEngThread IRtmDbgEngStack.Thread => Thread;
 
-      IRtmDbgEngStackCall[] IRtmDbgEngStackRO.Calls => Calls;
+      IRtmDbgEngStackCall[] IRtmDbgEngStack.Calls => Calls;
 
-      IRtmDbgEngStackCall IRtmDbgEngStackRO.TopCall => TopCall;
+      IRtmDbgEngStackCall IRtmDbgEngStack.TopCall => TopCall;
    }
 }

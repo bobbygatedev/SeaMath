@@ -419,7 +419,7 @@ namespace Gate.SeaMath.Sea
          }
       }
 
-      public override RtmObj[]? GetFunctionVisibleObject(IRtmDbgEngStackExecutable? stack)
+      public override RtmObj[]? GetFunctionVisibleObject(RtmDbgEngStackVirtCpu? stack)
       {
          var stk = stack as RtmDbgEngStackVirtCpu ?? throw new Crash();
          var bas_ojs = base.GetFunctionVisibleObject(stack);

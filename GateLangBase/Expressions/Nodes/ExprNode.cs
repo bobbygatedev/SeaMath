@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text;
@@ -31,10 +32,10 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <returns></returns>
       public abstract ExprNode GetCopy();
 
-      public abstract RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy);
+      public abstract RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy);
 
       /// <summary>
-      /// True if <see cref="Eval(IRtmDbgEngStackExecutable, IRtmObjStrategy)"/> returns a valid <see cref="RtmObj"/> and therefore makes sense.
+      /// True if <see cref="Eval(RtmDbgEngStackVirtCpu, IRtmObjStrategy)"/> returns a valid <see cref="RtmObj"/> and therefore makes sense.
       /// </summary>
       public abstract bool IsRtmValue { get; }
 

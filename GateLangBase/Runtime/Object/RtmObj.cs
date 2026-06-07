@@ -117,7 +117,7 @@ namespace Gate.LangBase.Runtime.Object
       /// 
       /// </summary>
       /// <param name="stack"></param>
-      protected virtual void myExtraInit(IRtmDbgEngStackRO stack) { }
+      protected virtual void myExtraInit(IRtmDbgEngStack stack) { }
 
       /// <summary>
       /// 

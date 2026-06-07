@@ -41,7 +41,7 @@ namespace Gate.CLanguage.Runtime.Object
 
       public override string DisplayValue => $"C-pointer to function {ObjFunction}";
 
-      public RtmObj Exec(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params) =>
+      public RtmObj Exec(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params) =>
          ObjFunction?.Exec(stack, rtmStrategy, @params) ?? throw new Crash();
 
       public void Assign(IRtmObjFunction rtmObjFunction)

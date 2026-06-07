@@ -1,7 +1,6 @@
 ﻿using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
-using Gate.Tools;
 using Gate.Tools.Extensions;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
@@ -24,11 +23,12 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <param name="rtmStrategy">The strategy for handling runtime objects.</param>
       /// <param name="params">The parameters to pass to the function.</param>
       /// <returns>The result of the function execution, if any.</returns>
-      public RtmObj? Exec(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params)
+      public RtmObj? Exec(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params)
       {
          var stk = stack.NnOrCrash();
 
-         stk.Push(stk.MakeStackCall(this, @params));
+         //tododo
+         stk.Push(new RtmDbgEngVirtCpuStackItemFrameFunction(this, stk, @params));
 
          if (Decl?.Instructions.Length == 0) { return null; }
          else
@@ -36,7 +36,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             var res = null as RtmObj;
             var ttf = stk.TopFunctionFrame.NnOrCrash();
 
-            ttf.MoveToInstruction(ttf.Instructions.FirstOrDefault().NnOrCrash(), stack.NnOrCrash(), rtmStrategy);
+            ttf.MoveToInstruction(ttf.Instructions.FirstOrDefault().NnOrCrash(), stack.NnOrCrash(), rtmStrategy.NnOrCrash());
           
             //stay until a return/end_function occurs
             while (stack?.TopFunctionFrame?.RtmObjFunction == this)
@@ -54,7 +54,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
                stack?.TopFunctionFrame?.InstructionCurrent?.Run(stack, rtmStrategy);
             }
 
-            return stack?.Pop();
+            return stack?.Pop<RtmObj>();
          }
       }
 

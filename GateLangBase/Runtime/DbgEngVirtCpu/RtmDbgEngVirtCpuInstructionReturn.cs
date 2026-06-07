@@ -10,8 +10,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// </summary>
    public class RtmDbgEngVirtCpuInstructionReturn : RtmDbgEngVirtCpuInstruction
    {
-      public RtmDbgEngVirtCpuInstructionReturn(TxtToken? token, Expr? expr) : 
-         base(token) => Expr = expr;
+      public RtmDbgEngVirtCpuInstructionReturn(TxtToken? token, Expr? expr, object? tag = null) : 
+         base(token, tag) => Expr = expr;
 
       public override string Name => "return";
 

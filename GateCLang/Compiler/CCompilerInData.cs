@@ -12,7 +12,7 @@ namespace Gate.CLanguage.Compiler
    public class CCompilerInData : TxtElabInData, IExprSolverInData
    {
       private readonly CScopeHelper? myScopeHelper;
-      private readonly IFunctionInstructionTranslator? myFunctionInstructionTranslator;
+      private readonly CFunctionInstructionTranslator? myFunctionInstructionTranslator;
 
       /// <summary>
       /// 
@@ -25,7 +25,7 @@ namespace Gate.CLanguage.Compiler
       public CCompilerInData(
          MsgCollection messages, 
          CCompilerSettings settings,
-         IFunctionInstructionTranslator? functionInstructionTranslator ,
+         CFunctionInstructionTranslator? functionInstructionTranslator ,
          CRtmObjStrategy rtmStrategy, 
          CScopeHelper? scopeHelper)
          : base(messages)
@@ -44,7 +44,7 @@ namespace Gate.CLanguage.Compiler
       /// <summary>
       /// 
       /// </summary>
-      public IFunctionInstructionTranslator FunctionInstructionTranslator => 
+      public CFunctionInstructionTranslator FunctionInstructionTranslator => 
          myFunctionInstructionTranslator?? throw new NullReferenceException("FunctionInstructionTranslator not defined!");
       /// <summary>
       /// 

@@ -3,7 +3,7 @@
    /// <summary>
    /// Stack Interface for a <see cref="RtmDbgEng"/> stack read only (not stack emulation) use in conjunction with debugger (eg dbg) 
    /// </summary>
-   public interface IRtmDbgEngStackRO
+   public interface IRtmDbgEngStack
    {
       /// <summary>
       /// 

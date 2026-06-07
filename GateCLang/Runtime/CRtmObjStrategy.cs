@@ -5,6 +5,7 @@ using Gate.CLanguage.Types;
 using Gate.LangBase;
 using Gate.LangBase.Expressions;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.DesignPattern;
@@ -503,7 +504,7 @@ namespace Gate.CLanguage.Runtime
 
       public virtual IRtmObjFunction? GetFunction(RtmObj? rtmObj) => rtmObj as IRtmObjFunction;
 
-      public virtual RtmObj[]? GetFunctionVisibleObject(IRtmDbgEngStackExecutable? stack) => stack?.TopFunctionFrame?.ObjAll;
+      public virtual RtmObj[]? GetFunctionVisibleObject(RtmDbgEngStackVirtCpu? stack) => stack?.TopFunctionFrame?.ObjAll;
 
       protected override void myFreeManaged() => Allocator.Dispose();
 
@@ -538,5 +539,8 @@ namespace Gate.CLanguage.Runtime
 
          return lst.ToArray();
       }
+
+      RtmObj[]? IRtmObjStrategy.GetFunctionVisibleObject(IRtmDbgEngStack? stack) => 
+         GetFunctionVisibleObject(stack as RtmDbgEngStackVirtCpu);
    }
 }

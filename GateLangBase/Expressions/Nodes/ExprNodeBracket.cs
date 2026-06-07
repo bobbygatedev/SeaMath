@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text;
@@ -52,7 +53,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// <param name="stack"></param>
       /// <returns></returns>
       /// <exception cref="Crash"></exception>
-      public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) => throw new Crash($"Not callable");
+      public override RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy) => throw new Crash($"Not callable");
 
       /// <summary>
       /// 

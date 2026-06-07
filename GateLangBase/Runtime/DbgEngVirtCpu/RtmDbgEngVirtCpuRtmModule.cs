@@ -101,7 +101,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// </summary>
       /// <param name="stack"></param>
       /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
-      public void InitIfNecessary(IRtmDbgEngStackExecutable? stack)
+      public void InitIfNecessary(RtmDbgEngStackVirtCpu? stack)
       {
          switch (Stage)
          {

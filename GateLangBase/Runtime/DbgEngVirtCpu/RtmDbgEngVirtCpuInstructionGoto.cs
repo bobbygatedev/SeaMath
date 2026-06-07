@@ -3,7 +3,6 @@ using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
-using System.Windows.Forms;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
@@ -15,11 +14,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
    /// <param name="stack"></param>
    /// <returns></returns>
    public delegate RtmObj? RtmDbgEngVirtCpuInstructionGotoConditionEval(RtmDbgEngStackVirtCpu stack);
-
-   public static class RtmGotoHelper
-   {
-
-   }
 
    /// <summary>
    /// 

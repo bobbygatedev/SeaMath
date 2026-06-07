@@ -3,6 +3,7 @@ using Gate.CLanguage.Runtime.Object;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 
@@ -33,7 +34,7 @@ namespace Gate.CLanguage.Expressions.Operators
          public override bool IsFirstOperandLValue => false;
 
          public override RtmObj? EvalRtmArgs(
-            ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+            ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
          {
             var str = rtmStrategy as CRtmObjStrategy ?? throw new Crash();
 
@@ -61,7 +62,7 @@ namespace Gate.CLanguage.Expressions.Operators
          public override bool IsFirstOperandLValue => true;
 
          public override RtmObj? EvalRtmArgs(
-            ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack) =>
+            ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack) =>
             (rtmStrategy ?? throw new Gate.LangBase.Runtime.RtmException($"RTm-Strategy required in this context!")).
                MakeConstant((rtmArgs?.FirstOrDefault() as CRtmObj)?.Address ?? 0, operatorNode.DeclType ?? throw new Crash());
       }

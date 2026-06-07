@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 
@@ -34,7 +35,7 @@ namespace Gate.LangBase.Expressions.Operators
       /// <param name="stack"></param>
       /// <returns></returns>
       public override RtmObj? EvalRtmArgs(ExprNodeOperator operatorNode,
-         RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          var res_val = base.EvalRtmArgs(operatorNode, rtmArgs, rtmStrategy, stack);
          var ar0 = rtmArgs?.ElementAtOrDefault(0) ?? throw new Crash();

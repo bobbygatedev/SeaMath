@@ -2,7 +2,7 @@
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime;
-using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -29,7 +29,7 @@ namespace Gate.CLanguage.Runtime
       /// <param name="stack"></param>
       /// <returns></returns>
       public virtual RtmObj? EvalModified(
-         ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+         ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          if (operatorNode.Operator is OperatorBinaryBasic ob) { return myModifyOperator(ob, operatorNode, rtmStrategy, stack); }
          else if (operatorNode.Operator is OperatorLogical ol)
@@ -53,7 +53,10 @@ namespace Gate.CLanguage.Runtime
          else { return null; }
       }
 
-      private RtmObj? myEval2(ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, IRtmDbgEngStackExecutable? stack)
+      public virtual RtmObj? EvalRtmArgsModified(
+         ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy rtmStrategy, RtmDbgEngStackVirtCpu? stack) => null;
+
+      private RtmObj? myEval2(ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
          var op2 = operatorNode.OperandNodes[1].Eval(stack, rtmStrategy);
 
@@ -80,7 +83,7 @@ namespace Gate.CLanguage.Runtime
          OperatorBinaryBasic? operatorBasic,
          ExprNodeOperator operatorNode,
          IRtmObjStrategy? rtmStrategy,
-         IRtmDbgEngStackExecutable? stack)
+         RtmDbgEngStackVirtCpu? stack)
       {
          var tps = operatorNode.OperandNodes.Select(o => o.DeclType?.GetTypeAlias()).ToArray();
 
@@ -120,7 +123,7 @@ namespace Gate.CLanguage.Runtime
          ICRtmObjPointer? rtmObjPtr2,
          ExprNodeOperator? operatorNode,
          IRtmObjStrategy? rtmStrategy,
-         IRtmDbgEngStackExecutable? stack)
+         RtmDbgEngStackVirtCpu? stack)
       {
          var sz = rtmObjPtr1?.DereferencedType.SizeOf;
          var dif = ((byte*)(rtmObjPtr1?.PointerValue ?? 0).ToPointer() - (byte*)(rtmObjPtr2?.PointerValue ?? 0).ToPointer()) / sz;
@@ -141,7 +144,7 @@ namespace Gate.CLanguage.Runtime
          ICRtmObjPointer? rtmObjPtr2,
          ExprNodeOperator operatorNode,
          IRtmObjStrategy? rtmStrategy,
-         IRtmDbgEngStackExecutable? stack)
+         RtmDbgEngStackVirtCpu? stack)
       {
          var c_stg = rtmStrategy as ICRtmObjStrategy;
          var sz = rtmObjPtr2?.DereferencedType.SizeOf;
@@ -174,7 +177,7 @@ namespace Gate.CLanguage.Runtime
          CRtmObjScalar? delta,
          ExprNodeOperator operatorNode,
          IRtmObjStrategy? rtmStrategy,
-         IRtmDbgEngStackExecutable? stack)
+         RtmDbgEngStackVirtCpu? stack)
       {
          var c_stg = rtmStrategy as ICRtmObjStrategy;
          var sz = rtmObjPtr1?.DereferencedType.SizeOf;

@@ -1,4 +1,5 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Text;
 
@@ -51,7 +52,7 @@ namespace Gate.LangBase.Expressions.Nodes
       /// </summary>
       /// <param name="stack"></param>
       /// <returns></returns>
-      public override RtmObj? Eval(IRtmDbgEngStackExecutable? stack, IRtmObjStrategy? rtmStrategy) => RtmObj;
+      public override RtmObj? Eval(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy) => RtmObj;
 
       /// <summary>
       /// 

@@ -6,7 +6,7 @@ using Gate.Tools.Extensions;
 namespace Gate.CLanguage.Runtime
 {
    /// <summary>
-   /// Corresond to a variable instanciation eg int a = 2;
+   /// Correspond to a variable instanciation eg int a = 2;
    /// </summary>
    public abstract class CRtmDbgEngVirtCpuInstructionDecl : RtmDbgEngVirtCpuInstructionGotoNext
    {

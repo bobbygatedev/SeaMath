@@ -14,7 +14,7 @@ namespace Gate.CLanguage.Statement
    /// <summary>
    /// Encapsulates a if() else if() else cycle.
    /// </summary>
-   public class CStatementIfElse : CStatementConditional
+   public class CStatementIfElse : CStatementSelection
    {
       private CStatement? myElseBody;
 
@@ -85,14 +85,14 @@ namespace Gate.CLanguage.Statement
 
                      if (c_sco != null)
                      {
-                        var sta = 
-                           c_sco.NnOrCrash().Content.LastOrDefault() as CStatement ?? 
+                        var sta =
+                           c_sco.NnOrCrash().Content.LastOrDefault() as CStatement ??
                            throw new RtmException("Expected a statement ");
 
                         c_sco.NnOrCrash().RemoveFromScopeSpace(sta.NnOrCrash());
                         cyc_if.ElseBody = sta;
                      }
-                     else 
+                     else
                      {
                         cyc.NnOrCrash().SetBody(cyc_if);
                      }

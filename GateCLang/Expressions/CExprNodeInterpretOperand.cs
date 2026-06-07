@@ -5,7 +5,6 @@ using Gate.LangBase.Expressions.Nodes;
 using Gate.Tools;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
-using System.Collections.Generic;
 
 namespace Gate.CLanguage.Expressions
 {

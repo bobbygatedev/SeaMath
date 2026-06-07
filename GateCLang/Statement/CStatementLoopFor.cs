@@ -143,7 +143,6 @@ namespace Gate.CLanguage.Statement
          }
       }
 
-
       /// <summary>
       /// 
       /// </summary>

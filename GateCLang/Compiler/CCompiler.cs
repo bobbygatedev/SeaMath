@@ -20,7 +20,7 @@ namespace Gate.CLanguage.Compiler
       private Lazy<CScopeHelper> myLazyScopeHelper;
       private Lazy<CRtmObjStrategy> myLazyRtmStrategy;
       private Lazy<CTokenParser> myLazyTokenParser;
-      private IFunctionInstructionTranslator? myFunctionInstructorTranslator;
+      private CFunctionInstructionTranslator? myFunctionInstructorTranslator;
 
       public CCompiler(CPrePxOptions prePxOptions, CCompilerSettings settings)
       {
@@ -45,7 +45,7 @@ namespace Gate.CLanguage.Compiler
 
       public CPrePx PrePx { get; }
 
-      public IFunctionInstructionTranslator FunctionInstructorTranslator
+      public CFunctionInstructionTranslator FunctionInstructorTranslator
       {
          get
          {
@@ -68,7 +68,7 @@ namespace Gate.CLanguage.Compiler
 
       protected virtual CPrePx myMakePrePx() => new CPrePx();
 
-      protected virtual IFunctionInstructionTranslator myMakeFunctionInstructionTranslator() => new CFunctionInstructionTranslator(RtmStrategy);
+      protected virtual CFunctionInstructionTranslator myMakeFunctionInstructionTranslator() => new CFunctionInstructionTranslator(RtmStrategy);
 
       public virtual CCompilerInData GetInData(MsgCollection messages) =>
          new CCompilerInData(

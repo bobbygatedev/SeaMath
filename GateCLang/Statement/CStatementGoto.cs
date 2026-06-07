@@ -1,7 +1,9 @@
 ﻿using Gate.CLanguage.Compiler;
+using Gate.CLanguage.Decl;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Statement;
 using Gate.CLanguage.TokenParse;
+using Gate.Tools;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -9,10 +11,7 @@ namespace GateCLang.Statement
 {
    public class CStatementGoto : CStatement
    {
-      public CStatementGoto()
-      {
-
-      }
+      public CStatementGoto() { }
 
       public class TokenInterpreter : CTokenInterpreter
       {
@@ -21,10 +20,7 @@ namespace GateCLang.Statement
             new IsCTokenType(CTokenType.identifier, true) & 
             new Expect(";",true);
 
-         public TokenInterpreter()
-         {
-
-         }
+         public TokenInterpreter() { }
 
          public override TxtElabResult Perform(TxtTokenList input, CCompilerInData inData, ref CTokenInterpreterOutput output)
          {
@@ -32,18 +28,42 @@ namespace GateCLang.Statement
 
             if (res == TxtElabResult.success)
             {
+               var got = new CStatementGoto();
+
+               got.LabelName = input[input.CurrIdx - 2].Content;
+               got.TxtToken = TxtTokenConst.FromTokenInterval(input[input.CurrIdx - 3], input[input.CurrIdx - 1]);
+
                //check uniqueness of label
-               throw new NotImplementedException(); //tododo
+               if (output.TopItem is CStatementCompound cmp)
+               {
+                  cmp.AddStatements(got);
+
+                  return TxtElabResult.success;
+               }
+               else if (output.TopItem is CStatementConditional cyc)
+               {
+                  cyc.SetBody(got);
+
+                  return TxtElabResult.success;
+               }
+               else
+               {
+                  throw new Crash();
+               }
             }
 
             return res;
          }
       }
       
-      public string? Label { get; set; }
+      public string? LabelName { get; set; }
 
-      public override string? Descriptor => $"{Label}:";
+      public override string? Descriptor => $"{LabelName}:";
 
-      public override string? Rebuilt => $"{Label}:";
+      public override string? Rebuilt => $"{LabelName}:";
+
+      public CDeclFunction? Function => ParentItemChain.OfType<CDeclFunction>().FirstOrDefault();
+
+      public CStatementGotoLabel? TargetLabel => Function?.Body?.Labels.FirstOrDefault(l => l.Name == LabelName);
    }
 }

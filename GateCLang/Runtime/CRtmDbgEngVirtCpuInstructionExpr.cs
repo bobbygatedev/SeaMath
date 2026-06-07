@@ -8,11 +8,12 @@ using Gate.Tools.Extensions;
 namespace Gate.CLanguage.Runtime
 {
    /// <summary>
-   /// tododo now
+   /// 
    /// </summary>
    public class CRtmDbgEngVirtCpuInstructionExpr : RtmDbgEngVirtCpuInstructionGotoNext
    {
-      public CRtmDbgEngVirtCpuInstructionExpr(CExprStatement exprStatement) : base(exprStatement.TxtToken) => ExprStatement = exprStatement;
+      public CRtmDbgEngVirtCpuInstructionExpr(CExprStatement exprStatement) : base(exprStatement.TxtToken) => 
+         Tag = ExprStatement = exprStatement;
 
       public override string Name => "expr";
 
@@ -21,7 +22,7 @@ namespace Gate.CLanguage.Runtime
       protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          //static objects
-         var sta_rtm_ojs = 
+         var sta_rtm_ojs =
             (rtmStrategy?.GetFunctionVisibleObject(stack) ?? []).
             OfType<CRtmObj>().
             Where(o => o.Decl is CDeclVar cd && cd.IsStatic).
