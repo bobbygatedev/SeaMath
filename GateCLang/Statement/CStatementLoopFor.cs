@@ -4,6 +4,7 @@ using Gate.CLanguage.DeclInterpreter;
 using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
+using Gate.CLanguage.TokenParse;
 using Gate.CLanguage.Types;
 using Gate.Tools;
 using Gate.Tools.Extensions;
@@ -129,6 +130,7 @@ namespace Gate.CLanguage.Statement
          {
             var cyc_for = new CStatementLoopFor();
             var itm_sco = output.ScopeSpaceItem.NnOrCrash();
+            var idx = input.CurrIdx;
 
             if (input.MarkedText != "for") { return TxtElabResult.continue_searching; }
 
@@ -136,7 +138,10 @@ namespace Gate.CLanguage.Statement
 
             var res = myNested(cyc_for, input, inData, ref output, myAnd, NestedMode.once_continue);
 
-            if (res == TxtElabResult.success) { }
+            if (res == TxtElabResult.success)
+            {
+               cyc_for.TxtToken = TxtTokenConst.FromTokenInterval(input[idx], input[input.CurrIdx - 1]);
+            }
             else { itm_sco.RemoveFromScopeSpace(cyc_for); }
 
             return res;

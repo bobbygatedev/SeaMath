@@ -19,7 +19,7 @@ namespace Gate.CLanguage.Runtime
       {
          public Automatic(CDeclVar declVar) : base(declVar) { }
 
-         protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+         protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
          {
             //is local object (eg n C/C++ local var or function param)
             var var_rtm_loc = null as RtmObj;
@@ -41,8 +41,6 @@ namespace Gate.CLanguage.Runtime
                      rtmStrategy.ConvertOrCrash<CRtmObjStrategy>());
                }
             }
-
-            return null;
          }
       }
 
@@ -53,7 +51,7 @@ namespace Gate.CLanguage.Runtime
       {
          public Persistant(CDeclVar declVar) : base(declVar) { }
 
-         protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+         protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
          {
             //is persistant (eg in C/C++ a static or not extern global object) and not yet init
             var rtm_ojs = stack.Thread?.Process?.ObjsPersistant;
@@ -70,8 +68,6 @@ namespace Gate.CLanguage.Runtime
                   DeclVar.OwnedInit.DoInit(rtm_obj, stack, rtmStrategy.ConvertOrCrash<CRtmObjStrategy>());
                }
             }
-
-            return null;
          }
       }
 

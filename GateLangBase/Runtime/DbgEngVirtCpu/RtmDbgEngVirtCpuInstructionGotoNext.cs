@@ -4,6 +4,9 @@ using Gate.Tools.Text;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {
+   /// <summary>
+   /// Simple instruction executes <see cref="myRun(RtmDbgEngStackVirtCpu, IRtmObjStrategy?)"/> then moves to next instruction.
+   /// </summary>
    public abstract class RtmDbgEngVirtCpuInstructionGotoNext : RtmDbgEngVirtCpuInstruction
    {
       protected RtmDbgEngVirtCpuInstructionGotoNext(TxtToken? token) : base(token) { }
@@ -17,13 +20,13 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
          public override string Name => "nop";
 
-         protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => null;
+         protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) { }
       }
 
       public override sealed void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          var ttf_old = stack.TopFunctionFrame.NnOrCrash();
-         
+
          myRun(stack, rtmStrategy);
 
          var ttf_new = stack.TopFunctionFrame;
@@ -39,6 +42,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          }
       }
 
-      protected abstract RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy);
+      protected abstract void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy);
    }
 }

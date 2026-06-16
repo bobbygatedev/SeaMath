@@ -15,13 +15,11 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       public override string Name => "pop";
 
-      protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+      protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          var frm = stack.Items.OfType<RtmDbgEngVirtCpuStackItemStackFrame>().FirstOrDefault().NnOrCrash();
 
-         stack.ExitFrame(frm);
-
-         return null;
+         stack.ExitFrame(frm, null);
       }
    }
 }

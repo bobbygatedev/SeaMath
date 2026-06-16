@@ -58,11 +58,6 @@ namespace Gate.SeaMath.Sea
                df.IsOperatorOverride(operatorNode.Operator, operatorNode.OperandNodes.Length)).
             FirstOrDefault();
 
-         if (ovr_fnc != null)
-         {
-            int a = 2;//tododo
-         }
-
          var ovr_res = ovr_fnc?.Exec(
             stack,
             rtmStrategy,

@@ -181,13 +181,13 @@ namespace Gate.SeaMath.Sea
                switch (Classification)
                {
                   case ClassificationType.scalar_to_scalar:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionScalar2Scalar(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionWithReturnValue(null, (stk, str) => myRunActionScalar2Scalar(stk, str))];
                      break;
                   case ClassificationType.vectorial_to_scalar:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionVectorial(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionWithReturnValue(null, (stk, str) => myRunActionVectorial(stk, str))];
                      break;
                   case ClassificationType.vectorial_to_vectorial:
-                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionByAction(null, (stk, str) => myRunActionVectorial(stk, str))];
+                     dcl_fnc.Instructions = [new RtmDbgEngVirtCpuInstructionWithReturnValue(null, (stk, str) => myRunActionVectorial(stk, str))];
                      break;
                   case ClassificationType.scalar_to_vectorial:
                   default: throw new Crash();

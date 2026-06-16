@@ -519,11 +519,11 @@ namespace Gate.CLanguage.Runtime
          for (int i = 0; i < declParams.Length; i++)
          {
             var dcl_par = declParams[i].ConvertOrCrash<CDecl>();
-            var par_val = (rtmArgs.ElementAt(i)).ConvertOrCrash<CRtmObj>();
+            var par_val = rtmArgs.ElementAt(i);
 
             var cpy_par_val = dcl_par.TypeAlias.IsReference ?
-               CopyFunctionParamByRef(par_val, dcl_par) :
-               CopyFunctionParamByValue(par_val, dcl_par);
+               ((IRtmObjStrategy)this).CopyFunctionParamByRef(par_val, dcl_par) :
+               ((IRtmObjStrategy)this).CopyFunctionParamByValue(par_val, dcl_par);
 
             lst.Add(cpy_par_val);
          }

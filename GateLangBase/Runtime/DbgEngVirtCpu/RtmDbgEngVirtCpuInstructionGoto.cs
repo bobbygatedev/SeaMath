@@ -31,7 +31,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          TxtToken? token,
          RtmDbgEngVirtCpuInstruction? targetTrue,
          RtmDbgEngVirtCpuInstruction? targetFalse,
-         Expr conditionEval) : base(token)
+         Expr? conditionEval) : base(token)
       {
          TargetTrue = targetTrue;
          TargetFalse = targetFalse;

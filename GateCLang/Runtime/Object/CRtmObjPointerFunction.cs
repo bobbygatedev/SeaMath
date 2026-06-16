@@ -1,7 +1,6 @@
 ﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions;
-using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
@@ -41,8 +40,8 @@ namespace Gate.CLanguage.Runtime.Object
 
       public override string DisplayValue => $"C-pointer to function {ObjFunction}";
 
-      public RtmObj Exec(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params) =>
-         ObjFunction?.Exec(stack, rtmStrategy, @params) ?? throw new Crash();
+      public RtmObj? Exec(RtmDbgEngStackVirtCpu? stack, IRtmObjStrategy? rtmStrategy, params RtmObj?[] @params) => 
+         ObjFunction?.Exec(stack, rtmStrategy, @params);
 
       public void Assign(IRtmObjFunction rtmObjFunction)
       {

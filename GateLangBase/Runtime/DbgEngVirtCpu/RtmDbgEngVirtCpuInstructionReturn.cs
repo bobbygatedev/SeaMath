@@ -25,7 +25,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// </summary>
       /// <param name="stack"></param>
       /// <returns></returns>
-      public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => stack.Return(
-         Expr?.Eval(stack,rtmStrategy), stack.TopFunctionFrame.NnOrCrash());
+      public override void Run(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy) => stack.ExitFrame(
+         stack.TopFunctionFrame.NnOrCrash(), Expr?.Eval(stack, rtmStrategy));
    }
 }

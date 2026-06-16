@@ -16,15 +16,13 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       public IDecl[] FrameDecls { get; }
 
-      protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+      protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          stack.Push(new RtmDbgEngVirtCpuStackItemStackFrame());
 
          var rtm_ojs = FrameDecls.Select(d => rtmStrategy.NnOrCrash().MakeNewObject(d)).ToArray();
 
          stack.Push(rtm_ojs);
-
-         return null;
       }
    }
 }

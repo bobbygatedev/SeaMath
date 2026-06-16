@@ -19,7 +19,7 @@ namespace Gate.CLanguage.Runtime
 
       public CExprStatement ExprStatement { get; }
 
-      protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+      protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          //static objects
          var sta_rtm_ojs =
@@ -41,9 +41,7 @@ namespace Gate.CLanguage.Runtime
             }
          }
 
-         var res = ExprStatement.Expr?.Eval(stack, rtmStrategy);
-
-         return res;
+         ExprStatement.Expr?.Eval(stack, rtmStrategy);
       }
    }
 }

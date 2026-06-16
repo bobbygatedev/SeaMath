@@ -200,9 +200,9 @@ namespace Gate.SeaMath.Sea
          }
          else
          {
-            var typ_als = operatorNode.OperandNodes.Select(n => n.DeclType.ConvertOrCrash<CTypeAlias>()).ToArray();
+            var typ_als = operatorNode.OperandNodes.Select(n => n.DeclType as CTypeAlias).ToArray();
 
-            if (typ_als.Any(t => t.IsSeaType()))
+            if (typ_als.Any(t => t?.IsSeaType() ?? false))
             {
                // in this case vectorialise is possible in this case
                // all operands are ctype
@@ -225,11 +225,14 @@ namespace Gate.SeaMath.Sea
             {
                //if operator is valid c pointer algebric operator and all operands are ctype or pointer to ctype then vectorialisation is not possible
                var err = CExprNodeReturnTypeFinder.GetReturnTypeForPointers(
-                 operatorNode, typ_als, seaStrategy.Settings.BuiltInSet.NnOrCrash(), out var exp_typ);
+                 operatorNode,
+                 typ_als.Cast<CTypeAlias>().ToArray(),
+                 seaStrategy.Settings.BuiltInSet.NnOrCrash(),
+                 out var exp_typ);
 
                if (err != null || exp_typ == null)
                {
-                  if (typ_als.Any(t => t.IsArray))
+                  if (typ_als.Any(t => t?.IsArray ?? false))
                   {
                      rtmArgs = operatorNode.OperandNodes.Select(n => n.Eval(stack, seaStrategy).NnOrCrash()).ToArray();
 
@@ -237,7 +240,6 @@ namespace Gate.SeaMath.Sea
                   }
                }
             }
-            else { throw new Crash(); }
 
             rtmArgs = null;
 

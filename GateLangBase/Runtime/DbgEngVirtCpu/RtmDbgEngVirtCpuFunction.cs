@@ -27,7 +27,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       {
          var stk = stack.NnOrCrash();
 
-         //tododo
          stk.Push(new RtmDbgEngVirtCpuStackItemFrameFunction(this, stk, @params));
 
          if (Decl?.Instructions.Length == 0) { return null; }

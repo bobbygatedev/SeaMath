@@ -9,7 +9,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 
       public override string Name => "push_function_frame";
 
-      protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+      protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
       {
          var frm = stack.FunctionFrames.FirstOrDefault().NnOrCrash();
 
@@ -19,8 +19,6 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             frm.NnOrCrash().CallParams.Select(a => a.NnOrCrash()).ToArray());
 
          stack.Push(arg_rtm_cps);
-
-         return null;
       }
    }
 }

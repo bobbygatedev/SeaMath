@@ -1,5 +1,4 @@
-﻿using Gate.CLanguage;
-using Gate.CLanguage.Runtime.Object;
+﻿using Gate.CLanguage.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;

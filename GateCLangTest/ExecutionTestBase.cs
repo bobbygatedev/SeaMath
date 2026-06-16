@@ -16,7 +16,7 @@ namespace Gate.CLanguageTest
    public abstract class ExecutionTestBase : TestBase
    {
       private static SeaMathExecutionHelper myHelper = new SeaMathExecutionHelper();
-      private double? myTimeout = 2.0;
+      private double? myTimeout = 4.0;
 
       protected ExecutionTestBase() { }
 

@@ -479,7 +479,7 @@ namespace Gate.CLanguage.Runtime
          /// 1: init
          if (forCycle.Initialisation != null) { lst_ins.AddRange(Translate(forCycle.Initialisation)); }
 
-         var got = null as RtmDbgEngVirtCpuInstructionGoto;
+         var got = null as RtmDbgEngVirtCpuInstruction;
 
          //if condition is null infinite cycle
          if (forCycle.StayConditionExpr != null)
@@ -491,7 +491,7 @@ namespace Gate.CLanguage.Runtime
          }
          else
          {
-            got = new RtmDbgEngVirtCpuInstructionGoto(null, end_frm_pop);
+            got = new Nop(forCycle.TxtToken,null);
          }
 
          // 2: if-condition-goto 

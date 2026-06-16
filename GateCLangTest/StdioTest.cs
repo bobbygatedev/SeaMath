@@ -1,8 +1,6 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
-using System;
-using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Gate.CLanguageTest
@@ -14,7 +12,7 @@ namespace Gate.CLanguageTest
    {
       public const string PATH = @"c:\temp\tst.txt";
 
-      public StdioTest() : base("Stdio Test", new TestBase[] { new Test1(), new Test2() }) { }
+      public StdioTest() : base("Stdio Test", [new Test1(), new Test2()]) { }
 
       public class Test1 : ExecutionTestBase
       {
@@ -35,7 +33,6 @@ namespace Gate.CLanguageTest
             try
             {
                return File.ReadAllText(PATH) == TEST_STRING ? TxtElabResult.success : TxtElabResult.failure;
-
             }
             catch (Exception e)
             {
@@ -83,6 +80,7 @@ namespace Gate.CLanguageTest
       {
          var tst = new StdioTest();
 
+         tst.IsVerbose = true;
          tst.Go();
          Console.WriteLine(tst.ReportString);
          ExecutionTestBase.CloseSession();

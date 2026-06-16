@@ -290,7 +290,7 @@ namespace Gate.ToolsView.TextSearch
                            usr_txt_2_rep,
                            PpSearchParamRecord.SearchFlags.Value,
                            lok_in_itm.SearchMode,
-                           lok_in_itm is InnerLookInItem.DirList drs ? drs.Dirs : new string[0],
+                           lok_in_itm is InnerLookInItem.DirList drs ? drs.Dirs : [],
                            pat);
 
                   myFindTask.OnTextSearchFindTaskFinished += (_) =>
@@ -299,7 +299,7 @@ namespace Gate.ToolsView.TextSearch
                      {
                         this.MthInvoke(() =>
                         {
-                           CtrlButtonReplaceAll.Text = "Replace A&ll";
+                           CtrlButtonReplaceAll.Text = "Replace &All";
                            CtrlButtonFindAll.Enabled = true;
                         });
                      }

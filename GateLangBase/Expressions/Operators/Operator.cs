@@ -4,6 +4,7 @@ using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Text.Elab;
+using System.Data;
 
 namespace Gate.LangBase.Expressions.Operators
 {
@@ -86,7 +87,6 @@ namespace Gate.LangBase.Expressions.Operators
       public virtual RtmObj? EvalRtmArgs(
          ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
-         //tododo override qui
          var mod_rtm = rtmStrategy?.OperatorModifier.EvalRtmArgsModified(operatorNode, rtmArgs, rtmStrategy, stack);
 
          if (mod_rtm != null)
@@ -128,7 +128,8 @@ namespace Gate.LangBase.Expressions.Operators
 
          if (res == null)
          {
-            var rtm_ars = operatorNode.OperandNodes.
+            var rtm_ars = 
+               operatorNode.OperandNodes.
                Where(o => o.IsRtmValue).
                Select(on => on.Eval(stack, rtmStrategy)).ToArray();
 

@@ -12,23 +12,23 @@ namespace Gate.ToolsViewTest
    {
       public class InnerTestClass : IExtendedListEditorItem
       {
-         private string myStringProperty;
+         private string? myStringProperty;
          private bool myBoolProperty;
-         private string myDropDown;
+         private string? myDropDown;
 
          [ExtendedListEditor(ShownName = "String")]
-         public string StringProperty { get => myStringProperty; set => myStringProperty = value; }
+         public string? StringProperty { get => myStringProperty; set => myStringProperty = value; }
 
          [ExtendedListEditor(ShownName = "Bool")]
          public bool BoolProperty { get => myBoolProperty; set => myBoolProperty = value; }
 
          [ExtendedListEditor(ShownName = "DropDown", AlternativeProperty = "DropDownAlternative")]
-         public string DropDown { get => myDropDown; set => myDropDown = value; }
+         public string? DropDown { get => myDropDown; set => myDropDown = value; }
 
          public string[] DropDownAlternative => new[] { "Item1", "Item2", "Item3" };
 
          [ExtendedListEditor(ShownName = "DirRel")]
-         public RelativePath DirRelProp { get; set; }
+         public RelativePath? DirRelProp { get; set; }
 
          public bool IsEditable => true;
       }
@@ -55,7 +55,7 @@ namespace Gate.ToolsViewTest
          frm.Controls.Add(ctr);
          frm.ShowDialog();
 
-         var x = ctr.PpItems.Cast<InnerTestClass>().ToArray();
+         var x = (ctr?.PpItems ?? []).Cast<InnerTestClass>().ToArray();
 
          foreach (var y in x)
          {

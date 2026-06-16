@@ -1,5 +1,4 @@
 ﻿using Gate.LangBase.Expressions;
-using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
@@ -207,7 +206,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
             //
             while (frm != lca)
             {
-               stack.ExitFrame(stack.TopStackFrame.NnOrCrash());
+               stack.ExitFrame(stack.TopStackFrame.NnOrCrash(), null);
                frm = frm.ParentFrame.NnOrCrash();
             }
 

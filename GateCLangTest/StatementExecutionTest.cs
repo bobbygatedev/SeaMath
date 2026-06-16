@@ -166,7 +166,7 @@ namespace Gate.CLanguageTest
                var vrv = var_r2.RtmValue as CRtmObjArray ?? throw new Crash();
                var exp_vls = new[] { 20.0, 30.0 };
 
-               if (vrv.Sizes.SequenceEqual(new[] { 2 }))
+               if (vrv.Sizes.SequenceEqual([2]))
                {
                   for (var i = 0; i < exp_vls.Length; i++)
                   {
@@ -371,6 +371,7 @@ namespace Gate.CLanguageTest
       public class MatAddRowsTest : MatAddRowsColsTest
       {
          public MatAddRowsTest() { }
+
          public override TxtStore SourceCode => new TxtStore(
             "res1;\r\n" +
             "res2;\r\n" +
@@ -1308,9 +1309,7 @@ namespace Gate.CLanguageTest
 
       public class ExitTest : ExecutionTestBase
       {
-         public ExitTest()
-         {
-         }
+         public ExitTest() { }
 
          public override TxtStore SourceCode => new TxtStore(
             $@"void (*pf)(void);
@@ -1666,22 +1665,99 @@ void main()
          {
             var w1 = myRequireVar(dbgEngProcess, "w1");
 
-            if (w1.CSharpObj.ConvertOrCrash<int>() == 8)
-            {
-               return TxtElabResult.success;
-            }
-            else
-            {
-               return TxtElabResult.failure;
-            }
+            return w1.CSharpObj.ConvertOrCrash<int>() == 8 ?
+               TxtElabResult.success : TxtElabResult.failure;
+         }
+      }
+
+      public class SwitchTest : ExecutionTestBase
+      {
+         public SwitchTest() { }
+
+         public override TxtStore SourceCode => new TxtStore(
+            "int g = 55;\r\n" +
+            "int s1 = -1;\r\n" +
+            "int s11 = -1;\r\n" +
+            "int s2 = -1;\r\n" +
+            "int s3 = -1;\r\n" +
+            "int s4 = -1;\r\n\r\n" +
+            "void main(void)\r\n" +
+            "{\r\n" +
+            "   switch(1)\r\n" +
+            "   {\r\n" +
+            "      int s = 11;\r\n" +
+            "   \r\n" +
+            "      case 1: \r\n" +
+            "       if ( g > 50)\r\n" +
+            "         s1 = s;\r\n" +
+            "   }\r\n\r\n" +
+            "   switch(1)\r\n" +
+            "   {\r\n" +
+            "      case 1:\r\n" +
+            "      int s = 11;\r\n" +
+            "      if ( g > 50)\r\n" +
+            "         s11 = s;\r\n" +
+            "   }\r\n\r\n" +
+            "   int sd = 2;\r\n\r\n" +
+            "   switch(sd)\r\n" +
+            "   {\r\n" +
+            "      case 1: \r\n" +
+            "      s2 = 14;\r\n\r\n" +
+            "      default:\r\n" +
+            "      if(s2 == 14)\r\n" +
+            "      {\r\n" +
+            "      s2 = 16;        " +
+            "      \r\n" +
+            "     }\r\n" +
+            "     else\r\n" +
+            "     {\r\n" +
+            "       s2 = 17;     \r\n" +
+            "     }\r\n   }\r\n" +
+            "\r\n" +
+            "   sd = 1;\r\n" +
+            "\r\n   switch(sd)\r\n" +
+            "   {\r\n" +
+            "      case 1:" +
+            "\r\n\r\n" +
+            "     default:\r\n" +
+            "      int s = 15;\r\n\r\n" +
+            "      if ( g > 50)\r\n" +
+            "         s3 = s;\r\n" +
+            "   }\r\n\r\n" +
+            "   sd = 1;\r\n\r\n" +
+            "   switch(sd)\r\n" +
+            "   {\r\n" +
+            "      case 1:\r\n" +
+            "      break;\r\n\r\n" +
+            "     default:\r\n" +
+            "      int s = 16;\r\n" +
+            "      s4 = s;\r\n" +
+            "   }" +
+            "\r\n\r\n" +
+            "}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var s1 = myRequireVar(dbgEngProcess, "s1");
+            var s11 = myRequireVar(dbgEngProcess, "s11");
+            var s2 = myRequireVar(dbgEngProcess, "s2");
+            var s3 = myRequireVar(dbgEngProcess, "s3");
+            var s4 = myRequireVar(dbgEngProcess, "s4");
+
+            return
+               s1.CSharpObj.ConvertOrCrash<int>() == 0 &&
+               s11.CSharpObj.ConvertOrCrash<int>() == 11 &&
+               s2.CSharpObj.ConvertOrCrash<int>() == 17 &&
+               s3.CSharpObj.ConvertOrCrash<int>() == 15 &&
+               s4.CSharpObj.ConvertOrCrash<int>() == -1 ?
+                  TxtElabResult.success : TxtElabResult.failure;
          }
       }
 
       static void Main()
       {
-         //tododo aggiungi test per nested for .. switch
-         //var tst = new StatementExecutionTest();
-         var tst = new MatrixMultiplicationTest();
+         var tst = new StatementExecutionTest();
+         //var tst = new MatAddRowsTest();
 
          tst.IsVerbose = true;
          tst.Go();

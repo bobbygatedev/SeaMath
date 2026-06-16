@@ -28,40 +28,55 @@ namespace Gate.SeaMath.Workspace.Libs
 
          public SeaMathLibCSharpDeclFunction Parent { get; }
 
-         protected override RtmObj? myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+         protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
          {
-            var ttf = stack.FunctionFrames.FirstOrDefault().NnOrCrash();
-            var i_dcl_fnc = Parent as IDeclFunction;
-            var prs_stk = ttf.CallParams;// stack.TopFunctionFrame?.ObjInStackOnly.Reverse().ToArray();
-            var par_dcs = i_dcl_fnc.Parameters;
-            var eff_arg_cnt = i_dcl_fnc.Parameters.Length;
-            var mis_ars = i_dcl_fnc.Parameters.Skip(prs_stk?.Length ?? 0).ToArray();
-            var mis_ars_dfs = mis_ars.Select(ma => stack.Thread?.Process?.RtmStrategy.MakeNewObject(ma).NnOrCrash()).ToArray();
-
-            prs_stk = (prs_stk ?? []).Concat(mis_ars_dfs).ToArray();
-
-            var prs = Parent.MethodInfo.GetParameters();
-            var eff_ars = null as object[];
-            var cal_par_obs = null as object[];
-
             if (Parent.IsSysMethod)
             {
-               eff_ars = i_dcl_fnc.HasVarArgs ?
-                  prs_stk.Take(eff_arg_cnt).Cast<object>().Append(prs_stk.Skip(eff_arg_cnt).ToArray()).ToArray() :
-                  prs_stk.Take(eff_arg_cnt).Cast<object>().ToArray();
+               myRunSys(stack, rtmStrategy);
             }
             else
             {
-               cal_par_obs = prs_stk.Select(p => p?.CSharpObj ?? throw new Crash()).ToArray();
+               myRunOrdinary(stack, rtmStrategy);
+            }
+         }
 
-               eff_ars = i_dcl_fnc.HasVarArgs ?
-                  cal_par_obs.Take(eff_arg_cnt).Append(cal_par_obs.Skip(eff_arg_cnt).Cast<object>().ToArray()).ToArray() :
-                  cal_par_obs.Take(eff_arg_cnt).ToArray();
+         private void myRunOrdinary(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+         {
+            var ttf = stack.FunctionFrames.FirstOrDefault().NnOrCrash();
+            var i_dcl_fnc = Parent as IDeclFunction;
+            var prs_stk = stack.FunctionCallParameters;
+            var par_dcs = i_dcl_fnc.Parameters;
+            var eff_arg_cnt = par_dcs.Length;
+            var mis_ars = i_dcl_fnc.Parameters.Skip(prs_stk.Length).ToArray();
+            var mis_ars_dfs = (mis_ars ?? []).
+               Select(ma => stack.Thread?.Process?.RtmStrategy.MakeNewObject(ma) ?? throw new Crash()).ToArray();
+
+            prs_stk = prs_stk.Concat(mis_ars_dfs ?? []).ToArray();
+
+            var prs = Parent.MethodInfo.GetParameters();
+
+            //call parameter c# object
+            var cs_par_obs = prs_stk.Select(p => p?.CSharpObj ?? throw new Crash()).Cast<object>().ToArray();
+
+            var eff_ars = null as object[];
+
+            if (i_dcl_fnc.HasVarArgs)
+            {
+               eff_ars = cs_par_obs.Take(eff_arg_cnt).Append(cs_par_obs.Skip(eff_arg_cnt).Cast<object>().ToArray()).ToArray();
+            }
+            else
+            {
+               eff_ars = cs_par_obs.Take(eff_arg_cnt).ToArray();
             }
 
+            myExecuteMethod(stack, i_dcl_fnc, eff_ars);
+         }
+
+         private void myExecuteMethod(RtmDbgEngStackVirtCpu stack, IDeclFunction declFunction, object[] csMethodInfo)
+         {
             try
             {
-               var res = Parent.MethodInfo.Invoke(Parent.ParentLib, eff_ars);
+               var res = Parent.MethodInfo.Invoke(Parent.ParentLib, csMethodInfo);
 
                /// this is the case <see cref="MethodInfo"/> returns a pointer like <see cref="SeaMathLibStdio.DoGets(sbyte*)"/>
                if (res is Pointer ptr)
@@ -71,16 +86,14 @@ namespace Gate.SeaMath.Workspace.Libs
 
                if (res is ValueType val)
                {
-                  var ro = stack.Thread?.Process?.RtmStrategy.MakeConstant((ValueType)res, i_dcl_fnc.ReturnType);
+                  var ro = stack.Thread?.Process?.RtmStrategy.MakeConstant((ValueType)res, declFunction.ReturnType);
 
-                  stack.Return(ro, ttf);
+                  stack.Return(ro);
                }
                else if (res is RtmObj rr)
                {
-                  stack.Return(rr, ttf);
+                  stack.Return(rr);
                }
-
-               return null;
             }
             catch (RtmException) { throw; }
             catch (TargetInvocationException exc)
@@ -96,6 +109,27 @@ namespace Gate.SeaMath.Workspace.Libs
             }
             catch (ThreadInterruptedException) { throw; }
             catch { throw new Crash($"Failed {Parent.MethodInfo} in C# library {GetType()}"); }
+         }
+
+         private void myRunSys(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
+         {
+            var i_dcl_fnc = Parent as IDeclFunction;
+            var prs_stk = stack.TopFunctionFrame?.CallParams.Select(p => p.NnOrCrash()).ToArray() ?? [];//uses parameter before parameter copy
+            var eff_arg_cnt = i_dcl_fnc.Parameters.Length;
+
+            //effective arguments converted to object[]
+            var eff_ars = prs_stk.Take(eff_arg_cnt).Cast<object>().ToArray();
+
+            if (i_dcl_fnc.HasVarArgs)
+            {
+               //optional parameter array
+               RtmObj[] ops = prs_stk.Skip(eff_arg_cnt).ToArray();
+
+               //effective arguments array as object[] + array of optional parameters
+               eff_ars = eff_ars.Append(ops).ToArray();
+            }
+
+            myExecuteMethod(stack, i_dcl_fnc, eff_ars);
          }
       }
 

@@ -2,7 +2,6 @@
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
-using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
