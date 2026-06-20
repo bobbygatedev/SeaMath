@@ -62,7 +62,7 @@ namespace Gate.CLanguage.PrePx.Directives.Macro.Expansion
          if (res == TxtElabResult.success)
          {
             var mcr_cal = output.ListProduct.Last();
-            var in_dat = new MacroExpanderInData(inData.PrePxData, mcr_cal.MacrosForContentExpansion.Except(new[] { mcr_cal.Macro }).ToArray());
+            var in_dat = new MacroExpanderInData(inData.PrePxData, [.. mcr_cal.MacrosForContentExpansion.Except([mcr_cal.Macro])]);
             var exp_mcr = mcr_cal.GetExpanded(inData.PrePxData, this, ref output);
 
             //macro expanded token

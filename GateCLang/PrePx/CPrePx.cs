@@ -168,21 +168,6 @@ namespace Gate.CLanguage.PrePx
                new CPrePxStage5MacroExpansion(MacroExpanderStep)
             ];
 
-      private static bool myGetIsHeader(TxtStore file, CPrePxFileOptions fileOptions)
-      {
-         switch (fileOptions)
-         {
-            case CPrePxFileOptions.extension_decide: break;
-            case CPrePxFileOptions.is_source: return false;
-            case CPrePxFileOptions.is_header: return true;
-            default: throw new Crash();
-         }
-
-         if (file == null || file.FileInfo == null) { return false; }
-         else if (new[] { ".h", ".hxx", ".hpp" }.Contains(Path.GetExtension(file.FileInfo.FullName).ToLower())) { return true; }
-         else { return false; }
-      }
-
       public virtual string? GetHeaderPath(
          DirectoryInfo[]? includeDirs, CPrePxDirectiveInclude include, CPrePxSource? source, MsgCollection messages)
       {
@@ -225,6 +210,21 @@ namespace Gate.CLanguage.PrePx
          messages.Add(CPrePxMessages.M022_NoSuchInclude(include.ContentToken?.From, include?.RelativePath));
 
          return null;
+      }
+
+      private static bool myGetIsHeader(TxtStore file, CPrePxFileOptions fileOptions)
+      {
+         switch (fileOptions)
+         {
+            case CPrePxFileOptions.extension_decide: break;
+            case CPrePxFileOptions.is_source: return false;
+            case CPrePxFileOptions.is_header: return true;
+            default: throw new Crash();
+         }
+
+         if (file == null || file.FileInfo == null) { return false; }
+         else if (new[] { ".h", ".hxx", ".hpp" }.Contains(Path.GetExtension(file.FileInfo.FullName).ToLower())) { return true; }
+         else { return false; }
       }
    }
 }

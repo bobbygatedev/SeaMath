@@ -57,7 +57,6 @@
          }
       }
 
-
       protected override void myDoSetBoundControl(Control? control)
       {
          var nat_wnd = null as InnerNativeWindow;

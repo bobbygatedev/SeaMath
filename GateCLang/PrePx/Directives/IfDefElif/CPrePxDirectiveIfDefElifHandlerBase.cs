@@ -39,7 +39,8 @@ namespace Gate.CLanguage.PrePx.Directives.IfDefElif
             else { throw new Crash(); }
 
             //all #if,#endif,#elif,#ifdef directives after my position
-            var drs_log_aft_scs = prepxStore.OwnedSectors.Where(s => s.From?.Line > ln_idx && s.Tag is CPrePxDirectiveIfDefElif).ToArray();
+            var drs_log_aft_scs = prepxStore.OwnedSectors.
+               Where(s => s.From?.Line > ln_idx && s.Tag is CPrePxDirectiveIfDefElif).ToArray();
 
             foreach (var drc_log_sec in drs_log_aft_scs)
             {
@@ -147,8 +148,12 @@ namespace Gate.CLanguage.PrePx.Directives.IfDefElif
             var pre_px_sto = lineSector.Store;
             var log_drc = log_drc_ln.Tag.ConvertOrCrash<CPrePxDirectiveIfDefElif>();
             var log_drc_ln_idx = lineSector?.From?.Line;
-            var mcr_set = CPrePxDirectiveMacro.GetMacroSet(
-               lineSector?.Store ?? throw new Crash(), lineSector.From?.Line ?? throw new Crash());
+
+            var mcr_set = data.PrePx.PredefMacros.Concat(
+               CPrePxDirectiveMacro.GetMacroSet(
+                  lineSector?.Store ?? throw new Crash(), 
+                  lineSector.From?.Line ?? throw new Crash())).
+                  ToArray();
 
             switch (log_drc.DirectiveName)
             {
@@ -160,12 +165,14 @@ namespace Gate.CLanguage.PrePx.Directives.IfDefElif
 
                   if_el_if.Expression = ir.Interpret(if_el_if, mcr_set, data);
 
-                  return if_el_if.Expression != null ? (bool?)((dynamic)(if_el_if?.ExpressionResult ?? throw new Crash()) != 0) : null;
+                  return if_el_if.Expression != null ? 
+                     (bool?)((dynamic)(if_el_if?.ExpressionResult ?? throw new Crash()) != 0) : null;
 
                case "ifdef":
                case "ifndef":
-                  var def_undefs = mcr_set.Where(d => ((IWithIdentifierSettable)d).Identifier == ((IWithIdentifierSettable)log_drc).Identifier).ToArray();
-                  var is_def = def_undefs.Length > 0 && def_undefs.Last().DirectiveName == "define";
+                  var def_uds = mcr_set.
+                     Where(d => ((IWithIdentifierSettable)d).Identifier == ((IWithIdentifierSettable)log_drc).Identifier).ToArray();
+                  var is_def = def_uds.Length > 0 && def_uds.Last().DirectiveName == "define";
 
                   return log_drc.DirectiveName == "ifdef" ? is_def : !is_def;
 

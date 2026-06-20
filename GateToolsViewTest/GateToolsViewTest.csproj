@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <StartupObject>Gate.ToolsViewTest.MsgTestForm</StartupObject>
+    <StartupObject>Gate.ToolsViewTest.ExtendedListViewTester</StartupObject>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

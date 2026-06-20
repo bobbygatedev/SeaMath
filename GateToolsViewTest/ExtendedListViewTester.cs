@@ -43,6 +43,38 @@ namespace Gate.ToolsViewTest
 
       static void Main()
       {
+         {
+            var frm = new Form();
+            var ctr = new ExtendedColumnListViewControl();
+
+            frm.Text = "1 col test";
+            frm.Controls.Add(ctr);
+
+            ctr.Dock = DockStyle.Fill;
+            ctr.MthColAdd();
+            ctr.MthRowAdd();
+            ctr.MthRowAdd();
+            ctr.OnCellClick += c => Console.WriteLine(c.Bounds);
+            frm.ShowDialog();
+         }
+
+         {
+            var frm = new Form();
+            var ctr = new ExtendedColumnListViewControl();
+
+            frm.Text = "2 cols test";
+            frm.Controls.Add(ctr);
+
+            ctr.Dock = DockStyle.Fill;
+            ctr.MthColAdd();
+            ctr.MthColAdd();
+            ctr.MthRowAdd();
+            ctr.MthRowAdd();
+            ctr.OnCellClick += c => Console.WriteLine(c.Bounds);
+            frm.ShowDialog();
+         }
+
+
          //sort test
          {
             var frm = new ExtendedListViewTester();
@@ -62,10 +94,7 @@ namespace Gate.ToolsViewTest
                rw.Cells[1].Text = rnd.Next().ToString();
             }
 
-
             frm.ShowDialog();
-
-            return;
          }
 
          {

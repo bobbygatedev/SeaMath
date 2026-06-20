@@ -6,6 +6,9 @@
    /// </summary>
    public class CPrePxDirectiveIfDef : CPrePxDirectiveIfDefElif, IWithIdentifierSettable
    {
+      public CPrePxDirectiveIfDef() { }
+
+
       public const string NAME = "ifdef";
 
       public override string DirectiveName => NAME;

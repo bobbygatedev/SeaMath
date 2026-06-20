@@ -38,7 +38,6 @@ namespace GateLangBase
       public static implicit operator ComplexUint32(UniversalNumeric universalFloat) => (ComplexUint32)(dynamic)universalFloat.myValue;
       public static implicit operator ComplexUint64(UniversalNumeric universalFloat) => (ComplexUint64)(dynamic)universalFloat.myValue;
 
-
       public static implicit operator UniversalNumeric(float value) => new UniversalNumeric(value);
       public static implicit operator UniversalNumeric(double value) => new UniversalNumeric(value);
       public static implicit operator UniversalNumeric(LongDouble value) => new UniversalNumeric(value);

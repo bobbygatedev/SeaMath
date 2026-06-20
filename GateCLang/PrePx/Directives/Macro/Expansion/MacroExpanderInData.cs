@@ -37,9 +37,9 @@ namespace Gate.CLanguage.PrePx.Directives.Macro.Expansion
       /// </summary>
       public CPrePxDirectiveMacro[] MacroInputSet
       {
-         get => PrePxData.PrePx.PredefMacros.Concat(myMacroSet ?? new CPrePxDirectiveMacro[0]).ToArray();
+         get => PrePxData.PrePx.PredefMacros.Concat(myMacroSet ?? []).ToArray();
          
-         set => myMacroSet = (value ?? new CPrePxDirectiveMacro[0]).Where(m => !(m is CPredefMacro)).ToArray();
+         set => myMacroSet = (value ?? []).Where(m => !(m is CPredefMacro)).ToArray();
       }
 
       /// <summary>

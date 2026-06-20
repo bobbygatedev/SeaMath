@@ -1,4 +1,5 @@
 ﻿using Gate.CLanguage.PrePx;
+using Gate.CLanguage.PrePx.Directives.Macro.Predefined;
 using Gate.CLanguage.PrePx.Stages;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
@@ -37,6 +38,8 @@ namespace Gate.SeaMath.Sea
       }
 
       public SeaCCompiler SeaCCompiler { get; }
+
+      public override CPredefMacro[] PredefMacros => [.. base.PredefMacros, new SeaPreDefMacro()];
 
       protected override ICPrePxStage[] myMakeStages() => new[] { new PreStage(this) }.Concat(base.myMakeStages()).ToArray();
    }

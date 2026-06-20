@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gate.LangBase
+﻿namespace Gate.LangBase
 {
    /// <summary>
    /// Bit field wrapper

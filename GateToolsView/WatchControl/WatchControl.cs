@@ -145,7 +145,6 @@ namespace Gate.ToolsView.WatchControl
                {
                   foreach (var row in CtrlListView.PpRows.Take(CtrlListView.PpRows.Length - 1) ?? [])
                   {
-
                      row.Tag = value.Make((row.Cells.FirstOrDefault()?.Text).Nn(), value.ExprManager);
                   }
                }
@@ -399,7 +398,7 @@ namespace Gate.ToolsView.WatchControl
 
       private void CtrlColumnValue_OnCellDoubleClick(CellType cell)
       {
-         if (cell.Row?.Tag is WatchExpr wat_exp && !(PpExprFactory?.IsRun ?? false) && !wat_exp.IsReadOnly)
+         if (cell.Row?.Tag is WatchExpr wat_exp && !(PpExprFactory?.IsRun ?? false))
          {
             if (wat_exp.ChildMatrix != null) { MthWatchExprMatrix(wat_exp, this); }
             else if (!wat_exp.IsReadOnly) { cell.Edit(); }

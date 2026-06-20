@@ -14,6 +14,7 @@ using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 using Gate.Tools.Watch;
+using GateLangBase;
 
 namespace Gate.SeaMath
 {
@@ -135,7 +136,19 @@ namespace Gate.SeaMath
       /// </summary>
       /// <param name="rtmObj"></param>
       /// <returns></returns>
-      public string? GetObjectString(CRtmObj rtmObj) => rtmObj.DisplayValue;
+      public string? GetObjectString(CRtmObj rtmObj)
+      {
+         if (rtmObj.CSharpObj is ValueType v)
+         {
+            var un = (UniversalNumeric)(dynamic)v;
+
+            return un.DisplayValue;
+         }
+         else
+         {
+            return "";
+         }
+      }
 
       /// <summary>
       /// 
@@ -201,7 +214,7 @@ namespace Gate.SeaMath
                var is_lv = exp?.RootNode?.IsLValue ?? false;//is l-value
 
                value = res;
-               isReadOnly = (res != null && res.IsConstant) || is_lv && is_bin;
+               isReadOnly = (res != null && res.IsConstant) || !is_lv && is_bin;
                errorMsg = null;
             }
             catch (Gate.LangBase.Runtime.RtmException exc)

@@ -1,8 +1,4 @@
-﻿using Gate.ToolsView;
-using Gate.ToolsView.ConIO;
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
+﻿using Gate.ToolsView.ConIO;
 
 namespace Gate.ToolsViewTest
 {

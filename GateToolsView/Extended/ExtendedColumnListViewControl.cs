@@ -885,9 +885,14 @@ namespace Gate.ToolsView.Extended
 
       private static Rectangle myGetSubItemBounds(ListViewItem? listViewItem, ListViewItem.ListViewSubItem subItem)
       {
-         var idx = listViewItem?.SubItems.IndexOf(subItem) ?? -1;
+         var lst_sbs = listViewItem?.SubItems.Cast<ListViewItem.ListViewSubItem>().ToList() ?? [];
+         var idx = lst_sbs.IndexOf(subItem);
 
-         if (idx >= 0 && idx < listViewItem?.SubItems.Count - 1)
+         if (idx > 0 || lst_sbs.Count == 1)
+         {
+            return lst_sbs[idx].Bounds;
+         }
+         else
          {
             var sb_p_1 = listViewItem?.SubItems[1] ?? throw new Crash();
 
@@ -895,7 +900,6 @@ namespace Gate.ToolsView.Extended
                subItem.Bounds.Location,
                new Size(sb_p_1.Bounds.X - subItem.Bounds.X, subItem.Bounds.Size.Height));
          }
-         else { return subItem.Bounds; }
       }
 
       private void myDoRefreshCell(CellType? cell)
