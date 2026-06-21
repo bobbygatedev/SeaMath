@@ -2,7 +2,6 @@
 using Gate.Tools.AppParams;
 using Gate.Tools.Text;
 using Gate.ToolsView.TextSearch;
-using System.IO;
 using static Gate.Dock.DockApp.GateDockAppStateContainer;
 using static Gate.Tools.AppParams.AppParamLoadSaver;
 

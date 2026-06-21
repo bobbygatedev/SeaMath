@@ -1,4 +1,5 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 
 namespace Gate.LangBase.Runtime.DbgEng
@@ -215,7 +216,7 @@ namespace Gate.LangBase.Runtime.DbgEng
          //avoid collection modified exception
          var prs = Processes;
 
-         foreach (var pro in prs) { pro.Terminate(); }
+         foreach (var pro in prs.Where(p => p.IsStartedFromUser)) { pro.Terminate(); }
       }
 
       public void AttachProcess(IRtmDbgEngProcess process)
@@ -266,7 +267,7 @@ namespace Gate.LangBase.Runtime.DbgEng
          DbgIdeReady2Start = myListRunDebugInfrastructure.FirstOrDefault(i => i.LaunchObjectName != null);
 
       private bool myIsValidBreakThread(IRtmDbgEngThread thread) =>
-         AllThreads.Where(t => t.ThreadState == RtmDbgEngRunState.halt).Contains(thread);
+         AllThreads.Where(t => t.Process.NnOrCrash().IsStartedFromUser && t.ThreadState == RtmDbgEngRunState.halt).Contains(thread);
 
       private void myStepIntoFirstInstruction()
       {
@@ -300,7 +301,9 @@ namespace Gate.LangBase.Runtime.DbgEng
             myListHaltProcesses.Remove(process);
          }
 
-         CurrentBreakThread = myListHaltProcesses.FirstOrDefault(p => p.BreakThread != null)?.BreakThread;
+         CurrentBreakThread =
+            myListHaltProcesses.Where(p => p.IsStartedFromUser).
+            FirstOrDefault(p => p.BreakThread != null)?.BreakThread;
          process.WatchExprFactory.IsRun = newState == RtmDbgEngRunState.running;
          OnAnyProcessChangeState?.Invoke(process, newState, oldState);
       }

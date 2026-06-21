@@ -47,6 +47,72 @@ namespace Gate.ToolsViewTest
             var frm = new Form();
             var ctr = new ExtendedColumnListViewControl();
 
+            frm.Text = "Test1";
+
+            frm.Controls.Add(ctr);
+            ctr.Dock = DockStyle.Fill;
+            ctr.MthColAdd();
+            ctr.MthColAdd();
+            ctr.MthRowsAdd(2);
+
+            ctr.OnCellKeyDown += (s, c, e) =>
+            {
+               if (e.KeyCode == Keys.F2)
+               {
+                  c.Edit();
+               }
+            };
+
+            ctr.OnCellTextUpdating += (c, a) =>
+            {
+               Console.WriteLine("Updating .. ");
+            };
+
+            ctr.OnCellTextUpdated += (c, a) =>
+            {
+               Console.WriteLine("Updated!");
+            };
+
+            ctr.PpRows[0].Cells[0].Text = "Miao";
+            ctr.PpRows[0].Cells[1].Text = "Bau";
+            frm.ShowDialog();
+         }
+
+         {
+            var frm = new Form();
+            var ctr = new ExtendedColumnListViewControl();
+
+            frm.Text = "Key Down Text";
+            frm.Controls.Add(ctr);
+
+            ctr.Dock = DockStyle.Fill;
+            ctr.MthColAdd();
+            ctr.MthRowAdd();
+            ctr.MthRowAdd();
+
+            ctr.OnCellTextUpdating += (c, a) =>
+            {
+               int aa = 2;
+            };
+
+            ctr.OnCellKeyUp += (s, c, e) =>
+            {
+               if (e.KeyCode == Keys.F2)
+               {
+                  int a = 2;
+                  c.Edit();
+               }
+            };
+
+            frm.ShowDialog();
+
+         }
+
+
+         {
+            var frm = new Form();
+            var ctr = new ExtendedColumnListViewControl();
+
             frm.Text = "1 col test";
             frm.Controls.Add(ctr);
 
@@ -112,6 +178,11 @@ namespace Gate.ToolsViewTest
          }
       }
 
+      private static void Frm_Load(object? sender, EventArgs e)
+      {
+         throw new NotImplementedException();
+      }
+
       private void CtrlListView_OnRowSelected(object sender, ExtendedColumnListViewControl.RowType row) => Console.WriteLine($"Selected row {row.Idx}");
 
       private void CtrlListView_OnSelectedCellChanged(object sender, ExtendedColumnListViewControl.CellType selectedCell)
@@ -132,3 +203,4 @@ namespace Gate.ToolsViewTest
       }
    }
 }
+

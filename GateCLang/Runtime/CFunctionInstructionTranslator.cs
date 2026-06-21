@@ -132,8 +132,14 @@ namespace Gate.CLanguage.Runtime
          var iss = its.SelectMany(i => Translate(i)).ToArray();
 
          var pop = new RtmDbgEngVirtCpuInstructionFramePop();
-
          var ret_iss = null as RtmDbgEngVirtCpuInstruction[];
+
+         var tok = declFunction.TxtToken;
+
+         if (tok != null)
+         {
+            pop.Token = tok.SpliTokens(tok.Interval.To).right;
+         }
 
          if (iss.Length == 0 || iss.All(i => i.Token == null))
          {

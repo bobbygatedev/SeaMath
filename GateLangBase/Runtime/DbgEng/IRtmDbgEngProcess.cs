@@ -68,6 +68,12 @@ namespace Gate.LangBase.Runtime.DbgEng
       RtmObj[] ObjsPersistant { get; }
 
       /// <summary>
+      /// True when process is launched by user, otw it launched from-inside program
+      /// a NOT <see cref="IsStartedFromUser"/> can't be regarded for debug menu disable/enable handling 
+      /// </summary>
+      bool IsStartedFromUser { get; }
+
+      /// <summary>
       /// Terminate process NOTICE is blocking execute on task when call from window message queueu
       /// </summary>
       /// <param name="isAbort"></param>

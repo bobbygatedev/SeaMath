@@ -1,5 +1,6 @@
 using Gate.Tools.Extensions;
 using Gate.Tools.Watch;
+using Gate.ToolsView.Extensions;
 using static Gate.ToolsView.Extended.ExtendedColumnListViewControl;
 
 namespace Gate.ToolsView.WatchControl
@@ -154,18 +155,20 @@ namespace Gate.ToolsView.WatchControl
 
             if (chi_mth != null)
             {
-               if (chi_mth.StructLabels != null)//for struct 
-               {
-                  //idx,value,type
-                  //CtrlListView.PpColumns = new[] { CtrlColumnRowIdx, new ColumnType(), new ColumnType() };
+               var str_lbs = chi_mth.StructLabels;
 
-                  foreach (var tup in chi_mth.StructLabels)
+               if (str_lbs != null)//for struct 
+               {
+                  CtrlListView.PpColumns = new[] { CtrlColumnRowIdx, new ColumnType(), new ColumnType() };
+
+                  foreach (var tup in str_lbs)
                   {
                      var row = CtrlListView.MthRowAdd();
+                     var fn = tup.fieldName.ExtTrim();
 
                      row.Cells[0].Text = tup.fieldName;
-                     row.Cells[1].Tag = chi_mth[tup.fieldName.Nn()];
-                     row.Cells[1].Text = chi_mth[tup.fieldName.Nn()]?.ValueStr;
+                     row.Cells[1].Tag = chi_mth[fn];
+                     row.Cells[1].Text = chi_mth[fn]?.ValueStr;
                      row.Cells[2].Text = tup.fieldType;
                   }
                }
@@ -218,20 +221,24 @@ namespace Gate.ToolsView.WatchControl
          var num_cls_eff = (num_cls + 1) ?? 0;//includes row idx col
          var cur_cls = CtrlListView.PpColumns.Length;
 
-         if (num_cls_eff > cur_cls)
+         CtrlListView.MthInvoke(() =>
          {
-            for (int i = 0; i < num_cls_eff - cur_cls; i++)
+            if (num_cls_eff > cur_cls)
             {
-               CtrlListView.MthColAdd();
+               for (int i = 0; i < num_cls_eff - cur_cls; i++)
+               {
+                  CtrlListView.MthColAdd();
+               }
             }
-         }
-         else if (num_cls_eff < cur_cls)
-         {
-            //last cur_cls - num_lcs
-            var to_rem = CtrlListView.PpColumns.Reverse().Take(cur_cls - num_cls_eff).Reverse().ToArray();
+            else if (num_cls_eff < cur_cls)
+            {
+               //last cur_cls - num_lcs
+               var to_rem = CtrlListView.PpColumns.Reverse().Take(cur_cls - num_cls_eff).Reverse().ToArray();
 
-            CtrlListView.MthColsRemove(to_rem);
-         }
+               CtrlListView.MthColsRemove(to_rem);
+            }
+         });
+
 
          return num_cls ?? 0;
       }

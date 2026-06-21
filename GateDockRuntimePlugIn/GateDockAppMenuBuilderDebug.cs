@@ -81,9 +81,9 @@ namespace Gate.DockRuntimePlugin
          {
             var dbg_eng = Plugin.DbgDbgEng;
             var is_inf = dbg_eng.DbgIdeReady2Start != null;
-            var is_act = dbg_eng.Processes.Any(p => p.State != RtmDbgEngRunState.terminated);
-            var is_run = dbg_eng.Processes.Any(p => p.State == RtmDbgEngRunState.running);
-            var is_brk = dbg_eng.Processes.Any(p => p.State == RtmDbgEngRunState.halt);
+            var is_act = dbg_eng.Processes.Any(p => p.IsStartedFromUser && p.State != RtmDbgEngRunState.terminated);
+            var is_run = dbg_eng.Processes.Any(p => p.IsStartedFromUser && p.State == RtmDbgEngRunState.running);
+            var is_brk = dbg_eng.Processes.Any(p => p.IsStartedFromUser && p.State == RtmDbgEngRunState.halt);
             var cms = Plugin.App.AppMenuHelper.CmdContainer?.AllCmds ?? throw new Crash();
 
             cms[CMD_START_DEBUGGING].IsVisible = is_inf && !is_act;

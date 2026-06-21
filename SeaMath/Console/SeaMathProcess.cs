@@ -19,8 +19,9 @@ namespace Gate.SeaMath.Console
          SeaMathDbgIde ide,
          Stream stdInInitial,
          Stream stdOutInitial,
-         Stream stdErrInitial) :
-            base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial)
+         Stream stdErrInitial,
+         bool isStartFromUser) :
+            base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial, isStartFromUser)
       {
          ide.FileSystem.CreateSpecialStream(stdInInitial, InOutErrType.StdIn, this);
          ide.FileSystem.CreateSpecialStream(stdOutInitial, InOutErrType.StdOut, this);

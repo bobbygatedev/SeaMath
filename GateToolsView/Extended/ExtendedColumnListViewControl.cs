@@ -197,11 +197,13 @@ namespace Gate.ToolsView.Extended
          }
       }
 
-      protected virtual void myDoActionOnKeyUp(object? sender, KeyEventArgs e)
+      protected override void OnKeyDown(KeyEventArgs e)
       {
+         base.OnKeyDown(e);
+
          if (PpSelectedCell != null)
          {
-            OnCellKeyDown?.Invoke(sender, PpSelectedCell, e);
+            OnCellKeyDown?.Invoke(this, PpSelectedCell, e);
          }
       }
 

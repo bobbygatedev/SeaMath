@@ -1,8 +1,7 @@
 {
   "profiles": {
     "GatePad": {
-      "commandName": "Project",
-      "commandLineArgs": "c:\\erik\\git\\seamath\\SeaMath\\dev\\libdirs\\matlib\\complex.c\r\nc:\\erik\\git\\seamath\\SeaMath\\dev\\libdirs\\matlib\\complex.h"
+      "commandName": "Project"
     }
   }
 }

@@ -61,7 +61,7 @@ namespace Gate.ToolsView.WatchControl
          this.CtrlListView.TabIndex = 0;
          this.CtrlListView.OnSelectedCellChanged += new ExtendedColumnListViewControl.OnSelectedCellChangedHandler(this.CtrlListView_OnSelectedCellChanged);
          this.CtrlListView.OnRowSelected += new ExtendedColumnListViewControl.OnRowEventHandler(this.CtrlListView_OnRowSelected);
-         this.CtrlListView.OnCellKeyDown += new ExtendedColumnListViewControl.OnCellKeyHandler(this.CtrlListView_OnRowKeyDown);
+         this.CtrlListView.OnCellKeyDown += new ExtendedColumnListViewControl.OnCellKeyHandler(this.CtrlListView_OnCellKeyDown);
          // 
          // CtrlColumnExpr
          // 

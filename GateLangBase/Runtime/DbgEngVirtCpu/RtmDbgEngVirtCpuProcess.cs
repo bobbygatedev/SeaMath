@@ -53,7 +53,8 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          IRtmDbgEngIde dbgIde,
          Stream stdInInitial,
          Stream stdOutInitial,
-         Stream stdErrInitial)
+         Stream stdErrInitial,
+         bool isStartFromUser)
       {
          Pid = ++myPidCounter;
          StdIn = stdInInitial;
@@ -63,6 +64,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          DbgIde = dbgIde;
          WatchExprFactory = new WatchExpr.FactoryType(dbgIde.WatchExprManager);
          RtmStrategy = rtmStrategy;
+         IsStartedFromUser = isStartFromUser;
 
          myAddSubItemRange(myRtmModulesInitial =
            PseudoExe.ExeItems.Select(ei => new RtmDbgEngVirtCpuRtmModule(ei, RtmStrategy)).ToArray());
@@ -286,6 +288,11 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       public int? ExitCode { get; private set; }
 
       /// <summary>
+      /// 
+      /// </summary>
+      public bool IsStartedFromUser { get; }
+
+      /// <summary>
       /// Starts thread in this process. We consider that all threads are "childs" of main thread and main thread is "parent" for all threads. This is important for determining visibility of objects in threads: if thread is "child" for main thread then it see all objects visible for main thread, otherwise it see only global objects.
       /// </summary>
       /// <param name="dbgSettings"></param>
@@ -471,16 +478,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          return ExitCode ?? -1;
       }
 
-      /// <summary>
-      /// Terminates process. By default it just kill all active threads and wait for process termination, 
-      /// but you can override it to do more complex action on terminating process. 
-      /// Note that this method is called in separate thread, so you need to be careful with synchronization if you override it.
-      /// </summary>
-      /// <param name="isAbort"></param>
-      /// <param name="exitCode"></param>
-      /// <returns></returns>
-      /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
-      public int Terminate(bool isAbort = false, int exitCode = -1)
+      public Task TerminateAsync(bool isAbort = false, int exitCode = -1)
       {
          var tsk = new Task(() =>
          {
@@ -497,6 +495,23 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          });
 
          tsk.Start();
+
+         return tsk;
+      }
+
+      /// <summary>
+      /// Terminates process. By default it just kill all active threads and wait for process termination, 
+      /// but you can override it to do more complex action on terminating process. 
+      /// Note that this method is called in separate thread, so you need to be careful with synchronization if you override it.
+      /// </summary>
+      /// <param name="isAbort"></param>
+      /// <param name="exitCode"></param>
+      /// <returns></returns>
+      /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
+      public int Terminate(bool isAbort = false, int exitCode = -1)
+      {
+         var tsk = TerminateAsync(isAbort, exitCode);
+
          tsk.Wait();
 
          return ExitCode ?? -1;

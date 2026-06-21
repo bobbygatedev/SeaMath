@@ -50,6 +50,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
                   }
                }
 
+               Thread.Sleep(0);//cause thread interrupt if required
                stack?.TopFunctionFrame?.InstructionCurrent?.Run(stack, rtmStrategy);
             }
 

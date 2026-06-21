@@ -44,7 +44,7 @@ namespace Gate.SeaMath
             public SeaMathWatchExprManager Parent { get; }
 
             public ArrayMultidimensional<WatchExpr> GetChildMatrixArray(WatchExpr watchExpr) => 
-               myGetChildMatrixArrayCall(watchExpr, watchExpr.Value as RtmObj ?? throw new Crash());
+               myGetChildMatrixArrayCall(watchExpr, watchExpr.Value.ConvertOrCrash<RtmObj>().GetRtmFromSea().NnOrCrash());
 
             private ArrayMultidimensional<WatchExpr> myGetChildMatrixArrayCall(WatchExpr watchExpr, RtmObj rtmObj) => 
                myGetChildMatrixArray(watchExpr, (dynamic)rtmObj);
@@ -90,16 +90,20 @@ namespace Gate.SeaMath
                {
                   var fls = cls.Fields;
                   var res = new ArrayMultidimensional<WatchExpr>(cls.Fields.Length);
+                  var str_is_cst = ali.IsConstant;//just built-in an be updated
 
                   foreach (var itm in res)
                   {
                      var fld = fls[itm.Indices[0]];
+                     var fls_id_cst = str_is_cst || fld.IsConstant;
+                     var fld_id = fld.Identifier.NnOrCrash();
 
                      itm.Value =
                         watchExpr.Factory.Make(
-                           $"{watchExpr.Expression}.[{fld.Identifier}]",
+                           $"{watchExpr.Expression}.[{fld_id}]",
                            watchExpr.Factory.ExprManager,
-                           new WatchExpr.SubExprType(fld.Identifier, itm.Indices, watchExpr));
+                           new WatchExpr.SubExprType(fld_id, itm.Indices, watchExpr));
+                     itm.Value.Init(value[fld_id].NnOrCrash(), str_is_cst);
                   }
 
                   return res;
@@ -138,7 +142,10 @@ namespace Gate.SeaMath
       /// <returns></returns>
       public string? GetObjectString(CRtmObj rtmObj)
       {
-         if (rtmObj.CSharpObj is ValueType v)
+         var rtm_obj = rtmObj.GetRtmObjFromSea();
+         var sca = rtmObj.GetRtmScalarFromSea();
+ 
+         if (sca != null && rtmObj.CSharpObj is ValueType v)
          {
             var un = (UniversalNumeric)(dynamic)v;
 
@@ -146,7 +153,7 @@ namespace Gate.SeaMath
          }
          else
          {
-            return "";
+            return rtmObj.DisplayValue;
          }
       }
 
@@ -155,7 +162,21 @@ namespace Gate.SeaMath
       /// </summary>
       /// <param name="rtmObj"></param>
       /// <returns></returns>
-      public string? GetTypeString(CRtmObj rtmObj) => rtmObj.DeclType?.TypeSpecifier;
+      public string? GetTypeString(CRtmObj rtmObj)
+      {
+         var is_sea = rtmObj.IsSea();
+
+         if (is_sea)
+         {
+            var rtm_obj = rtmObj.GetRtmFromSea();
+
+            return $"sea({rtmObj.DeclType?.TypeSpecifier})";
+         }
+         else
+         {
+            return rtmObj.DeclType?.TypeSpecifier;
+         }
+      }
 
       /// <summary>
       /// 

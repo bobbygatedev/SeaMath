@@ -4,7 +4,8 @@ using Gate.Tools.Message;
 namespace Gate.Tools.Watch
 {
    /// <summary>
-   /// Wrappes an expression wrapped inside a <see cref="WatchControl"/> (or any other compatibe with <see cref="WatchExpr.Factory"/>/<see cref="IWatchExprManager"/> inter
+   /// Wrappes an expression wrapped inside a <see cref="WatchControl"/> 
+   /// (or any other compatibe with <see cref="WatchExpr.Factory"/>/<see cref="IWatchExprManager"/> inter
    /// </summary>
    public sealed class WatchExpr : HierarchicalItem, IDisposable
    {
@@ -47,17 +48,14 @@ namespace Gate.Tools.Watch
 
             set
             {
-               if (myIsRun != value)
+               if (!value)
                {
-                  if (!value)
-                  {
-                     //re-parse
-                     foreach (var wat_exp in WatchExprs) { wat_exp.TryParse(); }
-                  }
-
-                  myIsRun = value;
-                  OnRunChange?.Invoke(this, IsRun);
+                  //re-parse
+                  foreach (var wat_exp in WatchExprs) { wat_exp.TryParse(); }
                }
+
+               myIsRun = value;
+               OnRunChange?.Invoke(this, IsRun);
             }
          }
 

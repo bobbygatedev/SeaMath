@@ -155,6 +155,8 @@ namespace Gate.ToolsView.WatchControl
                      row.Tag = null;
                   }
                }
+
+               MthRefresh();
             }
          }
       }
@@ -206,7 +208,18 @@ namespace Gate.ToolsView.WatchControl
       {
          this.MthInvoke(() =>
          {
-            foreach (var row in CtrlListView.PpRows.Where(r => r.Tag is WatchExpr)) { myDoTryParseExprRow(row); }
+            if (PpExprFactory?.IsRun ?? true)
+            {
+               foreach (var row in CtrlListView.PpRows.Where(r => r.Tag is WatchExpr))
+               {
+                  myDoBlank(row);
+               }
+            }
+            else
+            {
+               foreach (var row in CtrlListView.PpRows.Where(r => r.Tag is WatchExpr)) { myDoTryParseExprRow(row); }
+            }
+
          });
       }
 
@@ -369,10 +382,14 @@ namespace Gate.ToolsView.WatchControl
 
       private void myDoUpdateSelection() => OnCmdStateUpdate?.Invoke(this);
 
-      private void MyExpressionFactory_OnRunChange(WatchExpr.FactoryType factory, bool isRun)
+      private void myDoBlank(RowType row)
       {
-         if (!isRun) { MthRefresh(); }
+         row.Tag = null;
+         row.Cells[CtrlColumnValue.Index].Text = "";
+         row.Cells[CtrlColumnType.Index].Text = "";
       }
+
+      private void MyExpressionFactory_OnRunChange(WatchExpr.FactoryType factory, bool isRun) => MthRefresh();
 
       private void MyExpressionFactory_OnAnyExprChange(WatchExpr watchExpr) => MthRefresh();
 
@@ -380,7 +397,7 @@ namespace Gate.ToolsView.WatchControl
 
       private void CtrlListView_OnSelectedCellChanged(object? sender, CellType selectedCell) => myDoUpdateSelection();
 
-      private void CtrlListView_OnRowKeyDown(object? sender, CellType cell, KeyEventArgs e)
+      private void CtrlListView_OnCellKeyDown(object? sender, CellType cell, KeyEventArgs e)
       {
          if (PpExprFactory != null && !PpExprFactory.IsRun) { MthActionOnKeyDown(e, cell.Row.Cells[CtrlColumnExpr.Index]); }
       }

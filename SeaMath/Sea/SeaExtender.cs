@@ -72,6 +72,13 @@ namespace Gate.SeaMath.Sea
       public static RtmObj? GetRtmObjFromSea(this RtmObj rtmObj) => rtmObj is SeaTypeRtmObj sea ? sea.RtmValue : rtmObj;
 
       /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="rtmObj"></param>
+      /// <returns></returns>
+      public static bool IsSea(this RtmObj rtmObj) => rtmObj is SeaTypeRtmObj;
+
+      /// <summary>
       /// Retrieves the <see cref="RtmDbgEngVirtCpuFunction"/> associated with the specified <see cref="RtmObj"/>  after applying
       /// any necessary cleaning operations.
       /// </summary>

@@ -35,6 +35,8 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
 
       public RtmObj[] ObjsPersistant => throw new System.NotImplementedException();
 
+      public bool IsStartedFromUser => throw new NotImplementedException();
+
       public void Continue()
       {
          throw new System.NotImplementedException();

@@ -157,10 +157,11 @@ namespace Gate.ToolsView.Extended
                {
                   var ars = new UpdateCellTextArgs();
                   var txt = myGetCellText(txt_ctr);
+                  var cel_emb = CellEmbeddeded;
 
                   ars.Text2Set = txt;
-                  CellEmbeddeded?.ParentListView?.myActionOnCellTextUpdating(CellEmbeddeded, ars);
-                  CellEmbeddeded?.UnembedTempControl();
+                  cel_emb?.ParentListView?.myActionOnCellTextUpdating(cel_emb, ars);
+                  cel_emb?.UnembedTempControl();
                   e.SuppressKeyPress = true;
                   e.Handled = true;
                }

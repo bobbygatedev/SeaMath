@@ -20,7 +20,7 @@ namespace Gate.SeaMath.Console
          Stream stdIn,
          Stream stdOut,
          Stream stdErr) :
-         base(pseudoExe, rtmStrategy, ide, stdIn, stdOut, stdErr)
+         base(pseudoExe, rtmStrategy, ide, stdIn, stdOut, stdErr, false)
       {
       }
 

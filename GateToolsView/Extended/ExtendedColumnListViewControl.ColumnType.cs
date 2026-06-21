@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Gate.ToolsView.Extensions;
+using System.ComponentModel;
 
 namespace Gate.ToolsView.Extended
 {
@@ -232,24 +233,31 @@ namespace Gate.ToolsView.Extended
 
          protected override void myActionOnListViewSet(ExtendedColumnListViewControl listViewControl)
          {
-            var idx = listViewControl.myItemContainer.Columns.ToList().IndexOf(this);
+            listViewControl.MthInvoke(() =>
+            {
+               var idx = listViewControl.myItemContainer.Columns.ToList().IndexOf(this);
 
-            listViewControl.CtrlListView.Columns.Insert(idx, ColumnHeader);
-            listViewControl.OnCellTextUpdating += ListViewControl_OnCellTextUpdating;
-            listViewControl.OnCellTextUpdated += ListViewControl_OnCellTextUpdated;
-            listViewControl.OnCellClick += ListViewControl_OnCellClick;
-            listViewControl.OnCellDoubleClick += ListViewControl_OnCellDoubleClick;
-            listViewControl.CtrlListView.ColumnWidthChanged += CtrlListView_ColumnWidthChanged;
+               listViewControl.CtrlListView.Columns.Insert(idx, ColumnHeader);
+               listViewControl.OnCellTextUpdating += ListViewControl_OnCellTextUpdating;
+               listViewControl.OnCellTextUpdated += ListViewControl_OnCellTextUpdated;
+               listViewControl.OnCellClick += ListViewControl_OnCellClick;
+               listViewControl.OnCellDoubleClick += ListViewControl_OnCellDoubleClick;
+               listViewControl.CtrlListView.ColumnWidthChanged += CtrlListView_ColumnWidthChanged;
+            });
          }
 
          protected override void myActionOnListViewReset(ExtendedColumnListViewControl listViewControl)
          {
-            listViewControl.CtrlListView.Columns.Remove(ColumnHeader);
-            listViewControl.OnCellTextUpdating -= ListViewControl_OnCellTextUpdating;
-            listViewControl.OnCellTextUpdated -= ListViewControl_OnCellTextUpdated;
-            listViewControl.OnCellClick -= ListViewControl_OnCellClick;
-            listViewControl.OnCellDoubleClick -= ListViewControl_OnCellDoubleClick;
-            listViewControl.CtrlListView.ColumnWidthChanged -= CtrlListView_ColumnWidthChanged;
+
+            listViewControl.MthInvoke (() =>
+            {
+               listViewControl.CtrlListView.Columns.Remove(ColumnHeader);
+               listViewControl.OnCellTextUpdating -= ListViewControl_OnCellTextUpdating;
+               listViewControl.OnCellTextUpdated -= ListViewControl_OnCellTextUpdated;
+               listViewControl.OnCellClick -= ListViewControl_OnCellClick;
+               listViewControl.OnCellDoubleClick -= ListViewControl_OnCellDoubleClick;
+               listViewControl.CtrlListView.ColumnWidthChanged -= CtrlListView_ColumnWidthChanged;
+            });
          }
 
          private void CtrlListView_ColumnWidthChanged(object? sender, ColumnWidthChangedEventArgs e)
@@ -270,12 +278,12 @@ namespace Gate.ToolsView.Extended
 
          private void ListViewControl_OnCellTextUpdating(CellType cell, UpdateCellTextArgs args)
          {
-            if (cell.Column == this) { OnCellTextUpdating?.Invoke(cell, args); }
+            if (cell.ColIdx != -1 && cell.Column == this) { OnCellTextUpdating?.Invoke(cell, args); }
          }
 
          private void ListViewControl_OnCellTextUpdated(CellType cell, string newText)
          {
-            if (cell.Column == this) { OnCellTextUpdated?.Invoke(cell, newText); }
+            if (cell.ColIdx != -1 && cell.Column == this) { OnCellTextUpdated?.Invoke(cell, newText); }
          }
 
          private void ListViewControl_OnCellDoubleClick(CellType cell)

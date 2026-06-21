@@ -292,7 +292,7 @@ namespace Gate.SeaMath.Console
       public void Dispose()
       {
          myIsDisposed = true;
-         (ConsoleProcess ?? throw new Crash()).Terminate();
+         ConsoleProcess.TerminateAsync(true);
          ConsoleStrategy.OnConsoleTerminate();
       }
 
@@ -316,6 +316,8 @@ namespace Gate.SeaMath.Console
                pse_exe, (SeaRtmStrategy)ide.Standard.CCompiler.RtmStrategy, ide, str_tup.stdIn, str_tup.stdOut, str_tup.stdErr));
             (ConsoleProcess ?? throw new Crash()).Start();
             myCreateConsoleThread();
+            Session.DbgEng.AttachProcess(ConsoleProcess);            
+            ConsoleProcess.ThreadsAll.FirstOrDefault().NnOrCrash().ThreadState = RtmDbgEngRunState.halt;
          }
 
          base.myActionOnParentSet(parentItem);

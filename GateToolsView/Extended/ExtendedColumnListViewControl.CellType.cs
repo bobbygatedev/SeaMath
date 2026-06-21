@@ -1,4 +1,5 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using System.ComponentModel;
 
 namespace Gate.ToolsView.Extended
@@ -119,6 +120,7 @@ namespace Gate.ToolsView.Extended
          /// <summary>
          /// 
          /// </summary>
+         /// <exception cref="IndexOutOfRangeException"></exception>
          public ColumnType Column => ColIdx >= 0 && ColIdx < ParentListView?.PpColumns.Length ?
             ParentListView.PpColumns[ColIdx] : throw new IndexOutOfRangeException();
 
@@ -235,19 +237,17 @@ namespace Gate.ToolsView.Extended
                      (ParentListView ?? throw new Crash()).Controls.Remove(myEmbeddedControlPermanent);
                      myEmbeddedControlPermanent.GotFocus -= Value_GotFocus;
                      myEmbeddedControlPermanent.LostFocus -= Value_LostFocus;
-                     myEmbeddedControlPermanent.KeyUp -= ParentListView.myDoActionOnKeyUp;
                   }
 
                   if (value != null)
                   {
                      (ParentListView ?? throw new Crash()).Controls.Add(value);
                      value.BringToFront();
-                     value.Bounds = myGetSubItemBounds(ListViewItem, ListViewSubItem ?? throw new Crash());
+                     value.Bounds = myGetSubItemBounds(ListViewItem, ListViewSubItem.NnOrCrash());
                      value.BackColor = BackColor ?? ParentListView.BackColor;
                      value.ForeColor = ParentListView.ForeColor;
                      value.GotFocus += Value_GotFocus;
                      value.LostFocus += Value_LostFocus;
-                     value.KeyUp += ParentListView.myDoActionOnKeyUp;
                   }
 
                   myEmbeddedControlPermanent = value;

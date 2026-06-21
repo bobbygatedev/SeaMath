@@ -25,7 +25,7 @@ namespace Gate.SeaMath.Console
          Stream stdInInitial,
          Stream stdOutInitial,
          Stream stdErrInitial) :
-            base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial)
+            base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial, true)
       {
       }
    }
