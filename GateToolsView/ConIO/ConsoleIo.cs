@@ -900,7 +900,7 @@ namespace Gate.ToolsView.ConIO
                   break;
 
                case EventType.tab:
-                  var hns = BoundConsoleTask?.Hints ?? [];
+                  var hns = (BoundConsoleTask?.Hints ?? []).Where(h => !h.HintId.IsBlank()).ToArray();
                   var sp = cns_ctr.CurrentScreenPos;
 
                   if (myHintHandler != null)

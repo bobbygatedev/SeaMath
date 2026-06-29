@@ -229,8 +229,8 @@ namespace Gate.CLanguage.Compiler
          myMakMsg2(
             MsgType.error,
             CCompilerMsgId.cant_cast_to,
-            rType.TxtToken,
-            $"Can't cast {rType.Descriptor} to {rType.Descriptor}");
+            lType.TxtToken,
+            $"Can't cast {rType.Rebuilt} to {lType.Rebuilt}");
 
       public static Msg[] ConflictingTypes(CDecl decl, CDecl oldDecl) => [
          myMakErr( CCompilerMsgId.conflicting_types, decl.TxtToken, $" for '{decl.Descriptor}'") ,

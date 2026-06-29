@@ -17,7 +17,7 @@ namespace Gate.ToolsView.Extended
          get
          {
             // gets the property descriptor for the property "Orientation"
-            var pro_dsc = TypeDescriptor.GetProperties(this.Component)["Orientation"];
+            var pro_dsc = TypeDescriptor.GetProperties(Component)["Orientation"];
 
             // if not null - we can read the current orientation of the scroll bar
             if (pro_dsc != null)

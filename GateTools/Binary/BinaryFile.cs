@@ -9,7 +9,7 @@ namespace GateTools.Binary
    /// data as a byte array and, if available, its associated file system information. It also provides methods to pin
    /// the underlying data in memory, which can be useful for interoperability scenarios that require a fixed memory
    /// address. Instances can be created from a file path, a FileInfo object, or directly from a byte array.</remarks>
-   public class BinaryFile
+   public unsafe class BinaryFile
    {
       public BinaryFile(FileInfo fileInfo)
       {
@@ -20,6 +20,12 @@ namespace GateTools.Binary
       public BinaryFile(string path) : this(new FileInfo(path)) { }
 
       public BinaryFile(byte[] data) => Data = data;
+
+      public BinaryFile(nint pointer, int lenBytes)
+      {
+         Data = new byte[lenBytes];
+         Marshal.Copy(pointer,Data, 0, lenBytes);
+      }
 
       public FileInfo? FileInfo { get; private set; }
 

@@ -101,7 +101,7 @@
       /// <summary>
       /// Int array = {From,To}
       /// </summary>
-      public int[] Items => new int[] { From, To };
+      public int[] Items => [From, To];
 
       /// <summary>
       /// Range array {From, From + 1 , .. , To -1 , To }

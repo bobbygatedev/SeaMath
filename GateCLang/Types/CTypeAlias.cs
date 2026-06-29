@@ -6,7 +6,7 @@ using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Arry;
-using Gate.Tools.Extensions;
+using Gate.Tools.Text;
 using System.Runtime.InteropServices;
 
 namespace Gate.CLanguage.Types
@@ -50,6 +50,12 @@ namespace Gate.CLanguage.Types
          public CType? GetTypeBase(CTypeAlias typeAlias) =>
             typeAlias.ParentItem == null ? myType : (CType)myGetTypeBase((dynamic)typeAlias.ParentItem, typeAlias);
 
+         public void SetTypeBase(CTypeAlias typeAlias, CType? type)
+         {
+            if (typeAlias.ParentItem == null) { myType = type; }
+            else { mySetTypeBase((dynamic)typeAlias.ParentItem, typeAlias, type); }
+         }
+
          /// <summary>
          /// Not valid parent item type.
          /// </summary>
@@ -77,12 +83,6 @@ namespace Gate.CLanguage.Types
             parentFunctionParams.TypeAliasDeclaration?.TypeBase;
 
          private CType? myGetTypeBase(CExprNodeTypeName parentExprNodeTypeName, CTypeAlias typeAlias) => myType;
-
-         public void SetTypeBase(CTypeAlias typeAlias, CType? type)
-         {
-            if (typeAlias.ParentItem == null) { myType = type; }
-            else { mySetTypeBase((dynamic)typeAlias.ParentItem, typeAlias, type); }
-         }
 
          /// <summary>
          /// Unbound <see cref="CTypeAlias"/> uses <see cref="CTypeAlias.InnerTypeVisitor.myType"/> for storing type.

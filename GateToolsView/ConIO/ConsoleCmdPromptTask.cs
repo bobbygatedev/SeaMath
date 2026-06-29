@@ -61,7 +61,7 @@ namespace Gate.ToolsView.ConIO
          set => myCommandQueueDrainTimeout = value;
       }
 
-      public override ConsoleCmdHint[] Hints => Commands.SelectMany(c => c.Hints ?? new ConsoleCmdHint[0]).ToArray();
+      public override ConsoleCmdHint[] Hints => Commands.SelectMany(c => c.Hints ?? []).ToArray();
 
       /// <summary>
       /// Can't be aborted.

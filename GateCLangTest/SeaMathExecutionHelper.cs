@@ -3,6 +3,7 @@ using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.SeaMath;
 using Gate.SeaMath.Console;
 using Gate.SeaMath.Plot;
+using Gate.SeaMath.Sea;
 using Gate.SeaMath.Windows.Console;
 using Gate.SeaMath.Windows.Plot;
 using Gate.Tools;
@@ -213,31 +214,6 @@ namespace Gate.CLanguageTest
          return res;
       }
 
-      public static float[] Conv(float[] v1, float[] v2)
-      {
-         int v1Size = v1.Length;
-         int v2Size = v2.Length;
-         //N  + M − 1
-         int n_oup = v1Size + v2Size - 1;
-         var oup = new float[n_oup];
-
-
-         for (int i = 0; i < n_oup; i++)
-         {
-            oup[i] = 0;
-
-            for (var j = 0; j < n_oup; j++)
-            {
-               if (j < v1Size && i - j >= 0 && i - j < v2Size)
-               {
-                  oup[i] += v1[j] * v2[i - j];
-               }
-            }
-         }
-
-         return oup;
-      }
-
       /// <summary>
       /// Removes all child processes from the ConsoleProcess (and clear post-mortem variables).
       /// </summary>
@@ -278,13 +254,14 @@ namespace Gate.CLanguageTest
          //#define SEATR(...) __attribute__(( __VA_ARGS__ ))
 
          //return;
-         //using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
-         using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll 
+         using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
+         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll 
          //using (var hlp = new SeaMathExecutionHelper(false, false))
          {
             var aim = Aim.run_test;
 
-            //aim = Aim.console_run_test;
+            //tododo
+            aim = Aim.console_run_test;
             //aim = Aim.console_single_command_test;
 
             switch (aim)
@@ -300,16 +277,22 @@ namespace Gate.CLanguageTest
                      var pro = hlp.Processes[0];
                      var vrs = pro.ObjVisibleFromBreakThreadVar;
 
-                     var va = vrs.FirstOrDefault(v => v.VarName == "a");
-                     var vb = vrs.FirstOrDefault(v => v.VarName == "b");
-                     var vc = vrs.FirstOrDefault(v => v.VarName == "c");
+                     var v1 = vrs.FirstOrDefault(v => v.VarName == "v1") as SeaTypeRtmObj;
 
-                     var vr = vrs.FirstOrDefault(v => v.VarName == "res");
+                     var v1_r = v1?.RtmValue;
 
-                     Console.WriteLine($"{va}");
-                     Console.WriteLine($"{vb}");
-                     Console.WriteLine($"{vc}");
-                     Console.WriteLine($"{vr}");
+                     var v1_as = v1_r.GetType().Name;
+
+                     //var va = vrs.FirstOrDefault(v => v.VarName == "a");
+                     //var vb = vrs.FirstOrDefault(v => v.VarName == "b");
+                     //var vc = vrs.FirstOrDefault(v => v.VarName == "c");
+
+                     //var vr = vrs.FirstOrDefault(v => v.VarName == "res");
+
+                     //Console.WriteLine($"{va}");
+                     //Console.WriteLine($"{vb}");
+                     //Console.WriteLine($"{vc}");
+                     //Console.WriteLine($"{vr}");
 
                      //var id = "res";
                      //var glo =

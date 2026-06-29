@@ -3,7 +3,6 @@ using Gate.CLanguage.Expressions.Nodes;
 using Gate.CLanguage.Runtime;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
-using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
@@ -120,7 +119,7 @@ namespace Gate.CLanguage.Expressions.COperators
          else if (fin_typ_ali.IsBuiltIn)
          {
             return rtmStrategy?.MakeConstant(
-               a0 ?? throw new Gate.LangBase.Runtime.RtmException($"Null arguement of cast!"),
+               a0 ?? throw new Gate.LangBase.Runtime.RtmException($"Null argument of cast!"),
                operatorNode.DeclType);
          }
          else { throw new Gate.LangBase.Runtime.RtmException($"Not a valid final type '{fin_typ_ali.Descriptor}'"); }

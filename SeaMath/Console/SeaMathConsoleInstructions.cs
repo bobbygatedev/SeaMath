@@ -1,8 +1,11 @@
 ﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Runtime;
+using Gate.LangBase.Expressions.Nodes;
+using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
+using Gate.SeaMath.Workspace.Libs;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 
@@ -42,6 +45,27 @@ namespace Gate.SeaMath.Console
          public SeaMathConsole Console { get; }
 
          /// <summary>
+         /// A c# method can indicate <see cref="SeaMathLibCSharp.MethodAttribute.IsConsoleOmitReturn"/> as an attribute
+         /// </summary>
+         public bool IsOmitReturn
+         {
+            get
+            {
+               if (ExprStatement?.Expr?.RootNode is ExprNodeOperator opr && opr.Operator is OperatorCall oc)
+               {
+                  var v = opr.OperandNodes.FirstOrDefault() as ExprNodeOperandVariable;
+
+                  if (v.Decl is SeaMathLibCSharpDeclFunction lf)
+                  {
+                     return lf.MethodAttribute?.IsConsoleOmitReturn ?? false;
+                  }
+               }
+
+               return false;
+            }
+         }
+
+         /// <summary>
          /// 
          /// </summary>
          /// <param name="stack"></param>
@@ -51,7 +75,11 @@ namespace Gate.SeaMath.Console
             var res = ExprStatement?.Expr?.Eval(stack, rtmStrategy);
 
             Console.ConsoleStrategy.BeforeInstructionRun();
-            (Console.Writer ?? throw new Crash()).WriteLine($"ret = {(res != null ? res.DisplayValue : "void")}");
+
+            if (!IsOmitReturn)
+            {
+               (Console.Writer ?? throw new Crash()).WriteLine($"ret = {(res != null ? res.DisplayValue : "void")}");
+            }
          }
       }
 

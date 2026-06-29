@@ -1,5 +1,4 @@
 ﻿using Gate.ToolsView.MenuCommand;
-using System.Drawing;
 
 namespace Gate.SeaMath
 {

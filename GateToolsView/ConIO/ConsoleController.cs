@@ -75,15 +75,6 @@ namespace Gate.ToolsView.ConIO
          {
             tsk.Abort(AbortReason.dispose_controller);
          }
-
-         //while (ConsoleTasks.Length > 0)
-         //{
-         //   var tsk = ConsoleTasks.LastOrDefault();
-
-         //   tsk.Abort(AbortReason.dispose_controller);
-         //   Thread.Yield();
-         //   Thread.Sleep(100);
-         //}
       }
 
       private void myActionOnTaskThreadEnds(ConsoleTask consoleTask)

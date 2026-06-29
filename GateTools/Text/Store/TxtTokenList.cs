@@ -104,7 +104,7 @@ namespace Gate.Tools.Text
          {
             var tok_beg = this[beginningIdx];
 
-            return tok_beg?.GetConstCopy((tok_beg.Interval.From, this[CurrIdx - 1].Interval.To));
+            return TxtTokenConst.FromTokenInterval(tok_beg, this[CurrIdx - 1]);
          }
          else
          {

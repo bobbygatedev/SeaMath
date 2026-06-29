@@ -28,6 +28,11 @@ namespace Gate.SeaMath.Windows.Console
 
       public override int Kbhit() => ConsoleController.CurrentConio?.Kbhit() ?? -1;
 
+      public override void ClearScreen()
+      {
+         ConsoleControl.ClearScreen();//tododo
+      }
+
       protected override (Stream stdIn, Stream stdOut, Stream stdErr) myOnMakingConsole(SeaMathConsole console)
       {
          var dum = new SeaMathConsoleDummyCommand(console);

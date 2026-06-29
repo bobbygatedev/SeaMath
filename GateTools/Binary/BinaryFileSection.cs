@@ -12,6 +12,8 @@ namespace GateTools.Binary
          BinaryFile = binaryFile;
       }
 
+      public BinaryFileSection(nint pointer, int len) : this(Interval.FromFromLen(0, len), new BinaryFile(pointer, len)) { }
+
       public string? Name { get; }
 
       public Interval Interval { get; }
@@ -26,7 +28,7 @@ namespace GateTools.Binary
          throw new ToolsException("Binary file pointer not associated.");
 
       public string DataRepresentation => (Pointer ?? throw new ToolsException()).
-         GetHexDump((uint)Interval.Length, BitNumber.Bit8 , Interval.From );
+         GetHexDump((uint)Interval.Length, BitNumber.Bit8, Interval.From);
 
       public string DataRepresentationReduced => Interval.Length > RepresentationReducedValue ?
          $"{(Pointer ?? throw new ToolsException()).GetHexDump(

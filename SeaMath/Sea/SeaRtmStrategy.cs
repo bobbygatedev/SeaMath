@@ -403,6 +403,13 @@ namespace Gate.SeaMath.Sea
             {
                sea.RtmValue = rRtmObjNonSea;
             }
+            else if(rRtmObjNonSea is CRtmObjRecord rec)
+            {
+               var cpy = MakeNewObject(rec.Decl.ConvertOrCrash<CDecl>());
+
+               rec.CopyTo(cpy);
+               sea.RtmValue = cpy;  
+            }
             else if (lRtm is CRtmObjScalar)
             {
                sea.RtmValue = base.MakeConstant(

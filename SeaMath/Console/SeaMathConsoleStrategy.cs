@@ -21,6 +21,8 @@
 
       public abstract int Kbhit();
 
+      public abstract void ClearScreen();
+
       public abstract void OnConsoleTerminate();
 
       public abstract void OnNewProcessCreated(SeaMathProcessExecutable process);

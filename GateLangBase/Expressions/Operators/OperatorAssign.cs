@@ -51,7 +51,8 @@ namespace Gate.LangBase.Expressions.Operators
       public override RtmObj? EvalRtmArgs(
          ExprNodeOperator operatorNode, RtmObj?[]? rtmArgs, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack) =>
             rtmStrategy?.Assign(
-               rtmArgs.ElementAtOrCrash(0), 
-               rtmArgs.ElementAtOrCrash(1));
+               rtmArgs.ElementAtOrCrash(0),
+               rtmArgs?.ElementAtOrDefault(1) ?? 
+                  throw new Gate.LangBase.Runtime.RtmException("Assigning null to " + rtmArgs.ElementAtOrCrash(0).VarName));
    }
 }

@@ -77,6 +77,11 @@ namespace Gate.SeaMath.Workspace.Libs
          /// <br>see <see cref="Gate.SeaMath.Workspace.Libs.SeaMathLibMatrix.DoMatrixMultiply(RtmObj, RtmObj)"/>, <see cref="Gate.SeaMath.Workspace.Libs.SeaMathLibMatrix.DoMultiplyOverride(RtmObj, RtmObj)(RtmObj, RtmObj)"/> as an example of it.</br>
          /// </summary>
          public string? PunctuatorOverride { get; set; }
+
+         /// <summary>
+         /// When true result of function is displayed in console
+         /// </summary>
+         public bool IsConsoleOmitReturn { get; set; } = false;
       }
 
       /// <summary>

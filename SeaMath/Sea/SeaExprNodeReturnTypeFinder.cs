@@ -1,9 +1,11 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.CLanguage.Expressions;
+using Gate.CLanguage.Expressions.COperators;
 using Gate.CLanguage.Runtime;
 using Gate.CLanguage.Types;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.Expressions.Operators;
+using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 
@@ -57,6 +59,26 @@ namespace Gate.SeaMath.Sea
             return base.myFindOperatorReturnType(@operator, operatorNode, inData, operandNodes, out expectedType);
          }
       }
+
+      protected override bool myFindOperatorReturnType(
+         COperatorCast @operator,
+         ExprNodeOperator operatorNode,
+         CCompilerInData inData,
+         ExprNode[] operandNodes,
+         out CTypeAlias? expectedType)
+      {
+         if (operandNodes[0].DeclType?.IsSeaType() ?? false)
+         {
+            expectedType = operandNodes[0].DeclType as CTypeAlias;
+
+            return true;
+         }
+         else
+         {
+            return base.myFindOperatorReturnType(@operator,operatorNode,inData, operandNodes, out expectedType);
+         }
+      }
+
 
       protected override bool myGetDeclTypeBasicBinary(
          ExprNodeOperator nodeOperator, CCompilerInData inData, CTypeAlias[] typesAliases, out CTypeAlias? expectedType)

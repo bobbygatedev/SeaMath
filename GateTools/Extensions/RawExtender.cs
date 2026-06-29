@@ -132,6 +132,51 @@ namespace Gate.Tools.Extensions
          }
       }
 
+      /// <summary>
+      /// Reads a bit field from a buffer of UInt32.
+      /// Bit numbering is absolute over the whole buffer.
+      /// Example:
+      ///   bit 0..31   -> word 0
+      ///   bit 32..63  -> word 1
+      ///   bit 64..95  -> word 2
+      /// </summary>
+      public static unsafe UInt64 GetBitField32(this nint pointer, Interval intervalBit, bool isInverse)
+      {
+         int from = intervalBit.From;
+         int to = intervalBit.To;
+
+         if (from > to)
+            throw new ArgumentException("intervalBit.From must be <= intervalBit.To.");
+
+         int length = to - from + 1;
+
+         if (length > 64)
+            throw new ArgumentOutOfRangeException(nameof(intervalBit),
+                "A UInt64 can contain at most 64 bits.");
+
+         uint* words = (uint*)pointer;
+
+         ulong result = 0;
+
+         for (int i = 0; i < length; i++)
+         {
+            int absoluteBit = from + i;
+
+            int wordIndex = absoluteBit >> 5;      // /32
+            int bitIndex = absoluteBit & 31;       // %32
+            var wrd = words[wordIndex];
+
+            if (isInverse)
+               bitIndex = 31 - bitIndex;
+
+            ulong bit = (wrd >> bitIndex) & 1u;
+
+            result |= bit << (length - 1 - i);
+         }
+
+         return result;
+      }
+
       public static unsafe UInt64 GetBitField(this nint pointer, int from, int to) => GetBitField(pointer, new Interval(from, to));
 
       public static unsafe UInt64 GetBitField(this nint pointer, Interval intervalBit)

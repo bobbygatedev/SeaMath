@@ -2,7 +2,6 @@
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Console;
 using Gate.SeaMath.Sea;
-using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Text.Elab;

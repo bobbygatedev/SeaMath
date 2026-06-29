@@ -1,7 +1,4 @@
-﻿using Gate.Tools;
-using System.IO;
-
-namespace Gate.SeaMath.Console
+﻿namespace Gate.SeaMath.Console
 {
    /// <summary>
    /// 
@@ -18,6 +15,8 @@ namespace Gate.SeaMath.Console
       public override int Getch(bool isWithEcho) => System.Console.ReadKey(!isWithEcho).KeyChar;
 
       public override int Kbhit() => System.Console.KeyAvailable ? 1 : 0;
+
+      public override void ClearScreen() => System.Console.Clear();
 
       public override (Stream stdIn, Stream stdOut, Stream stdErr) MakeStreamsForVirtProcess() =>
          (System.Console.OpenStandardInput(), System.Console.OpenStandardOutput(), System.Console.OpenStandardError());

@@ -1,6 +1,9 @@
-﻿using Gate.LangBase.Runtime;
+﻿using Gate.CLanguage.TokenParse;
+using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
+using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Extensions;
+using static Gate.SeaMath.FileSystem.SeaFileSystemItem;
 
 namespace Gate.SeaMath.Workspace.Libs
 {
@@ -96,5 +99,24 @@ namespace Gate.SeaMath.Workspace.Libs
 
       [Method(Name = "seaerrnoget")]
       public unsafe int SeaErrnoGet() => RtmDbgEngVirtCpuThread.GetRunningThread().NnOrCrash().ErrorNoCode;
+
+      [Method(Name = "seaprint", IsConsoleOmitReturn = true)]
+      public void SeaPrint(RtmObj rtmObj)
+      {
+         myHandleException(() =>
+         {
+            var fil = DbgIde.FileSystem.GetStreamByType(InOutErrType.StdOut);
+
+            using (var sw = new StreamWriter((fil?.Stream).NnOrCrash()))
+            {
+               sw.WriteLine(rtmObj.DisplayValue);
+            }
+
+            return 0;
+         }, -1);
+      }
+
+      [Method(Name = "cls" , IsConsoleOmitReturn = true)]
+      public void ClearScreen() => DbgIde.Console.ConsoleStrategy.ClearScreen();
    }
 }

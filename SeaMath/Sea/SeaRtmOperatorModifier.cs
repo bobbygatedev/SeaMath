@@ -1,6 +1,7 @@
-﻿using Gate.CLanguage.Runtime;
+﻿using Gate.CLanguage.Expressions.COperators;
+using Gate.CLanguage.Expressions.Nodes;
+using Gate.CLanguage.Runtime;
 using Gate.LangBase.Expressions.Nodes;
-using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Workspace.Libs;
@@ -32,11 +33,22 @@ namespace Gate.SeaMath.Sea
       public unsafe override RtmObj? EvalModified(
          ExprNodeOperator operatorNode, IRtmObjStrategy? rtmStrategy, RtmDbgEngStackVirtCpu? stack)
       {
-         var ope_pnc = operatorNode.Operator as OperatorPunctuator;
-         var sea_str = rtmStrategy as SeaRtmStrategy ?? throw new Crash();
+         var sea_str = rtmStrategy.ConvertOrCrash<SeaRtmStrategy>();
+         var typ_nam = operatorNode.OperandNodes.FirstOrDefault() as CExprNodeTypeName;
 
          //check on arguments 
-         if (SeaRtmVectorizationHelper.IsVectorializationPossible(operatorNode, out var ars, sea_str, stack))
+         if (operatorNode.Operator is COperatorCast cst && (typ_nam?.TypeAlias.IsSeaType() ?? false))
+         {
+            var a1 = operatorNode.OperandNodes.ElementAtOrCrash(1);
+            var str = rtmStrategy.ConvertOrCrash<SeaRtmStrategy>();
+
+            //if we are casting to sea (eg x = (sea)y) operator 1 is evaluated and converted to sea
+            var obj = a1.Eval(stack, str);
+
+            return a1.DeclType?.IsSeaType() ?? false ? 
+               obj : new SeaTypeRtmObj(str.Allocator, obj);
+         }
+         else if (SeaRtmVectorizationHelper.IsVectorializationPossible(operatorNode, out var ars, sea_str, stack))
          {
             return myVectorizationHelper.Exec(operatorNode, ars.NnOrCrash().Select(a => a.NnOrCrash()).ToArray(), sea_str);
          }

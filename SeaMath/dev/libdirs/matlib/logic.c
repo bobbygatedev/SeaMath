@@ -39,10 +39,10 @@ DLL_EXPORT uint64_t swapbitn (uint64_t val, int nbit)
 {
    uint64_t res = 0x0;
    
-   for ( int i = 0 ; i < nbit ; i++ ) 
+   for ( int i = 0 ; i < nbit ; i++ )
    {
-      res += (val & (1ull << i))*(1ull << (nbit-1-i));
-   }
+      res |= (1 << (nbit-1-i)) *( (val & (1 << i)) != 0 ); 
+   } 
 
    return res;
 }
