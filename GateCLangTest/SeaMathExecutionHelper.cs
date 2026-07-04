@@ -30,10 +30,11 @@ namespace Gate.CLanguageTest
          console_run_test = 2,
       }
 
-      public SeaMathExecutionHelper(bool skipCSLibs = false, bool skipDllLibs = false)
+      public SeaMathExecutionHelper(bool skipCSLibs = false, bool skipDllLibs = false, bool skipAllInclusion = false)
       {
          SkipCSLibs = skipCSLibs;
          SkipDllLibs = skipDllLibs;
+         SkipAllInclusion = skipAllInclusion;
       }
 
       private class InnerSession : SeaMathSession
@@ -117,6 +118,9 @@ namespace Gate.CLanguageTest
       public bool SkipCSLibs { get; }
 
       public bool SkipDllLibs { get; }
+
+
+      public bool SkipAllInclusion { get; }
 
       public IRtmDbgEngProcess? StartFromSourceCode(TxtStore sourceCode, string path = @"c:\temp\sea_test.c")
       {
@@ -234,17 +238,20 @@ namespace Gate.CLanguageTest
       {
          mySession = new InnerSession(hasConsole);
 
-         mySession.OptionPage.CompileLinkSettings.PredefinedHeaderDirs = [
-            new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\predef_headers"),
+         if (!SkipAllInclusion)
+         {
+            mySession.OptionPage.CompileLinkSettings.PredefinedHeaderDirs = [
+               new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\predef_headers"),
             new DirectoryInfo(@"c:\erik\mcalpin\fep\tools\seamath\predef_headers")  ];
 
-         if (!SkipDllLibs)
-         {
-            mySession.OptionPage.CompileLinkSettings.LibraryOnlyIncludeDirs =
-               [new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\library_only_include")];
+            if (!SkipDllLibs)
+            {
+               mySession.OptionPage.CompileLinkSettings.LibraryOnlyIncludeDirs =
+                  [new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\library_only_include")];
 
-            mySession.OptionPage.CompileLinkSettings.LibDirs =
-               new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\libdirs").EnumerateDirectories().ToArray();
+               mySession.OptionPage.CompileLinkSettings.LibDirs =
+                  new DirectoryInfo(@"c:\erik\git\SeaMath\SeaMath\dev\libdirs").EnumerateDirectories().ToArray();
+            }
          }
 
          mySession.Init(SkipCSLibs, SkipDllLibs);
@@ -254,14 +261,13 @@ namespace Gate.CLanguageTest
          //#define SEATR(...) __attribute__(( __VA_ARGS__ ))
 
          //return;
-         using (var hlp = new SeaMathExecutionHelper(false, true)) //non carica le dll
+         using (var hlp = new SeaMathExecutionHelper(false, true, true)) //non carica le dll
          //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll 
          //using (var hlp = new SeaMathExecutionHelper(false, false))
          {
             var aim = Aim.run_test;
 
-            //tododo
-            aim = Aim.console_run_test;
+            //aim = Aim.console_run_test;
             //aim = Aim.console_single_command_test;
 
             switch (aim)

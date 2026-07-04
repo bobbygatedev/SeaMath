@@ -12,22 +12,20 @@ namespace Gate.CLanguage.PrePx.Stages
 
       public TxtElabResult Start(CPrePxInData data, TxtStore store2Edit, ref CPrePxOutput output)
       {
-         var sto = TxtStore.FromTokens(store2Edit.OwnedSectors);
-
-         for (int lnIdx = 1; lnIdx < sto.LineCount; lnIdx++)
+         for (int lnIdx = 1; lnIdx < store2Edit.LineCount; lnIdx++)
          {
-            var ln = sto[lnIdx];
+            var ln = store2Edit[lnIdx];
 
             if (ln.Content.EndsWith(@"\") && lnIdx < store2Edit.LineCount)
             {
-               var nxt_ln = sto[lnIdx + 1];
-               var itn = new Interval(ln.Interval.From, nxt_ln.IntervalPlusNL.To);
+               var nxt_ln = store2Edit[lnIdx + 1];
+               var itn = new Interval(ln.Interval.To - 1, ln.IntervalPlusNL.To);
 
-               sto.Replace(new TxtStoreReplacement(itn, new TxtTokenConst(sto, ln.Interval), new TxtTokenConst(sto, nxt_ln.IntervalPlusNL)));
+               store2Edit.Replace(new TxtStoreReplacement(itn, TxtTokenConst.EmptyString));
             }
             else if (lnIdx >= store2Edit.LineCount)
             {
-               data.Messages.Add(CPrePxMessages.M001_UnexpectedEndFile(new TxtPos(lnIdx, 1, sto)));
+               data.Messages.Add(CPrePxMessages.M001_UnexpectedEndFile(new TxtPos(lnIdx, 1, store2Edit)));
 
                return TxtElabResult.failure_unrecoverable;
             }

@@ -1,5 +1,6 @@
 ﻿using Gate.CLanguage.PrePx.Directives;
 using Gate.CLanguage.PrePx.Directives.Macro.Expansion;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -24,15 +25,31 @@ namespace Gate.CLanguage.PrePx.Stages
 
       public TxtElabResult Start(CPrePxInData data, TxtStore store2Edit, ref CPrePxOutput output)
       {
-         foreach (var drs_sec in store2Edit.OwnedSectors.Where(d => d.Tag is CPrePxDirective))
-         {
-            store2Edit.Fill(drs_sec.Interval);
-         }
+         myBlankDirectiveLines(store2Edit);
 
          var in_mrk = new TxtMarker(store2Edit);
          var in_dat = new MacroExpanderInData(data);
 
          return myMacroExpanderAllFile.PerformNoOutput(in_mrk, in_dat);
+      }
+
+      /// <summary>
+      /// Blanks out lines containing preprocessor directives in the given text store.
+      /// </summary>
+      /// <param name="store2Edit">The text store to edit.</param>
+      private static void myBlankDirectiveLines(TxtStore store2Edit)
+      {
+         // all files sector associated to a directive
+         var scs = store2Edit.OwnedSectors.Where(s => s.Tag is CPrePxDirective).ToArray();
+
+         //retrieves the lins associated to directives and fills them in the store
+         var lns = scs.Select(s => store2Edit[s.From.NnOrCrash().Line]).ToArray();
+
+         //and replace directive lines with blank spaces (eg #define ... => "          ")
+         foreach (var ln in lns)
+         {
+            store2Edit.Fill(ln.Interval);
+         }
       }
 
       public override string ToString() => $"PrePx Stage5: Macro Expansion";
