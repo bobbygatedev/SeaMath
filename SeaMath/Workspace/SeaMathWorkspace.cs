@@ -87,7 +87,7 @@ namespace Gate.SeaMath.Workspace
          /// <summary>
          /// All libraries (Dll + CSharp + Vectorialized)
          /// </summary>
-         public CLibrary[] All =>
+         public CLibrary[] AllLibraries =>
             CSharp.Cast<CLibrary>().
             Concat(Dll).
             Concat(SubItems.OfType<SeaVectorializedLibrary>()).ToArray();
@@ -120,7 +120,7 @@ namespace Gate.SeaMath.Workspace
                var fil_c = Path.Combine(filePath.DirectoryName.Nn(), $"{filePath.Name}.c");
                var fil_h = Path.Combine(filePath.DirectoryName.Nn(), $"{filePath.Name}.h");
 
-               //a dll is considered as valid when 
+               //an external dll is considered as valid when .h is not defined 
                return File.Exists(fil_h) && !File.Exists(fil_c);
             }
             else { return false; }
@@ -137,9 +137,9 @@ namespace Gate.SeaMath.Workspace
          /// Compile all dll from their corresponding .c source file
          /// </summary>
          /// <returns></returns>
-         public bool DllCompile()
+         public bool DllCompile(bool isRebuild)
          {
-            if (Parent.DbgIde.DllCompiler.Compile(Parent.DbgIde))
+            if (Parent.DbgIde.DllCompiler.Compile(Parent.DbgIde, isRebuild))
             {
                Parent.MessageDisplayer.AddMsg(new Msg(MsgType.success, "Recompiling dll successfull!"));
 
@@ -156,17 +156,14 @@ namespace Gate.SeaMath.Workspace
          /// <summary>
          /// Import dll into seamath by compiling its .h file then associate it to valid functions
          /// </summary>
+         /// <returns>Is all ok or not?</returns>
          public bool RegisterDll()
          {
             var vl = new SeaVectorializedLibrary(Parent.DbgIde);
 
             myAddSubItemRange(myDlls = myImportLibDlls(Parent.AllFilesDll, out var res));
-
-            if (res)
-            {
-               vl.DetectVectoriliazibleLibs(myDlls, Parent.MessageDisplayer);
-               myAddSubItem(vl);
-            }
+            vl.DetectVectoriliazibleLibs(myDlls, Parent.MessageDisplayer);
+            myAddSubItem(vl);
 
             return res;
          }
@@ -175,7 +172,7 @@ namespace Gate.SeaMath.Workspace
          /// Import dll into seamath by compiling its .h file then associate it to valid functions
          /// </summary>
          /// <param name="allDllFile"></param>
-         /// <returns></returns>
+         /// <returns>Is all ok or not?</returns>
          private CLibraryDll[] myImportLibDlls(FileInfo[] allDllFile, out bool result)
          {
             var mgs = new MsgCollection();
@@ -190,7 +187,7 @@ namespace Gate.SeaMath.Workspace
             foreach (var dll in allDllFile)
             {
                var c_lib_dll = null as CLibraryDll;
-               var hdr_inf = Parent.GetHeaderForDll(dll);
+               var hdr_inf = dll.GetDllHeaderFile();
 
                if (hdr_inf != null)
                {
@@ -254,7 +251,7 @@ namespace Gate.SeaMath.Workspace
          {
             get
             {
-               var wrk_src = 
+               var wrk_src =
                   mySplitPaths(Parent.OptionPage.FileToRunSelection.Files.Value.Nn(), false).
                   Select(f => new FileInfo(f)).ToArray();
 
@@ -320,12 +317,10 @@ namespace Gate.SeaMath.Workspace
             Files.Where(f => myFilterByFilePath(f)).Concat(Dirs.SelectMany(d => myExpandDir(d.FullName))).ToArray();
 
          private FileInfo[] myExpandDir(string dir) =>
-            Directory.Exists(dir) ? Directory.EnumerateFiles(dir).Select(f => new FileInfo(f)).ToArray() : (new FileInfo[0]);
+            Directory.Exists(dir) ? Directory.EnumerateFiles(dir).Select(f => new FileInfo(f)).ToArray() : ([]);
       }
 
-      public FileInfo[] AllFilesDll =>
-         Libs.AllFiles.
-         Where(f => f.FullName.EndsWith(DllSuffix.ToLower())).ToArray();
+      public FileInfo[] AllFilesDll => Libs.AllFiles.Where(f => f.IsDllLibFile()).ToArray();
 
       public SeaMathDbgIde DbgIde => Session.DbgIde;
 
@@ -368,9 +363,16 @@ namespace Gate.SeaMath.Workspace
       /// <summary>
       /// Whether dll are more recent than .c source.
       /// </summary>
-      public bool IsLibRebuildRequired => Libs.AllFiles.
+      public bool IsLibRebuildRequired
+      {
+         get
+         {
+            //tododo
+            return Libs.AllFiles.
          Where(f => f.Extension.IsEqualNoContent(".c")).
-         Any(c => myIsRequiredRebuildForDllFromCFile(c));
+         Any(c => c.IsRequiredRebuildForDllFromCFile());
+         }
+      }
 
       public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
 
@@ -396,9 +398,10 @@ namespace Gate.SeaMath.Workspace
          return lst_lbs.ToArray();
       }
 
-      public bool Build(bool forceRebuild = false, bool isSkipCsharpLibrary = false, bool skipDllLibs = false)
+      public bool Build(bool isRebuild = false, bool isSkipCsharpLibrary = false, bool skipDllLibs = false)
       {
-         var is_reb = forceRebuild || IsLibRebuildRequired;
+         var is_cmp_req = isRebuild || IsLibRebuildRequired;
+         var res = true;
 
          IsSkipCsharpLibrary = isSkipCsharpLibrary;
          myRemoveSubItemRange(SubItems.OfType<CLibraryDll>());
@@ -423,33 +426,23 @@ namespace Gate.SeaMath.Workspace
          {
             Libs.DllDeregister();
 
-            if (is_reb && !Libs.DllCompile() || !Libs.RegisterDll())
+            if (is_cmp_req)
             {
-               return false;
+               MessageDisplayer?.AddMsg(new Msg(MsgType.info, $"Compilation of dll libraries started!"));
+               res = Libs.DllCompile(isRebuild);
             }
+            else
+            {
+               MessageDisplayer?.AddMsg(new Msg(MsgType.info, $"Compilation of dll libraries not required!"));
+            }
+
+            res &= Libs.RegisterDll();
          }
 
          DbgIde.Console.RenewLibsObjects();
 
-         return true;
+         return res;
       }
-
-
-      /// <summary>
-      /// Dll not exist or c-file more recent than dll
-      /// </summary>
-      /// <param name="cFile"></param>
-      /// <returns></returns>
-      private bool myIsRequiredRebuildForDllFromCFile(FileInfo cFile)
-      {
-         var dll_fil = GetDllForSource(cFile);
-
-         return
-            cFile.Exists &&
-            (!File.Exists(dll_fil) || cFile.LastWriteTimeUtc > File.GetLastWriteTimeUtc(GetDllForSource(cFile)));
-      }
-
-      public string GetDllForSource(FileInfo cFile) => $@"{cFile.DirectoryName}\{cFile.GetFileNameWithoutExtension()}{DllSuffix}";
 
       private static string[] mySplitPaths(string dirListbySemicolon, bool isDir) =>
               (dirListbySemicolon ?? "").Split(';').Select(p => myGetValidPath(p, isDir)).OfType<string>().ToArray();
@@ -466,28 +459,6 @@ namespace Gate.SeaMath.Workspace
          return null;
       }
 
-      public string DllSuffix => Is64 ? ".64.dll" : ".32.dll";
-
       public bool IsSkipCsharpLibrary { get; private set; } = false;
-
-      /// <summary>
-      /// Returns header file (.h or .c) for a given dll file.
-      /// </summary>
-      /// <param name="dllFile"></param>
-      /// <returns></returns>
-      public FileInfo? GetHeaderForDll(FileInfo dllFile)
-      {
-         if (dllFile.ToString().ToLower().EndsWith(DllSuffix.ToLower()))
-         {
-            var cf = new FileInfo(dllFile.FullName.Substring(0, dllFile.FullName.Length - DllSuffix.Length) + ".c");
-            var hf = new FileInfo(dllFile.FullName.Substring(0, dllFile.FullName.Length - DllSuffix.Length) + ".h");
-
-            return hf.Exists ? hf : (cf.Exists ? cf : null);
-         }
-         else
-         {
-            return null;
-         }
-      }
    }
 }

@@ -74,7 +74,7 @@ namespace Gate.CLanguageTest
             foreach (var mm in ms) { Console.WriteLine(mm.FullMessage); }
          };
 
-         if (!cmp.Compile(DllPath, new[] { new FileInfo(SourcePath) }, CompileEnvOut.dll, mgs))
+         if (!cmp.Compile(DllPath, [new FileInfo(SourcePath)], CompileEnvOut.dll, mgs))
          {
             Console.WriteLine("Compile failed!");
          }

@@ -11,6 +11,7 @@ using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
 using Gate.Tools.Arry;
 using Gate.Tools.Extensions;
+using System.Runtime.InteropServices;
 
 namespace Gate.SeaMath.Sea
 {
@@ -213,6 +214,45 @@ namespace Gate.SeaMath.Sea
 
       public static SeaLibFunctionGccAttributeIds[] GetSeaAttributes(this CDeclFunction function) =>
          function.GetGccAttributesId<SeaLibFunctionGccAttributeIds>();
+
+      public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
+
+      public static FileInfo? GetDllLibHeader(this FileInfo cFile) =>
+         cFile.Directory?.GetCombinedToFile($"{cFile.GetFileNameWithoutExtension()}.h");
+
+      public static bool IsRequiredRebuildForDllFromCFile(this FileInfo cFile)
+      {
+         var dll_fil = cFile.GetDllLibFile();
+         var h_fil = cFile.GetDllLibHeader();
+
+         return
+            cFile.Exists &&
+            (
+               !(dll_fil?.Exists ?? false) ||
+               cFile.LastWriteTimeUtc > File.GetLastWriteTimeUtc(dll_fil.FullName) ||
+               h_fil?.LastWriteTimeUtc > File.GetLastWriteTimeUtc(dll_fil.FullName));
+      }
+
+      public static string DllSuffix => Is64 ? ".64.dll" : ".32.dll";
+
+      public static FileInfo? GetDllHeaderFile(this FileInfo dllFile)
+      {
+         if (  dllFile.Name.ToLower().EndsWith(DllSuffix))
+         {
+            return dllFile.Directory?.GetCombinedToFile(
+               dllFile.Name.Substring(0, dllFile.Name.Length - DllSuffix.Length) + ".h");
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public static FileInfo? GetDllLibFile(this FileInfo cFile) =>
+         cFile.Directory?.GetCombinedToFile($"{cFile.GetFileNameWithoutExtension()}{DllSuffix}");
+
+      public static bool IsDllLibFile(this FileInfo file) =>
+         file.Exists && file.Name.ToLower().EndsWith(DllSuffix);
 
       private static T[]? myRemoveNewLine<T>(T[] input) where T : struct, IConvertible
       {

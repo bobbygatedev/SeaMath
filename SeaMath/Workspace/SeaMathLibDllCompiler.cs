@@ -1,4 +1,5 @@
-﻿using Gate.Tools.Extensions;
+﻿using Gate.SeaMath.Sea;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using System.Runtime.InteropServices;
@@ -15,7 +16,7 @@ namespace Gate.SeaMath.Workspace
 
       }
 
-      public bool Compile(SeaMathDbgIde dbgIde)
+      public bool Compile(SeaMathDbgIde dbgIde, bool isRebuild)
       {
          var cur_cmp_env = dbgIde.Workspace.CompileEnvironment;
          var msg = new MsgCollection();
@@ -25,14 +26,31 @@ namespace Gate.SeaMath.Workspace
 
          var lib_inc_drs = dbgIde.Workspace.Libs.IncludeDirsForLibraryOnly;
 
-         var lib_c_fls = dbgIde.Workspace.Libs.AllFiles.Where(f => f.Extension.IsEqualNoContent(".c")).ToArray();
-         var is_64 = Marshal.SizeOf(typeof(IntPtr)) == 8;
+         var lib_c_fls = dbgIde.Workspace.Libs.AllFiles.
+            Where(f =>
+               f.Extension.IsEqualNoContent(".c") &&
+               (isRebuild || f.IsRequiredRebuildForDllFromCFile())).ToArray();
 
          foreach (var fil in lib_c_fls)
          {
-            var dll_pth = new FileInfo($"{fil.FullName.Substring(0, fil.FullName.Length - 2)}.{(is_64 ? "64" : "32")}.dll");
+            var dll_inf = fil.GetDllLibFile();
 
-            if (!cur_cmp_env.Compile(dll_pth, [fil], CompileEnvOut.dll, msg, lib_inc_drs)) { res = false; }
+            if (dll_inf == null || !cur_cmp_env.Compile(dll_inf, [fil], CompileEnvOut.dll, msg, lib_inc_drs))
+            {
+               res = false;
+
+               if (dll_inf?.Exists ?? false)
+               {
+                  try
+                  {
+                     dll_inf.Delete();
+                  }
+                  catch (Exception exc)
+                  {
+                     msg.Add(new Msg(MsgType.error, $"Error while deleting {dll_inf.FullName}: {exc.Message}"));
+                  }
+               }
+            }
          }
 
          return res;

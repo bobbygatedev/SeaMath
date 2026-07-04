@@ -244,7 +244,7 @@ namespace Gate.Tools.Programming
          }
          catch (Exception e) { throw new Crash(e); }
 
-         if (CompileEnv.Compile(DllFile, new[] { CFile }, CompileEnvOut.dll, messages)) { return true; }
+         if (CompileEnv.Compile(DllFile, [CFile], CompileEnvOut.dll, messages)) { return true; }
          else
          {
             messages.Add(new Msg(MsgType.error, $"Failed to compile {CFile.FullName}"));

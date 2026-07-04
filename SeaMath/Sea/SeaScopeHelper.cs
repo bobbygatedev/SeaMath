@@ -19,7 +19,7 @@ namespace Gate.SeaMath.Sea
       public override CDeclStorage[] GetDeclStoragesFunctionVisible(ICItemWithScopeSpace itemWithScope)
       {
          var bas_vis = base.GetDeclStoragesFunctionVisible(itemWithScope);
-         var lbs = DbgIde.Workspace.Libs.All.SelectMany(lib => lib.Decls.OfType<CDeclStorage>()).ToArray();
+         var lbs = DbgIde.Workspace.Libs.AllLibraries.SelectMany(lib => lib.Decls.OfType<CDeclStorage>()).ToArray();
          var dcs = DbgIde.Console.ObjVisibleForConsole.Select(o => o.Decl).OfType<CDeclStorage>().ToArray();
 
          if (IsForConsole)

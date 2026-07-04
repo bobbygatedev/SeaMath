@@ -269,7 +269,7 @@ namespace Gate.SeaMath
          mgs.Add(new Msg(MsgType.info, "Start Building"));
 
          Builder.SourceFiles = Workspace.Sources.AllFiles;
-         Builder.Libraries = Workspace.Libs.All;
+         Builder.Libraries = Workspace.Libs.AllLibraries;
 
          var bui_res = Builder.Build(SEA_EXE_NAME, false, mgs);
 

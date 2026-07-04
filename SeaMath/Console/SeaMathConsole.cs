@@ -240,7 +240,7 @@ namespace Gate.SeaMath.Console
          text = myTextPreHandling(text);
 
          if (text == null) { return false; }
-         else if (Interpreter.Interpret(text, messages, DbgIde.Workspace.Libs.All.ToArray() ?? [], out var ins))
+         else if (Interpreter.Interpret(text, messages, DbgIde.Workspace.Libs.AllLibraries.ToArray() ?? [], out var ins))
          {
             //push temporary dummy task
             (myDummyInstruction ?? throw new Crash()).EnqueueInstructionsOnVirtThread(ins?.Instructions ?? []);
@@ -359,7 +359,7 @@ namespace Gate.SeaMath.Console
 
          if (ConsoleProcess.ProcessFamily.Count(p => p.State == RtmDbgEngRunState.running) <= 1)
          {
-            var lbs = DbgIde.Workspace.Libs.All ?? [];
+            var lbs = DbgIde.Workspace.Libs.AllLibraries ?? [];
 
             //then there is no running process I shall init an istance of libraries
             var rtm_mds = lbs.Select(pl => new RtmDbgEngVirtCpuRtmModule(pl, alo_str)).ToArray();

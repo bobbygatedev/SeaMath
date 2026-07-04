@@ -1,5 +1,4 @@
-﻿using Gate.CLanguage.TokenParse;
-using Gate.LangBase.Runtime;
+﻿using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools.Extensions;
@@ -43,7 +42,13 @@ namespace Gate.SeaMath.Workspace.Libs
       /// 
       /// </summary>
       [Method(Name = "workspacebuild", Flags = MethodAttribute.FlagsType.console)]
-      public void DoWorkspaceCompile() => DbgIde.Workspace.Build(true);
+      public int DoWorkspaceBuild() => DbgIde.Workspace.Build(false) ? 1 : 0;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      [Method(Name = "workspacerebuild", Flags = MethodAttribute.FlagsType.console)]
+      public int DoWorkspaceRebuild() => DbgIde.Workspace.Build(true) ? 1 : 0;
 
       /// <summary>
       /// Cleans or console variables and dead processes.
@@ -116,7 +121,7 @@ namespace Gate.SeaMath.Workspace.Libs
          }, -1);
       }
 
-      [Method(Name = "cls" , IsConsoleOmitReturn = true)]
+      [Method(Name = "cls", IsConsoleOmitReturn = true)]
       public void ClearScreen() => DbgIde.Console.ConsoleStrategy.ClearScreen();
    }
 }
