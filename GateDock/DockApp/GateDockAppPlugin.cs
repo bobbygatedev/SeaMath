@@ -130,20 +130,23 @@ namespace Gate.Dock.DockApp
             var plu_dir = new DirectoryInfo(PlugInDirectory);
             var lst_pin = new List<GateDockAppPlugin>();
 
-
-            foreach (var dir in plu_dir.EnumerateDirectories())
+            if (!plu_dir.Exists) { return []; }
+            else
             {
-               var fil = dir.GetCombinedToFile($"{dir.Name}.dll");
-
-               if (fil.Exists)
+               foreach (var dir in plu_dir.EnumerateDirectories())
                {
-                  var tmp = new InnerPluginLoadContext(this, fil);
+                  var fil = dir.GetCombinedToFile($"{dir.Name}.dll");
 
-                  lst_pin.Add(tmp.PluginEntry);
+                  if (fil.Exists)
+                  {
+                     var tmp = new InnerPluginLoadContext(this, fil);
+
+                     lst_pin.Add(tmp.PluginEntry);
+                  }
                }
-            }
 
-            return lst_pin.ToArray();
+               return lst_pin.ToArray();
+            }
          }
 
          public GateDockAppPlugin[]? DetectedPlugInClasses { get; private set; }
