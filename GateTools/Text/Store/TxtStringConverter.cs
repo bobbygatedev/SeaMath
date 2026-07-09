@@ -99,7 +99,7 @@ namespace Gate.Tools.Text
 
             public override bool TryParse(string stringValue, Type stringType, out object? result, MsgCollection? msgs)
             {
-               var mth = stringType.GetMethod("Parse", new Type[] { typeof(string) });
+               var mth = stringType.GetMethod("Parse", [typeof(string)]);
 
                if (mth == null) { throw new Crash($"Not a 'Parse(string)' method for type {stringType}"); }
                else
@@ -205,23 +205,36 @@ namespace Gate.Tools.Text
             public override bool TypeCheck(Type type) => type == typeof(Encoding) || type.IsSubclassOf(typeof(Encoding));
          }
 
+         /// <summary>
+         /// Provides parsing and conversion functionality for System.Drawing.Color values from string representations,
+         /// supporting both ARGB and known color formats.
+         /// </summary>
+         /// <remarks>Removes whitespace and validates input using regular expressions. Supports parsing
+         /// colors in the format 'Color[A=...,R=...,G=...,B=...]' and known color names 'Color[ColorName]' eg Color[White].</remarks>
          public class ForColor : Simple<System.Drawing.Color>
          {
+            private static readonly Regex myRegexSpace = new Regex(@"\s*");
+            private static readonly Regex myRegex;
+
+            static ForColor()
+            {
+               var ps0 = @"Color\[A\=(?<a>\d+)\,R\=(?<r>\d+)\,G\=(?<g>\d+)\,B\=(?<b>\d+)\]";
+               var ps1 = $@"Color\[(?<c>(\w+))]";
+             
+               myRegex = new Regex($"({ps0})|({ps1})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            }
+
             public override bool TryParse(string stringValue, Type stringType, out object? result, MsgCollection? msgs)
             {
-               var ps2 = @"Color\[A\=(?<a>\d+)\,R\=(?<r>\d+)\,G\=(?<g>\d+)\,B\=(?<b>\d+)\]";
-               var ps1 = string.Format(@"Color\[(?<c>({0}))]", string.Join("|", Enum.GetNames(typeof(System.Drawing.KnownColor))));
-               var rgx = new Regex(string.Format("({0})|({1})", ps2, ps1), RegexOptions.IgnoreCase | RegexOptions.Compiled);
-               var sp_rgx = new Regex(@"\s*");
-               var wrk_str = sp_rgx.Replace(stringValue, "");
-
-               var mat = rgx.Match(wrk_str);
+               var wrk_str = myRegexSpace.Replace(stringValue, "");
+               var mat = myRegex.Match(wrk_str);
 
                if (mat.Success && mat.Length == wrk_str.Length)
                {
                   if (mat.Groups["c"].Value != "")
                   {
-                     result = System.Drawing.Color.FromKnownColor((System.Drawing.KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), mat.Groups["c"].Value));
+                     result = System.Drawing.Color.FromKnownColor(
+                        (System.Drawing.KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), mat.Groups["c"].Value));
 
                      return true;
                   }

@@ -98,7 +98,7 @@ namespace Gate.SeaMath.Workspace
          public SeaVectorializedLibrary? Vectorialized => SubItems.OfType<SeaVectorializedLibrary>().FirstOrDefault();
 
          /// <summary>
-         /// Library comoield by cs
+         /// Array of Libraries based on c# classes <see cref="SeaMathLibCSharp"/>
          /// </summary>
          public SeaMathLibCSharp[] CSharp
          {
@@ -356,23 +356,17 @@ namespace Gate.SeaMath.Workspace
       }
 
       /// <summary>
-      /// At the moment just gcc is appliable.
+      /// At the moment just gcc is applicable.
       /// </summary>
       public ICompileEnv CompileEnvironment { get; set; } = new CompileEnvGcc();
 
       /// <summary>
       /// Whether dll are more recent than .c source.
       /// </summary>
-      public bool IsLibRebuildRequired
-      {
-         get
-         {
-            //tododo
-            return Libs.AllFiles.
+      public bool IsLibRebuildRequired => 
+         Libs.AllFiles.
          Where(f => f.Extension.IsEqualNoContent(".c")).
          Any(c => c.IsRequiredRebuildForDllFromCFile());
-         }
-      }
 
       public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
 
