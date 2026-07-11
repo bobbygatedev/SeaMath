@@ -11,14 +11,11 @@ namespace Gate.SeaMath.Workspace
    /// </summary>
    public class SeaMathLibDllCompiler
    {
-      public SeaMathLibDllCompiler()
-      {
-
-      }
+      public SeaMathLibDllCompiler() { }
 
       public bool Compile(SeaMathDbgIde dbgIde, bool isRebuild)
       {
-         var cur_cmp_env = dbgIde.Workspace.CompileEnvironment;
+         var cur_cmp_env = dbgIde.Workspace.CompileEnvironment.NnOrCrash();
          var msg = new MsgCollection();
          var res = true;
 
@@ -26,28 +23,33 @@ namespace Gate.SeaMath.Workspace
 
          var lib_inc_drs = dbgIde.Workspace.Libs.IncludeDirsForLibraryOnly;
 
-         var lib_c_fls = dbgIde.Workspace.Libs.AllFiles.
-            Where(f =>
-               f.Extension.IsEqualNoContent(".c") &&
-               (isRebuild || f.IsRequiredRebuildForDllFromCFile())).ToArray();
+         res = cur_cmp_env.Check(msg);
 
-         foreach (var fil in lib_c_fls)
+         if (res)
          {
-            var dll_inf = fil.GetDllLibFile();
+            var lib_c_fls = dbgIde.Workspace.Libs.AllFiles.
+               Where(f =>
+                  f.Extension.IsEqualNoContent(".c") &&
+                  (isRebuild || f.IsRequiredRebuildForDllFromCFile())).ToArray();
 
-            if (dll_inf == null || !cur_cmp_env.Compile(dll_inf, [fil], CompileEnvOut.dll, msg, lib_inc_drs))
+            foreach (var fil in lib_c_fls)
             {
-               res = false;
+               var dll_inf = fil.GetDllLibFile();
 
-               if (dll_inf?.Exists ?? false)
+               if (dll_inf == null || !cur_cmp_env.Compile(dll_inf, [fil], CompileEnvOut.dll, msg, lib_inc_drs))
                {
-                  try
+                  res = false;
+
+                  if (dll_inf?.Exists ?? false)
                   {
-                     dll_inf.Delete();
-                  }
-                  catch (Exception exc)
-                  {
-                     msg.Add(new Msg(MsgType.error, $"Error while deleting {dll_inf.FullName}: {exc.Message}"));
+                     try
+                     {
+                        dll_inf.Delete();
+                     }
+                     catch (Exception exc)
+                     {
+                        msg.Add(new Msg(MsgType.error, $"Error while deleting {dll_inf.FullName}: {exc.Message}"));
+                     }
                   }
                }
             }

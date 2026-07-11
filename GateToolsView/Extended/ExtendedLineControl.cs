@@ -701,6 +701,8 @@ namespace Gate.ToolsView.Extended
                if (mySelectionInterval != null)
                {
                   var tok = TxtTokenConst.FromFromTo(myGetText(), mySelectionInterval.Value.from, mySelectionInterval.Value.to);
+
+                  res = tok.Content;
                }
             });
 

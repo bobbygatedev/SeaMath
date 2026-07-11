@@ -1,8 +1,11 @@
 ﻿using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Standards;
+using Gate.Tools;
 using Gate.Tools.AppParams;
 using Gate.Tools.AppParams.ValueControls;
 using Gate.Tools.Extensions;
+using Gate.Tools.Message;
+using Gate.Tools.Programming;
 using Gate.ToolsView.AppParams.ValueControls;
 using System.Text;
 using static Gate.Tools.AppParams.AppParam;
@@ -18,6 +21,7 @@ namespace Gate.SeaMath
 
       [ValueControlAssociation(Id = ValueControlStandardId.encoding_single_byte)]
       private readonly Simple<Encoding> myNarrowCharEncoding = new Simple<Encoding>(null, "Narrow char encoding", myDefaultEncoding);
+      private readonly GccRecordType myGccRecord = new GccRecordType();
       private readonly CRtmObjAllocatorByPrivateHeap.OptionsRecord myAllocatorOptions = new CRtmObjAllocatorByPrivateHeap.OptionsRecord();
       private readonly CompileLinkSettingsType myCompileLinkSettings = new CompileLinkSettingsType();
       private readonly SourceFilesSelectionType mySourceFilesSelection = new SourceFilesSelectionType();
@@ -48,6 +52,24 @@ namespace Gate.SeaMath
          public readonly Simple<string> Files = new Simple<string>("Files", "Files");
       }
 
+      public class GccRecordType : Record
+      {
+         public enum OriginType
+         {
+            mysys,
+            @internal,
+            custom
+         }
+
+         public GccRecordType() : base("Gcc", "GCC") { }
+
+
+         public readonly Simple<OriginType> Origin = new Simple<OriginType>("Origin", "Origin", OriginType.mysys);
+
+         [ValueControlAssociation(Id = ValueControlStandardId.dir_list)]
+         public readonly Simple<string> OriginCustomDirs = new Simple<string>("OriginCustomDirs", "Origin Custom Directories");
+      }
+
       public class CompileLinkSettingsType : Record
       {
          private string myPathCurrVal = "";
@@ -66,24 +88,6 @@ namespace Gate.SeaMath
 
          [ValueControlAssociation(Id = ValueControlStandardId.dir_list)]
          public readonly Simple<string> PathDirs = new Simple<string>("PathDirs", "Library Directories to PATH");
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-         private static DirectoryInfo[] myGetDirs(Simple<string> stringValue) =>
-            stringValue.Value.IsBlank() ?
-               [] : [.. stringValue.Value.Split(';').Select(d => new DirectoryInfo(d))];
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-         private static void mySetDirs(Simple<string> stringValue, DirectoryInfo[] directories)
-         {
-            if (directories == null || directories.Length == 0)
-            {
-               stringValue.Value = null;
-            }
-            else
-            {
-               stringValue.Value = string.Join(";", directories.Select(d => d.FullName));
-            }
-         }
 
          /// <summary>
          /// 
@@ -126,6 +130,20 @@ namespace Gate.SeaMath
          }
       }
 
+      public DirectoryInfo[] GccDirs => myGetDirsByValue(Gcc.Origin.Value);
+
+      public DirectoryInfo InternalPluginDir
+      {
+         get
+         {
+            var pin_dir = new FileInfo(GetType().Assembly.Location).Directory;
+
+            return 
+               (pin_dir?.GetCombinedToDir($@"gcc\{(CompileEnvGcc.Is64 ? "x64" : "win32")}\bin")) ??
+               throw new NullReferenceException();
+         }
+      }
+
       public Encoding NarrowCharEncoding { get => myNarrowCharEncoding.Value ?? myDefaultEncoding; set => myNarrowCharEncoding.Value = value; }
 
       /// <summary>
@@ -148,9 +166,74 @@ namespace Gate.SeaMath
       /// </summary>
       public CRtmObjAllocatorByPrivateHeap.OptionsRecord AllocatorOptions => myAllocatorOptions;
 
+      public GccRecordType Gcc => myGccRecord;
+
       /// <summary>
       /// 
       /// </summary>
       public override bool IsInTreeNode => true;
+
+
+      /// <summary>
+      /// Try set Gcc directories to a valid enumerative with following order:
+      /// - internal
+      /// - mysys 
+      /// - custom
+      /// </summary>
+      /// <returns></returns>
+      public bool TryFixGccDirs(MsgCollection messages)
+      {
+         var tps = new[] {
+            GccRecordType.OriginType.@internal,
+            GccRecordType.OriginType.mysys,
+            GccRecordType.OriginType.custom};
+
+         foreach (var typ in tps)
+         {
+            var drs = myGetDirsByValue(typ);
+
+            if (drs.Length > 0 && drs.All(d => d.Exists))
+            {
+               messages.Add(new Msg(MsgType.warning, $"Gcc origin reset to {typ}"));
+               Gcc.Origin.Value = typ;
+
+               return true;
+            }
+         }
+
+         messages.Add(new Msg(MsgType.fatal, "Can't fix any Gcc Origin!"));
+
+         return false;
+      }
+
+      private static void mySetDirs(Simple<string> stringValue, DirectoryInfo[] directories)
+      {
+         if (directories == null || directories.Length == 0)
+         {
+            stringValue.Value = null;
+         }
+         else
+         {
+            stringValue.Value = string.Join(";", directories.Select(d => d.FullName));
+         }
+      }
+
+      private DirectoryInfo[] myGetDirsByValue(GccRecordType.OriginType val)
+      {
+         switch (val)
+         {
+            case GccRecordType.OriginType.mysys: return [new DirectoryInfo(CompileEnvGcc.MySysDir)];
+            case GccRecordType.OriginType.@internal: return [InternalPluginDir];
+            case GccRecordType.OriginType.custom: return myGetDirs(Gcc.OriginCustomDirs);
+            default: throw new Crash();
+         }
+      }
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+      private static DirectoryInfo[] myGetDirs(Simple<string> stringValue) =>
+         stringValue.Value.IsBlank() ?
+            [] : [.. stringValue.Value.Split(';').Select(d => new DirectoryInfo(d))];
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
    }
 }

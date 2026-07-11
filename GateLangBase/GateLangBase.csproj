@@ -2,17 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>false</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GateLangBaseSupport\GateLangBaseSupport.vcxproj" />

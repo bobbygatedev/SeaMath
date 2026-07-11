@@ -1,5 +1,4 @@
-﻿using Gate.CLanguage;
-using Gate.CLanguage.DeclSpecifiers;
+﻿using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Standards;
 using Gate.LangBase.ExtraTypes;
 using Gate.Tools;
@@ -40,7 +39,7 @@ namespace Gate.CLanguageTest
       {
          Console.WriteLine("RtmNumericConverterStandard.DoConvert test..");
 
-         var rtm_cvt = new CLangNumericConverterStandard();
+         var rtm_cvt = TestObjects.NumericConverter;
 
          var iss = new object[]{
                new ComplexUint8(11, 2),
@@ -52,7 +51,7 @@ namespace Gate.CLanguageTest
                new ComplexInt32(11, 2),
                new ComplexInt32(11, 2),};
 
-         var oss = iss.Select(i => rtm_cvt.DoConvertCsharpValue(
+         var oss = iss.Select(i => rtm_cvt.Convert(
             myGetBaseType(i.GetType()) ?? throw new Crash(),
             i as ValueType ?? throw new Crash()) ?? throw new Crash()).ToArray();
 

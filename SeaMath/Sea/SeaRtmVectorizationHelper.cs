@@ -79,14 +79,14 @@ namespace Gate.SeaMath.Sea
             var sca = (rts_sca.Nn().FirstOrDefault()?.CSharpObj).NnOrCrash();
             var exp_typ = res?.DeclType?.GetArrayItemType().NnOrCrash();
             var l_typ = (exp_typ?.CSharpTypeForStorage).NnOrCrash();
-            var sca_itm_obj = rtmStrategy.NumericConverter.DoConvertCsharpValue(l_typ, sca);
+            var sca_itm_obj = rtmStrategy.NumericConverter.Convert(l_typ, sca);
 
             foreach (var en in enr ?? [])
             {
                var arr_itm = c_rtm_arr?[en] as CRtmObjScalar ?? throw new Crash();
                var res_itm = res?[en] ?? throw new Crash();
 
-               var arr_itm_obj = rtmStrategy.NumericConverter.DoConvertCsharpValue(
+               var arr_itm_obj = rtmStrategy.NumericConverter.Convert(
                   l_typ, arr_itm.CSharpObj.NnOrCrash()).NnOrCrash();
 
                res_itm.CSharpObj = operatorNode?.Operator?.CSharpHandler(arr_itm_obj, sca_itm_obj.NnOrCrash());

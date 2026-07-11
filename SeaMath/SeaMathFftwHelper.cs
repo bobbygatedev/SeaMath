@@ -1,4 +1,5 @@
 ﻿using Gate.CLanguage;
+using Gate.LangBase;
 using Gate.LangBase.ExtraTypes;
 using Gate.SeaMath.Sea;
 using Gate.Tools;
@@ -394,7 +395,7 @@ namespace Gate.SeaMath
          Type inType,
          Type outType,
          bool isInverse,
-         CLangNumericConverterStandard cLangNumericConverter,
+         NumericConverter cLangNumericConverter,
          params int[] sizes)
       {
          myCheckTypes(inType, outType);
@@ -452,7 +453,7 @@ namespace Gate.SeaMath
          Type outputType,
          int dimension,
          bool isInverse,
-         CLangNumericConverterStandard cLangNumericConverter,
+         NumericConverter cLangNumericConverter,
          params int[] sizes)
       {
          if (dimension < 0 || dimension >= sizes.Length)

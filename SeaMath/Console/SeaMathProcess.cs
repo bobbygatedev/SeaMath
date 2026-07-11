@@ -2,6 +2,7 @@
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Sea;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using static Gate.SeaMath.FileSystem.SeaFileSystemItem;
 
 namespace Gate.SeaMath.Console
@@ -23,9 +24,11 @@ namespace Gate.SeaMath.Console
          bool isStartFromUser) :
             base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial, isStartFromUser)
       {
-         ide.FileSystem.CreateSpecialStream(stdInInitial, InOutErrType.StdIn, this);
-         ide.FileSystem.CreateSpecialStream(stdOutInitial, InOutErrType.StdOut, this);
-         ide.FileSystem.CreateSpecialStream(stdErrInitial, InOutErrType.StdErr, this);
+         var cmp_std = ide.CompiledStdio ?? throw new Gate.LangBase.Runtime.RtmException("Not a compiled stdio");
+
+         ide.FileSystem.CreateSpecialStream(stdInInitial, InOutErrType.StdIn, this, cmp_std);
+         ide.FileSystem.CreateSpecialStream(stdOutInitial, InOutErrType.StdOut, this, cmp_std);
+         ide.FileSystem.CreateSpecialStream(stdErrInitial, InOutErrType.StdErr, this, cmp_std);
 
          OnProcessTerminating += _ => myActionOnExit();
       }

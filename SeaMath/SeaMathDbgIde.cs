@@ -1,4 +1,6 @@
-﻿using Gate.CLanguage.Runtime.Object;
+﻿using Gate.CLanguage;
+using Gate.CLanguage.Runtime.Object;
+using Gate.LangBase;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.SeaMath.Console;
@@ -9,8 +11,11 @@ using Gate.Tools;
 using Gate.Tools.AppParams;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
+using Gate.Tools.Programming;
 using Gate.Tools.Text;
 using Gate.Tools.Watch;
+using static Gate.CLanguage.Runtime.Object.CRtmObjAllocatorByPrivateHeap;
+using static Gate.SeaMath.SeaMathOptionPage;
 
 namespace Gate.SeaMath
 {
@@ -24,6 +29,9 @@ namespace Gate.SeaMath
 
       private string? myLaunchObjectName;
       private string? myDocLaunchObjectName;
+      private CompiledStdio? myCompiledStdio;
+      private GccRecordType? myCurrentRecord = null;
+      private bool myIsUpdating = false;
 
       public event OnChangedLaunchObjectNameHandler? OnChangedObjectName;
 
@@ -33,14 +41,17 @@ namespace Gate.SeaMath
       /// <param name="consoleStrategy">The console strategy to use for handling console input and output within the IDE. Cannot be null.</param>
       public SeaMathDbgIde(SeaMathConsoleStrategy consoleStrategy)
       {
-         var mgs = new MsgCollection();
-
          Standard = new SeaStandard(this);
          Builder = new SeaVirtCpuBuilder(this);
          WatchExprManager = new SeaMathWatchExprManager(this);
          ConsoleStrategy = consoleStrategy;
-         mgs.OnMsg2DisplayAdded += (m) => MessageDisplayer?.AddMsg(m);
          myAddSubItem(FileSystem = new SeaFileSystem());
+      }
+
+      public CompiledStdio? CompiledStdio
+      {
+         get => myCompiledStdio ?? throw new Gate.LangBase.Runtime.RtmException("Not compiled stdio defined!");
+         private set => myCompiledStdio = value;
       }
 
       /// <summary>
@@ -101,7 +112,7 @@ namespace Gate.SeaMath
       /// <summary>
       /// 
       /// </summary>
-      public RtmDbgEngVirtCpuProcess ConsoleProcess => Console.ConsoleProcess;
+      public RtmDbgEngVirtCpuProcess? ConsoleProcess => Console.ConsoleProcess;
 
       /// <summary>
       /// 
@@ -255,8 +266,20 @@ namespace Gate.SeaMath
             ses.OptionPage.OnAnyChange += OptionPage_OnAnyChange;
 
             myAddSubItem(new SeaMathWorkspace());
+            myUpdateSettings(null);
+
+            var mgs = new MsgCollection();
+
+            mgs.OnMsg2DisplayAdded += m => MessageDisplayer.AddMsg(m);
+
+            var cmp_std = new CompiledStdio();
+
+            if (cmp_std.Compile(Workspace.CompileEnvironment.NnOrCrash(), mgs))
+            {
+               CompiledStdio = cmp_std;
+            }
+
             myAddSubItem(new SeaMathConsole(ConsoleStrategy));
-            myUpdateSettings();
          }
       }
 
@@ -280,15 +303,152 @@ namespace Gate.SeaMath
 
       private void myActionOnProcessThreadRuns(IRtmDbgEngThread? thread) => MessageDisplayer?.AddMsg(new Msg(MsgType.info, "Thread starts"));
 
-      private void myUpdateSettings()
+      private void myUpdateSettings(AppParam? changedParamField)
       {
-         var all = Builder.CStandard.CCompiler.RtmStrategy.Allocator as CRtmObjAllocatorByPrivateHeap ?? throw new Crash();
-
-         (OptionPage ?? throw new Crash()).AllocatorOptions.CopyTo(all.Options);
-         TxtSettings.Current.Encoding = OptionPage.NarrowCharEncoding ?? throw new Crash();
+         TxtSettings.Current.Encoding = OptionPage.NarrowCharEncoding;
          Builder.CStandard.CCompiler.Settings.NarrowCharEncoding = OptionPage.NarrowCharEncoding;
          Builder.CStandard.CCompiler.Settings.WideCharEncoding = OptionPage.WideCharEncoding;
          Builder.CStandard.Linker.Settings.IsExternCompulsoryForVars = false;
+
+         myGccChange();
+
+         //allocator options
+         var is_all = changedParamField == null || changedParamField is OptionsRecord;
+
+         if (is_all && Workspace.CompileEnvironment != null)
+         {
+            var all = Builder.CStandard.CCompiler.RtmStrategy.Allocator.ConvertOrCrash<CRtmObjAllocatorByPrivateHeap>();
+
+            OptionPage.AllocatorOptions.CopyTo(all.Options);
+         }
+      }
+
+      private void myGccChange()
+      {
+         if (!myIsUpdating && (myCurrentRecord == null || !myCurrentRecord.Compare(OptionPage.Gcc)))
+         {
+            var mgs = new MsgCollection();
+            
+            myIsUpdating = true;
+
+            mgs.OnMsg2DisplayAdded += m => MessageDisplayer.AddMsg(m);
+
+            var drs = OptionPage.GccDirs.ToArray();
+
+            Workspace.CompileEnvironment = new CompileEnvGcc(drs.Select(d => d.FullName).ToArray());
+
+            if (!Workspace.CompileEnvironment.Check(mgs))
+            {
+               if (!OptionPage.TryFixGccDirs(mgs))
+               {
+                  Workspace.CompileEnvironment = null;
+               }
+               else
+               {
+                  drs = OptionPage.GccDirs.ToArray();
+                  Workspace.CompileEnvironment = new CompileEnvGcc(drs.Select(d => d.FullName).ToArray());
+
+                  if (!Workspace.CompileEnvironment.Check(mgs))
+                  {
+                     Workspace.CompileEnvironment = null;
+                  }
+               }
+            }
+
+            myCurrentRecord = new GccRecordType();
+            OptionPage.Gcc.CopyTo(myCurrentRecord);
+
+            if (Workspace.CompileEnvironment != null)
+            {
+               mgs.Add(new Msg(MsgType.info, $"Compile environment GCC Mode:'{OptionPage.Gcc.Origin.Value}' Dirs:"));
+
+               foreach (var dir in OptionPage.GccDirs)
+               {
+                  mgs.Add(new Msg(MsgType.info, $"{dir.FullName}"));
+               }
+
+               NumericConverter.StdImpl = NumericConverter.CImplemented.Make(
+                  Workspace.CompileEnvironment.NnOrCrash(), mgs);
+
+               myLibraryInit();
+            }
+            else
+            {
+               mgs.Add(new Msg(MsgType.fatal,
+                  "Can't find a gcc environment seamath environment boot not possible. Please fix it!"));
+            }
+
+            myIsUpdating = false;
+         }
+      }
+
+      private class InnerDefaultDevDirectory
+      {
+         public InnerDefaultDevDirectory(DirectoryInfo baseDir) => BaseDir = baseDir;
+
+         public static InnerDefaultDevDirectory? Detect()
+         {
+            //plugin dir
+            var pin_dir = new FileInfo(typeof(InnerDefaultDevDirectory).Assembly.Location).Directory;
+            var dev = pin_dir?.GetCombinedToDir("dev");
+
+            if (dev?.Exists ?? false)
+            {
+               return (InnerDefaultDevDirectory?)new InnerDefaultDevDirectory(dev);
+            }
+            else if (pin_dir != null)
+            {
+               //for development configuration 
+               while (!pin_dir?.FullName.IsEqualNoContent(pin_dir.Root.FullName) ?? false)
+               {
+                  if (pin_dir?.Name.IsEqualNoContent("GatePad") ?? false)
+                  {
+                     dev = pin_dir.GetCombinedToDir(@"..\SeaMath\dev");
+
+                     if (dev.Exists) { return new InnerDefaultDevDirectory(dev); }
+                  }
+
+                  pin_dir = pin_dir?.Parent;
+               }
+            }
+
+            return null;
+         }
+
+         public DirectoryInfo BaseDir { get; }
+
+         public DirectoryInfo LibDir => BaseDir.GetCombinedToDir("libdirs");
+
+         public DirectoryInfo[] LibDirs => LibDir.Exists ?
+            [.. LibDir.GetDirectories().Where(d => d.EnumerateFiles("*.c").Any())] : [];
+
+         public DirectoryInfo LibraryOnlyInclude => BaseDir.GetCombinedToDir("library_only_include");
+
+         public DirectoryInfo PredefHeaders => BaseDir.GetCombinedToDir("predef_headers");
+
+         public void PopulateOptionPage(SeaMathOptionPage optionPage)
+         {
+            optionPage.CompileLinkSettings.LibDirs = LibDirs;
+            optionPage.CompileLinkSettings.LibraryOnlyIncludeDirs = LibraryOnlyInclude.Exists ? [LibraryOnlyInclude] : [];
+            optionPage.CompileLinkSettings.PredefinedHeaderDirs = PredefHeaders.Exists ? [PredefHeaders] : [];
+         }
+      }
+
+      private void myLibraryInit()
+      {
+         if (
+            OptionPage.CompileLinkSettings.LibDirs.Length == 0 &&
+            OptionPage.CompileLinkSettings.LibraryOnlyIncludeDirs.Length == 0 &&
+            OptionPage.CompileLinkSettings.PredefinedHeaderDirs.Length == 0)
+         {
+            var dir = InnerDefaultDevDirectory.Detect();
+
+            if (dir != null)
+            {
+               MessageDisplayer.AddMsg(new Msg(MsgType.info, $"Adding default dev directory from {dir.BaseDir.FullName}"));
+               dir.PopulateOptionPage(OptionPage);
+            }
+         }
       }
 
       private void myActionOnThreadFinished(IRtmDbgEngThread thread, RtmDbgEngFinishedReason reason, params Msg[] errorMessages)
@@ -354,7 +514,7 @@ namespace Gate.SeaMath
          return new_pro;
       }
 
-      private void OptionPage_OnAnyChange(AppParam changedParamField) => myUpdateSettings();
+      private void OptionPage_OnAnyChange(AppParam changedParamField) => myUpdateSettings(changedParamField);
 
       private void DocManager_OnBreakpointListChange(object? sender, RtmDbgEngBreakpoint[] breakpoints) => Breakpoints = breakpoints;
 

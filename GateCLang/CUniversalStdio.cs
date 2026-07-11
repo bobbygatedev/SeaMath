@@ -7,8 +7,12 @@ namespace Gate.CLanguage
    /// Uses universal stdio implementations for GCC compiler environment 
    /// short char always UTF-8
    /// </summary>
-   public unsafe static class CUniversalStdio
+   public unsafe class CUniversalStdio
    {
+      private readonly CompiledStdio myCompiledStdio;
+
+      public CUniversalStdio(CompiledStdio compiledStdio) => myCompiledStdio = compiledStdio;
+
       /// <summary>
       /// Wide-character sprintf implementation
       /// </summary>
@@ -17,7 +21,7 @@ namespace Gate.CLanguage
       /// <param name="wideCharEncoding"></param>
       /// <param name="params"></param>
       /// <returns></returns>
-      public static int WSPrintf(StringBuilder buffer, void* format, Encoding wideCharEncoding, object[] @params)
+      public int WSPrintf(StringBuilder buffer, void* format, Encoding wideCharEncoding, object[] @params)
       {
          var frm = wideCharEncoding.GetStringNullTerminated((IntPtr)format);
          var len = wideCharEncoding.GetMaxByteCount(frm.Length) + sizeof(char);
@@ -25,7 +29,7 @@ namespace Gate.CLanguage
 
          DoWSprintf((nint)tmp, (nint)format, wideCharEncoding, @params);
 
-         return CGccStdio.DoSprintf(buffer, frm, @params);
+         return myCompiledStdio.DoSprintf(buffer, frm, @params);
       }
 
       /// <summary>
@@ -41,7 +45,7 @@ namespace Gate.CLanguage
       /// <param name="params">An array of objects representing the values to format and insert into the format string.</param>
       /// <returns>The number of characters written to the buffer, not including the terminating null character.</returns>
       /// <exception cref="Gate.LangBase.Runtime.RtmException">Thrown if a memory error occurs during the formatting operation.</exception>
-      public static int DoWSprintf(IntPtr buffer, IntPtr format, Encoding wideCharEncoding, object[] @params)
+      public int DoWSprintf(IntPtr buffer, IntPtr format, Encoding wideCharEncoding, object[] @params)
       {
          try
          {
@@ -62,24 +66,26 @@ namespace Gate.CLanguage
       /// <param name="wideCharEncoding"></param>
       /// <param name="params"></param>
       /// <returns></returns>
-      public static int DoWSprintf(IntPtr buffer, int bufferLen, IntPtr format, Encoding wideCharEncoding, object[] @params)
+      public int DoWSprintf(IntPtr buffer, int bufferLen, IntPtr format, Encoding wideCharEncoding, object[] @params)
       {
+         bufferLen = Math.Min(bufferLen, 65 * 1024);
+
          var frm = wideCharEncoding.GetStringNullTerminated((IntPtr)format);
          var sb = new StringBuilder(bufferLen);
 
-         var res = CGccStdio.DoSprintf(sb, frm, @params);
+         var res = myCompiledStdio.DoSprintf(sb, frm, @params);
 
          var bys = wideCharEncoding.GetBytes(sb.ToString());
          var i = 0;
 
-         for (; i < bufferLen; i++)
+         for (; i < bys.Length; i++)
          {
             ((byte*)buffer)[i] = bys[i];
          }
 
-         if (i < bufferLen)
+         if (i < bufferLen + 1)
          {
-            ((byte*)buffer)[i] = 0;
+            ((char*)buffer)[i] = (char)0;
          }
 
          return res;
@@ -101,7 +107,7 @@ namespace Gate.CLanguage
       /// <param name="params">An array of objects that will receive the parsed values extracted from the input buffer, corresponding to the
       /// format specifiers.</param>
       /// <returns>The number of input items successfully matched and assigned. Returns 0 if no items are assigned.</returns>
-      public static unsafe int WSscanf(void* buffer, void* format, Encoding wideCharEncoding, object[] @params)
+      public unsafe int WSscanf(void* buffer, void* format, Encoding wideCharEncoding, object[] @params)
       {
          var buf = wideCharEncoding.GetStringNullTerminated((IntPtr)buffer);
          var frm = wideCharEncoding.GetStringNullTerminated((IntPtr)format);
@@ -109,9 +115,9 @@ namespace Gate.CLanguage
          return SScanf(buf, frm, @params);
       }
 
-      public static int SScanf(string buffer, string format, params object[] pars) => SScanf(buffer, format, Encoding.UTF8, pars);
+      public int SScanf(string buffer, string format, params object[] pars) => SScanf(buffer, format, Encoding.UTF8, pars);
 
-      public static int SScanf(string buffer, string format, Encoding narrowCharEncoding, params object[] pars)
+      public int SScanf(string buffer, string format, Encoding narrowCharEncoding, params object[] pars)
       {
          var bys = narrowCharEncoding.GetBytes(buffer);
          var frm = narrowCharEncoding.GetBytes(format);
@@ -123,7 +129,7 @@ namespace Gate.CLanguage
          {
             fixed (byte* f = frm)
             {
-               return CGccStdio.DoSscanf((sbyte*)p, (sbyte*)f, pars);
+               return myCompiledStdio.DoSscanf((sbyte*)p, (sbyte*)f, pars);
             }
          }
       }

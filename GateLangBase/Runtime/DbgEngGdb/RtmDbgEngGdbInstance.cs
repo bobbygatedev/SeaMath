@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Gate.LangBase.Runtime.DbgEngGdb
 {
@@ -21,7 +20,7 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
 
       public RtmDbgEngGdbProcess Launch(string path)
       {
-         throw new NotImplementedException();
+         throw new NotImplementedException();//todo
       }
    }
 }

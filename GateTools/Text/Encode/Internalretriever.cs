@@ -345,7 +345,11 @@ namespace Gate.Tools.Text.Encode
          {
             var b = bytes[i];
 
-            if (b > 0x7f)
+            if (b == 0)
+            {
+               return false;//bytes doesn't contain terminator
+            }
+            else if (b > 0x7f)
             {
                hasSpecialChars = true;
 

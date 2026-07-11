@@ -3,6 +3,7 @@ using Gate.CLanguage.Linker;
 using Gate.CLanguage.Standards;
 using Gate.Tools;
 using Gate.Tools.AppParams;
+using Gate.Tools.Extensions;
 
 namespace Gate.SeaMath.Sea
 {
@@ -17,9 +18,9 @@ namespace Gate.SeaMath.Sea
 
       private void myReadIncludeDirs()
       {
-         var drs = (DbgIde?.OptionPage ?? throw new Crash()).CompileLinkSettings.LibDirs;
+         var drs = (DbgIde?.OptionPage).NnOrCrash().CompileLinkSettings.LibDirs;
 
-         drs = drs.Concat((DbgIde?.Workspace ?? throw new Crash()).Sources.IncludeDirs).ToArray();
+         drs = drs.Concat((DbgIde?.Workspace).NnOrCrash().Sources.IncludeDirs).ToArray();
          PrePxOptions.IncludeDirs = drs;
       }
 

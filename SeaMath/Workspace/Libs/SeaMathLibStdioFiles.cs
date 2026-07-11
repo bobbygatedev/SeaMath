@@ -2,6 +2,7 @@
 using Gate.LangBase.Runtime;
 using Gate.SeaMath.Console;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using System.Runtime.InteropServices;
 using System.Text;
 using static Gate.SeaMath.FileSystem.SeaFileSystemItem;
@@ -27,7 +28,7 @@ namespace Gate.SeaMath.Workspace.Libs
             var pth = ((IntPtr)path).GetStringNarrowNt(RtmStrategy.Settings.NarrowCharEncoding);
             var mod = ((IntPtr)mode).GetStringNarrowNt(RtmStrategy.Settings.NarrowCharEncoding);
 
-            var fil = DbgIde.FileSystem.CreateFile(pth, mod);
+            var fil = DbgIde.FileSystem.CreateFile(pth, mod, (DbgIde?.CompiledStdio).NnOrCrash());
 
             return fil.Aliases.Last();
          });

@@ -149,7 +149,7 @@ namespace Gate.CLanguage.Runtime
          var c_stg = rtmStrategy as ICRtmObjStrategy;
          var sz = rtmObjPtr2?.DereferencedType.SizeOf;
          var d =
-            ((int)(c_stg?.NumericConverter.DoConvertCsharpValue(typeof(int), delta?.CSharpObj ?? 0) ?? 0) * sz) ??
+            ((int)(c_stg?.NumericConverter.Convert(typeof(int), delta?.CSharpObj ?? 0) ?? 0) * sz) ??
             throw new Crash();
 
          unchecked
@@ -181,7 +181,7 @@ namespace Gate.CLanguage.Runtime
       {
          var c_stg = rtmStrategy as ICRtmObjStrategy;
          var sz = rtmObjPtr1?.DereferencedType.SizeOf;
-         var d = ((int)(c_stg?.NumericConverter?.DoConvertCsharpValue(typeof(int), delta?.CSharpObj ?? 0) ?? 0) * sz) ?? throw new Crash();
+         var d = ((int)(c_stg?.NumericConverter?.Convert(typeof(int), delta?.CSharpObj ?? 0) ?? 0) * sz) ?? throw new Crash();
 
          unchecked
          {

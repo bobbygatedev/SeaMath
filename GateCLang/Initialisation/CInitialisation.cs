@@ -75,7 +75,7 @@ namespace Gate.CLanguage.Initialisation
          /// <param name="rtmStrategy"></param>
          protected static void myDoInit(
             CRtmObjScalar rtmScalar, RtmDbgEngStackVirtCpu? stack, CInitialisation init, CRtmObjStrategy? rtmStrategy) =>
-            rtmScalar.CSharpObj = rtmStrategy?.NumericConverter.DoConvertCsharpValue(
+            rtmScalar.CSharpObj = rtmStrategy?.NumericConverter.Convert(
                   rtmScalar.CSharpObj?.GetType() ?? throw new Crash(),
                   init.ScalarExpression?.Expr?.Eval(stack, rtmStrategy)?.CSharpObj ?? throw new Crash());
 

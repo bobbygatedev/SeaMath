@@ -1,8 +1,8 @@
-﻿using Gate.CLanguage;
-using Gate.CLanguage.Decl;
+﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.Runtime;
 using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
+using Gate.LangBase;
 using Gate.LangBase.Expressions;
 using Gate.LangBase.Expressions.Nodes;
 using Gate.LangBase.ExtraTypes;
@@ -20,8 +20,6 @@ namespace Gate.SeaMath.Sea
    /// </summary>
    public static class SeaExtender
    {
-      private static CLangNumericConverterStandard myNumericConverter = new CLangNumericConverterStandard();
-
       /// <summary>
       /// Determines whether the specified <see cref="IDeclType"/> is a SeaType or an alias to a SeaType.
       /// </summary> 
@@ -126,7 +124,7 @@ namespace Gate.SeaMath.Sea
 
          foreach (var en in enr)
          {
-            arr[en].CSharpObj = nc.DoConvertCsharpValue(out_typ, inArray[en].CSharpObj ?? throw new Crash());
+            arr[en].CSharpObj = nc.Convert(out_typ, inArray[en].CSharpObj ?? throw new Crash());
          }
 
          return arr;
@@ -177,7 +175,8 @@ namespace Gate.SeaMath.Sea
       /// <returns>The value of type <typeparamref name="T"/> extracted from the <paramref name="rtmObj"/>.</returns>
       /// <exception cref="Crash">Thrown if the scalar value retrieved from <paramref name="rtmObj"/> is null.</exception>
       public static T? GetValue<T>(this RtmObj rtmObj) where T : struct =>
-         myNumericConverter.DoConvertCsharpValue<T>((rtmObj.GetRtmScalarFromSea() ?? throw new Crash()).CSharpObj ?? throw new Crash());
+         NumericConverter.StdImpl.NnOrCrash().Convert<T>(
+            (rtmObj.GetRtmScalarFromSea().NnOrCrash()).CSharpObj.NnOrCrash());
 
       /// <summary>
       /// Retrieves the <see cref="LongDouble"/> representation of the scalar value from the specified <see

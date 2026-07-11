@@ -55,7 +55,7 @@ namespace Gate.SeaMath.Console
                {
                   var v = opr.OperandNodes.FirstOrDefault() as ExprNodeOperandVariable;
 
-                  if (v.Decl is SeaMathLibCSharpDeclFunction lf)
+                  if (v?.Decl is SeaMathLibCSharpDeclFunction lf)
                   {
                      return lf.MethodAttribute?.IsConsoleOmitReturn ?? false;
                   }

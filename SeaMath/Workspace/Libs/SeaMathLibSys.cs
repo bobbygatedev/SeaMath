@@ -41,14 +41,42 @@ namespace Gate.SeaMath.Workspace.Libs
       /// <summary>
       /// 
       /// </summary>
-      [Method(Name = "workspacebuild", Flags = MethodAttribute.FlagsType.console)]
-      public int DoWorkspaceBuild() => DbgIde.Workspace.Build(false) ? 1 : 0;
+      [Method(Name = "workspacebuild", Flags = MethodAttribute.FlagsType.console, IsConsoleOmitReturn = true)]
+      public int DoWorkspaceBuild()
+      {
+         if (DbgIde.Workspace.Build(false))
+         {
+            myPrint("Workspace build ok!\n");
+
+            return 1;
+         }
+         else
+         {
+            myPrint("Workspace build failed!\n");
+
+            return 0;
+         }
+      }
 
       /// <summary>
       /// 
       /// </summary>
-      [Method(Name = "workspacerebuild", Flags = MethodAttribute.FlagsType.console)]
-      public int DoWorkspaceRebuild() => DbgIde.Workspace.Build(true) ? 1 : 0;
+      [Method(Name = "workspacerebuild", Flags = MethodAttribute.FlagsType.console, IsConsoleOmitReturn = true)]
+      public int DoWorkspaceRebuild()
+      {
+         if (DbgIde.Workspace.Build(true))
+         {
+            myPrint("Workspace rebuild ok!\n");
+
+            return 1;
+         }
+         else
+         {
+            myPrint("Workspace rebuild failed!\n");
+
+            return 0;
+         }
+      }
 
       /// <summary>
       /// Cleans or console variables and dead processes.
@@ -57,7 +85,11 @@ namespace Gate.SeaMath.Workspace.Libs
       public void DoClean()
       {
          DbgIde.RemovedTerminated();
-         DbgIde.Console.ConsoleProcess.AdditionalObjectsRuntime = [];//remove console variables
+
+         if (DbgIde.Console.ConsoleProcess != null)
+         {
+            DbgIde.Console.ConsoleProcess.AdditionalObjectsRuntime = [];
+         }
       }
 
       /// <summary>

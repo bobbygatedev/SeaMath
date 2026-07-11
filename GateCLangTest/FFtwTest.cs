@@ -1,5 +1,6 @@
 ﻿using Gate.CLanguage;
 using Gate.CLanguage.Types;
+using Gate.LangBase;
 using Gate.LangBase.ExtraTypes;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.SeaMath;
@@ -7,6 +8,8 @@ using Gate.SeaMath.Sea;
 using Gate.Tools;
 using Gate.Tools.Arry;
 using Gate.Tools.Arry.Extensions;
+using Gate.Tools.Extensions;
+using Gate.Tools.Programming;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 using System.Data;
@@ -47,7 +50,7 @@ namespace Gate.CLanguageTest
 
          private static SubTestSingleDim[] myGetSubTest()
          {
-            var cmp_tps = CLangNumericConverterStandard.TypesComplexAll;
+            var cmp_tps = NumericConverter.TypesComplexAll;
             var tps_rea = cmp_tps.Select(t => t.GetFields()[0].FieldType).ToArray();
 
             var lst = new List<SubTestSingleDim>();
@@ -74,7 +77,7 @@ namespace Gate.CLanguageTest
 
          private static SubTestMultiDim[] myGetSubTest()
          {
-            var cmp_tps = CLangNumericConverterStandard.TypesComplexAll;
+            var cmp_tps = NumericConverter.TypesComplexAll;
             var tps_rea = cmp_tps.Select(t => t.GetFields()[0].FieldType).ToArray();
 
             var lst = new List<SubTestMultiDim>();
@@ -126,14 +129,14 @@ namespace Gate.CLanguageTest
 
             //is integer type or complex integre type 
             var ele_is_int =
-               CLangNumericConverterStandard.TypesIntAll.Contains(ele_typ_in) ||
-               CLangNumericConverterStandard.TypesComplexIntAll.Contains(ele_typ_in);
+               NumericConverter.TypesIntAll.Contains(ele_typ_in) ||
+               NumericConverter.TypesComplexIntAll.Contains(ele_typ_in);
 
             //if input is integer is converted to output type before calculating expected array
             var inp = ele_is_int ?
                Input.ChangeArrayElementType(
                   ele_typ_out,
-                  i => CLangNumericConverterStandard.Convert(ele_typ_out, i as ValueType ?? throw new Crash())) :
+                  i => TestObjects.NumericConverter.Convert(ele_typ_out, i as ValueType ?? throw new Crash())) :
                Input;
 
             //output array
@@ -408,7 +411,7 @@ namespace Gate.CLanguageTest
          public CTypeBuiltIn? InputElementType =>
              myBuiltIn.FirstOrDefault(b => b.CSharpTypeForStorage == Input.GetType().GetElementType());
 
-         private string? myFormat(object val) => CLangNumericConverterStandard.ToString((ValueType)val, false);
+         private string? myFormat(object val) => NumericConverter.ToString((ValueType)val, false);
       }
 
 
@@ -562,11 +565,12 @@ namespace Gate.CLanguageTest
          {
             var typ = SeaMathFftwHelper.GetOutputType(input.GetType().GetElementType() ?? throw new Crash());
             var arr = Array.CreateInstance(typ, listGroup.Count);
+            var nc = new NumericConverter.CImplemented(new CompileEnvGcc());
 
             for (var i = 0; i < arr.Length; i++)
             {
                var val = input.GetValue(listGroup[i]) as ValueType ?? throw new Crash();
-               var val_2 = CLangNumericConverterStandard.Convert(typ, val);
+               var val_2 = nc.Convert(typ, val);
 
                arr.SetValue(val_2, i);
             }
@@ -653,7 +657,7 @@ namespace Gate.CLanguageTest
 
       private static double myGetErrorRelative(object exp, object eff)
       {
-         if (CLangNumericConverterStandard.TypesComplexAll.Contains(exp.GetType()))
+         if (NumericConverter.TypesComplexAll.Contains(exp.GetType()))
          {
             var den = (double)((dynamic)exp + (dynamic)eff).Abs;
 
@@ -722,8 +726,8 @@ namespace Gate.CLanguageTest
       private static Array myGetArrayForMultiDim(Type type)
       {
          var is_uns =
-            CLangNumericConverterStandard.TypesIntUnsigned.Contains(type) ||
-            CLangNumericConverterStandard.TypesComplexUnsignedInt.Contains(type);
+            NumericConverter.TypesIntUnsigned.Contains(type) ||
+            NumericConverter.TypesComplexUnsignedInt.Contains(type);
 
          var sms = is_uns ? SamplesUnsignedMultiDim : SamplesSignedMultiDim;
 
@@ -734,7 +738,7 @@ namespace Gate.CLanguageTest
          foreach (var idx in ids)
          {
             var inp = sms.GetValue(idx) as ValueType ?? throw new Crash();
-            var oup = CLangNumericConverterStandard.Convert(type, inp);
+            var oup = TestObjects.NumericConverter.Convert(type, inp);
 
             arr.SetValue(oup, idx);
          }
@@ -745,12 +749,12 @@ namespace Gate.CLanguageTest
       private static Array myGetArrayForOneDim(Type type)
       {
          var is_uns =
-            CLangNumericConverterStandard.TypesIntUnsigned.Contains(type) ||
-            CLangNumericConverterStandard.TypesComplexUnsignedInt.Contains(type);
+            NumericConverter.TypesIntUnsigned.Contains(type) ||
+            NumericConverter.TypesComplexUnsignedInt.Contains(type);
 
          var sms = is_uns ? SamplesUnsignedOneDim : SamplesSignedOneDim;
 
-         var smp = sms.Select(s => CLangNumericConverterStandard.Convert(type, s)).ToArray();
+         var smp = sms.Select(s => TestObjects.NumericConverter).ToArray();
          var arr = Array.CreateInstance(type, sms.Length);
 
          smp.CopyTo(arr, 0);

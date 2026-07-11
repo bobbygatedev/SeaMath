@@ -1,9 +1,7 @@
 ﻿using Gate.Tools.Message;
-using System.IO;
 
 namespace Gate.Tools.Programming
 {
-
    /// <summary>
    /// 
    /// </summary>
@@ -13,11 +11,12 @@ namespace Gate.Tools.Programming
       /// 
       /// </summary>
       CompileEnvId Id { get; }
-      
+
       /// <summary>
-      /// 
+      /// Directories containning .exe, dll, .so, .dylib, etc. of the compiler. 
+      /// The directories are used to set the PATH environment variable before calling the compiler.
       /// </summary>
-      string[] EnvDirs { get; }
+      string[] CompilerDirs { get; }
 
       /// <summary>
       /// Compile the source files into the output path.
@@ -29,5 +28,12 @@ namespace Gate.Tools.Programming
       /// <param name="includeDirectories"></param>
       /// <returns></returns>
       bool Compile(FileInfo outputPath, FileInfo[] sourceFiles, CompileEnvOut compileOutput, MsgCollection messages, DirectoryInfo[]? includeDirectories = null);
+
+      /// <summary>
+      /// Check installation is correct.
+      /// </summary>
+      /// <param name="messages"></param>
+      /// <returns></returns>
+      bool Check(MsgCollection messages);
    }
 }

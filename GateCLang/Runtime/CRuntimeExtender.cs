@@ -9,7 +9,6 @@ using Gate.Tools;
 using Gate.Tools.Extensions;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
 using static Gate.CLanguage.CAttribute;
 
 namespace Gate.CLanguage.Runtime

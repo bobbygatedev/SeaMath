@@ -10,9 +10,17 @@ namespace Gate.SeaMath.Workspace.Libs
    {
       public const string NAME = "Stdio";
 
-      public SeaMathLibStdio(SeaMathDbgIde dbgIde) : base(NAME, dbgIde) => Console = dbgIde.Console;
+      public SeaMathLibStdio(SeaMathDbgIde dbgIde, CompiledStdio compiledStdio) : base(NAME, dbgIde)
+      {
+         Console = dbgIde.Console;
+         CompiledStdio = compiledStdio;
+      }
 
       public SeaMathConsole Console { get; }
+      
+      public CompiledStdio CompiledStdio { get; }
+
+      public CUniversalStdio CUniversalStdio => new CUniversalStdio(CompiledStdio);
 
       [Method(Name = "seagets")]
       public RtmObj DoSeaGets()
@@ -111,7 +119,7 @@ namespace Gate.SeaMath.Workspace.Libs
 
       [Method(Name = "sscanf")]
       public int DoSScanf(sbyte* buffer, sbyte* format, params object[] @params) =>
-         myHandleException(() => CGccStdio.DoSscanf(buffer, format, @params), -1);
+         myHandleException(() => CompiledStdio.DoSscanf(buffer, format, @params), -1);
 
       [Method(Name = "wsscanf")]
       public int DoWSScanf(void* buffer, void* format, params object[] @params) =>
@@ -167,7 +175,7 @@ namespace Gate.SeaMath.Workspace.Libs
       {
          try
          {
-            return CGccStdio.DoSprintf(buffer, 1024, format, @params);
+            return CompiledStdio.DoSprintf(buffer, 1024, format, @params);
          }
          catch { throw new Gate.LangBase.Runtime.RtmException($"Memory error during sprintf"); }
       }

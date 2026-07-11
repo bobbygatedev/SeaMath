@@ -277,7 +277,7 @@ namespace Gate.SeaMath
 
             var rtm_str = DbgIde.Builder.CStandard?.CCompiler.RtmStrategy.NnOrCrash();
 
-            rtm.CSharpObj = rtm_str?.NumericConverter.DoConvertCsharpValue(
+            rtm.CSharpObj = rtm_str?.NumericConverter.Convert(
                rtm?.CSharpObj?.GetType() ?? throw new Crash(),
                new_val?.CSharpObj ?? throw new Crash());
 

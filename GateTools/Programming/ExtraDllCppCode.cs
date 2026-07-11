@@ -290,15 +290,6 @@ namespace Gate.Tools.Programming
          {
             if (!HasBeenRegistered)
             {
-               var env_drs = CompileEnv.EnvDirs.Where(p => !p.IsBlank()).ToArray();
-               var pth_env = Environment.GetEnvironmentVariable("PATH")?.Split(';').Where(p => !p.IsBlank()).ToArray() ?? [];
-
-               if (pth_env.Length < env_drs.Length || !pth_env.Take(env_drs.Length).SequenceEqual(env_drs))
-               {
-                  pth_env = env_drs.Concat(pth_env).ToArray();
-                  Environment.SetEnvironmentVariable("PATH", string.Join(";", pth_env));
-               }
-
                if (IsHashToUse && (myHashContainer?.Check() ?? false)) { return myRegister(); }
                else if (CompileOnly(messages))
                {

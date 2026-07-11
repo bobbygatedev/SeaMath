@@ -1,4 +1,5 @@
-﻿using Gate.LangBase.Runtime;
+﻿using Gate.CLanguage;
+using Gate.LangBase.Runtime;
 using Gate.LangBase.Runtime.DbgEng;
 using Gate.LangBase.Runtime.DbgEngVirtCpu;
 using Gate.SeaMath.Console;
@@ -17,8 +18,6 @@ namespace Gate.SeaMath.FileSystem
       public const string STDOUT_PATH = "CONOUT$";
       public const string STDERR_PATH = "CONERR$";
 
-      private readonly List<SeaMathProcess> myListObservedProcesses = new List<SeaMathProcess>();
-
       public SeaFileSystem()
       {
 
@@ -27,8 +26,8 @@ namespace Gate.SeaMath.FileSystem
       private class InnerConcreteSpecialStream : SeaFileSystemItem
       {
          public InnerConcreteSpecialStream(
-            SeaMathProcess process, InOutErrType inOutErr, Stream stream, int? fileId = null) : base(
-               FileMode.CreateNew, myGetAccess(inOutErr), process)
+            SeaMathProcess process, InOutErrType inOutErr, Stream stream, CompiledStdio compiledStdio, int? fileId = null) : base(
+               FileMode.CreateNew, myGetAccess(inOutErr), process, compiledStdio)
          {
             InOutErr = inOutErr;
             Stream = stream;
@@ -69,8 +68,14 @@ namespace Gate.SeaMath.FileSystem
 
       private class InnerConcreteFileInstance : SeaFileSystemItem
       {
-         public InnerConcreteFileInstance(string path, FileMode mode, FileAccess access, RtmDbgEngVirtCpuProcess? processBound, int? fileId) :
-            base(mode, access, processBound)
+         public InnerConcreteFileInstance(
+            string path,
+            FileMode mode,
+            FileAccess access,
+            RtmDbgEngVirtCpuProcess? processBound,
+            int? fileId,
+            CompiledStdio compiledStdio) :
+            base(mode, access, processBound, compiledStdio)
          {
             FileInfo = new FileInfo(path);
             Stream = FileInfo.Open(mode, access);
@@ -102,19 +107,21 @@ namespace Gate.SeaMath.FileSystem
 
       public SeaFileSystemItem[] AllFiles => SubItems.OfType<SeaFileSystemItem>().ToArray();
 
-      public SeaFileSystemItem CreateFile(string path, string fileMode, int? fileId = null, RtmDbgEngVirtCpuProcess? processBound = null)
+      public SeaFileSystemItem CreateFile(
+         string path, string fileMode, CompiledStdio compiledStdio, int? fileId = null, RtmDbgEngVirtCpuProcess? processBound = null)
       {
          //is binary is disregarded
          var mod = myParseFileMode(fileMode);
 
-         return CreateFile(path, mod.mode, mod.access, fileId, processBound);
+         return CreateFile(path, mod.mode, mod.access, compiledStdio, fileId, processBound);
       }
 
-      public SeaFileSystemItem CreateFile(string path, FileMode mode, FileAccess access, int? fileId = null, RtmDbgEngVirtCpuProcess? processBound = null)
+      public SeaFileSystemItem CreateFile(
+         string path, FileMode mode, FileAccess access, CompiledStdio compiledStdio, int? fileId = null, RtmDbgEngVirtCpuProcess? processBound = null)
       {
          try
          {
-            return myRegisterFsItem(new InnerConcreteFileInstance(path, mode, access, processBound, fileId));
+            return myRegisterFsItem(new InnerConcreteFileInstance(path, mode, access, processBound, fileId, compiledStdio));
          }
          catch (Exception exc)
          {
@@ -125,11 +132,22 @@ namespace Gate.SeaMath.FileSystem
 
       public SeaFileSystemItem ReOpenFile(string path, string fileMode, int fileId, RtmDbgEngVirtCpuProcess? process = null)
       {
-         CloseFile(fileId);
+         var std = DbgIde?.CompiledStdio;
 
-         var fil = myReCreateSpecialStream(path, fileMode, fileId) ?? CreateFile(path, fileMode, fileId, process);
+         if (std != null)
+         {
+            CloseFile(fileId);
 
-         return fil;
+            var fil =
+               myReCreateSpecialStream(path, fileMode, fileId) ??
+               CreateFile(path, fileMode, std, fileId, process);
+
+            return fil;
+         }
+         else
+         {
+            throw new RtmException("Not a compiled stdio");
+         }
       }
 
       /// <summary>
@@ -145,13 +163,20 @@ namespace Gate.SeaMath.FileSystem
 
          file = file.ExtTrim().ToUpper();
 
-         switch (file)
+         var sio = DbgIde?.CompiledStdio;
+
+         if (sio != null)
          {
-            case STDIN_PATH: return CreateSpecialStream(pro.StdIn, InOutErrType.StdIn, pro, fileId);
-            case STDOUT_PATH: return CreateSpecialStream(pro.StdOut, InOutErrType.StdOut, pro, fileId);
-            case STDERR_PATH: return CreateSpecialStream(pro.StdErr, InOutErrType.StdErr, pro, fileId);
-            default: return null;
+            switch (file)
+            {
+               case STDIN_PATH: return CreateSpecialStream(pro.StdIn, InOutErrType.StdIn, pro, sio, fileId);
+               case STDOUT_PATH: return CreateSpecialStream(pro.StdOut, InOutErrType.StdOut, pro, sio, fileId);
+               case STDERR_PATH: return CreateSpecialStream(pro.StdErr, InOutErrType.StdErr, pro, sio, fileId);
+               default: return null;
+            }
          }
+
+         return null;
       }
 
       private SeaFileSystemItem myRegisterFsItem(SeaFileSystemItem fileSystemItem)
@@ -177,8 +202,9 @@ namespace Gate.SeaMath.FileSystem
          return fileSystemItem;
       }
 
-      public SeaFileSystemItem CreateSpecialStream(Stream stream, InOutErrType inOutErr, SeaMathProcess processBound, int? fileId = null) =>
-         myRegisterFsItem(new InnerConcreteSpecialStream(processBound, inOutErr, stream));
+      public SeaFileSystemItem CreateSpecialStream(
+         Stream stream, InOutErrType inOutErr, SeaMathProcess processBound, CompiledStdio compiledStdio, int? fileId = null) =>
+            myRegisterFsItem(new InnerConcreteSpecialStream(processBound, inOutErr, stream, compiledStdio));
 
       public int GetStdStreamIdByType(InOutErrType inOutErr) =>
          myGetCurrentProcess().GetStandardSpecialId(inOutErr) ?? throw new Crash();

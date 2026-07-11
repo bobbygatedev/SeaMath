@@ -17,7 +17,7 @@ namespace Gate.CLanguage.Runtime.Object
       /// <summary>
       /// 
       /// </summary>
-      INumericConverter NumericConverter { get; }
+      NumericConverter NumericConverter { get; }
 
       /// <summary>
       /// 

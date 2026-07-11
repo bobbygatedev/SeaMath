@@ -53,17 +53,17 @@ namespace Gate.SeaMath.Windows.Console
       {
          var enc = Console.Session.OptionPage.NarrowCharEncoding ?? throw new Crash();
 
-         if (Console.ConsoleProcess.StdIn is StandardIn sin)
+         if (Console.ConsoleProcess?.StdIn is StandardIn sin)
          {
             sin.Encoding = enc;
          }
 
-         if (Console.ConsoleProcess.StdOut is StandardOut sou)
+         if (Console.ConsoleProcess?.StdOut is StandardOut sou)
          {
             sou.Encoding = enc;
          }
 
-         if (Console.ConsoleProcess.StdErr is StandardOut ser)
+         if (Console.ConsoleProcess?.StdErr is StandardOut ser)
          {
             ser.Encoding = enc;
          }

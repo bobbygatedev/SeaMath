@@ -152,8 +152,19 @@ namespace Gate.SeaMath.Sea
             {
                if (paramDecl.TypeAlias.IsSeaType())
                {
-                  //if parameter is sea then sea-2-sea copy is made
-                  return new SeaTypeRtmObj(Allocator, var_par.RtmValue);
+                  if (var_par.Decl != null)
+                  {
+                     var cpy = new SeaTypeRtmObj(Allocator, var_par.Decl);
+
+                     cpy.RtmValue = var_par.RtmValue;
+
+                     return cpy;
+                  }
+                  else
+                  {
+                     //if parameter is sea then sea-2-sea copy is made
+                     return new SeaTypeRtmObj(Allocator, var_par.RtmValue);
+                  }
                }
                else if (base.CanAssignTypeTo(
                      paramDecl.TypeAlias,

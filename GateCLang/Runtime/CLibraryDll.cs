@@ -32,11 +32,9 @@ namespace Gate.CLanguage.Runtime
       /// <param name="dllPath"></param>
       /// <param name="headerSource"></param>
       /// <param name="rtmStrategy"></param>
-      /// <param name="envDirs"></param>
-      private CLibraryDll(FileInfo dllPath, CSource headerSource, CRtmObjStrategy rtmStrategy, params string[] envDirs)
+      private CLibraryDll(FileInfo dllPath, CSource headerSource, CRtmObjStrategy rtmStrategy)
       {
          RtmStrategy = rtmStrategy;
-         EnvDirs = envDirs;
          DllPath = dllPath;
          myAddSubItem(headerSource);
          FileInfo = headerSource.FileInfo;
@@ -56,11 +54,6 @@ namespace Gate.CLanguage.Runtime
       /// 
       /// </summary>
       public CRtmObjStrategy RtmStrategy { get; }
-
-      /// <summary>
-      /// 
-      /// </summary>
-      public string[] EnvDirs { get; }
 
       /// <summary>
       /// 
@@ -168,8 +161,6 @@ namespace Gate.CLanguage.Runtime
             {
                var res = true;
 
-               Environment.SetEnvironmentVariable("PATH", string.Join(";", EnvDirs));
-
                using (var dll_ins = new DllInstance(DllPath.FullName))
                {
                   foreach (var dcl_fnc in dcl_fns ?? [])
@@ -211,11 +202,11 @@ namespace Gate.CLanguage.Runtime
          return IsSuccessfullChecked;
       }
 
-      public static CLibraryDll? Make(CCompiler compiler, FileInfo dllPath, string headerFile, MsgCollection messages, params string[] envDirs)
+      public static CLibraryDll? Make(CCompiler compiler, FileInfo dllPath, string headerFile, MsgCollection messages)
       {
          if (compiler.Compile(TxtStore.FromPath(headerFile), messages, out var h_src))
          {
-            var dll = new CLibraryDll(dllPath, h_src ?? throw new Crash(), compiler.RtmStrategy, envDirs);
+            var dll = new CLibraryDll(dllPath, h_src ?? throw new Crash(), compiler.RtmStrategy);
 
             if (dll.Build(messages) && dll.Check(messages))
             {

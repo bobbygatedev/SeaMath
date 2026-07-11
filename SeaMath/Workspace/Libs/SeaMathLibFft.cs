@@ -1,6 +1,7 @@
 ﻿using Gate.CLanguage;
 using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
+using Gate.LangBase;
 using Gate.LangBase.ExtraTypes;
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Sea;
@@ -31,7 +32,7 @@ namespace Gate.SeaMath.Workspace.Libs
                int[] sizes,
                bool isInverse,
                int dimension,
-               CLangNumericConverterStandard cLangNumericConverter) =>
+               NumericConverter cLangNumericConverter) =>
                SeaMathFftwHelper.FftMultidimensional(inMatrixPtr, outMatrixPtr, inMatrixElementType, outMatrixElementType, isInverse, cLangNumericConverter, sizes);
          }
 
@@ -45,7 +46,7 @@ namespace Gate.SeaMath.Workspace.Libs
                int[] sizes,
                bool isInverse,
                int dimension,
-               CLangNumericConverterStandard cLangNumericConverter) => SeaMathFftwHelper.FftOnSingleDimension(
+               NumericConverter cLangNumericConverter) => SeaMathFftwHelper.FftOnSingleDimension(
                   inMatrixPtr, outMatrixPtr, inMatrixElementType, outMatrixElementType, dimension, isInverse, cLangNumericConverter, sizes);
          }
 
@@ -85,7 +86,7 @@ namespace Gate.SeaMath.Workspace.Libs
                      in_arr.Sizes,
                      isInverse,
                      dimension,
-                     rtmStrategy.NumericConverter as CLangNumericConverterStandard ?? throw new Crash());
+                     rtmStrategy.NumericConverter as NumericConverter ?? throw new Crash());
 
                   return new SeaTypeRtmObj(rtmStrategy.Allocator, out_arr);
                }
@@ -108,7 +109,7 @@ namespace Gate.SeaMath.Workspace.Libs
             int[] sizes,
             bool isInverse,
             int dimension,
-            CLangNumericConverterStandard cLangNumericConverter);
+            NumericConverter cLangNumericConverter);
       }
 
       [Method(Name = "fftmd", Flags = MethodAttribute.FlagsType.all)]
@@ -139,13 +140,14 @@ namespace Gate.SeaMath.Workspace.Libs
 
          if (mgs.Count == 0)
          {
+            var nc = NumericConverter.StdImpl.NnOrCrash();
             //dimension index (if not indicated, last dimension is used eg [r,c]->r)
             var dim_idx = dim_rtm != null ? 
-               CLangNumericConverterStandard.Convert<int>(dim_rtm.CSharpObj.NnOrCrash()) : 
+               nc.Convert<int>(dim_rtm.CSharpObj.NnOrCrash()) : 
                arr.NnOrCrash().Sizes.Length - 1;
 
             //inverse flag
-            var is_inv = inv_rtm != null ? CLangNumericConverterStandard.Convert<int>(inv_rtm.CSharpObj.NnOrCrash()) != 0 : false;
+            var is_inv = inv_rtm != null ? nc.Convert<int>(inv_rtm.CSharpObj.NnOrCrash()) != 0 : false;
 
             return myFftExtSingleDim.Execute(input, RtmStrategy, is_inv, dim_idx ?? throw new Crash());
          }

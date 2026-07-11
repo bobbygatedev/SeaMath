@@ -1,7 +1,7 @@
 ﻿namespace Gate.Tools.Programming
 {
    /// <summary>
-   /// 
+   /// Compile environment output (dll/so or exe).
    /// </summary>
    public enum CompileEnvOut
    {

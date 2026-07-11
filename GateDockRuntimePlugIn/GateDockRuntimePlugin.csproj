@@ -11,15 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\GateDock\GateDock.csproj" />
     <ProjectReference Include="..\GateLangBase\GateLangBase.csproj" />
     <ProjectReference Include="..\GateToolsView\GateToolsView.csproj" />
     <ProjectReference Include="..\GateTools\GateTools.csproj" />
-     <ProjectReference Include="..\ScintillaNet\ScintillaNet.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

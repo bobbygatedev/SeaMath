@@ -17,6 +17,8 @@ namespace ScintillaNET.Gate
       public const int SCI_SETILEXER = 4033;
 
       private static bool myIsStarted = false;
+      private static nint myDllHandler = nint.Zero;
+
       private Lexer myLexer = Lexer.Null;
 
       public delegate IntPtr CreateLexerHandler(IntPtr lexerName);
@@ -25,6 +27,11 @@ namespace ScintillaNET.Gate
 
       private static CreateLexerHandler? myCreateLexerHandler;
       private static LexerNameFromIDHandler? myLexerNameFromIDHandler;
+
+      public ScintillaExtension()
+      {
+
+      }
 
       public static IntPtr CreateLexer(string lexerName)
       {
@@ -48,15 +55,31 @@ namespace ScintillaNET.Gate
 
             if (value != Lexer.Null)
             {
-               var lex_nam = LexerNameFromID((int)(myLexer = value)) ?? throw new Crash();
-               var lex = CreateLexer(lex_nam);
+               var lex_nam = LexerNameFromID((int)(myLexer = value));
 
-               DirectMessage(SCI_SETILEXER, IntPtr.Zero, lex);
+               if (lex_nam != null)
+               {
+                  var lex = CreateLexer(lex_nam);
+
+                  DirectMessage(SCI_SETILEXER, IntPtr.Zero, lex);
+               }
             }
          }
       }
 
       public new Encoding Encoding => base.Encoding;
+
+      public static bool CheckDll()
+      {
+         if (!myIsStarted)
+         {
+            myIsStarted = true;
+            SetModulePath(SciLexerDllPath);
+            myDllHandler = NativeMethods.LoadLibrary(SciLexerDllPath);
+         }
+
+         return myDllHandler != nint.Zero;
+      }
 
       /// <summary>
       /// 
@@ -65,41 +88,21 @@ namespace ScintillaNET.Gate
       {
          get
          {
-            if (!myIsStarted)
+            if (!CheckDll()) { return new CreateParams(); }
+
+            try
             {
-               var tmp_fil_nam = myGetDllPath();
+               myCreateLexerHandler = Marshal.GetDelegateForFunctionPointer(
+                   myGetProcAddress(myDllHandler, "CreateLexer"),
+                   typeof(CreateLexerHandler)) as CreateLexerHandler ?? throw new Crash();
 
-               myIsStarted = true;
-               SetModulePath(tmp_fil_nam);
-
-               var hnd = NativeMethods.LoadLibrary(tmp_fil_nam);
-
-               try
-               {
-                  if (hnd == nint.Zero)
-                  {
-                     throw new Win32Exception(Marshal.GetLastWin32Error(), $"LoadLibrary failed for '{tmp_fil_nam}'");
-                  }
-               }
-               catch (Exception exc)
-               {
-                  throw new Crash(exc);
-               }
-
-               try
-               {
-                  myCreateLexerHandler = Marshal.GetDelegateForFunctionPointer(
-                      myGetProcAddress(hnd, "CreateLexer"),
-                      typeof(CreateLexerHandler)) as CreateLexerHandler ?? throw new Crash();
-
-                  myLexerNameFromIDHandler = Marshal.GetDelegateForFunctionPointer(
-                     myGetProcAddress(hnd, "LexerNameFromID"),
-                      typeof(LexerNameFromIDHandler)) as LexerNameFromIDHandler ?? throw new Crash();
-               }
-               catch (Exception exc)
-               {
-                  throw new Crash($"Failed to get function for dll {tmp_fil_nam}",exc);
-               }
+               myLexerNameFromIDHandler = Marshal.GetDelegateForFunctionPointer(
+                  myGetProcAddress(myDllHandler, "LexerNameFromID"),
+                   typeof(LexerNameFromIDHandler)) as LexerNameFromIDHandler ?? throw new Crash();
+            }
+            catch (Exception exc)
+            {
+               throw new Crash($"Failed to get function for dll {SciLexerDllPath}", exc);
             }
 
             return base.CreateParams;
@@ -122,12 +125,15 @@ namespace ScintillaNET.Gate
          }
       }
 
-      private string myGetDllPath()
+      public static string SciLexerDllPath
       {
-         var nam = Assembly.GetCallingAssembly()?.Location ?? throw new Crash();
-         var dir = new FileInfo(nam).Directory ?? throw new Crash();
+         get
+         {
+            var nam = Assembly.GetCallingAssembly()?.Location ?? throw new Crash();
+            var dir = new FileInfo(nam).Directory ?? throw new Crash();
 
-         return dir.Exists ? Path.Combine(dir.FullName, "Scilexer.dll") : throw new Crash();
+            return dir.Exists ? Path.Combine(dir.FullName, "Scilexer.dll") : throw new Crash();
+         }
       }
 
       /// <summary>

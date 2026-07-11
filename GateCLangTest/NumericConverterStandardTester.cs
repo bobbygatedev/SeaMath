@@ -34,7 +34,7 @@ namespace Gate.CLanguageTest
          private static ExtraDllCppCode? myCppCode;
 
          public BitFieldTest() : base(
-            CLangNumericConverterStandard.TypesIntAll.SelectMany(it => new ByType[] { new ByType.Get(it), new ByType.Update(it) }).ToArray())
+            NumericConverter.TypesIntAll.SelectMany(it => new ByType[] { new ByType.Get(it), new ByType.Update(it) }).ToArray())
          { }
 
          public abstract class ByType : TestBase
@@ -103,8 +103,9 @@ namespace Gate.CLanguageTest
 
                   for (int i = 0; i < NBits - NBitField + 1; i++)
                   {
-                     var bf = CLangNumericConverterStandard.GetBitField(inv, new BitField(i, NBitField)) ?? throw new Crash();
-                     var exp = res.GetValue(i) as ValueType ?? throw new Crash();
+                     var bf = TestObjects.NumericConverter.
+                        GetBitField(inv, new BitField(i, NBitField)).NnOrCrash();
+                     var exp = res.GetValue(i).ConvertOrCrash<ValueType>();
 
                      is_ok &= exp.Equals(bf);
 
@@ -169,7 +170,7 @@ namespace Gate.CLanguageTest
                protected override TxtElabResult myExecution()
                {
                   var bf_val = (ValueType)Convert.ChangeType(UpdateValue, IntType);
-                  var to_upd = CLangNumericConverterStandard.TypesIntUnsigned.Contains(IntType) ?
+                  var to_upd = NumericConverter.TypesIntUnsigned.Contains(IntType) ?
                      myGetMaxValue(IntType) : (ValueType)Convert.ChangeType(-1, IntType);
 
                   if (IsVerbose)
@@ -182,7 +183,8 @@ namespace Gate.CLanguageTest
 
                   for (int i = 0; i < NBits - NBitField + 1; i++)
                   {
-                     var new_val = CLangNumericConverterStandard.UpdateBitField(to_upd, bf_val, new BitField(i, NBitField));
+                     var new_val = TestObjects.NumericConverter.
+                        UpdateBitField(to_upd, bf_val, new BitField(i, NBitField));
                      var exp = res.GetValue(i) as ValueType ?? throw new Crash();
 
                      is_ok &= exp.Equals(new_val);
@@ -348,10 +350,10 @@ namespace Gate.CLanguageTest
 
             protected override TxtElabResult myExecution()
             {
-               var num_cvt = new CLangNumericConverterStandard();
+               var num_cvt = TestObjects.NumericConverter;
                var r_vls = myGetTestRValues(RType);
 
-               var cmp_typ = CLangNumericConverterStandard.ComposeTypes(LType, RType);
+               var cmp_typ = NumericConverter.ComposeTypes(LType, RType);
                var cmp_typ_cpp = myGetCppType(cmp_typ);
 
                var is_ok = ExpectedCype == cmp_typ_cpp || ExpectedCSharpType == cmp_typ;
@@ -384,11 +386,11 @@ namespace Gate.CLanguageTest
                      case "long double _Complex": return typeof(ComplexLongDouble);
                   }
 
-                  var typ = CLangNumericConverterStandard.TypesAll.FirstOrDefault(t => t.Name == c_typ);
+                  var typ = NumericConverter.TypesAll.FirstOrDefault(t => t.Name == c_typ);
 
                   if (typ != null) { return typ; }
 
-                  var ali_typ = CLangNumericConverterStandard.TypesAll.FirstOrDefault(t => t.GetTypeAlias() == c_typ);
+                  var ali_typ = NumericConverter.TypesAll.FirstOrDefault(t => t.GetTypeAlias() == c_typ);
 
                   if (ali_typ != null) { return ali_typ; }
 
@@ -430,7 +432,7 @@ namespace Gate.CLanguageTest
 
             protected override TxtElabResult myExecution()
             {
-               var num_cvt = new CLangNumericConverterStandard();
+               var num_cvt = TestObjects.NumericConverter;
                var r_vls = myGetTestRValues(RType);
 
                if (IsVerbose)
@@ -439,7 +441,7 @@ namespace Gate.CLanguageTest
                }
 
                //left values (output)
-               var l_vls = r_vls.Select(rv => num_cvt.DoConvertCsharpValue(LType, rv)).ToArray();
+               var l_vls = r_vls.Select(rv => num_cvt.Convert(LType, rv)).ToArray();
 
                //expected left values
                var exp_l_vls = r_vls.Select(rv => GetConvertExpected(rv, LType)).ToArray();
@@ -450,7 +452,7 @@ namespace Gate.CLanguageTest
                {
                   if (!is_ok)
                   {
-                     l_vls = r_vls.Select(rv => num_cvt.DoConvertCsharpValue(LType, rv)).ToArray();
+                     l_vls = r_vls.Select(rv => num_cvt.Convert(LType, rv)).ToArray();
                   }
 
                   var dsc = string.Join(" ", Enumerable.Range(0, r_vls.Length).Select(i => $"{myPlot(r_vls[i])}->{myPlot(l_vls[i])}"));
@@ -464,7 +466,7 @@ namespace Gate.CLanguageTest
             protected override void myTestPreSet() { }
          }
 
-         public Type[] Types { get; } = CLangNumericConverterStandard.TypesAll;
+         public Type[] Types { get; } = NumericConverter.TypesAll;
 
          public ExtraDllCppCode? ConversionCppCode { get; private set; }
 
@@ -473,7 +475,7 @@ namespace Gate.CLanguageTest
          private void myAddTests()
          {
             var enr = new ArrayIndicesEnumerable(DirectionId.right2left, Types.Length, Types.Length);
-            var num_cvt = new CLangNumericConverterStandard();
+            var num_cvt = TestObjects.NumericConverter;
 
             foreach (var idx in enr.ToArray())
             {
@@ -508,19 +510,19 @@ namespace Gate.CLanguageTest
 
          private bool myAreCompatibleForTypeCombineTest(Type lType, Type rType)
          {
-            var l_ana = CLangNumericConverterStandard.TypeAnalise(lType);
-            var r_ana = CLangNumericConverterStandard.TypeAnalise(rType);
+            var l_ana = NumericConverter.TypeAnalise(lType);
+            var r_ana = NumericConverter.TypeAnalise(rType);
 
-            if (l_ana == CLangNumericConverterStandard.TypeAnalyzeResult.pointer || r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.pointer)
+            if (l_ana == NumericConverter.TypeAnalyzeResult.pointer || r_ana == NumericConverter.TypeAnalyzeResult.pointer)
             {
                return
-                  l_ana == CLangNumericConverterStandard.TypeAnalyzeResult.pointer && r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.pointer ||
-                  r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.signed_int ||
-                  r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.unsigned_int;
+                  l_ana == NumericConverter.TypeAnalyzeResult.pointer && r_ana == NumericConverter.TypeAnalyzeResult.pointer ||
+                  r_ana == NumericConverter.TypeAnalyzeResult.signed_int ||
+                  r_ana == NumericConverter.TypeAnalyzeResult.unsigned_int;
             }
 
-            var id_l = CLangNumericConverterStandard.TypesAll.ToList().IndexOf(lType);
-            var id_r = CLangNumericConverterStandard.TypesAll.ToList().IndexOf(rType);
+            var id_l = NumericConverter.TypesAll.ToList().IndexOf(lType);
+            var id_r = NumericConverter.TypesAll.ToList().IndexOf(rType);
 
             return id_l <= id_r;
          }
@@ -584,23 +586,23 @@ namespace Gate.CLanguageTest
 
       private static string myGetMethodName(string lTypeCpp, string rTypeCpp) => $"{lTypeCpp}_2_{rTypeCpp}".Replace(" ", "").Replace("*", "ptr");
 
-      private static string? myGetCType(Type csType) => CLangNumericConverterStandard.GetCTypeName(csType);
+      private static string? myGetCType(Type csType) => NumericConverter.GetCTypeName(csType);
 
       private static bool myAreCompatibleForCinversionTest(Type lType, Type rType)
       {
-         var l_ana = CLangNumericConverterStandard.TypeAnalise(lType);
-         var r_ana = CLangNumericConverterStandard.TypeAnalise(rType);
+         var l_ana = NumericConverter.TypeAnalise(lType);
+         var r_ana = NumericConverter.TypeAnalise(rType);
 
          if (
-            l_ana.HasFlag(CLangNumericConverterStandard.TypeAnalyzeResult.pointer) ||
-            r_ana.HasFlag(CLangNumericConverterStandard.TypeAnalyzeResult.pointer))
+            l_ana.HasFlag(NumericConverter.TypeAnalyzeResult.pointer) ||
+            r_ana.HasFlag(NumericConverter.TypeAnalyzeResult.pointer))
          {
             return
                l_ana == r_ana ||
-               l_ana == CLangNumericConverterStandard.TypeAnalyzeResult.unsigned_int ||
-               l_ana == CLangNumericConverterStandard.TypeAnalyzeResult.signed_int ||
-               r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.unsigned_int ||
-               r_ana == CLangNumericConverterStandard.TypeAnalyzeResult.signed_int;
+               l_ana == NumericConverter.TypeAnalyzeResult.unsigned_int ||
+               l_ana == NumericConverter.TypeAnalyzeResult.signed_int ||
+               r_ana == NumericConverter.TypeAnalyzeResult.unsigned_int ||
+               r_ana == NumericConverter.TypeAnalyzeResult.signed_int;
          }
          else
          {
@@ -612,26 +614,26 @@ namespace Gate.CLanguageTest
       {
          if (value != null)
          {
-            var typ_ana = CLangNumericConverterStandard.TypeAnalise(value.GetType());
+            var typ_ana = NumericConverter.TypeAnalise(value.GetType());
 
             switch (typ_ana)
             {
-               case CLangNumericConverterStandard.TypeAnalyzeResult.unsigned_int:
-               case CLangNumericConverterStandard.TypeAnalyzeResult.signed_int:
+               case NumericConverter.TypeAnalyzeResult.unsigned_int:
+               case NumericConverter.TypeAnalyzeResult.signed_int:
                   var dv = (dynamic)(value ?? throw new Crash());
 
                   return Math.Abs((decimal)dv) > 1024 ? $"0x{(dynamic)value:x}" : value.ToString();
 
-               case CLangNumericConverterStandard.TypeAnalyzeResult.floating:
-               case CLangNumericConverterStandard.TypeAnalyzeResult.complex_float:
-               case CLangNumericConverterStandard.TypeAnalyzeResult.complex_signed_int:
-               case CLangNumericConverterStandard.TypeAnalyzeResult.complex_unsigned_int:
-               case CLangNumericConverterStandard.TypeAnalyzeResult.boolean:
+               case NumericConverter.TypeAnalyzeResult.floating:
+               case NumericConverter.TypeAnalyzeResult.complex_float:
+               case NumericConverter.TypeAnalyzeResult.complex_signed_int:
+               case NumericConverter.TypeAnalyzeResult.complex_unsigned_int:
+               case NumericConverter.TypeAnalyzeResult.boolean:
                   return value?.ToString();
 
-               case CLangNumericConverterStandard.TypeAnalyzeResult.pointer:
+               case NumericConverter.TypeAnalyzeResult.pointer:
                   return $"0x{((IntPtr)value).ToInt64():x8}";
-               case CLangNumericConverterStandard.TypeAnalyzeResult.other:
+               case NumericConverter.TypeAnalyzeResult.other:
                default:
                   throw new Crash();
             }
@@ -680,7 +682,7 @@ namespace Gate.CLanguageTest
 
       private static ValueType myGetMinValue(Type type)
       {
-         if (CLangNumericConverterStandard.TypesComplexAll.Contains(type))
+         if (NumericConverter.TypesComplexAll.Contains(type))
          {
             var bas_typ = myGetComplexBaseType(type);
             var min_val = (dynamic)myGetMinValue(bas_typ);
@@ -699,7 +701,7 @@ namespace Gate.CLanguageTest
 
       private static ValueType myGetMaxValue(Type type)
       {
-         if (CLangNumericConverterStandard.TypesComplexAll.Contains(type))
+         if (NumericConverter.TypesComplexAll.Contains(type))
          {
             var bas_typ = myGetComplexBaseType(type);
             var max_val = (dynamic)myGetMaxValue(bas_typ);
@@ -720,7 +722,7 @@ namespace Gate.CLanguageTest
 
       private static Type myGetComplexBaseType(Type complexType)
       {
-         if (CLangNumericConverterStandard.TypesComplexAll.Contains(complexType))
+         if (NumericConverter.TypesComplexAll.Contains(complexType))
          {
             var fls = complexType.GetFields(BindingFlags.Instance | BindingFlags.Public);
 
@@ -735,7 +737,7 @@ namespace Gate.CLanguageTest
       private static ValueType myConvert(ValueType inValue, Type targetType)
       {
          if (inValue.GetType() == targetType) { return inValue; }
-         else if (CLangNumericConverterStandard.TypesComplexAll.Contains(targetType) && CLangNumericConverterStandard.TypesComplexAll.Contains(inValue.GetType()))
+         else if (NumericConverter.TypesComplexAll.Contains(targetType) && NumericConverter.TypesComplexAll.Contains(inValue.GetType()))
          {
             var new_val = (dynamic)myInvokeNew(targetType);
             var cmp_bas = myGetComplexBaseType(targetType);
@@ -747,7 +749,7 @@ namespace Gate.CLanguageTest
 
             return new_val;
          }
-         else if (CLangNumericConverterStandard.TypesComplexAll.Contains(targetType))
+         else if (NumericConverter.TypesComplexAll.Contains(targetType))
          {
             var new_val = (dynamic)myInvokeNew(targetType);
             var cmp_bas = myGetComplexBaseType(targetType);
@@ -757,7 +759,7 @@ namespace Gate.CLanguageTest
 
             return new_val;
          }
-         else if (CLangNumericConverterStandard.TypesComplexAll.Contains(inValue.GetType()))
+         else if (NumericConverter.TypesComplexAll.Contains(inValue.GetType()))
          {
             var new_val = (dynamic)myInvokeNew(targetType);
             var re = ((dynamic)inValue).Re;
@@ -791,7 +793,7 @@ namespace Gate.CLanguageTest
          }
       }
 
-      private static bool myIsUnsigned(Type rType) => CLangNumericConverterStandard.TypesUnsignedAll.Contains(rType);
+      private static bool myIsUnsigned(Type rType) => NumericConverter.TypesUnsignedAll.Contains(rType);
 
       static unsafe void Main(string[] args)
       {

@@ -198,20 +198,26 @@ namespace Gate.SeaMath.Console
       /// <summary>
       /// Console virtual process
       /// </summary>
-      public SeaMathProcessConsole ConsoleProcess =>
-         SubItems.OfType<SeaMathProcessConsole>().FirstOrDefault() ?? throw new NullReferenceException("Console not init yet");
+      public SeaMathProcessConsole? ConsoleProcess => SubItems.OfType<SeaMathProcessConsole>().FirstOrDefault();
 
       public RtmObj[] ObjVisibleForConsole
       {
          get
          {
-            var ojs = (ConsoleProcess ?? throw new Crash()).ObjVisibleFromBreakThreadAll;
-            var sp = ConsoleProcess.SubProcesses.
-               Where(p => p.State == RtmDbgEngRunState.running || p.State == RtmDbgEngRunState.halt).ToArray();
+            if (ConsoleProcess == null)
+            {
+               return [];
+            }
+            else
+            {
+               var ojs = ConsoleProcess.ObjVisibleFromBreakThreadAll;
+               var sp = ConsoleProcess.SubProcesses.
+                  Where(p => p.State == RtmDbgEngRunState.running || p.State == RtmDbgEngRunState.halt).ToArray();
 
-            ojs = ojs.Concat(sp.SelectMany(s => s.ObjVisibleFromBreakThreadAll)).ToArray();
+               ojs = ojs.Concat(sp.SelectMany(s => s.ObjVisibleFromBreakThreadAll)).ToArray();
 
-            return ojs;
+               return ojs;
+            }
          }
       }
 
@@ -237,22 +243,32 @@ namespace Gate.SeaMath.Console
 
       public bool ExecuteInput(string? text, MsgCollection messages)
       {
-         text = myTextPreHandling(text);
-
-         if (text == null) { return false; }
-         else if (Interpreter.Interpret(text, messages, DbgIde.Workspace.Libs.AllLibraries.ToArray() ?? [], out var ins))
+         try
          {
-            //push temporary dummy task
-            (myDummyInstruction ?? throw new Crash()).EnqueueInstructionsOnVirtThread(ins?.Instructions ?? []);
+            text = myTextPreHandling(text);
 
-            return true;
+            if (text == null) { return false; }
+            else if (Interpreter.Interpret(text, messages, DbgIde.Workspace.Libs.AllLibraries.ToArray() ?? [], out var ins))
+            {
+               //push temporary dummy task
+               (myDummyInstruction ?? throw new Crash()).EnqueueInstructionsOnVirtThread(ins?.Instructions ?? []);
+
+               return true;
+            }
+            else
+            {
+               foreach (var msg in messages) { Writer?.WriteLine($"{msg.FullMessage}"); }
+
+               return false;
+            }
          }
-         else
+         catch (RtmException exc)
          {
-            foreach (var msg in messages) { Writer?.WriteLine($"{msg.FullMessage}"); }
-
+            Writer?.WriteLine($"Exception: {exc.Message} {exc.InnerException?.Message}");
+         
             return false;
          }
+         catch (Exception e) { throw new Crash(e); }
       }
 
       protected virtual string? myTextPreHandling(string? text)
@@ -292,7 +308,7 @@ namespace Gate.SeaMath.Console
       public void Dispose()
       {
          myIsDisposed = true;
-         ConsoleProcess.TerminateAsync(true);
+         ConsoleProcess?.TerminateAsync(true);
          ConsoleStrategy.OnConsoleTerminate();
       }
 
@@ -304,20 +320,31 @@ namespace Gate.SeaMath.Console
       {
          if (parentItem is SeaMathDbgIde ide)
          {
-            var pse_exe = new RtmDbgEngVirtCpuPseudoExe("SeaConsole");
-            var str_tup = ConsoleStrategy.OnMakingConsole(this);
+            try
+            {
+               var pse_exe = new RtmDbgEngVirtCpuPseudoExe("SeaConsole");
+               var str_tup = ConsoleStrategy.OnMakingConsole(this);
 
-            Writer = new StreamWriter(str_tup.stdOut);
-            Reader = new StreamReader(str_tup.stdIn);
+               Writer = new StreamWriter(str_tup.stdOut);
+               Reader = new StreamReader(str_tup.stdIn);
 
-            Writer.AutoFlush = true;
-            pse_exe.AddSources(new InnerDummySource(this));
-            myAddSubItem(new SeaMathProcessConsole(
-               pse_exe, (SeaRtmStrategy)ide.Standard.CCompiler.RtmStrategy, ide, str_tup.stdIn, str_tup.stdOut, str_tup.stdErr));
-            (ConsoleProcess ?? throw new Crash()).Start();
-            myCreateConsoleThread();
-            Session.DbgEng.AttachProcess(ConsoleProcess);            
-            ConsoleProcess.ThreadsAll.FirstOrDefault().NnOrCrash().ThreadState = RtmDbgEngRunState.halt;
+               Writer.AutoFlush = true;
+               pse_exe.AddSources(new InnerDummySource(this));
+               myAddSubItem(new SeaMathProcessConsole(
+                  pse_exe, (SeaRtmStrategy)ide.Standard.CCompiler.RtmStrategy, ide, str_tup.stdIn, str_tup.stdOut, str_tup.stdErr));
+
+               if (ConsoleProcess != null)
+               {
+                  ConsoleProcess.Start();
+                  myCreateConsoleThread();
+                  Session.DbgEng.AttachProcess(ConsoleProcess);
+                  ConsoleProcess.ThreadsAll.FirstOrDefault().NnOrCrash().ThreadState = RtmDbgEngRunState.halt;
+               }
+            }
+            catch (RtmException exc)
+            {
+               DbgIde.MessageDisplayer.AddMsg(new Msg(MsgType.fatal, $"Can't init console reason {exc.Message}"));
+            }
          }
 
          base.myActionOnParentSet(parentItem);
@@ -354,19 +381,22 @@ namespace Gate.SeaMath.Console
       {
          var alo_str = DbgIde.Standard.CCompiler.RtmStrategy;
 
-         ConsoleProcess.RtmModulesRtm = null;
-         PreCompiledHeader = myMakePrecompiledHeader();
-
-         if (ConsoleProcess.ProcessFamily.Count(p => p.State == RtmDbgEngRunState.running) <= 1)
+         if (ConsoleProcess != null)
          {
-            var lbs = DbgIde.Workspace.Libs.AllLibraries ?? [];
+            ConsoleProcess.RtmModulesRtm = null;
+            PreCompiledHeader = myMakePrecompiledHeader();
 
-            //then there is no running process I shall init an istance of libraries
-            var rtm_mds = lbs.Select(pl => new RtmDbgEngVirtCpuRtmModule(pl, alo_str)).ToArray();
+            if (ConsoleProcess.ProcessFamily.Count(p => p.State == RtmDbgEngRunState.running) <= 1)
+            {
+               var lbs = DbgIde.Workspace.Libs.AllLibraries ?? [];
 
-            foreach (var rtm_mod in rtm_mds) { rtm_mod.InitIfNecessary(VirtThread?.Stack); }
+               //then there is no running process I shall init an istance of libraries
+               var rtm_mds = lbs.Select(pl => new RtmDbgEngVirtCpuRtmModule(pl, alo_str)).ToArray();
 
-            ConsoleProcess.RtmModulesRtm = rtm_mds;
+               foreach (var rtm_mod in rtm_mds) { rtm_mod.InitIfNecessary(VirtThread?.Stack); }
+
+               ConsoleProcess.RtmModulesRtm = rtm_mds;
+            }
          }
       }
 
@@ -387,9 +417,12 @@ namespace Gate.SeaMath.Console
             var con_ds = ConsolePseudoExe?.Sources.OfType<InnerDummySource>().FirstOrDefault() ?? throw new Crash();
             var ep_fnc = con_ds.Functions.OfType<InnerDummyFunction>().FirstOrDefault() ?? throw new Crash();
 
-            VirtThread = (ConsoleProcess ?? throw new Crash()).StartThread(
-               new RtmDbgEngVirtCpuThreadStartSettings(), new RtmDbgEngVirtCpuEntryPoint(ep_fnc));
-            VirtThread.OnFinished += VirtThread_OnFinished;
+            if (ConsoleProcess!= null)
+            {
+               VirtThread = ConsoleProcess.StartThread(
+                  new RtmDbgEngVirtCpuThreadStartSettings(), new RtmDbgEngVirtCpuEntryPoint(ep_fnc));
+               VirtThread.OnFinished += VirtThread_OnFinished;
+            }
          }
       }
    }

@@ -1,5 +1,4 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
-using System.Windows.Forms;
 
 namespace Gate.LangBase.Runtime.DbgEngVirtCpu
 {

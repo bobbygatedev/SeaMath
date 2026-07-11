@@ -17,7 +17,6 @@ namespace Gate.ToolsView.ConIO
    {
       private const int TIME_FOR_SELECTION_MILLI = 1000;
 
-
       private ConsoleController? myConsoleController;
       private OnCmdStateUpdateHandler? myOnCmdStateUpdate;
       private CmdManagedByControlImpl[] myCommands;

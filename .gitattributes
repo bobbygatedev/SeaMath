@@ -30,3 +30,5 @@ Makefile	text eol=lf
 *.dll binary
 *.doc binary
 *.docx binary
+*.exe binary
+*.7z binary

@@ -212,10 +212,10 @@ namespace Gate.SeaMath.Workspace.Libs
 
                   for (int k = 0; k < s1[1]; k++)
                   {
-                     var v1 = RtmStrategy.NumericConverter?.DoConvertCsharpValue(
+                     var v1 = RtmStrategy.NumericConverter?.Convert(
                         out_bt.CSharpTypeForStorage, myGetMatrixValue(m1, i, k).CSharpObj ?? throw new Crash());
                      var vd1 = (dynamic)(v1 ?? throw new Crash());
-                     var v2 = RtmStrategy.NumericConverter?.DoConvertCsharpValue(
+                     var v2 = RtmStrategy.NumericConverter?.Convert(
                              out_bt.CSharpTypeForStorage, myGetMatrixValue(m2, k, j).CSharpObj ?? throw new Crash());
                      var vd2 = (dynamic)(v2 ?? throw new Crash());
 
@@ -434,7 +434,7 @@ namespace Gate.SeaMath.Workspace.Libs
          {
             if (par is CRtmObjScalar sca)
             {
-               var new_itm = RtmStrategy.NumericConverter.DoConvertCsharpValue(
+               var new_itm = RtmStrategy.NumericConverter.Convert(
                   itemType.CSharpTypeForStorage ?? throw new Crash(), sca.CSharpObj ?? throw new Crash());
 
                Marshal.StructureToPtr(new_itm ?? throw new Crash(), (IntPtr)res_p, false);
@@ -466,7 +466,7 @@ namespace Gate.SeaMath.Workspace.Libs
                      var src_itm = Marshal.PtrToStructure((IntPtr)src_p, arr.CSharpItemType.NnOrCrash()) as ValueType ?? throw new Crash();
 
                      //conversion to destination type
-                     var dst_itm = RtmStrategy.NumericConverter.DoConvertCsharpValue(
+                     var dst_itm = RtmStrategy.NumericConverter.Convert(
                         itemType.CSharpTypeForStorage ?? throw new Crash(), src_itm);
 
                      Marshal.StructureToPtr(dst_itm ?? throw new Crash(), (IntPtr)res_p, false);
@@ -495,7 +495,7 @@ namespace Gate.SeaMath.Workspace.Libs
                {
                   var itm = sca.CSharpObj;
 
-                  res[col_off++].CSharpObj = RtmStrategy.NumericConverter.DoConvertCsharpValue(
+                  res[col_off++].CSharpObj = RtmStrategy.NumericConverter.Convert(
                      itemType.CSharpTypeForStorage ?? throw new Crash(), itm ?? throw new Crash());
                }
                else if (par is CRtmObjArray arr)
@@ -504,7 +504,7 @@ namespace Gate.SeaMath.Workspace.Libs
                   {
                      var itm = arr[i].CSharpObj;
 
-                     res[col_off++].CSharpObj = RtmStrategy.NumericConverter.DoConvertCsharpValue(
+                     res[col_off++].CSharpObj = RtmStrategy.NumericConverter.Convert(
                         itemType.CSharpTypeForStorage ?? throw new Crash(), itm ?? throw new Crash());
                   }
                }
@@ -537,7 +537,7 @@ namespace Gate.SeaMath.Workspace.Libs
 
                            //[  .. off , off + 1 , .. ]  [0 , 1 , .. , par_
                            res[idx.Append(i + col_off).ToArray()].CSharpObj =
-                              RtmStrategy.NumericConverter.DoConvertCsharpValue(itemType.CSharpTypeForStorage ?? throw new Crash(),
+                              RtmStrategy.NumericConverter.Convert(itemType.CSharpTypeForStorage ?? throw new Crash(),
                               itm ?? throw new Crash());
                         }
                      }
@@ -552,7 +552,7 @@ namespace Gate.SeaMath.Workspace.Libs
 
                         //[  .. off , off + 1 , .. ]  [0 , 1 , .. , par_
                         res[idx.Append(col_off).ToArray()].CSharpObj =
-                           RtmStrategy.NumericConverter.DoConvertCsharpValue(
+                           RtmStrategy.NumericConverter.Convert(
                               itemType.CSharpTypeForStorage ?? throw new Crash(), itm ?? throw new Crash());
                      }
                   }

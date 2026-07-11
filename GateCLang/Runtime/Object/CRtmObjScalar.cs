@@ -1,8 +1,9 @@
 ﻿using Gate.LangBase;
 using Gate.LangBase.Expressions;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using System.Runtime.InteropServices;
-using static Gate.CLanguage.CLangNumericConverterStandard;
+using static Gate.LangBase.NumericConverter;
 
 namespace Gate.CLanguage.Runtime.Object
 {
@@ -78,8 +79,13 @@ namespace Gate.CLanguage.Runtime.Object
       /// </summary>
       public override ValueType? CSharpObj
       {
-         get => DeclType?.CSharpTypeForStorage != null ?
-            (BitField.HasValue ? GetBitField(myGetValue(), BitField.Value) : myGetValue()) : null;
+         get
+         {
+            var nc = NumericConverter.StdImpl ?? throw new NullReferenceException();
+
+            return DeclType?.CSharpTypeForStorage != null ?
+            (BitField.HasValue ? nc.GetBitField(myGetValue(), BitField.Value) : myGetValue()) : null;
+         }
 
          set
          {
@@ -88,7 +94,7 @@ namespace Gate.CLanguage.Runtime.Object
             {
                if (BitField.HasValue)
                {
-                  var new_val = UpdateBitField(myGetValue(), value, BitField.Value);
+                  var new_val = NumericConverter.StdImpl.NnOrCrash().UpdateBitField(myGetValue(), value, BitField.Value);
 
                   mySetValue(new_val ?? throw new Crash());
                }

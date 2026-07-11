@@ -77,9 +77,10 @@ namespace Gate.SeaMath
                Distinct().
                ToArray();
 
-            var ojs = thread?.Process?.ObjVisibleFromBreakThreadAll ?? throw new Crash();
+            var ojs = (thread?.Process?.ObjVisibleFromBreakThreadAll).NnOrCrash();
+            var ojs_fnc = ojs.OfType<IRtmObjFunction>().Select(f=>f.ConvertOrCrash<RtmObj>()).ToArray();
 
-            ids = ids.Except(ojs.Select(o => o.VarName)).Where(n => !n.IsBlank()).Nn().ToArray();
+            ids = ids.Except(ojs_fnc.Select(o => o.VarName)).Where(n => !n.IsBlank()).Nn().ToArray();
 
             if (ids.Length == 0)
             {

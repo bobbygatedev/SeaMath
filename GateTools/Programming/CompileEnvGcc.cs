@@ -12,11 +12,26 @@ namespace Gate.Tools.Programming
    /// </summary>
    public class CompileEnvGcc : ICompileEnv
    {
-      public CompileEnvGcc() { }
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="compilerDirs"></param>
+      public CompileEnvGcc(params string[] compilerDirs) => CompilerDirs = compilerDirs.Length == 0 ? [MySysDir] : compilerDirs;
 
+      /// <summary>
+      /// 
+      /// </summary>
+      public static string MySysDir => Is64 ? @"c:\msys64\ucrt64\bin" : @"c:\msys64\mingw32\bin";
+
+      /// <summary>
+      /// 
+      /// </summary>
       public CompileEnvId Id => CompileEnvId.gcc;
 
-      public string[] EnvDirs => Is64 ? new[] { @"c:\msys64\ucrt64\bin" } : new[] { @"c:\msys64\mingw32\bin" };
+      /// <summary>
+      /// 
+      /// </summary>
+      public string[] CompilerDirs { get; }
 
       public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
 
@@ -31,9 +46,11 @@ namespace Gate.Tools.Programming
          FileInfo outputPath, FileInfo[] sourceFiles, CompileEnvOut compileOutput, MsgCollection messages, DirectoryInfo[]? includeDirectories = null)
       {
          var psi = new ProcessStartInfo();
-         var old_pth = Environment.GetEnvironmentVariable("PATH");
+         //saves current environment variable PATH and adds the compiler directories to it
+         var old_pth_ev = Environment.GetEnvironmentVariable("PATH");
 
-         Environment.SetEnvironmentVariable("PATH", $"{string.Join(";", EnvDirs)};{old_pth}");
+         //adds compile directories binaries to the environment variable PATH
+         Environment.SetEnvironmentVariable("PATH", $"{string.Join(";", CompilerDirs)}");
 
          //check whether all files have extension C or c++
          var exs = sourceFiles.Select(f => f.Extension.ToLower()).Distinct().ToArray();
@@ -45,12 +62,12 @@ namespace Gate.Tools.Programming
                switch (exs[0].ToLower())
                {
                   case ".c":
-                     cmd_lin = "gcc.exe";
+                     cmd_lin = "gcc";
                      break;
 
                   case ".cpp":
                   case ".cxx":
-                     cmd_lin = "g++.exe";
+                     cmd_lin = "g++";
                      break;
 
                   default:
@@ -77,59 +94,92 @@ namespace Gate.Tools.Programming
          psi.RedirectStandardError = true;
          psi.UseShellExecute = false;
 
-         var pro = Process.Start(psi);
-         var oup = new StringBuilder(65536);
-
-         if (pro != null)
+         try
          {
-            pro.OutputDataReceived += (sender, e) =>
+            var pro = Process.Start(psi);
+            var oup = new StringBuilder(65536);
+
+            if (pro != null)
             {
-               if (!e.Data.IsBlank())
+               pro.OutputDataReceived += (sender, e) =>
                {
-                  oup.AppendLine(e.Data);
-               }
-            };
+                  if (!e.Data.IsBlank())
+                  {
+                     oup.AppendLine(e.Data);
+                  }
+               };
 
-            pro.ErrorDataReceived += (sender, e) =>
-            {
-               if (!e.Data.IsBlank())
+               pro.ErrorDataReceived += (sender, e) =>
                {
-                  oup.AppendLine(e.Data);
+                  if (!e.Data.IsBlank())
+                  {
+                     oup.AppendLine(e.Data);
+                  }
+               };
+
+               pro.Start();
+               pro.BeginOutputReadLine();
+               pro.BeginErrorReadLine();
+               pro.WaitForExit();
+               Environment.SetEnvironmentVariable("PATH", old_pth_ev);//restore old environment variable PATH
+
+               var sto = new TxtStore(oup.ToString());
+
+               if (pro.ExitCode == 0)
+               {
+                  messages.Add(sto.Lines.Select(l => new Msg(MsgType.info, l.Content)).ToArray());
+                  messages.Add(new Msg(MsgType.success, $"Ok Created {outputPath}!"));
+
+                  return true;
                }
-            };
+               else
+               {
+                  messages.Add(sto.Lines.Select(l => new Msg(MsgType.fail, l.Content)).ToArray());
+                  messages.Add(new Msg(MsgType.info, $"Creation of {outputPath} failed!"));
 
-            pro.Start();
-            pro.BeginOutputReadLine();
-            pro.BeginErrorReadLine();
-            pro.WaitForExit();
-            Environment.SetEnvironmentVariable("PATH", old_pth);
+                  return false;
+               }
+            }
+         }
+         catch (Exception exc)
+         {
+            messages.Add(new Msg(MsgType.fatal, $"Can't launch reason: {exc.Message}"));
+         }
 
-            var sto = new TxtStore(oup.ToString());
+         return false;
+      }
 
-            if (pro.ExitCode == 0)
+      public bool Check(MsgCollection messages)
+      {
+         if (CompilerDirs.Length == 0)
+         {
+            messages.Add(new Msg(MsgType.warning, "Not a install dir defined for GCC"));
+
+            return false;
+         }
+         else
+         {
+            if (CompilerDirs.All(d => Directory.Exists(d)))
             {
-               messages.Add(sto.Lines.Select(l => new Msg(MsgType.info, l.Content)).ToArray());
-               messages.Add(new Msg(MsgType.success, $"Ok Created {outputPath}!"));
-
                return true;
             }
             else
             {
-               messages.Add(sto.Lines.Select(l => new Msg(MsgType.fail, l.Content)).ToArray());
-               messages.Add(new Msg(MsgType.info, $"Creation of {outputPath} failed!"));
+               foreach (var dir in CompilerDirs.Where(d => !Directory.Exists(d)))
+               {
+                  messages.Add(new Msg(MsgType.error, $"GCC install dir {dir} not exist!"));
+               }
 
                return false;
             }
          }
-
-         return false;
       }
 
       private string myGetIncludes(DirectoryInfo[] includeDirectories)
       {
          includeDirectories = includeDirectories ?? new DirectoryInfo[] { };
 
-         return string.Join(" ", includeDirectories.Select(d => $"-I\"{myFormat(d)}\""));         
+         return string.Join(" ", includeDirectories.Select(d => $"-I\"{myFormat(d)}\""));
       }
 
       private string myFormat(DirectoryInfo dir) => $"{dir.FullName.Replace('\\', '/')}";

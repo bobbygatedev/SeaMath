@@ -11,6 +11,8 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.ToolsView.TextCtrl;
 using Gate.ToolsView.TextSearch;
+using ScintillaNET.Gate;
+using System.Diagnostics;
 using static Gate.Dock.DockDocu.GateDockDocuCloseForm;
 using static Gate.Tools.AppParams.AppParamLoadSaver;
 
@@ -29,6 +31,7 @@ namespace Gate.Dock.DockApp
       /// </summary>
       public event OnLoadFinishedHandler? OnLoadFinished;
 
+      private const string VC_REDIST_NAME = "VC_redist.x64.exe";
       private static AppParamLoadSaver myDefaultSaver = new ByXDoc();
       private readonly Lazy<TextSearchInfrastructure> myLazyFindInfrastructure;
       private readonly Lazy<GateDockAppMenuHelper> myLazyAppMenuHelper;
@@ -163,7 +166,7 @@ namespace Gate.Dock.DockApp
 
       public GateDockTabPageFactory[] TabPageFactories => myLazyTabPageFactories.Value;
 
-      public GateDockCtrlFactory[] AllFactories => 
+      public GateDockCtrlFactory[] AllFactories =>
          WidgetFactories.
          Cast<GateDockCtrlFactory>().
          Concat(DocuFactories).
@@ -241,17 +244,40 @@ namespace Gate.Dock.DockApp
       /// <param name="mainForm"></param>
       protected virtual void myActionOnMainFormLoad()
       {
-         MsgCollection Messages = new MsgCollection();
+         var msg = new MsgCollection();
 
          PlugInManager = myMakePlugInLoader();
-         PlugInManager.Load(this, Messages);
+         PlugInManager.Load(this, msg);
 
-         StateContainer.Load(Messages);
+         StateContainer.Load(msg);
          OptionContainer.DocuTextFactories = DocuFactories.OfType<GateDockCtrlFactoryDocuText>().ToArray();
-         OptionContainer.Load(Messages);
+         OptionContainer.Load(msg);
 
-         AppMenuHelper.LoadFirstTime(Messages);
-         DefaultFormScenario.Load(Messages);
+         AppMenuHelper.LoadFirstTime(msg);
+
+         if (!ScintillaExtension.CheckDll())
+         {
+            MessageBox.Show(
+               $"Can't load Scintilla dll {ScintillaExtension.SciLexerDllPath}\n" +
+               $"Please install {VC_REDIST_NAME}!");
+
+            var exe_dir = (new FileInfo(GetType().Assembly.Location).Directory).NnOrCrash();
+            var rds_inf = exe_dir.GetCombinedToFile(VC_REDIST_NAME);
+
+            if (rds_inf.Exists)
+            {
+               Process.Start(new ProcessStartInfo
+               {
+                  FileName = "explorer.exe",
+                  Arguments = $"/select,\"{rds_inf.FullName}\"",
+                  UseShellExecute = true
+               });
+            }
+
+            Environment.Exit(-1);
+         }
+
+         DefaultFormScenario.Load(msg);
          (MarkerHandler ?? throw new Crash()).Load();
 
          //todo define program log and put err msgs in

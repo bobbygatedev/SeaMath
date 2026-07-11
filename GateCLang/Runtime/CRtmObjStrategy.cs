@@ -31,11 +31,11 @@ namespace Gate.CLanguage.Runtime
       /// Constructor that initializes the runtime object strategy with built-in types and an optional numeric converter.
       /// </summary>
       /// <param name="builtIns"></param>
-      public CRtmObjStrategy(INumericConverter? numericConverter = null)
+      public CRtmObjStrategy()
       {
          Allocator = myMakeAllocator();
          myObjectMaker = new InnerObjectMaker(this);
-         NumericConverter = numericConverter ?? new CLangNumericConverterStandard();
+         NumericConverter = NumericConverter.StdImpl.NnOrCrash();
       }
 
       private class InnerObjectMaker
@@ -126,7 +126,7 @@ namespace Gate.CLanguage.Runtime
       /// <summary>
       /// Gets the numeric converter used to perform conversions between numeric types.
       /// </summary>
-      public virtual INumericConverter NumericConverter { get; }
+      public virtual NumericConverter NumericConverter { get; }
 
       /// <summary>
       /// Gets the operator modifier used to modify operators for runtime objects.
@@ -180,7 +180,7 @@ namespace Gate.CLanguage.Runtime
 
             //if destination is built-in numeric convert is performed otherwise direct copy
             dst_rtm_obj.CSharpObj = is_dst_bui ?
-               NumericConverter.DoConvertCsharpValue(
+               NumericConverter.Convert(
                   dst_rtm_obj?.CSharpObj?.GetType() ?? throw new Crash(),
                   paramValue?.CSharpObj ?? throw new Crash()) : paramValue.CSharpObj;
 
@@ -199,7 +199,7 @@ namespace Gate.CLanguage.Runtime
             var bin_typ = typeAlias.PrimitiveAlias.TypeBase as CTypeBuiltIn ?? throw new Crash();
 
             return new CRtmObjLiteral(
-               NumericConverter.DoConvertCsharpValue(
+               NumericConverter.Convert(
                   bin_typ?.CSharpTypeForStorage ?? throw new Crash(), constValue) ?? throw new Crash(),
                   typeAlias);
          }
@@ -395,14 +395,14 @@ namespace Gate.CLanguage.Runtime
          {
             if (r_typ.IsBuiltIn)
             {
-               lObj.CSharpObj = NumericConverter.DoConvertCsharpValue(
+               lObj.CSharpObj = NumericConverter.Convert(
                   lObj.DeclType?.CSharpTypeForStorage ?? throw new Crash(), rObj.CSharpObj ?? throw new Crash());
             }
             else if (rObj is ICRtmObjPointer r_ptr)
             {
                if (l_typ?.BuiltIn?.IsInteger ?? false)
                {
-                  lObj.CSharpObj = NumericConverter.DoConvertCsharpValue(
+                  lObj.CSharpObj = NumericConverter.Convert(
                      l_typ.CSharpTypeForStorage ?? throw new Crash(), r_ptr.PointerValue.ToInt64());
                }
                else
@@ -440,7 +440,7 @@ namespace Gate.CLanguage.Runtime
          var cs = rtm_obj?.CSharpObj ?? throw new Crash();
 
          rtm_obj.CSharpObj = cs.GetType().IsPrimitive ?
-            NumericConverter.DoConvertCsharpValue(
+            NumericConverter.Convert(
                cs.GetType(),
                paramValue.CSharpObj ?? throw new Gate.LangBase.Runtime.RtmException("Param required")) :
             paramValue.CSharpObj;

@@ -1,6 +1,8 @@
-﻿using Gate.LangBase.Expressions.Operators;
+﻿using Gate.LangBase;
+using Gate.LangBase.Expressions.Operators;
 using Gate.LangBase.Runtime.Object;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 
 namespace Gate.CLanguage.Runtime
 {
@@ -34,10 +36,10 @@ namespace Gate.CLanguage.Runtime
          /// <returns></returns>
          private static ValueType myOperation(dynamic o1, dynamic o2, OperatorCSharpHandler OperatorCSharpHandler)
          {
-            var typ = CLangNumericConverterStandard.ComposeTypes(o1.GetType(), o2.GetType());
+            var typ = NumericConverter.ComposeTypes(o1.GetType(), o2.GetType());
 
-            var o1c = CLangNumericConverterStandard.Convert(typ, o1);
-            var o2c = CLangNumericConverterStandard.Convert(typ, o2);
+            var o1c = NumericConverter.StdImpl.NnOrCrash().Convert(typ, o1);
+            var o2c = NumericConverter.StdImpl.NnOrCrash().Convert(typ, o2);
 
             return OperatorCSharpHandler(o1c, o2c);
          }

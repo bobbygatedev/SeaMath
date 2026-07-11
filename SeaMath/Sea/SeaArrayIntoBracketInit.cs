@@ -114,7 +114,7 @@ namespace Gate.SeaMath.Sea
                      var ids_ext = new[] { idx }.Concat(ids).Concat(zrs).ToArray();
 
                      //fill first index
-                     arr_obj[ids_ext].CSharpObj = nc.DoConvertCsharpValue(
+                     arr_obj[ids_ext].CSharpObj = nc.Convert(
                         itm_typ.CSharpTypeForStorage ?? throw new Crash(),
                         arr[ids].CSharpObj ?? throw new Crash());
                   }
@@ -124,7 +124,7 @@ namespace Gate.SeaMath.Sea
                   var ids = new int[szs.Length];
 
                   ids[0] = idx;  // {idx,0,..,0}
-                  arr_obj[ids].CSharpObj = nc.DoConvertCsharpValue(
+                  arr_obj[ids].CSharpObj = nc.Convert(
                      itm_typ.CSharpTypeForStorage ?? throw new Crash(),
                      arg_rtm.CSharpObj ?? throw new Crash());
                }

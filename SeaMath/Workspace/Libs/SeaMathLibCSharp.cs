@@ -156,19 +156,22 @@ namespace Gate.SeaMath.Workspace.Libs
 
       public void Init(MsgCollection messages) => myAddSubItemRange(myMakeDeclarations(messages).Select(d => d.DeclSpecifiers.NnOrCrash()));
 
-      private SeaMathLibCSharpDeclFunction[] myMakeDeclarations(MsgCollection messages)
+      /// <summary>
+      /// Generalized print for C# libraries usage.
+      /// </summary>
+      /// <param name="string"></param>
+      /// <returns></returns>
+      protected unsafe int myPrint(string @string)
       {
-         var typ = GetType();
-         var mts = typ.GetMethods().Where(m => m.GetCustomAttributes(typeof(MethodAttribute), false).Length > 0).ToArray();
-         var ats = mts.Select(m => m.GetCustomAttributes(typeof(MethodAttribute), false)).ToArray();
-
-         return mts.Select(m =>
+         return myHandleException(() =>
          {
-            var atr = m.GetCustomAttribute<MethodAttribute>();
-            var fnc = myGetDeclFunction(m, atr, messages, out var is_sys);
+            var fil = DbgIde.FileSystem.GetStreamByType(InOutErrType.StdOut);
 
-            return fnc;
-         }).Nn().ToArray();
+            fixed (char* ptr = @string)
+            {
+               return fil != null ? fil.PrintfW(RtmStrategy, ptr) : -1;
+            }
+         }, -1);
       }
 
       protected virtual SeaMathLibCSharpDeclFunction? myGetDeclFunction(
@@ -232,6 +235,21 @@ namespace Gate.SeaMath.Workspace.Libs
 
       protected int myHandleException(Func<int> action, int errorCode = -1) =>
          myHandleException<int>(() => action(), errorCode);
+
+      private SeaMathLibCSharpDeclFunction[] myMakeDeclarations(MsgCollection messages)
+      {
+         var typ = GetType();
+         var mts = typ.GetMethods().Where(m => m.GetCustomAttributes(typeof(MethodAttribute), false).Length > 0).ToArray();
+         var ats = mts.Select(m => m.GetCustomAttributes(typeof(MethodAttribute), false)).ToArray();
+
+         return mts.Select(m =>
+         {
+            var atr = m.GetCustomAttribute<MethodAttribute>();
+            var fnc = myGetDeclFunction(m, atr, messages, out var is_sys);
+
+            return fnc;
+         }).Nn().ToArray();
+      }
 
       private SeaMathLibCSharpDeclFunction myGetSysMethod(MethodInfo methodInfo, MethodAttribute? methodAttribute)
       {

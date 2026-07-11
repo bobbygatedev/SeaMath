@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace Gate.ToolsView.Extended
+﻿namespace Gate.ToolsView.Extended
 {
    /// <summary>
    /// Use internally for cancel control flickering

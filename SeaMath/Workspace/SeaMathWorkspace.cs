@@ -1,4 +1,5 @@
-﻿using Gate.CLanguage.Linker;
+﻿using Gate.CLanguage;
+using Gate.CLanguage.Linker;
 using Gate.CLanguage.Runtime;
 using Gate.CLanguage.Source;
 using Gate.CLanguage.Standards;
@@ -19,18 +20,16 @@ namespace Gate.SeaMath.Workspace
    /// </summary>
    public class SeaMathWorkspace : HierarchicalItem
    {
-      private ICompileEnv[]? myCompilerEnvironements;
-
       public SeaMathWorkspace()
       {
-         myAddSubItem(Predefineds = new PredefinedContainer(this));
-         myAddSubItem(Libs = new LibsContainer(this));
-         myAddSubItem(Sources = new SourceContainer(this));
+         myAddSubItem(new PredefinedContainer());
+         myAddSubItem(new LibsContainer());
+         myAddSubItem(new SourceContainer());
       }
 
       public class PredefinedContainer : Container
       {
-         public PredefinedContainer(SeaMathWorkspace parent) : base(parent) { }
+         public PredefinedContainer() { }
          public override DirectoryInfo[] Dirs => Parent.OptionPage.CompileLinkSettings.PredefinedHeaderDirs;
          public override FileInfo[] Files => [];
          public override DirectoryInfo[] IncludeDirs => throw new Gate.CLanguage.CLangException("Not use");
@@ -41,7 +40,7 @@ namespace Gate.SeaMath.Workspace
       {
          private CLibraryDll[]? myDlls;
 
-         public LibsContainer(SeaMathWorkspace parent) : base(parent) { }
+         public LibsContainer() { }
 
          public void DeRegisterCSharpLibrary()
          {
@@ -191,7 +190,7 @@ namespace Gate.SeaMath.Workspace
 
                if (hdr_inf != null)
                {
-                  c_lib_dll = CLibraryDll.Make(cmp, dll, hdr_inf.FullName, mgs, Parent.CompileEnvironment.EnvDirs);
+                  c_lib_dll = CLibraryDll.Make(cmp, dll, hdr_inf.FullName, mgs);
                }
                else { Parent.MessageDisplayer.AddMsg(new Msg(MsgType.warning, $"{dll} has not corresponding source file")); }
 
@@ -242,7 +241,7 @@ namespace Gate.SeaMath.Workspace
       /// </summary>
       public class SourceContainer : Container
       {
-         public SourceContainer(SeaMathWorkspace parent) : base(parent) { }
+         public SourceContainer() { }
 
          public override DirectoryInfo[] Dirs => mySplitPaths(
             Parent.OptionPage.FileToRunSelection.Dirs.Value.Nn(), true).Select(d => new DirectoryInfo(d)).ToArray();
@@ -298,7 +297,7 @@ namespace Gate.SeaMath.Workspace
 
       public abstract class Container : HierarchicalItem
       {
-         public Container(SeaMathWorkspace parent) => Parent = parent;
+         public Container() { }
 
          public abstract DirectoryInfo[] Dirs { get; }
 
@@ -308,7 +307,7 @@ namespace Gate.SeaMath.Workspace
 
          protected abstract bool myFilterByFilePath(FileInfo filePath);
 
-         public SeaMathWorkspace Parent { get; }
+         public SeaMathWorkspace Parent => ParentItem as SeaMathWorkspace ?? throw new NullReferenceException();
 
          /// <summary>
          /// 
@@ -330,40 +329,21 @@ namespace Gate.SeaMath.Workspace
 
       public ISeaMathMessageDisplayer MessageDisplayer => Session.MessageDisplayer;
 
-      public PredefinedContainer Predefineds { get; }
+      public PredefinedContainer Predefineds => SubItems.OfType<PredefinedContainer>().FirstOrDefault() ?? throw new NullReferenceException();
 
-      public LibsContainer Libs { get; }
+      public LibsContainer Libs => SubItems.OfType<LibsContainer>().FirstOrDefault() ?? throw new NullReferenceException();
 
-      public SourceContainer Sources { get; }
-
-      public ICompileEnv[] CompilerEnvironments
-      {
-         get
-         {
-            if (myCompilerEnvironements == null)
-            {
-               var ity = typeof(ICompileEnv);
-               var tps = AppDomain.CurrentDomain.GetAssemblies()
-                   .SelectMany(s => s.GetTypes())
-                   .Where(p => ity.IsAssignableFrom(p));
-               var tps_cst = tps.Select(t => t.GetConstructor([])).Nn().ToArray();
-
-               myCompilerEnvironements = tps_cst.Select(t => (ICompileEnv)t.Invoke([])).ToArray();
-            }
-
-            return myCompilerEnvironements;
-         }
-      }
+      public SourceContainer Sources => SubItems.OfType<SourceContainer>().FirstOrDefault() ?? throw new NullReferenceException();
 
       /// <summary>
       /// At the moment just gcc is applicable.
       /// </summary>
-      public ICompileEnv CompileEnvironment { get; set; } = new CompileEnvGcc();
+      public ICompileEnv? CompileEnvironment { get; set; }
 
       /// <summary>
       /// Whether dll are more recent than .c source.
       /// </summary>
-      public bool IsLibRebuildRequired => 
+      public bool IsLibRebuildRequired =>
          Libs.AllFiles.
          Where(f => f.Extension.IsEqualNoContent(".c")).
          Any(c => c.IsRequiredRebuildForDllFromCFile());
@@ -381,11 +361,11 @@ namespace Gate.SeaMath.Workspace
 
          foreach (var typ in asm.GetTypes().Where(t => typeof(SeaMathLibCSharp).IsAssignableFrom(t)))
          {
-            var cst = typ.GetConstructor(new[] { typeof(SeaMathDbgIde) });
+            var cst = typ.GetConstructor([typeof(SeaMathDbgIde)]);
 
             if (cst != null)
             {
-               lst_lbs.Add(cst.Invoke(new[] { DbgIde }) as SeaMathLibCSharp ?? throw new Crash());
+               lst_lbs.Add(cst.Invoke([DbgIde]) as SeaMathLibCSharp ?? throw new Crash());
             }
          }
 

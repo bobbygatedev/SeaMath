@@ -42,12 +42,19 @@ namespace Gate.SeaMath.FileSystem
       private int[]? myEnqueuedWideChars = null;
       private readonly List<int> myListAlias = new List<int>();
 
-      protected SeaFileSystemItem(FileMode mode, FileAccess access, RtmDbgEngVirtCpuProcess? processBound)
+      protected SeaFileSystemItem(
+         FileMode mode, FileAccess access, RtmDbgEngVirtCpuProcess? processBound, CompiledStdio compiledStdio)
       {
          Mode = mode;
          Access = access;
          ProcessBound = (processBound ?? RtmDbgEngVirtCpuThread.GetRunningThread()?.Process) as SeaMathProcess ?? throw new Crash();
+         CompiledStdio = compiledStdio;
+         CUniversalStdio = new CUniversalStdio(compiledStdio);
       }
+
+      public CUniversalStdio CUniversalStdio { get; }
+
+      public CompiledStdio? CompiledStdio { get; }
 
       public abstract InOutErrType InOutErr { get; }
 
@@ -214,42 +221,47 @@ namespace Gate.SeaMath.FileSystem
          var frm_pos = 0;
          var cnt = 0;
 
-         while (true)
+         if (CompiledStdio != null)
          {
-            var frm_str = myGetNextFormat(format, ref frm_pos);
-
-            if (frm_str != IntPtr.Zero)
+            while (true)
             {
-               var inp_bys = GetNextInputNarrowChars(true, true);
+               var frm_str = myGetNextFormat(format, ref frm_pos);
 
-               if (inp_bys != null)
+               if (frm_str != IntPtr.Zero)
                {
-                  //adds null terminator
-                  inp_bys = inp_bys.Append((byte)0).ToArray();
+                  var inp_bys = GetNextInputNarrowChars(true, true);
 
-                  fixed (byte* buffer = inp_bys)
+                  if (inp_bys != null)
                   {
-                     var ret = CGccStdio.DoSscanf((sbyte*)buffer, (sbyte*)frm_str, @params.Skip(cnt).ToArray());
+                     //adds null terminator
+                     inp_bys = inp_bys.Append((byte)0).ToArray();
 
-                     if (ret == 0)
+                     fixed (byte* buffer = inp_bys)
                      {
-                        myReEnqueueNarrowChars(inp_bys.Take(inp_bys.Length - 1).ToArray());
+                        var ret = CompiledStdio.DoSscanf((sbyte*)buffer, (sbyte*)frm_str, @params.Skip(cnt).ToArray());
 
-                        return cnt;
-                     }
-                     else
-                     {
-                        cnt++;
+                        if (ret == 0)
+                        {
+                           myReEnqueueNarrowChars(inp_bys.Take(inp_bys.Length - 1).ToArray());
+
+                           return cnt;
+                        }
+                        else
+                        {
+                           cnt++;
+                        }
                      }
                   }
+                  else
+                  {
+                     return cnt == 0 ? -1 : cnt;
+                  }
                }
-               else
-               {
-                  return cnt == 0 ? -1 : cnt;
-               }
+               else { return cnt; }
             }
-            else { return cnt; }
          }
+
+         return -1;
       }
 
       public static T[]? myReadNextInputChars<T>(bool isForScanf, bool isContinue, Func<T?> Getc) where T : struct, IConvertible
@@ -355,16 +367,21 @@ namespace Gate.SeaMath.FileSystem
       {
          try
          {
-            var buf = new byte[2048];
-
-            fixed (byte* bp = buf)
+            if (CompiledStdio != null)
             {
-               var res = CGccStdio.DoSprintf((sbyte*)bp, buf.Length, format, @params);
+               var buf = new byte[2048];
 
-               Stream.Write(buf, 0, res);
+               fixed (byte* bp = buf)
+               {
+                  var res = CompiledStdio.DoSprintf((sbyte*)bp, buf.Length, format, @params);
 
-               return res;
+                  Stream.Write(buf, 0, res);
+
+                  return res;
+               }
             }
+
+            return -1;
          }
          catch (Exception exc) { throw new Gate.LangBase.Runtime.RtmException($"Memory error during sprintf: {exc.Message}"); }
       }
@@ -377,7 +394,7 @@ namespace Gate.SeaMath.FileSystem
       /// <param name="params"></param>
       /// <returns></returns>
       /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception>
-      public unsafe int PrintfW(SeaRtmStrategy rtmStrategy, void* format, object[] @params)
+      public unsafe int PrintfW(SeaRtmStrategy rtmStrategy, void* format, params object[] @params)
       {
          try
          {
