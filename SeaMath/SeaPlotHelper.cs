@@ -1,4 +1,5 @@
 ﻿using Gate.CLanguage.Decl;
+using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Runtime;
 using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.TokenParse;
@@ -57,51 +58,64 @@ namespace Gate.SeaMath
          var tok_prs = new CTokenParser();
          var mgs = new MsgCollection();
          var oup = new CTokenParserOutput();
-         var mrk = new TxtMarker(new TxtStore(lambda));
+         var mrk = new TxtMarker(new TxtStore($"{lambda}"));
+         var ind = cmp.GetInData(mgs);
 
-         var res = tok_prs.Perform(mrk, cmp.GetInData(mgs), ref oup) == TxtElabResult.success;
+         var res = tok_prs.Perform(mrk, ind, ref oup) == TxtElabResult.success;
 
          thread = thread ?? RtmDbgEngVirtCpuThread.GetRunningThread() ?? throw new Crash();
 
          var sw = new StreamWriter(thread?.Process?.StdOut ?? throw new Crash());
-
          var lmb_obj = null as SeaRtmLambdaObjFunction;
 
          if (res)
          {
+            var tok_lst = oup.GetTextTokenList();
             var ids =
-               oup.GetTextTokenList().
+               tok_lst.
                Cast<CToken>().
                Where(t => t.TokenType == CTokenType.identifier).
                Select(t => t.Content).
                Distinct().
                ToArray();
 
-            var ojs = (thread?.Process?.ObjVisibleFromBreakThreadAll).NnOrCrash();
-            var ojs_fnc = ojs.OfType<IRtmObjFunction>().Select(f=>f.ConvertOrCrash<RtmObj>()).ToArray();
+            var ojs = thread?.Process?.ObjVisibleFromBreakThreadAll ?? throw new Crash();
 
-            ids = ids.Except(ojs_fnc.Select(o => o.VarName)).Where(n => !n.IsBlank()).Nn().ToArray();
+            var ids_var = ids.Except(ojs.Select(o => o.VarName)).Where(n => !n.IsBlank()).Nn().ToArray();
+            var ojs_var = ojs.Where(o => ids.Contains(o.VarName)).ToArray();
 
-            if (ids.Length == 0)
+            if (ids_var.Length == 0)
             {
                mgs.Add(new Msg(MsgType.error, "Not an input variable"));
                res = false;
             }
-            else if (ids.Length != 1)
+            else if (ids_var.Length != 1)//just one input parameter function is accepted
             {
-               mgs.Add(new Msg(MsgType.error, $"More than one input variable({string.Join(",", ids)})"));
+               mgs.Add(new Msg(MsgType.error, $"More than one input variable({string.Join(",", ids_var)})"));
                res = false;
             }
             else
             {
                //eg sea lambda(sea x){ return x*x + 2*x +1;} creates a function of type y= f(x)
-               var src = cmp.Parse($"sea {LAMBDA_ID}(sea {ids[0]}){{ return {lambda};}}");
+               var src = cmp.Parse($"sea {LAMBDA_ID}(sea {ids_var[0]});");
 
                ///retrieves <see cref="CDeclFunction"/> instance from hierarchy 
-               var fnc = src.AllDescendant.OfType<CDeclFunction>().FirstOrDefault(f => f.Identifier == LAMBDA_ID) ?? throw new Crash();
+               var fnc = src.AllDescendant.OfType<CDeclFunction>().FirstOrDefault(f => f.Identifier == LAMBDA_ID).NnOrCrash();
 
-               //instanciates <see cref="RtmObjFunction"/> from <see cref="CDeclFunction"/>
-               lmb_obj = new SeaRtmLambdaObjFunction(fnc, lambda);
+               //expression solver
+               var exp_slv = (cmp.Interpreter?.ExprInterpret.ExprSolver).NnOrCrash();
+
+               //scope declaration + input parameter
+               var sco_dcs = ojs.Select(o => o.Decl).OfType<CDecl>().Concat(fnc.FunctionContainer?.Parameters ?? []).ToArray();
+
+               var cip = new CTokenInterpreterOutput();
+
+               if (exp_slv.InterpretTokens(tok_lst, ind, sco_dcs, ref cip, out var exp, true) == TxtElabResult.success)
+               {
+                  lmb_obj = new SeaRtmLambdaObjFunction(fnc, lambda);
+
+                  fnc.Instructions = [new RtmDbgEngVirtCpuInstructionReturn(null, exp)];
+               }
             }
          }
 
