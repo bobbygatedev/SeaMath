@@ -13,17 +13,17 @@ DLL_EXPORT double asind(double val) { return asin(val);}
 
 DLL_EXPORT double atand(double val) { return atan(val);}
 
-DLL_EXPORT double cosf_exp(double val) { return cosf(val);}
+DLL_EXPORT float cosf_exp(float val) { return cosf(val);}
 
-DLL_EXPORT double sinf_exp(double val) { return sinf(val);}
+DLL_EXPORT float sinf_exp(float val) { return sinf(val);}
 
-DLL_EXPORT double tanf_exp(double val) { return tanf(val);}
+DLL_EXPORT float tanf_exp(float val) { return tanf(val);}
 
-DLL_EXPORT double acosf_exp(double val) { return acosf(val);}
+DLL_EXPORT float acosf_exp(float val) { return acosf(val);}
 
-DLL_EXPORT double asinf_exp(double val) { return asinf(val);}
+DLL_EXPORT float asinf_exp(float val) { return asinf(val);}
 
-DLL_EXPORT double atanf_exp(double val) { return atanf(val);}
+DLL_EXPORT float atanf_exp(float val) { return atanf(val);}
 
 //sin(x+iy)=sinxcoshy+icosxsinhy
 DLL_EXPORT seacmpd sincd(seacmpd z) 

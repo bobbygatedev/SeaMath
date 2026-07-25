@@ -154,11 +154,7 @@ namespace Gate.SeaMath.Sea
                {
                   if (var_par.Decl != null)
                   {
-                     var cpy = new SeaTypeRtmObj(Allocator, var_par.Decl);
-
-                     cpy.RtmValue = var_par.RtmValue;
-
-                     return cpy;
+                     return new SeaTypeRtmObj(Allocator, var_par.Decl , var_par.RtmValue);
                   }
                   else
                   {
@@ -181,7 +177,10 @@ namespace Gate.SeaMath.Sea
                }
             }
          }
-         else if (paramDecl.TypeAlias.IsSeaType()) { return new SeaTypeRtmObj(Allocator, paramValue); }
+         else if (paramDecl.TypeAlias.IsSeaType()) 
+         { 
+            return new SeaTypeRtmObj(Allocator, paramDecl, paramValue); 
+         }
          else { return base.CopyFunctionParamByValue(paramValue, paramDecl); }
       }
 

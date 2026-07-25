@@ -16,7 +16,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          //get the function params as RtmObj by value/by ref/optional as needed by the function decl and strategy
          var arg_rtm_cps = rtmStrategy.NnOrCrash().GetParams(
             frm.RtmObjFunction.DeclFunction.NnOrCrash().Parameters,
-            frm.NnOrCrash().CallParams.Select(a => a.NnOrCrash()).ToArray());
+            frm.CallParams.Select(a => a.NnOrCrash()).ToArray());
 
          stack.Push(arg_rtm_cps);
       }

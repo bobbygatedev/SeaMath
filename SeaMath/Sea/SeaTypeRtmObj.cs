@@ -21,8 +21,16 @@ namespace Gate.SeaMath.Sea
       /// </summary>
       /// <param name="allocator"></param>
       /// <param name="decl"></param>
-      public SeaTypeRtmObj(CRtmObjAllocator allocator, IDecl decl) :
-         base(allocator, decl) => myInit();
+      public SeaTypeRtmObj(CRtmObjAllocator allocator, IDecl decl, RtmObj? rtmValue = null) :
+         base(allocator, decl)
+      {
+         myInit();
+
+         if (rtmValue != null)
+         {
+            RtmValue = rtmValue;
+         }
+      }
 
       /// <summary>
       /// 
