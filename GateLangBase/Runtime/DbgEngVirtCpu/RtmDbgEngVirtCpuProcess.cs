@@ -450,13 +450,19 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          {
             if (!myIsAborting)
             {
-               StdErr?.Flush();
-               StdOut?.Flush();
+               myFlushIgnoreException(StdErr);
+               myFlushIgnoreException(StdOut);
                OnProcessTerminating?.Invoke(this);
             }
 
             State = RtmDbgEngRunState.terminated;
          }
+      }
+
+      private void myFlushIgnoreException(Stream stdStream)
+      {
+         try { stdStream.Flush(); }
+         catch { }
       }
 
       public int? WaitForExit(double? timeoutSec = null)

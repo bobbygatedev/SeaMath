@@ -2,6 +2,7 @@
 using Gate.LangBase.Runtime.Object;
 using Gate.SeaMath.Console;
 using Gate.SeaMath.Sea;
+using Gate.Tools.Extensions;
 using static Gate.SeaMath.FileSystem.SeaFileSystemItem;
 
 namespace Gate.SeaMath.Workspace.Libs
@@ -10,10 +11,10 @@ namespace Gate.SeaMath.Workspace.Libs
    {
       public const string NAME = "Stdio";
 
-      public SeaMathLibStdio(SeaMathDbgIde dbgIde, CompiledStdio compiledStdio) : base(NAME, dbgIde)
+      public SeaMathLibStdio(SeaMathDbgIde dbgIde) : base(NAME, dbgIde)
       {
          Console = dbgIde.Console;
-         CompiledStdio = compiledStdio;
+         CompiledStdio = DbgIde.CompiledStdio.NnOrCrash();
       }
 
       public SeaMathConsole Console { get; }

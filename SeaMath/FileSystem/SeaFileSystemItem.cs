@@ -383,7 +383,7 @@ namespace Gate.SeaMath.FileSystem
 
             return -1;
          }
-         catch (Exception exc) { throw new Gate.LangBase.Runtime.RtmException($"Memory error during sprintf: {exc.Message}"); }
+         catch (Exception exc) { throw new Gate.LangBase.Runtime.RtmException($"Memory error during printf: {exc.Message}"); }
       }
 
       /// <summary>

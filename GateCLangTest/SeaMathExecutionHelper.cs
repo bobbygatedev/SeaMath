@@ -119,7 +119,6 @@ namespace Gate.CLanguageTest
 
       public bool SkipDllLibs { get; }
 
-
       public bool SkipAllInclusion { get; }
 
       public IRtmDbgEngProcess? StartFromSourceCode(TxtStore sourceCode, string path = @"c:\temp\sea_test.c")
@@ -256,13 +255,14 @@ namespace Gate.CLanguageTest
 
          mySession.Init(SkipCSLibs, SkipDllLibs);
       }
+
       static unsafe void Main(string[] args)
       {
          //#define SEATR(...) __attribute__(( __VA_ARGS__ ))
 
          //return;
-         //using (var hlp = new SeaMathExecutionHelper(false, true, true)) //non carica le dll
-         //using (var hlp = new SeaMathExecutionHelper(true, true)) //non carica le dll 
+         //using (var hlp = new SeaMathExecutionHelper(false, true, true)) //no dll
+         //using (var hlp = new SeaMathExecutionHelper(true, true)) //no dll 
          using (var hlp = new SeaMathExecutionHelper(false, false))
          {
             var aim = Aim.run_test;
