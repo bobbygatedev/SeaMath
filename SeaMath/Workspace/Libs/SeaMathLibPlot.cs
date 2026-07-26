@@ -2,6 +2,7 @@
 using Gate.SeaMath.Sea;
 using Gate.Tools;
 using Gate.Tools.Extensions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gate.SeaMath.Workspace.Libs
 {
@@ -22,16 +23,7 @@ namespace Gate.SeaMath.Workspace.Libs
 
 
       [Method(Name = "expr")]
-      public RtmObj DoExpression(RtmObj expression)
-      {
-         var fnc_str = expression.GetRtmArrayFromSea()?.AsString;
-
-         var fnc =
-            (fnc_str != null ? myPlotHelper.MakeLambdaFunction(fnc_str) : null) ??
-            throw new Gate.LangBase.Runtime.RtmException($"{nameof(expression)},Invalid lambda expression");
-
-         return fnc;
-      }
+      public RtmObj DoExpression(RtmObj expression) => myPlotHelper.MakeLambdaFunction(expression);
 
       [Method(Name = "plotxy")]
       public RtmObj DoPlotXy(RtmObj xAsys, RtmObj yAsys, params RtmObj[] @params)
@@ -67,7 +59,8 @@ namespace Gate.SeaMath.Workspace.Libs
       /// maximum, and 0.1 for the step size are used.</param>
       /// <returns>An <see cref="RtmObj"/> representing the generated plot.</returns>
       /// <exception cref="Gate.LangBase.Runtime.RtmException">Thrown if: <list type="bullet"> <item><description><paramref name="function"/> is null or
-      /// invalid.</description></item> <item><description><paramref name="params"/> contains non-numeric or invalid
+      /// invalid.</description></item> <item><description>
+      /// <paramref name="params"/> contains non-numeric or invalid
       /// values.</description></item> </list></exception>
       [Method(Name = "plotfun")]
       public RtmObj DoPlotFunction(RtmObj function, params RtmObj[] @params)
@@ -77,12 +70,10 @@ namespace Gate.SeaMath.Workspace.Libs
 
          if (fnc == null)
          {
-            var fnc_str = function.GetRtmArrayFromSea()?.AsString;
+            var lmb = myPlotHelper.MakeLambdaFunction(function);
 
-            fnc =
-               (fnc_str != null ? myPlotHelper.MakeLambdaFunction(fnc_str) : null) ??
-               throw new Gate.LangBase.Runtime.RtmException($"{nameof(function)},Invalid lambda expression");
-            fnc_tit = fnc_str;
+            fnc = lmb;
+            fnc_tit = lmb.Lambda;
          }
          else { fnc_tit = fnc.VarName; }
 
@@ -114,23 +105,23 @@ namespace Gate.SeaMath.Workspace.Libs
 
          if (fnc == null)
          {
+            var lmb = myPlotHelper.MakeLambdaFunction(function);
 
-            var fnc_str = function.GetRtmArrayFromSea()?.AsString;
-
-            fnc =
-               (fnc_str != null ? myPlotHelper.MakeLambdaFunction(fnc_str) : null) ??
-               throw new Gate.LangBase.Runtime.RtmException($"{nameof(function)},Invalid lambda expression");
-            fnc_tit = fnc_str;
+            fnc = lmb;
+            fnc_tit = lmb.Lambda;
          }
          else { fnc_tit = fnc.VarName; }
 
-         if (!myPlotHelper.CheckPlotFunction(fnc)) { throw new Gate.LangBase.Runtime.RtmException($"{nameof(function)},Function input cannot be null"); }
+         if (!myPlotHelper.CheckPlotFunction(fnc.NnOrCrash()))
+         {
+            throw new Gate.LangBase.Runtime.RtmException($"{nameof(function)},Function input cannot be null");
+         }
 
          (var xs, var tit) = myPlotHelper.GetXAxisAndTitle(@params);
 
          tit = tit.IsBlank() ? fnc_tit : $"{tit}({fnc_tit})";
 
-         var ys = myPlotHelper.GetYComplexDouble(fnc, xs);
+         var ys = myPlotHelper.GetYComplexDouble(fnc.NnOrCrash(), xs);
 
          return myPlotHelper.ShowPlot(ys.Select(i => i.Re).ToArray(), ys.Select(i => i.Im).ToArray(), tit.Nn(), true);
       }

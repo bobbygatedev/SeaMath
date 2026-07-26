@@ -94,7 +94,7 @@ namespace Gate.CLanguage.Runtime.Object
             {
                if (BitField.HasValue)
                {
-                  var new_val = NumericConverter.StdImpl.NnOrCrash().UpdateBitField(myGetValue(), value, BitField.Value);
+                  var new_val = StdImpl.NnOrCrash().UpdateBitField(myGetValue(), value, BitField.Value);
 
                   mySetValue(new_val ?? throw new Crash());
                }

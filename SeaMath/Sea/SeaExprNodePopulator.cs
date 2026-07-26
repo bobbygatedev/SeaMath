@@ -140,6 +140,7 @@ namespace Gate.SeaMath.Sea
       /// <param name="operandNodeVar">The operand variable node to evaluate.</param>
       /// <returns><see langword="true"/> if the operand variable node has no parent expression node; otherwise, <see
       /// langword="false"/>.</returns>
-      private bool myIsStandaloneDecl(ExprNodeOperandVariable operandNodeVar) => operandNodeVar.ParentExprNode == null;
+      private bool myIsStandaloneDecl(ExprNodeOperandVariable operandNodeVar) => 
+         operandNodeVar.ParentExprNode == null || operandNodeVar.ParentExprNode.Content == ",";
    }
 }

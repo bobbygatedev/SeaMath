@@ -56,15 +56,26 @@ namespace Gate.SeaMath
       {
          public enum OriginType
          {
+            /// <summary>
+            /// Standard mysys installation directory (c:\msys64\ucrt64) 
+            /// </summary>
             mysys,
+
+            /// <summary>
+            /// Uses <see cref="InternalPluginDir"/> 
+            /// </summary>
             @internal,
+
+            /// <summary>
+            /// 
+            /// </summary>
             custom
          }
 
          public GccRecordType() : base("Gcc", "GCC") { }
 
 
-         public readonly Simple<OriginType> Origin = new Simple<OriginType>("Origin", "Origin", OriginType.mysys);
+         public readonly Simple<OriginType> Origin = new Simple<OriginType>("Origin", "Origin", OriginType.@internal);
 
          [ValueControlAssociation(Id = ValueControlStandardId.dir_list)]
          public readonly Simple<string> OriginCustomDirs = new Simple<string>("OriginCustomDirs", "Origin Custom Directories");
@@ -132,6 +143,10 @@ namespace Gate.SeaMath
 
       public DirectoryInfo[] GccDirs => myGetDirsByValue(Gcc.Origin.Value);
 
+      /// <summary>
+      /// <br> [PluginDir]/gcc/x64 for 64bit</br> 
+      /// <br> [PluginDir]/gcc/win32 for 64bit</br> 
+      /// </summary>
       public DirectoryInfo InternalPluginDir
       {
          get

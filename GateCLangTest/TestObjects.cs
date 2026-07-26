@@ -5,6 +5,6 @@ namespace Gate.CLanguageTest
 {
    public static class TestObjects
    {
-      public static NumericConverter NumericConverter  { get; } = new NumericConverter.CImplemented(new CompileEnvGcc());
+      public static NumericConverter NumericConverter  { get; } = NumericConverter.CImplemented.Make(new CompileEnvGcc());
    }
 }

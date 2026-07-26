@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.ExtraTypes;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using System.Runtime.InteropServices;
@@ -12,6 +13,8 @@ namespace Gate.LangBase
    /// </summary>
    public unsafe abstract class NumericConverter
    {
+      private static NumericConverter? myStdImpl;
+
       public enum TypeAnalyzeResult
       {
          floating = 0,
@@ -28,6 +31,16 @@ namespace Gate.LangBase
 
       [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
       private delegate void ConvertHandler(IntPtr output, int outStep, IntPtr input, int inStep, int n);
+
+      public NumericConverter() { }
+
+      static NumericConverter()
+      {
+         var mgs = new MsgCollection();
+
+         mgs.Is2PlotOnConsole = true;
+         myStdImpl = CImplemented.Make(new CompileEnvGcc(), null);
+      }
 
       public static Type[] TypesIntSigned => [typeof(sbyte), typeof(Int16), typeof(Int32), typeof(Int64)];
       public static Type[] TypesIntUnsigned => [typeof(byte), typeof(UInt16), typeof(UInt32), typeof(UInt64)];
@@ -58,28 +71,27 @@ namespace Gate.LangBase
 
       public static Type[] TypesPointer { get; } = [typeof(IntPtr)];
 
-      public NumericConverter() { }
-
       /// <summary>
       /// Standard implementation
       /// </summary>
-      public static NumericConverter? StdImpl { get; set; }
+      public static NumericConverter? StdImpl { get => myStdImpl; set => myStdImpl = value ?? throw new Crash("NumericConverter Implementaion can't be null"); }
 
       public class CImplemented : NumericConverter
       {
          private readonly List<ConversionFunction> myListConversionFunctions = new List<ConversionFunction>();
 
-         public static CImplemented Make(ICompileEnv compileEnv , MsgCollection? messages)
-         {
-            return new CImplemented(compileEnv , messages);
-         }
+         public static CImplemented Make(ICompileEnv compileEnv, MsgCollection? messages = null) =>
+            new CImplemented(compileEnv, messages);
 
-         public CImplemented(ICompileEnv compileEnv):this(compileEnv, null) { }
-
-
-         private CImplemented(ICompileEnv compileEnv , MsgCollection? messages)
+         private CImplemented(ICompileEnv compileEnv, MsgCollection? messages)
          {
             CompileEnv = compileEnv;
+
+            if (messages ==null)
+            {
+               messages = new MsgCollection();
+               messages.Is2PlotOnConsole = true;
+            }
 
             var prs = TypesAll.SelectMany(t1 => TypesAll.Select(t2 => (t1, t2))).ToArray();
             var sb = new StringBuilder();
@@ -113,10 +125,6 @@ namespace Gate.LangBase
             if (cpp_cod.HasBeenRegistered)
             {
                CppCode = cpp_cod;
-            }
-            else if(messages == null) 
-            {
-               throw new Crash();
             }
          }
 
@@ -170,10 +178,10 @@ namespace Gate.LangBase
          public override void ConvertPointers(
             IntPtr outPointer, Type outType, int outStep, IntPtr inPointer, Type inType, int inStep, int n)
          {
-            var cf = myListConversionFunctions.
-               FirstOrDefault(f => f.InputType == inType && f.OutputType == outType) ?? throw new Crash();
+            var cnv_hnd = (myListConversionFunctions.
+               FirstOrDefault(f => f.InputType == inType && f.OutputType == outType)?.ConvertHandler).NnOrCrash();
 
-            cf.ConvertHandler(outPointer, outStep, inPointer, inStep, n);
+            cnv_hnd(outPointer, outStep, inPointer, inStep, n);
          }
 
          public override ValueType? Convert(Type outType, ValueType inValue)
@@ -184,13 +192,13 @@ namespace Gate.LangBase
             }
             else
             {
-               var cf = myListConversionFunctions.FirstOrDefault(
-                  f => f.InputType == inValue.GetType() && f.OutputType == outType) ?? throw new Crash();
+               var cnv_hnd = (myListConversionFunctions.FirstOrDefault(
+                  f => f.InputType == inValue.GetType() && f.OutputType == outType)?.ConvertHandler).NnOrCrash();
                var i_buf = stackalloc byte[Marshal.SizeOf(inValue)];
                var o_buf = stackalloc byte[Marshal.SizeOf(outType)];
 
                Marshal.StructureToPtr(inValue, (IntPtr)i_buf, false);
-               cf.ConvertHandler((IntPtr)o_buf, 1, (IntPtr)i_buf, 1, 1);
+               cnv_hnd((IntPtr)o_buf, 1, (IntPtr)i_buf, 1, 1);
 
                return Marshal.PtrToStructure((IntPtr)o_buf, outType) as ValueType;
             }

@@ -50,54 +50,111 @@ namespace Gate.SeaMath
       /// function is created. If not provided, the currently running thread is used.</param>
       /// <returns>A <see cref="SeaRtmLambdaObjFunction"/> representing the compiled lambda function if the operation succeeds;
       /// otherwise, <see langword="null"/>.</returns>
-      /// <exception cref="Crash">Thrown if an unexpected error occurs during the parsing or compilation of the lambda expression.</exception>
-      public SeaRtmLambdaObjFunction? MakeLambdaFunction(string lambda, RtmDbgEngVirtCpuThread? thread = null)
+      /// <exception cref="RtmException">Thrown if an unexpected error occurs during the parsing or compilation of the lambda expression.</exception>
+      public SeaRtmLambdaObjFunction MakeLambdaFunction(RtmObj rtmObj, RtmDbgEngVirtCpuThread? thread = null)
       {
+         var lmb_str = rtmObj.GetRtmArrayFromSea()?.AsString;
+
+         if (lmb_str == null)
+         {
+            throw new Gate.LangBase.Runtime.RtmException($"{rtmObj} not a string and therefore not a lambda expression!");
+         }
+
          var cmp = DbgIde.Standard.CCompiler;
 
          var tok_prs = new CTokenParser();
          var mgs = new MsgCollection();
          var oup = new CTokenParserOutput();
-         var mrk = new TxtMarker(new TxtStore($"{lambda}"));
+         var mrk = new TxtMarker(new TxtStore($"{lmb_str}"));
          var ind = cmp.GetInData(mgs);
 
          var res = tok_prs.Perform(mrk, ind, ref oup) == TxtElabResult.success;
 
-         thread = thread ?? RtmDbgEngVirtCpuThread.GetRunningThread() ?? throw new Crash();
+         thread = thread ?? RtmDbgEngVirtCpuThread.GetRunningThread().NnOrCrash();
 
-         var sw = new StreamWriter(thread?.Process?.StdOut ?? throw new Crash());
+         //error stream
+         var err_str = new StreamWriter((thread?.Process?.StdOut).NnOrCrash());
          var lmb_obj = null as SeaRtmLambdaObjFunction;
 
          if (res)
          {
             var tok_lst = oup.GetTextTokenList();
-            var ids =
+            
+            //all id's found in lambda
+            var ids_lmb =
                tok_lst.
                Cast<CToken>().
                Where(t => t.TokenType == CTokenType.identifier).
                Select(t => t.Content).
+               Where(n => !n.IsBlank()).
                Distinct().
                ToArray();
 
-            var ojs = thread?.Process?.ObjVisibleFromBreakThreadAll ?? throw new Crash();
+            //objects in scope
+            var ojs_sco = (thread?.Process?.ObjVisibleFromBreakThreadAll).NnOrCrash();
+            
+            //functions in scope id's
+            var ids_rtm_fnc =
+               ojs_sco.OfType<IRtmObjFunction>().
+               Select(f => f.DeclFunction?.Identifier).
+               Where(f => !f.IsBlank()).
+               ToArray();
 
-            var ids_var = ids.Except(ojs.Select(o => o.VarName)).Where(n => !n.IsBlank()).Nn().ToArray();
-            var ojs_var = ojs.Where(o => ids.Contains(o.VarName)).ToArray();
+            //id's in lambda except function names
+            var ids_var = ids_lmb.Except(ids_rtm_fnc).Where(n => !n.IsBlank()).ToArray();
+            var ids_rtm_var =
+               ojs_sco.
+               Where(o => !(o is IRtmObjFunction)).
+               Select(o => o.VarName).
+               Where(n => !n.IsBlank()).
+               ToArray();
+
+            var l_in_id = null as string;
 
             if (ids_var.Length == 0)
             {
-               mgs.Add(new Msg(MsgType.error, "Not an input variable"));
+               mgs.Add(new Msg(MsgType.error, $"'{lmb_str}': Not an input variable"));
                res = false;
             }
             else if (ids_var.Length != 1)//just one input parameter function is accepted
             {
-               mgs.Add(new Msg(MsgType.error, $"More than one input variable({string.Join(",", ids_var)})"));
-               res = false;
+               //x,y
+               var ids_var_2 = ids_var.Except(ids_rtm_var).ToArray();
+
+               if (ids_var_2.Length == 0)
+               {
+                  //all variable names are in the scope eg { int x=0,y=0;  f=expr("x*y");  } 
+                  if (ids_var.Any(v => v == "x"))
+                  {
+                     l_in_id = "x";//x special name
+                  }
+                  else if (ids_var.Any(v => v == "X"))
+                  {
+                     l_in_id = "X";//X special name
+                  }
+               }
+               else if (ids_var_2.Length == 1)
+               {
+                  //one variable names is out of scope eg { int x=0;  f=expr("x*y");  }
+                  //lambda input id is y
+                  l_in_id = ids_var_2[0];
+               }
+
+               if (l_in_id == null)
+               {
+                  //>1
+                  mgs.Add(new Msg(MsgType.error, $"'{lmb_str}':More than one input variable({string.Join(",", ids_var)})"));
+               }
             }
             else
             {
+               l_in_id = ids_var[0];
+            }
+
+            if (res && l_in_id != null)
+            {
                //eg sea lambda(sea x){ return x*x + 2*x +1;} creates a function of type y= f(x)
-               var src = cmp.Parse($"sea {LAMBDA_ID}(sea {ids_var[0]});");
+               var src = cmp.Parse($"sea {LAMBDA_ID}(sea {l_in_id});");
 
                ///retrieves <see cref="CDeclFunction"/> instance from hierarchy 
                var fnc = src.AllDescendant.OfType<CDeclFunction>().FirstOrDefault(f => f.Identifier == LAMBDA_ID).NnOrCrash();
@@ -106,24 +163,24 @@ namespace Gate.SeaMath
                var exp_slv = (cmp.Interpreter?.ExprInterpret.ExprSolver).NnOrCrash();
 
                //scope declaration + input parameter
-               var sco_dcs = ojs.Select(o => o.Decl).OfType<CDecl>().Concat(fnc.FunctionContainer?.Parameters ?? []).ToArray();
+               var sco_dcs = ojs_sco.Select(o => o.Decl).OfType<CDecl>().Concat(fnc.FunctionContainer?.Parameters ?? []).ToArray();
 
                var cip = new CTokenInterpreterOutput();
 
                if (exp_slv.InterpretTokens(tok_lst, ind, sco_dcs, ref cip, out var exp, true) == TxtElabResult.success)
                {
-                  lmb_obj = new SeaRtmLambdaObjFunction(fnc, lambda);
+                  lmb_obj = new SeaRtmLambdaObjFunction(fnc, lmb_str);
 
                   fnc.Instructions = [new RtmDbgEngVirtCpuInstructionReturn(null, exp)];
                }
             }
          }
 
-         foreach (var msg in mgs) { sw.WriteLine(msg.FullMessage); }
+         foreach (var msg in mgs) { err_str.WriteLine(msg.FullMessage); }
 
-         sw.Dispose();
+         err_str.Dispose();
 
-         return lmb_obj;
+         return lmb_obj ?? throw new RtmException($"{lmb_str} not a lambda function!");
       }
 
       /// <summary>

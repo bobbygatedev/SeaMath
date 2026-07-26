@@ -1754,10 +1754,40 @@ void main()
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      public class LambdaFunctionTest : ExecutionTestBase
+      {
+         public LambdaFunctionTest() { }
+
+         public override TxtStore SourceCode => new TxtStore(
+            "x1,x2;\r\n" +
+            "y=3;\r\n" +
+            "f1 = expr(\"2*cosf(x)\");\r\n" +
+            "f2 = expr(\"y*cosf(x)\");\r\n" +
+            "void main(void)\r\n" +
+            "{\r\n" +
+            "   x1 = f1(0);\r\n" +
+            "   x2 = f2(0);\r\n" +
+            "}");
+
+         protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
+         {
+            var x1 = myRequireVar(dbgEngProcess, "x1");
+            var x2 = myRequireVar(dbgEngProcess, "x2");
+
+            return
+               x1.CSharpObj.ConvertOrCrash<float>() == 2.0f &&
+               x2.CSharpObj.ConvertOrCrash<float>() == 3.0f ?
+                  TxtElabResult.success : TxtElabResult.failure;
+         }
+      }
+
       static void Main()
       {
          var tst = new StatementExecutionTest();
-         //var tst = new MatAddRowsTest();
+         //var tst = new LambdaFunctionTest();
 
          tst.IsVerbose = true;
          tst.Go();

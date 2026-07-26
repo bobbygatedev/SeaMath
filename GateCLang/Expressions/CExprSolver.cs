@@ -93,7 +93,7 @@ namespace Gate.CLanguage.Expressions
       protected override ExprNodeInterpret<CCompilerInData, CTokenInterpreterOutput> myMakeConstantNodeInterpreter() => new CExprNodeInterpretOperand.Const();
 
       protected override ExprNodeInterpret<CCompilerInData, CTokenInterpreterOutput>[] myMakeAppSpecificNodeInterpreters() =>
-         new[] { new CExprNodeTypeNameInterpreter(DeclInterpretFactory, ExprInterpret, AttributesInterpret) };
+         [new CExprNodeTypeNameInterpreter(DeclInterpretFactory, ExprInterpret, AttributesInterpret)];
 
       protected override ExprNodePopulator<CCompilerInData> myMakeExprNodePopulator() => new CExprNodePopulator();
 
