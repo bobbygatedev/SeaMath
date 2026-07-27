@@ -10,6 +10,7 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using Gate.Tools.Text;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Gate.SeaMath.Workspace
@@ -365,7 +366,19 @@ namespace Gate.SeaMath.Workspace
 
             if (cst != null)
             {
-               lst_lbs.Add(cst.Invoke([DbgIde]) as SeaMathLibCSharp ?? throw new Crash());
+               try
+               {
+                  lst_lbs.Add(cst.Invoke([DbgIde]).ConvertOrCrash<SeaMathLibCSharp>());
+               }
+               catch (TargetInvocationException exc)
+               {
+                  MessageDisplayer.AddMsg(new Msg(MsgType.error,$"Making {typ.Name}"));
+
+                  if (exc.InnerException != null)
+                  {
+                     MessageDisplayer.AddMsg(new Msg(MsgType.error, exc.InnerException.Message));
+                  }
+               }
             }
          }
 

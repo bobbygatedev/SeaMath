@@ -2,7 +2,6 @@
 using Gate.SeaMath.Sea;
 using Gate.Tools;
 using Gate.Tools.Extensions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gate.SeaMath.Workspace.Libs
 {

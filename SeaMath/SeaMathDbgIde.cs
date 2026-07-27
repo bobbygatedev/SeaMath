@@ -48,7 +48,11 @@ namespace Gate.SeaMath
          myAddSubItem(FileSystem = new SeaFileSystem());
       }
 
-      public CompiledStdio? CompiledStdio
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <exception cref="Gate.LangBase.Runtime.RtmException"></exception> 
+      public CompiledStdio CompiledStdio
       {
          get => myCompiledStdio ?? throw new Gate.LangBase.Runtime.RtmException("Not compiled stdio defined!");
          private set => myCompiledStdio = value;
@@ -328,29 +332,36 @@ namespace Gate.SeaMath
          if (!myIsUpdating && (myCurrentRecord == null || !myCurrentRecord.Compare(OptionPage.Gcc)))
          {
             var mgs = new MsgCollection();
-            
+
             myIsUpdating = true;
 
             mgs.OnMsg2DisplayAdded += m => MessageDisplayer.AddMsg(m);
 
-            var drs = OptionPage.GccDirs.ToArray();
+            var gcc_dir = OptionPage.GccDir;
 
-            Workspace.CompileEnvironment = new CompileEnvGcc(drs.Select(d => d.FullName).ToArray());
-
-            if (!Workspace.CompileEnvironment.Check(mgs))
+            if (gcc_dir != null)
             {
-               if (!OptionPage.TryFixGccDirs(mgs))
-               {
-                  Workspace.CompileEnvironment = null;
-               }
-               else
-               {
-                  drs = OptionPage.GccDirs.ToArray();
-                  Workspace.CompileEnvironment = new CompileEnvGcc(drs.Select(d => d.FullName).ToArray());
+               Workspace.CompileEnvironment = new CompileEnvGcc(gcc_dir.FullName);
 
-                  if (!Workspace.CompileEnvironment.Check(mgs))
+               if (!Workspace.CompileEnvironment.Register(mgs))
+               {
+                  if (!OptionPage.TryFixGccDirs(mgs))
                   {
+                     Workspace.CompileEnvironment.Deregister(mgs);
                      Workspace.CompileEnvironment = null;
+                     gcc_dir = null;
+                  }
+                  else
+                  {
+                     gcc_dir = OptionPage.GccDir.NnOrCrash();
+                     Workspace.CompileEnvironment = new CompileEnvGcc(gcc_dir.FullName);
+
+                     if (!Workspace.CompileEnvironment.Register(mgs))
+                     {
+                        Workspace.CompileEnvironment.Deregister(mgs);
+                        Workspace.CompileEnvironment = null;
+                        gcc_dir = null;
+                     }
                   }
                }
             }
@@ -361,11 +372,7 @@ namespace Gate.SeaMath
             if (Workspace.CompileEnvironment != null)
             {
                mgs.Add(new Msg(MsgType.info, $"Compile environment GCC Mode:'{OptionPage.Gcc.Origin.Value}' Dirs:"));
-
-               foreach (var dir in OptionPage.GccDirs)
-               {
-                  mgs.Add(new Msg(MsgType.info, $"{dir.FullName}"));
-               }
+               mgs.Add(new Msg(MsgType.info, $"{gcc_dir?.FullName}"));
 
                NumericConverter.StdImpl = NumericConverter.CImplemented.Make(
                   Workspace.CompileEnvironment.NnOrCrash(), mgs);

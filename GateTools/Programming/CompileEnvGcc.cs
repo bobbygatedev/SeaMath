@@ -15,8 +15,8 @@ namespace Gate.Tools.Programming
       /// <summary>
       /// 
       /// </summary>
-      /// <param name="compilerDirs"></param>
-      public CompileEnvGcc(params string[] compilerDirs) => CompilerDirs = compilerDirs.Length == 0 ? [MySysDir] : compilerDirs;
+      /// <param name="compilerDir"></param>
+      public CompileEnvGcc(string? compilerDir = null) => CompilerDir = compilerDir ?? MySysDir;
 
       /// <summary>
       /// 
@@ -31,7 +31,7 @@ namespace Gate.Tools.Programming
       /// <summary>
       /// 
       /// </summary>
-      public string[] CompilerDirs { get; }
+      public string CompilerDir { get; }
 
       public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
 
@@ -46,11 +46,6 @@ namespace Gate.Tools.Programming
          FileInfo outputPath, FileInfo[] sourceFiles, CompileEnvOut compileOutput, MsgCollection messages, DirectoryInfo[]? includeDirectories = null)
       {
          var psi = new ProcessStartInfo();
-         //saves current environment variable PATH and adds the compiler directories to it
-         var old_pth_ev = Environment.GetEnvironmentVariable("PATH");
-
-         //adds compile directories binaries to the environment variable PATH
-         Environment.SetEnvironmentVariable("PATH", $"{string.Join(";", CompilerDirs)}");
 
          //check whether all files have extension C or c++
          var exs = sourceFiles.Select(f => f.Extension.ToLower()).Distinct().ToArray();
@@ -121,7 +116,6 @@ namespace Gate.Tools.Programming
                pro.BeginOutputReadLine();
                pro.BeginErrorReadLine();
                pro.WaitForExit();
-               Environment.SetEnvironmentVariable("PATH", old_pth_ev);//restore old environment variable PATH
 
                var sto = new TxtStore(oup.ToString());
 
@@ -149,9 +143,9 @@ namespace Gate.Tools.Programming
          return false;
       }
 
-      public bool Check(MsgCollection messages)
+      public bool Register(MsgCollection messages)
       {
-         if (CompilerDirs.Length == 0)
+         if (CompilerDir.IsBlank())
          {
             messages.Add(new Msg(MsgType.warning, "Not a install dir defined for GCC"));
 
@@ -159,16 +153,15 @@ namespace Gate.Tools.Programming
          }
          else
          {
-            if (CompilerDirs.All(d => Directory.Exists(d)))
+            if (Directory.Exists(CompilerDir))
             {
+               myAddCompilerEnvironment();
+
                return true;
             }
             else
             {
-               foreach (var dir in CompilerDirs.Where(d => !Directory.Exists(d)))
-               {
-                  messages.Add(new Msg(MsgType.error, $"GCC install dir {dir} not exist!"));
-               }
+               messages.Add(new Msg(MsgType.error, $"GCC install dir {CompilerDir} not exist!"));
 
                return false;
             }
@@ -177,11 +170,37 @@ namespace Gate.Tools.Programming
 
       private string myGetIncludes(DirectoryInfo[] includeDirectories)
       {
-         includeDirectories = includeDirectories ?? new DirectoryInfo[] { };
+         includeDirectories = includeDirectories ?? [];
 
          return string.Join(" ", includeDirectories.Select(d => $"-I\"{myFormat(d)}\""));
       }
 
       private string myFormat(DirectoryInfo dir) => $"{dir.FullName.Replace('\\', '/')}";
+
+      private void myAddCompilerEnvironment()
+      {
+         var evs =
+            Environment.GetEnvironmentVariable("PATH").ExtTrim().
+            Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+         if (!evs.Any(d => CompilerDir.IsEqualNoContent(d)))
+         {
+            evs = new[] { CompilerDir }.Concat(evs).ToArray();
+         }
+
+         Environment.SetEnvironmentVariable("PATH", string.Join(';', evs));
+      }
+
+
+      public void Deregister(MsgCollection messages)
+      {
+         var evs =
+            Environment.GetEnvironmentVariable("PATH").ExtTrim().
+            Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+         evs = evs.Where(d=>!d.IsEqualNoContent(CompilerDir)).ToArray();
+
+         Environment.SetEnvironmentVariable("PATH", string.Join(';', evs));
+      }
    }
 }

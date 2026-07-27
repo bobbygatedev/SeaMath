@@ -13,12 +13,6 @@ namespace Gate.Tools.Programming
       CompileEnvId Id { get; }
 
       /// <summary>
-      /// Directories containning .exe, dll, .so, .dylib, etc. of the compiler. 
-      /// The directories are used to set the PATH environment variable before calling the compiler.
-      /// </summary>
-      string[] CompilerDirs { get; }
-
-      /// <summary>
       /// Compile the source files into the output path.
       /// </summary>
       /// <param name="outputPath"></param>
@@ -34,6 +28,12 @@ namespace Gate.Tools.Programming
       /// </summary>
       /// <param name="messages"></param>
       /// <returns></returns>
-      bool Check(MsgCollection messages);
+      bool Register(MsgCollection messages);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="messages"></param>
+      void Deregister(MsgCollection messages);
    }
 }

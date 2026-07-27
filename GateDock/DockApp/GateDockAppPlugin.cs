@@ -80,15 +80,16 @@ namespace Gate.Dock.DockApp
 
             protected override Assembly? Load(AssemblyName assemblyName)
             {
-               string? path = resolver.ResolveAssemblyToPath(assemblyName);
-
+               var pth = resolver.ResolveAssemblyToPath(assemblyName);
                var ass = AppDomain.CurrentDomain.GetAssemblies();
+
+               //tododo check with OpenTk (splitted into different assemblies)
 
                //already loaded assembly
                var ass_ld = ass.FirstOrDefault(a => a.FullName == assemblyName.FullName);
 
                if (ass_ld != null) { return ass_ld; }
-               else if (path != null) { return LoadFromAssemblyPath(path); }
+               else if (pth != null) { return LoadFromAssemblyPath(pth); }
                else
                {
                   var fil = PluginDirInfo.GetCombinedToFile($"{assemblyName.Name}.dll");

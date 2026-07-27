@@ -155,7 +155,6 @@ namespace Gate.CLanguage.Runtime
                Where(f =>
                   !f.GetGccAttributesId<CLibraryDllGccAttributesIds>().
                   Contains(CLibraryDllGccAttributesIds.noimpl)).ToArray();
-            var sav = Environment.GetEnvironmentVariable("PATH");
 
             try
             {
@@ -192,10 +191,6 @@ namespace Gate.CLanguage.Runtime
                messages.Add(new Msg(MsgType.error, exc.Message));
 
                return false;
-            }
-            finally
-            {
-               Environment.SetEnvironmentVariable("PATH", sav);
             }
          }
 

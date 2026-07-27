@@ -18,6 +18,11 @@ namespace Gate.Tools
       private readonly PinvokeEmitHelper myPinvokeEmitHelper = new PinvokeEmitHelper();
       private Type? myCurrentPinvokeType = null;
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="dllPath"></param>
+      /// <exception cref="Win32Exception"></exception>
       public DllInstance(string? dllPath = null)
       {
          if (!dllPath.IsBlank()) { Load(dllPath); }
@@ -71,12 +76,23 @@ namespace Gate.Tools
 
       public string? DllPath { get; private set; }
 
+      public double TimeoutDebuggerAttached { get; set; } = 30;
+
+      public double TimeoutNotDebuggerAttached { get; set; } = 1;
+
+      public double Timeout => Debugger.IsAttached ? TimeoutDebuggerAttached : TimeoutNotDebuggerAttached;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="dllPath"></param>
+      /// <exception cref="Win32Exception"></exception>
       public void Load(string? dllPath = null)
       {
          dllPath ??= DllPath;
 
          var sw = new Stopwatch();
-         var t_out = Debugger.IsAttached ? 30.0 : 1.0;
+
          sw.Start();
 
          for (; ; )
@@ -88,7 +104,7 @@ namespace Gate.Tools
             }
             catch
             {
-               if (sw.Elapsed.TotalSeconds >= t_out)
+               if (sw.Elapsed.TotalSeconds >= Timeout)
                   throw;
             }
          }
@@ -101,6 +117,12 @@ namespace Gate.Tools
          Handle = null!;
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="dllPath"></param>
+      /// <returns></returns>
+      /// <exception cref="Win32Exception"></exception>
       public static DllSafeHandle LoadLibrary(string dllPath)
       {
          var hnd = myLoadLibrary(dllPath);

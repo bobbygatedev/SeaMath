@@ -14,7 +14,7 @@ namespace Gate.SeaMath.Workspace.Libs
       public SeaMathLibStdio(SeaMathDbgIde dbgIde) : base(NAME, dbgIde)
       {
          Console = dbgIde.Console;
-         CompiledStdio = DbgIde.CompiledStdio.NnOrCrash();
+         CompiledStdio = DbgIde.CompiledStdio;
       }
 
       public SeaMathConsole Console { get; }

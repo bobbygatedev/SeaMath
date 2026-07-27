@@ -28,7 +28,7 @@ namespace Gate.SeaMath.Workspace.Libs
             var pth = ((IntPtr)path).GetStringNarrowNt(RtmStrategy.Settings.NarrowCharEncoding);
             var mod = ((IntPtr)mode).GetStringNarrowNt(RtmStrategy.Settings.NarrowCharEncoding);
 
-            var fil = DbgIde.FileSystem.CreateFile(pth, mod, (DbgIde?.CompiledStdio).NnOrCrash());
+            var fil = DbgIde.FileSystem.CreateFile(pth, mod, DbgIde.CompiledStdio);
 
             return fil.Aliases.Last();
          });

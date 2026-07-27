@@ -10,7 +10,7 @@ namespace Gate.Tools.Programming
 
       public CompileEnvId Id => CompileEnvId.msvs;
 
-      public string[] CompilerDirs => [MsVsLocation.FullName];
+      public string[] CompilerDir => [MsVsLocation.FullName];
 
       public static bool Is64 => Marshal.SizeOf(typeof(IntPtr)) == 8;
 
@@ -63,7 +63,12 @@ namespace Gate.Tools.Programming
          }
       }
 
-      public bool Check(MsgCollection messages)
+      public bool Register(MsgCollection messages)
+      {
+         throw new NotImplementedException();//todo
+      }
+
+      public void Deregister(MsgCollection messages)
       {
          throw new NotImplementedException();//todo
       }

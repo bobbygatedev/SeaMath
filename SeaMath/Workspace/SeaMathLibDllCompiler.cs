@@ -23,7 +23,7 @@ namespace Gate.SeaMath.Workspace
 
          var lib_inc_drs = dbgIde.Workspace.Libs.IncludeDirsForLibraryOnly;
 
-         res = cur_cmp_env.Check(msg);
+         res = cur_cmp_env.Register(msg);
 
          if (res)
          {

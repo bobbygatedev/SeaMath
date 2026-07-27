@@ -23,7 +23,7 @@ namespace Gate.SeaMath.Console
          bool isStartFromUser) :
             base(pseudoExe, rtmStrategy, ide, stdInInitial, stdOutInitial, stdErrInitial, isStartFromUser)
       {
-         var cmp_std = ide.CompiledStdio ?? throw new Gate.LangBase.Runtime.RtmException("Not a compiled stdio");
+         var cmp_std = ide.CompiledStdio;
 
          ide.FileSystem.CreateSpecialStream(stdInInitial, InOutErrType.StdIn, this, cmp_std);
          ide.FileSystem.CreateSpecialStream(stdOutInitial, InOutErrType.StdOut, this, cmp_std);

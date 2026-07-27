@@ -1,5 +1,6 @@
 ﻿using Gate.CLanguage.Runtime.Object;
 using Gate.Tools;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -9,7 +10,7 @@ namespace Gate.CLanguageTest
    {
       private static bool myIsRun = false;
 
-      private static void ExecuteAllMains()
+      private static void myExecuteAllMains()
       {
          if (!myIsRun)
          {
@@ -68,13 +69,47 @@ namespace Gate.CLanguageTest
 
       static unsafe void Main(string[] args)
       {
-         ConfigureGlobalExceptionHandling();
+         if (args.ElementAtOrDefault(0) == "dll")
+         {
+            //dll test
+            var dll = args.ElementAtOrDefault(1);
 
-         CRtmObjAllocatorByPrivateHeap.GlobalOptions.IsDebugMode = true;
+            if (dll == null)
+            {
+               Console.WriteLine("Not a valid dll parameter defined");
+            }
+            else if (!File.Exists(dll))
+            {
+               Console.WriteLine("Dll file doesn't exist!");
+            }
+            else
+            {
+               try
+               {
+                  using (var dll_ist = new DllInstance(dll))
+                  {
+                     Console.WriteLine($"Dll {dll} successfully loaded!");
+                  }
+               }
+               catch (Win32Exception exc)
+               {
+                  Console.WriteLine($"Failed to load {dll}");
+                  Console.WriteLine("Message:" + exc.Message);
+                  Console.WriteLine(exc.ToString());
+               }
+               catch (Exception e) { throw new Crash(e); }
+            }
+         }
+         else
+         {
+            ConfigureGlobalExceptionHandling();
 
-         ExecuteAllMains();
+            CRtmObjAllocatorByPrivateHeap.GlobalOptions.IsDebugMode = true;
 
-         Process.GetCurrentProcess().Kill();
+            myExecuteAllMains();
+
+            Process.GetCurrentProcess().Kill();
+         }
       }
    }
 }

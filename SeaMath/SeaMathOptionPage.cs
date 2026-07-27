@@ -7,6 +7,7 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using Gate.ToolsView.AppParams.ValueControls;
+using System.Linq.Expressions;
 using System.Text;
 using static Gate.Tools.AppParams.AppParam;
 
@@ -78,7 +79,8 @@ namespace Gate.SeaMath
          public readonly Simple<OriginType> Origin = new Simple<OriginType>("Origin", "Origin", OriginType.@internal);
 
          [ValueControlAssociation(Id = ValueControlStandardId.dir_list)]
-         public readonly Simple<string> OriginCustomDirs = new Simple<string>("OriginCustomDirs", "Origin Custom Directories");
+         public readonly RelativeType OriginCustomDir = new RelativeType(
+            RelativePath.OptionsType.dir, null, "OriginCustomDirs", "Origin Custom Directories");
       }
 
       public class CompileLinkSettingsType : Record
@@ -105,7 +107,7 @@ namespace Gate.SeaMath
          /// </summary>
          public DirectoryInfo[] LibDirs
          {
-            get => myGetDirs(myLibDirs);
+            get => myGetDir(myLibDirs);
 
             set => mySetDirs(myLibDirs, value);
          }
@@ -115,7 +117,7 @@ namespace Gate.SeaMath
          /// </summary>
          public DirectoryInfo[] LibraryOnlyIncludeDirs
          {
-            get => myGetDirs(myLibOnlyIncludeDirs);
+            get => myGetDir(myLibOnlyIncludeDirs);
 
             set => mySetDirs(myLibOnlyIncludeDirs, value);
          }
@@ -125,7 +127,7 @@ namespace Gate.SeaMath
          /// </summary>
          public DirectoryInfo[] PredefinedHeaderDirs
          {
-            get => myGetDirs(myPredefHeaderDirs);
+            get => myGetDir(myPredefHeaderDirs);
             set => mySetDirs(myPredefHeaderDirs, value);
          }
 
@@ -141,21 +143,20 @@ namespace Gate.SeaMath
          }
       }
 
-      public DirectoryInfo[] GccDirs => myGetDirsByValue(Gcc.Origin.Value);
+      public DirectoryInfo? GccDir => myGetDirByValue(Gcc.Origin.Value);
 
       /// <summary>
       /// <br> [PluginDir]/gcc/x64 for 64bit</br> 
       /// <br> [PluginDir]/gcc/win32 for 64bit</br> 
       /// </summary>
-      public DirectoryInfo InternalPluginDir
+      public DirectoryInfo? InternalPluginDir
       {
          get
          {
             var pin_dir = new FileInfo(GetType().Assembly.Location).Directory;
 
-            return 
-               (pin_dir?.GetCombinedToDir($@"gcc\{(CompileEnvGcc.Is64 ? "x64" : "win32")}\bin")) ??
-               throw new NullReferenceException();
+            return
+               (pin_dir?.GetCombinedToDir($@"gcc\{(CompileEnvGcc.Is64 ? "x64" : "win32")}\bin"));
          }
       }
 
@@ -205,9 +206,9 @@ namespace Gate.SeaMath
 
          foreach (var typ in tps)
          {
-            var drs = myGetDirsByValue(typ);
+            var dir = myGetDirByValue(typ);
 
-            if (drs.Length > 0 && drs.All(d => d.Exists))
+            if (dir?.Exists ?? false)
             {
                messages.Add(new Msg(MsgType.warning, $"Gcc origin reset to {typ}"));
                Gcc.Origin.Value = typ;
@@ -233,19 +234,25 @@ namespace Gate.SeaMath
          }
       }
 
-      private DirectoryInfo[] myGetDirsByValue(GccRecordType.OriginType val)
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="origin"></param>
+      /// <returns></returns>
+      /// <exception cref="Crash"></exception>
+      private DirectoryInfo? myGetDirByValue(GccRecordType.OriginType origin)
       {
-         switch (val)
+         switch (origin)
          {
-            case GccRecordType.OriginType.mysys: return [new DirectoryInfo(CompileEnvGcc.MySysDir)];
-            case GccRecordType.OriginType.@internal: return [InternalPluginDir];
-            case GccRecordType.OriginType.custom: return myGetDirs(Gcc.OriginCustomDirs);
+            case GccRecordType.OriginType.mysys: return new DirectoryInfo(CompileEnvGcc.MySysDir);
+            case GccRecordType.OriginType.@internal: return InternalPluginDir;
+            case GccRecordType.OriginType.custom: return Gcc.OriginCustomDir.DirInfo;
             default: throw new Crash();
          }
       }
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-      private static DirectoryInfo[] myGetDirs(Simple<string> stringValue) =>
+      private static DirectoryInfo[] myGetDir(Simple<string> stringValue) =>
          stringValue.Value.IsBlank() ?
             [] : [.. stringValue.Value.Split(';').Select(d => new DirectoryInfo(d))];
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
