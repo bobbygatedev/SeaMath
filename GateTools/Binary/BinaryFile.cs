@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace GateTools.Binary
+namespace Gate.Tools.Binary
 {
    /// <summary>
    /// Represents a binary file and provides access to its data and related file information.

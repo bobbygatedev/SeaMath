@@ -1,7 +1,6 @@
-﻿using Gate.Tools;
-using Gate.Tools.Extensions;
+﻿using Gate.Tools.Extensions;
 
-namespace GateTools.Binary
+namespace Gate.Tools.Binary
 {
    public class BinaryFileSection
    {
@@ -26,6 +25,15 @@ namespace GateTools.Binary
 
       public byte[] Bytes => BinaryFile?.Data.Skip(Interval.From).Take(Interval.Length).ToArray() ??
          throw new ToolsException("Binary file pointer not associated.");
+
+      public string GetHexDump(
+         uint length = 0,
+         BitNumber bitNumber = BitNumber.Bit8,
+         nint? offset = null,
+         int? nWordPerRaw = null,
+         bool isBigEndian = false) => 
+            (Pointer ?? throw new ToolsException()).GetHexDump(
+               length == 0 ? (uint)Interval.Length : length, bitNumber, offset, nWordPerRaw, isBigEndian);
 
       public string DataRepresentation => (Pointer ?? throw new ToolsException()).
          GetHexDump((uint)Interval.Length, BitNumber.Bit8, Interval.From);
