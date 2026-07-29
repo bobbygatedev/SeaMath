@@ -3,6 +3,7 @@ using Gate.SeaMath.Console;
 using Gate.SeaMath.Plot;
 using Gate.Tools;
 using Gate.Tools.AppParams;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using static Gate.Tools.AppParams.AppParamLoadSaver;
 
@@ -14,7 +15,7 @@ namespace Gate.SeaMath
    /// </summary>
    /// <remarks>This class serves as the base for implementing specific SeaMath sessions. It provides  core
    /// functionality for initializing the application, managing debugging tools, and  creating visualizations such as
-   /// scatter plots. Derived classes must implement abstract  members to define session-specific behavior.</remarks>
+   /// scatter plots. Derived classes must implement abstract  members to define session-specific behaviour.</remarks>
    public abstract class SeaMathSession : HierarchicalItem
    {
       public delegate void OnSessionHandler(SeaMathSession session);
@@ -90,7 +91,7 @@ namespace Gate.SeaMath
          var dbg_ide = new SeaMathDbgIde(ConsoleStrategy = myMakeConsoleStrategy());
 
          myAddSubItem(dbg_ide);
-         (dbg_ide.Workspace ?? throw new Crash()).Build(false, skipCSLibs, skipDllLibs);
+         dbg_ide.Workspace.NnOrCrash().Build(false, skipCSLibs, skipDllLibs);
          dbg_ide.Breakpoints = DocManager?.Breakpoints ?? [];
          IsInited = true;
          OnSessionInit?.Invoke(this);

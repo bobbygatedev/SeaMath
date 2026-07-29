@@ -7,7 +7,6 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using Gate.ToolsView.AppParams.ValueControls;
-using System.Linq.Expressions;
 using System.Text;
 using static Gate.Tools.AppParams.AppParam;
 
@@ -123,7 +122,7 @@ namespace Gate.SeaMath
          }
 
          /// <summary>
-         /// Predefined header directories(defined predefinded #define, struct, typedef).
+         /// Predefined header directories(defined predefined #define, struct, typedef).
          /// </summary>
          public DirectoryInfo[] PredefinedHeaderDirs
          {
