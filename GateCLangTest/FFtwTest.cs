@@ -565,7 +565,7 @@ namespace Gate.CLanguageTest
          {
             var typ = SeaMathFftwHelper.GetOutputType(input.GetType().GetElementType() ?? throw new Crash());
             var arr = Array.CreateInstance(typ, listGroup.Count);
-            var nc = NumericConverter.CImplemented.Make(new CompileEnvGcc());
+            var nc = TestObjects.NumericConverter;
 
             for (var i = 0; i < arr.Length; i++)
             {

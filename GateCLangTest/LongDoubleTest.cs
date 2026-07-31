@@ -1,12 +1,11 @@
 ﻿using Gate.LangBase.ExtraTypes;
 using Gate.Tools.Text.Elab;
-using System;
 
 namespace Gate.CLanguageTest
 {
    public unsafe class LongDoubleTest : TestBase.Group
    {
-      public LongDoubleTest() : base(new[] {
+      public LongDoubleTest() : base([
          new TestModel(1.0, ()=> (double)(LongDouble)1.0),
          new TestModel(3.0, ()=> (double)((LongDouble)1.0+(LongDouble)2.0)) ,
          new TestModel(3.0, ()=> (double)((LongDouble)5.0-(LongDouble)2.0)) ,
@@ -17,8 +16,7 @@ namespace Gate.CLanguageTest
          new TestModel(-3.0, ()=> (double)(-LongDouble.Parse("3.0"))) ,
          new TestModel(3.0, ()=> (double)(+LongDouble.Parse("3.0"))) ,
          new TestModel(3.0, ()=> (double)(-LongDouble.Parse("-3.0"))) ,
-
-      })
+      ])
       {
 
       }

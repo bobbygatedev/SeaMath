@@ -26,6 +26,7 @@
 
    <PropertyGroup>
       <NoWarn>$(NoWarn);NU1701;NU1901;NU1902</NoWarn>
+      <RootNamespace>Gate.Tools</RootNamespace>
    </PropertyGroup>
 
    <ItemGroup>

@@ -1,15 +1,14 @@
 ﻿using Gate.CLanguage.Decl;
 using Gate.CLanguage.Source;
 using Gate.CLanguage.Types;
-using Gate.CLanguageTest.Properties;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Programming;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
+using Gate.CLanguageTest.Properties;
 using System.Reflection;
-using static Gate.CLanguageTest.CompileWithExternalReadBackTestBase;
 using static Gate.Tools.DllInstance;
 
 namespace Gate.CLanguageTest
@@ -18,12 +17,12 @@ namespace Gate.CLanguageTest
    {
       public BitFieldTest() : base("Bit Field Test", myGetTests()) { }
 
-      private static TestBase[] myGetTests() => [new InnerTestByCompile(ExternalCompilerType.gcc_msys)];
+      private static TestBase[] myGetTests() => [new InnerTestByCompile()];
 
 
       private class InnerTestByCompile : CompileWithExternalReadBackTestBase
       {
-         public InnerTestByCompile(ExternalCompilerType externalCompiler) : base(externalCompiler) => Description = $"Bit-field test by {externalCompiler}";
+         public InnerTestByCompile() => Description = $"Bit-field test";
 
          public override TxtStore TxtStoreForTest { get; } = new TxtStore(Resources.bit_field_test_c);
 
@@ -115,7 +114,7 @@ namespace Gate.CLanguageTest
                      }
                      else
                      {
-                        Parent.AddSubTests(new InternalTest($"{set_fld.Name} ({Parent.ExternalCompilerId} 0x{ext_val:x} Sea 0x{int_val:x})", false));
+                        Parent.AddSubTests(new InternalTest($"{set_fld.Name} (0x{ext_val:x} Sea 0x{int_val:x})", false));
                      }
                   }
                }

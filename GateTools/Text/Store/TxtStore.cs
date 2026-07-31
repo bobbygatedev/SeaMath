@@ -672,7 +672,18 @@ namespace Gate.Tools.Text
       /// </summary>
       /// <param name="lines">Array of line tokens representing the lines to remove.</param>
       /// <exception cref="Gate.Tools.ToolsException"></exception>
-      public void RemoveLines(params LineToken[] lines) => RemoveIntervals(lines.Select(l => l.IntervalPlusNL).ToArray());
+      public void RemoveLines(params LineToken[] lines)
+      {
+         var exp = LineCount - lines.Length;
+
+         RemoveIntervals(lines.Select(l => l.IntervalPlusNL).ToArray());
+
+         //this is the case we are removing the last line(s) and the last line is empty (ie content ends with a NL)
+         if (LineCount > exp && LineCount > 1)
+         {
+            RemoveIntervals(this[LineCount-1].IntervalNL);
+         }
+      }
 
       /// <summary>
       /// Replace line at certain index 
@@ -705,7 +716,15 @@ namespace Gate.Tools.Text
       /// Removes intervals represented by the specified intervals.
       /// </summary>
       /// <param name="intervals">Array of intervals representing the intervals to remove.</param>
-      public void RemoveIntervals(params Interval[] intervals) => Replace(intervals.Select(i => new TxtStoreReplacement(i)));
+      public void RemoveIntervals(params Interval[] intervals)
+      {
+         //contigous shrinked interval 
+         var its_cnt = 
+            Interval.GetContiguityGroups(intervals).
+            Select(g => new Interval(g[0].From, g.Last().To)).ToArray();
+
+         Replace(its_cnt.Select(i=> new TxtStoreReplacement(i)));
+      }
 
       /// <summary>
       /// Gets the index of the specified text position.

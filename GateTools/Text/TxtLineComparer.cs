@@ -1,269 +1,291 @@
-﻿namespace Gate.Tools.Text
+﻿using Gate.Tools.Extensions;
+using static Gate.Tools.Text.TxtLineComparer.SectionType;
+
+namespace Gate.Tools.Text
 {
    /// <summary>
    /// 
    /// </summary>
-   public class TxtLineComparer
+   public class TxtLineComparer : HierarchicalItem
    {
       public TxtLineComparer(Func<string, string, bool> lineEqualityComparer) => LineEqualityComparer = lineEqualityComparer;
 
-      public class Operation
+      public TxtLineComparer(bool isCaseSensitive = true) : this((s1, s2) => string.Compare(s1, s2, !isCaseSensitive) == 0) { }
+
+      public class SectionType : HierarchicalItem, IComparable
       {
          public enum TypeEnum
          {
-            insert_line = 0,
-            delete_line
+            insert_only = 0,
+            delete_only = 1,
+            replace = 2,
+            equal = 3,
          }
 
-         public Operation(TxtLineComparer textComparer, TypeEnum operationType, int rowIdx, string[] lines)
+         public SectionType(Interval lineIntervalOld, Interval lineIntervalNew, bool isEquality)
          {
-            TextComparer = textComparer;
-            Type = operationType;
-            LineIdx = rowIdx;
-            Lines = lines.ToArray();
-         }
+            LineIntervalOld0 = lineIntervalOld;
+            LineIntervalNew0 = lineIntervalNew;
 
-         public TypeEnum Type { get; private set; }
-
-         public int LineIdx { get; set; }
-         public int LineCount => Lines.Length;
-
-         public TxtLineComparer TextComparer { get; }
-         public string[] Lines { get; private set; }
-
-         public override string ToString() => $"Do {Type} from row {LineIdx} num {LineCount} rows:\n{string.Join("\n", Lines)}";
-      }
-
-      public class SequenceEquality
-      {
-         public SequenceEquality(TxtLineComparer textComparer, int sequenceStartNew, int len, int sequenceStartOld)
-         {
-            TextComparer = textComparer;
-            SequenceStartNew = sequenceStartNew;
-            SequenceStartOld = sequenceStartOld;
-            Len = len;
-         }
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public TxtLineComparer TextComparer { get; }
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public int SequenceStartNew { get; private set; }
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public int SequenceEndNew => SequenceStartNew + Len - 1;
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public int Len { get; private set; }
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public int SequenceStartOld { get; private set; }
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public int SequenceEndOld => SequenceStartOld + Len - 1;
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public TxtStore.LineToken[]? NewLines => TextComparer.NewFile?.Lines.Skip(SequenceStartNew - 1).Take(Len).ToArray();
-
-         /// <summary>
-         ///  
-         /// </summary>
-         public TxtStore.LineToken[]? OldLines => TextComparer.OldFile?.Lines.Skip(SequenceStartOld - 1).Take(Len).ToArray();
-
-         public override string ToString() => $"Old({SequenceStartOld}-{SequenceEndOld}) New({SequenceStartNew}-{SequenceEndNew})";
-
-         /// <summary>
-         /// Extend the interval to empty lines(on both old,new) downwards. If isUpAsWell upwards too.
-         /// </summary>
-         /// <param name="isUpAsWell"></param>
-         public void ExtendToEmpty(bool isUpAsWell)
-         {
-            var i_old = SequenceEndOld + 1;
-            var i_new = SequenceEndNew + 1;
-
-            for (; i_old <= TextComparer?.OldFile?.LineCount && i_new <= TextComparer?.NewFile?.LineCount; i_old++, i_new++)
+            if (isEquality)
             {
-               if (TextComparer.OldFile[i_old].Content.Trim() == "" && TextComparer.NewFile[i_new].Content.Trim() == "") { Len++; }
-               else { break; }
+               Type = TypeEnum.equal;
             }
-
-            if (isUpAsWell)
+            else
             {
-               i_old = SequenceStartOld - 1;
-               i_new = SequenceStartNew - 1;
-
-               for (; i_new >= 1 && i_old >= 1; i_old--, i_new--)
+               if (lineIntervalOld.Length > 0)
                {
-                  if (TextComparer?.OldFile?[i_old].Content.Trim() == "" && TextComparer?.NewFile?[i_new].Content.Trim() == "")
-                  {
-                     SequenceStartOld = i_old;
-                     SequenceStartNew = i_new;
-                     Len++;
-                  }
-                  else { break; }
+                  Type = lineIntervalNew.Length > 0 ? TypeEnum.replace : TypeEnum.delete_only;
+               }
+               else
+               {
+                  Type = lineIntervalNew.Length > 0 ? TypeEnum.insert_only : throw new Crash();
                }
             }
          }
+
+         public TypeEnum Type { get; set; }
+
+         public TxtLineComparer TextComparer => ParentItem as TxtLineComparer ?? throw new NullReferenceException();
+
+         public Interval LineIntervalOld0 { get; }
+
+         public Interval LineIntervalOld1 => LineIntervalOld0.GetPlus1();
+
+         public Interval LineIntervalNew0 { get; }
+
+         public Interval LineIntervalNew1 => LineIntervalNew0.GetPlus1();
+
+         public string DescriptorPlus1 =>
+            $"{Type} Section old {LineIntervalOld0.GetPlus1()} new {LineIntervalNew0.GetPlus1()}";
+
+         public string[] LinesNew =>
+            (TextComparer.FileLinesNew ?? []).
+            Skip(LineIntervalNew0.From).
+            Take(LineIntervalNew0.Length).ToArray();
+
+         public string[] LinesOld =>
+            (TextComparer.FileLinesOld ?? []).
+            Skip(LineIntervalOld0.From).
+            Take(LineIntervalOld0.Length).ToArray();
+
+         public int CompareTo(object? obj) =>
+            obj is SectionType s ? LineIntervalOld0.From.CompareTo(s.LineIntervalOld0.From) : -1;
+
+         public override string ToString() => DescriptorPlus1;
       }
 
-      /// <summary>
-      ///  
-      /// </summary>
-      public SequenceEquality[]? EqualityIntervals { get; private set; }
+      public SectionType[] Sections => SubItems.OfType<SectionType>().ToArray();
 
       /// <summary>
       ///  
       /// </summary>
-      public Operation[]? Operations { get; private set; }
+      public string? OldFile { get; private set; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public string[]? FileLinesOld { get; private set; }
 
       /// <summary>
       ///  
       /// </summary>
-      public TxtStore? OldFile { get; private set; }
+      public string? NewFile { get; private set; }
 
       /// <summary>
-      ///  
+      /// 
       /// </summary>
-      public TxtStore? NewFile { get; private set; }
+      public string[]? FileLinesNew { get; private set; }
 
       /// <summary>
       ///  
       /// </summary>
       public Func<string, string, bool> LineEqualityComparer { get; }
 
-      public void Compare(string oldText, string newText) => Compare(new TxtStore(oldText), new TxtStore(newText));
-
-      public void Compare(TxtStore oldFile, TxtStore newFile)
+      public bool AreIdentical
       {
-         OldFile = oldFile;
-         NewFile = newFile;
-         EqualityIntervals = myGetEqualityIntervals(OldFile, NewFile);
-         Operations = myGetOperations(EqualityIntervals);
+         get
+         {
+            if (OldFile != null && NewFile != null)
+            {
+               return Sections.Length == 1 && Sections[0].Type == TypeEnum.equal;
+            }
+            else
+            {
+               throw new ArgumentNullException("Null Old and New file!");
+            }
+         }
       }
 
-      protected virtual bool myCompareLines(TxtStore.LineToken textStoreFileLine1, TxtStore.LineToken textStoreFileLine2) => LineEqualityComparer.Invoke(textStoreFileLine1.Content, textStoreFileLine2.Content);
-
-      private SequenceEquality[] myGetEqualityIntervals(TxtStore oldFile, TxtStore newFile)
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="oldText"></param>
+      /// <param name="newText"></param>
+      public void Compare(string oldText, string newText)
       {
-         var lst_eq = new List<SequenceEquality>();
-         var i_old = 1;
+         myRemoveSubItemRange(SubItems);
+         OldFile = oldText;
+         FileLinesOld = oldText.SplitLines();
+         NewFile = newText;
+         FileLinesNew = newText.SplitLines();
+         myMakeEqualityIntervals();
+         myMakeNotEqualSections();
 
-         for (int i_new = 1; i_new <= newFile.LineCount; i_new++)
+         var lst_scs = Sections.ToList();
+
+         myRemoveSubItemRange(lst_scs);
+         myAddSubItemRange(lst_scs.OrderBy(s => s));
+      }
+
+      private void myMakeEqualityIntervals()
+      {
+         var len_old = FileLinesOld?.Length ?? 0;
+         var len_new = FileLinesNew?.Length ?? 0;
+
+         // Hash → index list in new text
+         var map = new Dictionary<string, List<int>>(StringComparer.Ordinal);
+         var nfl = FileLinesNew.NnOrCrash();
+         var ofl = FileLinesOld.NnOrCrash();
+
+         for (var i = 0; i < len_new; i++)
          {
-            var ln_new = newFile[i_new];
-            var ln_fnd = oldFile.Lines.Skip(i_old - 1).FirstOrDefault(l => myCompareLines(l, ln_new));
-
-            if (ln_new.Content.Trim() != "" && ln_fnd != null)
+            if (!map.TryGetValue(nfl[i], out var lst))
             {
-               i_old = ln_fnd.LineIdx;
+               lst = new List<int>();
+               map[nfl[i]] = lst;
+            }
 
-               var seq_sta_new = i_new;
-               var seq_end_new = -1;
-               var seq_sta_old = i_old;
+            lst.Add(i);
+         }
 
-               while (i_new <= newFile.LineCount && i_old <= oldFile.LineCount && myCompareLines(newFile[i_new], oldFile[i_old]))
+         var old_idx = 0;
+         var new_idx = 0;
+
+         while (old_idx < len_old && new_idx < len_new)
+         {
+            var ln = ofl[old_idx];
+
+            //find new positions
+            if (map.TryGetValue(ln, out var pss))
+            {
+               // Finds nearest position in new text
+               var bst = -1;
+               var bst_len = 0;
+
+               foreach (int pos in pss)
                {
-                  seq_end_new = i_new;
-                  i_new++;
-                  i_old++;
+                  var len = 0;
+                  var oi = old_idx;
+                  var ni = pos;
+
+                  while (oi < len_old && ni < len_new && LineEqualityComparer(ofl[oi], nfl[ni]))
+                  {
+                     oi++;
+                     ni++;
+                     len++;
+                  }
+
+                  if (len > bst_len)
+                  {
+                     bst_len = len;
+                     bst = pos;
+                  }
                }
 
-               i_new--;//rewinds i_new 
+               if (bst_len > 0)
+               {
+                  myAddSubItem(new SectionType(
+                     Interval.FromFromLen(old_idx, bst_len),
+                     Interval.FromFromLen(bst, bst_len),
+                     true));
+                  old_idx += bst_len;
+                  new_idx = bst + bst_len;
+                  continue;
+               }
+            }
 
-               var len = seq_end_new - seq_sta_new + 1;
-               var seq = new SequenceEquality(this, seq_sta_new, len, seq_sta_old);
+            old_idx++;
+            new_idx++;
+         }
 
-               seq.ExtendToEmpty(lst_eq.Count == 0);
-               lst_eq.Add(seq);
+         var lst_se = SubItems.OfType<SectionType>().ToList();
+
+         for (var i = 1; i < lst_se.Count; i++)
+         {
+            var se_m_1 = lst_se[i - 1];
+            var se = lst_se[i];
+
+            if (
+               se.LineIntervalNew0.GetIntersection(se_m_1.LineIntervalNew0).HasValue ||
+               se.LineIntervalOld0.GetIntersection(se_m_1.LineIntervalOld0).HasValue)
+            {
+               //to be remove
+               var x = new[] { se_m_1, se }.
+                  OrderBy(s => s.LineIntervalNew0.Length).
+                  FirstOrDefault().NnOrCrash();
+
+               lst_se.Remove(x);
+               i--; //nullate effect of i++
             }
          }
 
-         return lst_eq.ToArray();
+         myRemoveSubItemRange(Sections);
+         myAddSubItemRange(lst_se);
       }
-      private Operation[] myGetOperations(SequenceEquality[] sequenceEqualities)
+
+      private void myMakeNotEqualSections()
       {
-         var lst_ope = new List<Operation>();
+         var equ_scs = Sections;
+         var lns_old = FileLinesOld ?? [];
+         var lns_new = FileLinesNew ?? [];
 
-         if (sequenceEqualities.Length == 0)//if file are completely different operation consist in 'delete all old lines' 'insert all new lines'
+         //if file are completely different operation consist in 'delete all old lines' 'insert all new lines'
+         if (equ_scs.Length == 0)
          {
-            if (OldFile?.LineCount > 0)
-            {
-               lst_ope.Add(new Operation(this, Operation.TypeEnum.delete_line, 1, OldFile.Lines.Select(l => l.Content).ToArray()));
-            }
+            var old_li = Interval.FromFromLen(0, lns_old.Length);
+            var new_li = Interval.FromFromLen(0, lns_new.Length);
 
-            if (NewFile?.LineCount > 0)
+            if (new_li.Length > 0 || old_li.Length > 0)
             {
-               lst_ope.Add(new Operation(this, Operation.TypeEnum.insert_line, 1, NewFile.Lines.Select(l => l.Content).ToArray()));
+               myAddSubItem(new SectionType(old_li, new_li, false));
             }
          }
          else
          {
-            var cur_idx = 1;
-            var seq_sta = sequenceEqualities.FirstOrDefault();
-            var seq_end = sequenceEqualities.LastOrDefault();
+            var equ_seq_sta = equ_scs.FirstOrDefault().NnOrCrash();
+            var equ_seq_end = equ_scs.LastOrDefault().NnOrCrash();
 
-            if (seq_sta != null)
+            if (equ_seq_sta.LineIntervalOld0.From > 0 || equ_seq_sta.LineIntervalNew0.From > 0)
             {
-               var seq_len = seq_sta.SequenceStartOld - 1;
-               var old_lns = OldFile?.Lines.Take(seq_len).Select(l => l.Content).ToArray();
-               var new_lns = NewFile?.Lines.Take(seq_sta.SequenceStartNew - 1).Select(l => l.Content).ToArray();
+               myAddSubItem(new SectionType(
+                  Interval.FromFromLen(0, equ_seq_sta.LineIntervalOld0.From),
+                  Interval.FromFromLen(0, equ_seq_sta.LineIntervalNew0.From),
+                  false));
+            }
 
-               //remove lines not in interval from old beginning 
-               if (old_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.delete_line, cur_idx, old_lns)); }
+            for (var i = 0; i < equ_scs.Length - 1; i++)
+            {
+               var equ_seq = equ_scs[i];
+               var equ_seq_nxt = equ_scs[i + 1];
 
-               if (new_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.insert_line, cur_idx, new_lns)); }
+               myAddSubItem(new SectionType(
+                  new Interval(equ_seq.LineIntervalOld0.To + 1, equ_seq_nxt.LineIntervalOld0.From - 1),
+                  new Interval(equ_seq.LineIntervalNew0.To + 1, equ_seq_nxt.LineIntervalNew0.From - 1),
+                  false));
+            }
 
-               cur_idx += new_lns?.Length ?? 0;
+            //last sector old
+            var lst_sec_old = new Interval(equ_seq_end.LineIntervalOld0.To + 1, lns_old.Length - 1);
 
-               for (int i = 0; i < sequenceEqualities.Length - 1; i++)
-               {
-                  var seq = sequenceEqualities[i];
-                  var seq_nxt = sequenceEqualities[i + 1];
+            //last sector new 
+            var lst_sec_new = new Interval(equ_seq_end.LineIntervalNew0.To + 1, lns_new.Length - 1);
 
-                  old_lns = OldFile?.Lines.
-                     Skip(seq.SequenceEndOld).
-                     Take(seq_nxt.SequenceStartOld - seq.SequenceEndOld - 1).
-                     Select(l => l.Content).ToArray();
-                  new_lns = NewFile?.Lines.
-                     Skip(seq.SequenceEndNew).
-                     Take(seq_nxt.SequenceStartNew - seq.SequenceEndNew - 1).
-                     Select(l => l.Content).ToArray();
-                  cur_idx += seq.Len;
-
-                  //remove lines not in interval from old beginning 
-                  if (old_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.delete_line, cur_idx, old_lns)); }
-
-                  if (new_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.insert_line, cur_idx, new_lns)); }
-
-                  cur_idx += new_lns?.Length??0;
-               }
-
-               cur_idx += seq_end?.Len??0;
-               old_lns = OldFile?.Lines.Skip(seq_end?.SequenceEndOld??0).Select(l => l.Content).ToArray();
-               new_lns = NewFile?.Lines.Skip(seq_end?.SequenceEndNew??0).Select(l => l.Content).ToArray();
-
-               //remove lines not in interval from old beginning 
-               if (old_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.delete_line, cur_idx, old_lns)); }
-
-               if (new_lns?.Length > 0) { lst_ope.Add(new Operation(this, Operation.TypeEnum.insert_line, cur_idx, new_lns)); }
+            if (lst_sec_old.Length > 0 || lst_sec_new.Length > 0)
+            {
+               myAddSubItem(new SectionType(lst_sec_old, lst_sec_new, false));
             }
          }
-
-         return lst_ope.ToArray();
       }
 
       public static void Test()
@@ -271,8 +293,20 @@
          var old = new TxtStore();
          var nef = new TxtStore();
 
-         old.AddLines("1", "", "2", "", "4", "5", "", "6");
-         nef.AddLines("21", "", "2", "4", "5", "", "");
+         old.Content = "xx\r\n2\r\n\r\n3\r\n14\r\n\r\n15\r\n6\r\n7\r\n";
+         nef.Content = "xx\r\n2\r\nxx\r\n3\r\n14\r\n\r\n15\r\n6\r\n7";
+
+         //old.AddLines("1", "2", "3", "4", "5");
+         //nef.AddLines("1", "2", "11", "12", "13", "5");
+
+         //old.AddLines("1", "2", "3", "4", "5");
+         //nef.AddLines("11", "12", "2", "13", "3", "15");
+
+         Console.WriteLine("Old:");
+         Console.WriteLine(old.ContentWithLnNumber);
+
+         Console.WriteLine("New:");
+         Console.WriteLine(nef.ContentWithLnNumber);
 
          var cmp = new TxtLineComparer((s1, s2) => s1 == s2);
 
@@ -283,34 +317,46 @@
 
          nef_2.AddLines(old.Lines.Select(l => l.Content).ToArray());
 
-         foreach (var ope in cmp.Operations ?? [])
+         var scs = cmp.Sections;
+
+         foreach (var ope in scs)
          {
-            switch (ope.Type)
+            Console.WriteLine(ope.DescriptorPlus1);
+         }
+
+         //scs = scs.OrderBy(o => o.LineIdx0).ToArray();
+
+         foreach (var sec in scs.Where(s => s.Type != SectionType.TypeEnum.equal))
+         {
+            if (sec.LineIntervalOld0.Length > 0)
             {
-               case Operation.TypeEnum.insert_line:
-                  nef_2.InsertLines(ope.LineIdx, ope.Lines);
-
-                  break;
-
-               case Operation.TypeEnum.delete_line:
-                  nef_2.RemoveLines(Interval.FromFromLen(ope.LineIdx, ope.Lines.Length));
-                  break;
+               nef_2.RemoveLines(sec.LineIntervalOld0);
             }
+
+            if (sec.LineIntervalOld0.Length > 0)
+            {
+               nef_2.RemoveLines(Interval.FromFromLen(sec.LineIntervalNew0.From, sec.LineIntervalOld0.Length));
+            }
+
+            if (sec.LineIntervalNew0.Length > 0)
+            {
+               nef_2.InsertLines(sec.LineIntervalNew0.From + 1, sec.LinesNew);
+            }
+
+            Console.WriteLine($"After operation {sec}\n{nef_2.ContentWithLnNumber}");
          }
 
-         foreach (var eqi in cmp.EqualityIntervals ?? [])
+         foreach (var eqi in cmp.Sections.Where(s => s.Type == SectionType.TypeEnum.equal))
          {
-            Console.WriteLine(eqi);
+            Console.WriteLine(eqi.DescriptorPlus1);
          }
-
-         Console.WriteLine("Old:");
-         Console.WriteLine(old);
-
-         Console.WriteLine("New:");
-         Console.WriteLine(nef);
 
          Console.WriteLine("New rebuilt:");
-         Console.WriteLine(nef_2);
+         Console.WriteLine(nef_2.ContentWithLnNumber);
+
+         var res = nef_2.Content == nef.Content;
+
+         Console.WriteLine($"Comparison result: {(res ? "PASS" : "FAIL")}");
       }
    }
 }

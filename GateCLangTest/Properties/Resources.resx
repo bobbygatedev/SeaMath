@@ -121,6 +121,12 @@
   <data name="bit_field_test.c" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\bit_field_test.c;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="IcedOutput-4038215c" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\IcedOutput-4038215c.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="IcedOutput-c407a3fc" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\IcedOutput-c407a3fc.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="interpret_dev.c" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\interpret_dev.c;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>

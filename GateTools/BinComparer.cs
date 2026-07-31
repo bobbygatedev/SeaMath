@@ -200,5 +200,42 @@ namespace Gate.Tools
          (Data1 ?? []).Skip(sectorIdx * SectorLen).
          Take(SectorLen).
          SequenceEqual((Data2 ?? []).Skip(sectorIdx * SectorLen).Take(SectorLen));
+
+      public static int[] Search(byte[] file, byte[] dataToSearch)
+      {
+         var lst = new List<int>();
+
+         var fileSpan = new ReadOnlySpan<byte>(file);
+         var dataToSearchSpan = new ReadOnlySpan<byte>(dataToSearch);
+
+         var off = 0;
+
+         while (true)
+         {
+            var pos = fileSpan.IndexOf(dataToSearchSpan);
+
+            if (pos < 0)
+            {
+               break;
+            }
+
+            pos += off;
+
+            lst.Add(pos);
+
+            pos += dataToSearchSpan.Length;
+
+            off = pos;
+
+            if (off >= file.Length)
+            {
+               break;
+            }
+
+            fileSpan = file.AsSpan(off);
+         }
+
+         return lst.ToArray();
+      }
    }
 }

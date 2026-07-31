@@ -1,5 +1,5 @@
 ﻿using Gate.Tools.Extensions;
-using GateTools.Properties;
+using Gate.Tools.Properties;
 using static Gate.Tools.RelativePath;
 using static Gate.Tools.VisualStudio.VisualStudioProjectAttribute;
 

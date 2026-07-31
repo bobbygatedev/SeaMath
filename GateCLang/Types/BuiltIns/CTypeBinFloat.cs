@@ -6,7 +6,7 @@
 
       public class LongDouble : CTypeBinFloat
       {
-         public LongDouble(int sizeOf) : base("long double", sizeOf) => LangBase.ExtraTypes.LongDouble.ForceInit();
+         public LongDouble(int sizeOf) : base("long double", sizeOf) { }
       }
 
       public class Single : CTypeBinFloat

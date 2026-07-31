@@ -21,15 +21,10 @@ namespace Gate.CLanguageTest
    /// </summary>
    public abstract class CompileWithExternalReadBackTestBase : TestWithSource
    {
-      public enum ExternalCompilerType
-      {
-         gcc_msys = 0,
-         msvs = 1
-      }
 
       private CompileActionType? myCompileAction;
 
-      protected CompileWithExternalReadBackTestBase(ExternalCompilerType externalCompiler) => ExternalCompilerId = externalCompiler;
+      protected CompileWithExternalReadBackTestBase() { }
 
       public abstract class CompileActionType
       {
@@ -48,23 +43,9 @@ namespace Gate.CLanguageTest
 
          public override TxtElabResult Go(MsgCollection messages, CSource cSource)
          {
-            var env = null as ICompileEnv;
-
-            switch (Parent.ExternalCompilerId)
-            {
-               case ExternalCompilerType.gcc_msys:
-                  env = new CompileEnvGcc();
-                  break;
-
-               case ExternalCompilerType.msvs:
-                  env = new CompileEnvMsVs();
-                  break;
-
-               default: throw new Crash($"Unknown target {Parent.ExternalCompilerId}");
-            }
-
-            //prepare la dll 
-            var dll_cod = new ExtraDllCppCode(FileName, Parent.TxtStoreForTest.Content, env, false);
+            //prepare dll 
+            var dll_cod = new ExtraDllCppCode(
+               FileName, Parent.TxtStoreForTest.Content, TestObjects.GccCompiler, false);
 
             if (dll_cod.CompileOnly(messages)) { return myCheckDll(dll_cod, cSource); }
             else
@@ -91,7 +72,7 @@ namespace Gate.CLanguageTest
             sto.Settings.Encoding = Encoding.UTF8;
             sto.Save(CSourcePath);
 
-            var cmp = Parent.ExternalCompiler;
+            var cmp = new GccCompilerHelper();
 
             if (cmp.Compile(CSourcePath))
             {
@@ -116,7 +97,7 @@ namespace Gate.CLanguageTest
 
       public abstract class FromResource : CompileWithExternalReadBackTestBase
       {
-         protected FromResource(ExternalCompilerType target) : base(target) { }
+         protected FromResource() { }
 
          public abstract string ResourceName { get; }
 
@@ -126,32 +107,30 @@ namespace Gate.CLanguageTest
       public class ErrorCheck : FromStore
       {
          public ErrorCheck(
-            ExternalCompilerType target, string input, string testDescription, CCompilerMsgId expectedError = CCompilerMsgId.inf_no_error)
-            : base(target)
+            string input, string testDescription, CCompilerMsgId expectedError = CCompilerMsgId.inf_no_error)
          {
             Input = input;
             ExpectedErrorId = (int)expectedError;
-            Description = $"{testDescription}({target})";
+            Description = $"{testDescription}";
          }
 
          public ErrorCheck(
-            ExternalCompilerType target, string input, string testDescription, CPrePxMsgId expectedError = CPrePxMsgId.cprepx000_inf_no_error) : base(target)
+            string input, string testDescription, CPrePxMsgId expectedError = CPrePxMsgId.cprepx000_inf_no_error)
          {
             Input = input;
             ExpectedErrorId = (int)expectedError;
-            Description = $"{testDescription}({target})";
+            Description = $"{testDescription}";
          }
 
-         public ErrorCheck(ExternalCompilerType target, string input, string testDescription)
-            : base(target)
+         public ErrorCheck(string input, string testDescription)
          {
             Input = input;
             ExpectedErrorId = 0;
-            Description = $"{testDescription}({target})";
+            Description = $"{testDescription}";
          }
 
-         public ErrorCheck(ExternalCompilerType target, string input, string testDescription, ExprSolverMessages.Id exprErrotId) :
-            this(target, input, testDescription) => ExpectedErrorId = (int)exprErrotId;
+         public ErrorCheck(string input, string testDescription, ExprSolverMessages.Id exprErrotId) :
+            this(input, testDescription) => ExpectedErrorId = (int)exprErrotId;
 
          public string Input { get; }
 
@@ -187,9 +166,7 @@ namespace Gate.CLanguageTest
          /// </summary>
          /// <param name="input"></param>
          /// <param name="expectedErrorId"></param>
-         /// <param name="targetId"></param>
-         public ErrorTest(string input, ExprSolverMessages.Id expectedErrorId, ExternalCompilerType targetId = ExternalCompilerType.gcc_msys) :
-            base(targetId)
+         public ErrorTest(string input, ExprSolverMessages.Id expectedErrorId)
          {
             Description = $"Error({expectedErrorId}) on '{input}'";
             ExpectedErrorId = (int)expectedErrorId;
@@ -201,9 +178,7 @@ namespace Gate.CLanguageTest
          /// </summary>
          /// <param name="input"></param>
          /// <param name="expectedErrorId"></param>
-         /// <param name="targetId"></param>
-         public ErrorTest(string input, CCompilerMsgId expectedErrorId, ExternalCompilerType targetId = ExternalCompilerType.gcc_msys) :
-            base(targetId)
+         public ErrorTest(string input, CCompilerMsgId expectedErrorId)
          {
             Description = $"Error({expectedErrorId}) on '{input}'";
             ExpectedErrorId = (int)expectedErrorId;
@@ -215,8 +190,7 @@ namespace Gate.CLanguageTest
          /// </summary>
          /// <param name="input"></param>
          /// <param name="targetId"></param>
-         public ErrorTest(string input, ExternalCompilerType targetId = ExternalCompilerType.gcc_msys) :
-            base(targetId)
+         public ErrorTest(string input)
          {
             Description = $"Error Success";
             ExpectedErrorId = 0;
@@ -262,7 +236,7 @@ namespace Gate.CLanguageTest
          public const string TEMP_NAME = "temp.c";
          public const string DEFINED_DIR = @"c:\temp\ClangTest";
 
-         protected FromStore(ExternalCompilerType target) : base(target) { }
+         protected FromStore() { }
 
          protected abstract TxtStore myGetContentStore();
 
@@ -288,8 +262,6 @@ namespace Gate.CLanguageTest
 
       public abstract TxtStore TxtStoreForTest { get; }
 
-      public ExternalCompilerType ExternalCompilerId { get; }
-
       public CompileActionType? CompileAction => myCompileAction = myCompileAction ?? myMakeCompileAction();
 
       private CStandard? myStandard;
@@ -300,18 +272,7 @@ namespace Gate.CLanguageTest
          {
             if (myStandard == null)
             {
-               switch (ExternalCompilerId)
-               {
-                  case ExternalCompilerType.gcc_msys:
-                     myStandard = new CStandardC99();
-                     break;
-                  case ExternalCompilerType.msvs:
-                     myStandard = new CStandardMsvs();
-                     break;
-                  default: throw new Crash();
-               }
-
-               return myStandard;
+               myStandard = new CStandardC99();
             }
 
             return myStandard;
@@ -326,19 +287,6 @@ namespace Gate.CLanguageTest
          {
             myStandard.Dispose();
             myStandard = null;
-         }
-      }
-
-      public CompilerBase ExternalCompiler
-      {
-         get
-         {
-            switch (ExternalCompilerId)
-            {
-               case ExternalCompilerType.gcc_msys: return new CompilerGcc();
-               case ExternalCompilerType.msvs: return new CompilerVcc();
-               default: throw new Crash();
-            }
          }
       }
 

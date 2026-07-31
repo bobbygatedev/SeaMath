@@ -30,7 +30,7 @@ namespace Gate.CLanguageTest
 
       private class InnerTest : ExecutionTestBase
       {
-         private static CompilerGcc myCompiler = new CompilerGcc();
+         private static GccCompilerHelper myCompiler = new GccCompilerHelper();
 
          public InnerTest(string statement) => Statement = statement;
 
@@ -38,11 +38,12 @@ namespace Gate.CLanguageTest
 
          public string Statement { get; }
 
+
          protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
-         {            
-            var var = dbgEngProcess.ObjsPersistant.Select(o=>o.Decl).OfType<CDeclStorage>().FirstOrDefault(d=>d.Identifier == VAR);
+         {
+            var var = dbgEngProcess.ObjsPersistant.Select(o => o.Decl).OfType<CDeclStorage>().FirstOrDefault(d => d.Identifier == VAR);
             var pri_ali = var?.TypeAlias?.PrimitiveAlias;
-            var cmp = new CompilerGcc();
+            var cmp = new GccCompilerHelper();
 
             var dsc_cpp_rb = cmp.GetVarTypeId(Statement, VAR, @"c:\temp");
             var dsc_gcc = pri_ali?.TypeSubscriptSet.DescriptorGcc + "i";

@@ -17,6 +17,9 @@ namespace Gate.CLanguageTest
    {
       public IntegerConstantTest()
       {
+         //dummy object to force numeric converter init
+         var nc =  TestObjects.NumericConverter;
+
          AddSubTests(new SubTest("Test1", "1 + 1"));
          AddSubTests(new SubTest("Test2", "1 + 1u"));
          AddSubTests(new SubTest("Test3", "2 * 1024 * 1024 * 0x400"));
@@ -29,7 +32,7 @@ namespace Gate.CLanguageTest
 
       public class SubTest : TestBase
       {
-         private static CompilerGcc myCompiler = new CompilerGcc();
+         private static GccCompilerHelper myGccCompilerHelper = new GccCompilerHelper();
 
          private static (string res, string type) myGetGccExpected(string expr)
          {
@@ -48,9 +51,9 @@ namespace Gate.CLanguageTest
 
             sto.Save(@"c:\temp\gcc_test\test.cpp");
 
-            if (myCompiler.Compile(sto.FileInfo?.FullName ?? throw new Crash()))
+            if (myGccCompilerHelper.Compile(sto.FileInfo?.FullName ?? throw new Crash()))
             {
-               var std_out = myCompiler.ExecuteAndReadAuto(@"c:\temp\gcc_test\test.exe");
+               var std_out = myGccCompilerHelper.ExecuteAndReadAuto(@"c:\temp\gcc_test\test.exe");
                var prs = std_out.Trim().Split('\n').Select(s => s.Trim()).Where(s => s != "").ToArray();
 
                return (prs[0], prs[1]);

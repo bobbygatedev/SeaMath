@@ -157,6 +157,19 @@
             ((Interval left, Interval right))(new Interval(From, atIndex - 1), new Interval(atIndex, To)) :
             throw new Gate.Tools.ToolsException($"{atIndex} outside({this})");
 
+      /// <summary>
+      /// Returns <see cref="From"/>+1 <see cref="To"/>+1 interval. 
+      /// </summary>
+      /// <returns></returns>
+      public Interval GetPlus1() => GetPlus(1);
+
+      /// <summary>
+      /// Returns <see cref="From"/>+<paramref name="amount"/> <see cref="To"/>+<paramref name="amount"/> interval. 
+      /// </summary>
+      /// <param name="amount"></param>
+      /// <returns></returns>
+      public Interval GetPlus(int amount) => new Interval(From + amount, To + amount);
+
       public bool Contains(int idx) => idx >= From && idx <= To;
 
       public bool Equals(Interval other) => From == other.From && To == other.To;
@@ -173,25 +186,37 @@
          return hashCode;
       }
 
-      public static bool AreContigous(bool isLeft2RightToCheck, IEnumerable<Interval> intervals) => AreContigous(isLeft2RightToCheck, intervals.ToArray());
-
       public string GetString(string @string) => IsEmpty ? "" : @string.Substring(From, Length);
 
-      public static bool AreContigous(bool isLeft2RightToCheck, params Interval[] intervals)
+      /// <summary>
+      /// Order <paramref name="intervals"/> then joins intervals into contiguous groups 
+      /// <example> [1,3] [2,4] [9,10] => {[1,3] [2,4]}, {[9,10]} </example>
+      /// </summary>
+      /// <param name="intervals"></param>
+      /// <returns></returns>
+      public static List<Interval[]> GetContiguityGroups(params Interval[] intervals)
       {
-         var arr = intervals.ToArray();
+         var lst = new List<Interval[]>();
+         var lst_int_ord = intervals.OrderBy(i => i.From).ToList();
+         var lst_gru = new List<Interval>();
 
-         for (int i = 0; i < arr.Length - 1; i++)
+         foreach (var it in lst_int_ord)
          {
-            if (isLeft2RightToCheck && i == 0 && arr[0].From >= arr[1].From)
+            if (lst_gru.Count != 0 && !lst_gru.Last().IsContigous(it))
             {
-               return false;
+               lst.Add(lst_gru.ToArray());
+               lst_gru.Clear();
             }
 
-            if (!arr[i].IsContigous(arr[i + 1])) { return false; }
+            lst_gru.Add(it);
          }
 
-         return true;
+         if (lst_gru.Count > 0)
+         {
+            lst.Add(lst_gru.ToArray());
+         }
+
+         return lst;
       }
 
       public bool IsContigous(Interval other) => To == other.From - 1 || other.To == From - 1;

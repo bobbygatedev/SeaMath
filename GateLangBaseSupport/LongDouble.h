@@ -191,11 +191,6 @@ namespace Gate
             static InnerUnaryOperator^ myOperatorUnaryExp = gcnew InnerUnaryOperator(OPERATOR_EXP, "*res = expl(*o1);");
             static InnerBinaryOperator^ myOperatorBinaryAtan = gcnew InnerBinaryOperator("/", OPERATOR_ATAN2 , "atan2(*o1,*o2)");
 
-            static LongDouble()
-            {
-               ForceInit();
-            }
-
 #ifdef WIN32
             //96 bit
             System::UInt64 myLow;
@@ -233,7 +228,7 @@ namespace Gate
                return res;
             }
 
-            static void ForceInit()
+            static void ForceInit(ICompileEnv^ compileRnv)
             {
                if (myCppCode == nullptr)
                {
@@ -271,7 +266,12 @@ namespace Gate
                   sb->AppendLine(myOperatorUnaryExp->Body);
                   sb->AppendLine(myOperatorBinaryAtan->Body);
 
-                  myCppCode = gcnew ExtraDllCppCode(LONG_DOUBLE_DLL_NAME, sb->ToString(), gcnew CompileEnvGcc(), true);
+                  if (compileRnv == nullptr)
+                  {
+                     compileRnv = gcnew CompileEnvGcc();
+                  }
+
+                  myCppCode = gcnew ExtraDllCppCode(LONG_DOUBLE_DLL_NAME, sb->ToString(), compileRnv, true);
 
                   hLdLib = (IntPtr)LoadLibraryA(DLL_NAME);
 

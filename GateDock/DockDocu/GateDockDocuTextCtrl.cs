@@ -28,7 +28,7 @@ namespace Gate.Dock.DockDocu
       public event OnBreakpointsChangedHandler? OnBreakpointsChanged;
       public event OnBoomarksChangedHandler? OnBoomarksChanged;
 
-      private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark> 
+      private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
          myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
       private readonly FileChangeObserver myFileChangeObserver = new FileChangeObserver();
       private string? myDocuName = "";
@@ -216,11 +216,11 @@ namespace Gate.Dock.DockDocu
       /// </summary>
       public GateDockDocuMarkerBreakpoint[]? PpBreakpoints
       {
-         get => 
+         get =>
             CtrlText.PpScintillaIndicators[GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints].
             Select(
                bkp_ind => new GateDockDocuMarkerBreakpoint(
-                  GateDockDocuMarkerHandler.GetMarkerPath(this).NnOrCrash(), 
+                  GateDockDocuMarkerHandler.GetMarkerPath(this).NnOrCrash(),
                   bkp_ind.LineStart, bkp_ind.ColStart, bkp_ind.Len)).ToArray();
 
          set
@@ -310,67 +310,55 @@ namespace Gate.Dock.DockDocu
          {
             try
             {
-               var cmp = new TxtLineComparer((s1, s2) => s1 == s2);
+               //line-2-line comparition
                var old_cnt = CtrlText.PpContentText;
                var new_cnt = File.ReadAllText(PpDocuPath);
 
-               cmp.Compare(old_cnt, new_cnt);
-
-               foreach (var ope in cmp.Operations ?? [])
+               if (old_cnt != new_cnt)
                {
-                  switch (ope.Type)
+                  var txt_cmp = new TxtLineComparer();
+
+                  txt_cmp.Compare(old_cnt, new_cnt);
+
+                  var pos = (PpCurrLine, PpCurrCol);
+
+                  CtrlText.PpContentText = new_cnt;
+                  PpIsModified = false;
+
+                  if (txt_cmp.AreIdentical)
                   {
-                     case TxtLineComparer.Operation.TypeEnum.insert_line:
-                        {
-                           var pos = CtrlText.MthGetPosition(ope.LineIdx, 1);
-                           var row_beg = ope.LineIdx;
-                           var row_end = ope.LineIdx + ope.LineCount;
-                           var rws = cmp.NewFile?.Lines.Skip(row_beg - 1).Take(row_end - row_beg).ToArray();
+                     PpCurrLine = pos.PpCurrLine;
+                     PpCurrCol = pos.PpCurrCol;
+                  }
+                  else
+                  {
+                     var sec = txt_cmp.Sections.FirstOrDefault(
+                        s => s.LineIntervalOld1.Contains(pos.PpCurrLine)).NnOrCrash();
 
-                           if (ope.LineIdx > CtrlText.PpLineCount)
-                           {
-                              CtrlText.PpScintilla.InsertText(
-                                 CtrlText.PpContentText.Length, "\r\n" + string.Join("\r\n", (rws ?? []).Select(r => r.Content)));
-                           }
-                           else
-                           {
-                              var ins_pos = 0;
+                     if (sec.Type == TxtLineComparer.SectionType.TypeEnum.equal)
+                     {
+                        var new_lin = pos.PpCurrLine - sec.LineIntervalOld1.From + sec.LineIntervalNew1.From;
 
-                              if (ope.LineIdx > 1) { ins_pos = CtrlText.MthGetPosition(row_beg, 1); }
-
-                              CtrlText.PpScintilla.InsertText(ins_pos, string.Join("\r\n", (rws ?? []).Select(r => r.Content)) + "\r\n");
-                           }
-                        }
-                        break;
-
-                     case TxtLineComparer.Operation.TypeEnum.delete_line:
-                        {
-                           var pos = CtrlText.MthGetPosition(ope.LineIdx, 1);
-                           var row_beg = ope.LineIdx;
-                           var row_end = ope.LineIdx + ope.LineCount;
-                           var pos_sta = CtrlText.MthGetPosition(row_beg, 1);
-                           var pos_end = row_end > CtrlText.PpLineCount ? CtrlText.PpContentText.Length : CtrlText.MthGetPosition(row_end, 1);
-
-                           CtrlText.PpScintilla.DeleteRange(pos_sta, pos_end - pos_sta);
-                        }
-
-                        break;
-
-                     default: throw new Crash();
+                        PpCurrLine = new_lin;
+                        PpCurrCol = pos.PpCurrCol;
+                     }
+                     else
+                     {
+                        PpCurrLine = sec.LineIntervalNew1.From;
+                        PpCurrCol = 1;
+                     }
                   }
                }
 
-               PpIsModified = false;
-
                return true;
             }
-            catch (IOException) { }
+            catch { return false; }
          }
          return false;
       }
 
       /// <summary>
-      ///  running position
+      /// Running position
       /// </summary>
       public TxtToken? PpDbgPointCurrent
       {
@@ -441,7 +429,7 @@ namespace Gate.Dock.DockDocu
          else
          {
             var sto = new TxtStore(CtrlText.PpContentText);
-            var tok = PpBreakpointPositioner?.GetPosition(sto,PpCurrLine,PpCurrCol);
+            var tok = PpBreakpointPositioner?.GetPosition(sto, PpCurrLine, PpCurrCol);
 
             if (tok != null)
             {
@@ -532,7 +520,7 @@ namespace Gate.Dock.DockDocu
          if (fls?.Length == 1) { PpMainFrm?.PpDocuHandler.OpenPath(PpMainFrm, fls[0], PpParentTab); }
       }
 
-      private void CtrlText_DragEnter(object? sender, DragEventArgs e) => 
+      private void CtrlText_DragEnter(object? sender, DragEventArgs e) =>
          e.Effect = e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
 
       private void FileChangeObserver_OnFileEvent(object? sender, FileChangeEventArgs eventArgs)

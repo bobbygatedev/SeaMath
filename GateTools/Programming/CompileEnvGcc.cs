@@ -88,7 +88,7 @@ namespace Gate.Tools.Programming
          psi.RedirectStandardOutput = true;
          psi.RedirectStandardError = true;
          psi.UseShellExecute = false;
-
+   
          try
          {
             var pro = Process.Start(psi);

@@ -1,8 +1,7 @@
-﻿using Gate.CLanguageTest;
-using Gate.LangBase.Expressions;
+﻿using Gate.LangBase.Expressions;
 using static Gate.CLanguageTest.CompileWithExternalReadBackTestBase;
 
-namespace GateCLangTest
+namespace Gate.CLanguageTest
 {
    /// <summary>
    /// 

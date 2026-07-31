@@ -343,7 +343,11 @@ namespace Gate.SeaMath
             {
                Workspace.CompileEnvironment = new CompileEnvGcc(gcc_dir.FullName);
 
-               if (!Workspace.CompileEnvironment.Register(mgs))
+               if (Workspace.CompileEnvironment.Register(mgs))
+               {
+                  LangBase.ExtraTypes.LongDouble.ForceInit(Workspace.CompileEnvironment);
+               }
+               else
                {
                   if (!OptionPage.TryFixGccDirs(mgs))
                   {

@@ -277,7 +277,7 @@ namespace Gate.CLanguageTest
 
       public SeaMathExecutionHelper SeaMathExecutionHelper { get; private set; } = new SeaMathExecutionHelper(true, true);
 
-      public CompilerGcc CompilerGcc { get; private set; } = new CompilerGcc();
+      public GccCompilerHelper CompilerGcc { get; private set; } = new GccCompilerHelper();
 
       public string GlobalCommon
       {

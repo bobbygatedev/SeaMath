@@ -13,7 +13,7 @@ namespace Gate.Dock.DockApp
    /// </summary>
    /// <remarks>The <see cref="GateDockAppPlugin"/> class provides a framework for creating plugins that extend
    /// the functionality of the GateDock application. Derived classes must implement abstract members to define specific
-   /// behaviors, such as providing factories for documents, tabs, and widgets, or modifying menus and options. <para>
+   /// behaviours, such as providing factories for documents, tabs, and widgets, or modifying menus and options. <para>
    /// This class is designed to be inherited and cannot be instantiated directly. It includes lifecycle methods for
    /// initialization and cleanup, which are invoked by the application during plugin loading and unloading.
    /// </para></remarks>
@@ -82,8 +82,6 @@ namespace Gate.Dock.DockApp
             {
                var pth = resolver.ResolveAssemblyToPath(assemblyName);
                var ass = AppDomain.CurrentDomain.GetAssemblies();
-
-               //tododo check with OpenTk (splitted into different assemblies)
 
                //already loaded assembly
                var ass_ld = ass.FirstOrDefault(a => a.FullName == assemblyName.FullName);

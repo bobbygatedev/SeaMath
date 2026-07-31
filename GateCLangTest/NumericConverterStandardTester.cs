@@ -247,7 +247,7 @@ namespace Gate.CLanguageTest
                   sb.AppendLine(tst.TestBody);
                }
 
-               myCppCode = new ExtraDllCppCode("BitFieldTest", sb.ToString(), new CompileEnvGcc(), false, false);
+               myCppCode = new ExtraDllCppCode("BitFieldTest", sb.ToString(), TestObjects.GccCompiler, false, false);
 
                if (!myCppCode.RegisterAndCompile(null))
                {
@@ -493,14 +493,14 @@ namespace Gate.CLanguageTest
                }
             }
 
-            ConversionCppCode = new ExtraDllCppCode("ConversionTest", ConversionTestSourceCode, new CompileEnvGcc(), false, false);
+            ConversionCppCode = new ExtraDllCppCode("ConversionTest", ConversionTestSourceCode, TestObjects.GccCompiler, false, false);
 
             if (!ConversionCppCode.RegisterAndCompile())
             {
                throw new Gate.Tools.ToolsException($"Failed to compile {ConversionCppCode.DllFile.FullName}");
             }
 
-            CombineCppCode = new ExtraDllCppCode("CombineCppCode.cpp", CombineTestSourceCode, new CompileEnvGcc(), false, false);
+            CombineCppCode = new ExtraDllCppCode("CombineCppCode.cpp", CombineTestSourceCode, TestObjects.GccCompiler, false, false);
 
             if (!CombineCppCode.RegisterAndCompile())
             {

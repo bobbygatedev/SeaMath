@@ -13,6 +13,7 @@ using Gate.Tools.Text;
 using Gate.ToolsView.ConIO;
 using Gate.ToolsView.Extensions;
 using System.Diagnostics;
+using static Gate.SeaMath.SeaMathOptionPage.GccRecordType;
 
 namespace Gate.CLanguageTest
 {
@@ -236,6 +237,7 @@ namespace Gate.CLanguageTest
       private void myStartSession(bool hasConsole)
       {
          mySession = new InnerSession(hasConsole);
+         mySession.OptionPage.Gcc.Origin.Value = OriginType.mysys;
 
          if (!SkipAllInclusion)
          {

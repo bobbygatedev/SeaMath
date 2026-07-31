@@ -34,48 +34,6 @@ namespace Gate.LangBase
 
       public NumericConverter() { }
 
-      static NumericConverter()
-      {
-         var mgs = new MsgCollection();
-
-         mgs.Is2PlotOnConsole = true;
-         myStdImpl = CImplemented.Make(new CompileEnvGcc(), null);
-      }
-
-      public static Type[] TypesIntSigned => [typeof(sbyte), typeof(Int16), typeof(Int32), typeof(Int64)];
-      public static Type[] TypesIntUnsigned => [typeof(byte), typeof(UInt16), typeof(UInt32), typeof(UInt64)];
-
-      public static Type[] TypesUnsignedAll => TypesIntUnsigned.Concat(TypesComplexUnsignedInt).Append(typeof(bool)).ToArray();
-
-      public static Type[] TypesIntAll { get; } = TypesIntSigned.Concat(TypesIntUnsigned).ToArray();
-
-      public static Type[] TypesFloat { get; } = [typeof(Single), typeof(double), typeof(LongDouble)];
-      public static Type[] TypesComplexFloat { get; } = [typeof(ComplexFloat), typeof(ComplexDouble), typeof(ComplexLongDouble)];
-
-      public static Type[] TypesComplexIntAll => TypesComplexSignedInt.Concat(TypesComplexUnsignedInt).ToArray();
-
-      public static Type[] TypesComplexSignedInt { get; } = [typeof(ComplexInt8), typeof(ComplexInt16), typeof(ComplexInt32), typeof(ComplexInt64)];
-
-      public static Type[] TypesComplexUnsignedInt { get; } = [typeof(ComplexUint8), typeof(ComplexUint16), typeof(ComplexUint32), typeof(ComplexUint64)];
-
-      public static Type[] TypesComplexAll => TypesComplexFloat.Concat(TypesComplexUnsignedInt).Concat(TypesComplexSignedInt).ToArray();
-
-      public static Type[] TypesBool { get; } = [typeof(bool)];
-      public static Type[] TypesAll =>
-         TypesIntSigned.
-            Concat(TypesIntUnsigned).
-            Concat(TypesFloat).
-            Concat(TypesComplexAll).
-            Concat(TypesBool).
-            Concat(TypesPointer).ToArray();
-
-      public static Type[] TypesPointer { get; } = [typeof(IntPtr)];
-
-      /// <summary>
-      /// Standard implementation
-      /// </summary>
-      public static NumericConverter? StdImpl { get => myStdImpl; set => myStdImpl = value ?? throw new Crash("NumericConverter Implementaion can't be null"); }
-
       public class CImplemented : NumericConverter
       {
          private readonly List<ConversionFunction> myListConversionFunctions = new List<ConversionFunction>();
@@ -87,7 +45,7 @@ namespace Gate.LangBase
          {
             CompileEnv = compileEnv;
 
-            if (messages ==null)
+            if (messages == null)
             {
                messages = new MsgCollection();
                messages.Is2PlotOnConsole = true;
@@ -204,6 +162,40 @@ namespace Gate.LangBase
             }
          }
       }
+
+      public static Type[] TypesIntSigned => [typeof(sbyte), typeof(Int16), typeof(Int32), typeof(Int64)];
+      public static Type[] TypesIntUnsigned => [typeof(byte), typeof(UInt16), typeof(UInt32), typeof(UInt64)];
+
+      public static Type[] TypesUnsignedAll => TypesIntUnsigned.Concat(TypesComplexUnsignedInt).Append(typeof(bool)).ToArray();
+
+      public static Type[] TypesIntAll { get; } = TypesIntSigned.Concat(TypesIntUnsigned).ToArray();
+
+      public static Type[] TypesFloat { get; } = [typeof(Single), typeof(double), typeof(LongDouble)];
+      public static Type[] TypesComplexFloat { get; } = [typeof(ComplexFloat), typeof(ComplexDouble), typeof(ComplexLongDouble)];
+
+      public static Type[] TypesComplexIntAll => TypesComplexSignedInt.Concat(TypesComplexUnsignedInt).ToArray();
+
+      public static Type[] TypesComplexSignedInt { get; } = [typeof(ComplexInt8), typeof(ComplexInt16), typeof(ComplexInt32), typeof(ComplexInt64)];
+
+      public static Type[] TypesComplexUnsignedInt { get; } = [typeof(ComplexUint8), typeof(ComplexUint16), typeof(ComplexUint32), typeof(ComplexUint64)];
+
+      public static Type[] TypesComplexAll => TypesComplexFloat.Concat(TypesComplexUnsignedInt).Concat(TypesComplexSignedInt).ToArray();
+
+      public static Type[] TypesBool { get; } = [typeof(bool)];
+      public static Type[] TypesAll =>
+         TypesIntSigned.
+            Concat(TypesIntUnsigned).
+            Concat(TypesFloat).
+            Concat(TypesComplexAll).
+            Concat(TypesBool).
+            Concat(TypesPointer).ToArray();
+
+      public static Type[] TypesPointer { get; } = [typeof(IntPtr)];
+
+      /// <summary>
+      /// Standard implementation
+      /// </summary>
+      public static NumericConverter? StdImpl { get => myStdImpl; set => myStdImpl = value ?? throw new Crash("NumericConverter Implementaion can't be null"); }
 
       public static string? GetCTypeName(Type type)
       {

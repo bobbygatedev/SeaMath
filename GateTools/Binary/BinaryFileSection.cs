@@ -2,14 +2,17 @@
 
 namespace Gate.Tools.Binary
 {
-   public class BinaryFileSection
+   public class BinaryFileSection : HierarchicalItem
    {
       public BinaryFileSection(Interval interval, BinaryFile? binaryFile = null, string? name = null)
       {
          Name = name;
          Interval = interval;
-         BinaryFile = binaryFile;
+         ParentItem = binaryFile;
       }
+
+      public BinaryFileSection(BinaryFile binaryFile, int offset , int len) : 
+         this(Interval.FromFromLen(offset, len), binaryFile) { }
 
       public BinaryFileSection(nint pointer, int len) : this(Interval.FromFromLen(0, len), new BinaryFile(pointer, len)) { }
 
@@ -17,7 +20,7 @@ namespace Gate.Tools.Binary
 
       public Interval Interval { get; }
 
-      public BinaryFile? BinaryFile { get; set; }
+      public BinaryFile? BinaryFile => ParentItem as BinaryFile;
 
       public nint? Pointer =>
          BinaryFile?.Pointer.HasValue ?? false ?

@@ -14,9 +14,8 @@ namespace Gate.CLanguageTest
    {
       private static CompileWithExternalReadBackTestBase[] myTests = [
          new InnerPackMapTest(),
-         new ErrorCheck(ExternalCompilerType.gcc_msys,"#pragma pack(3)","Wrong pack",CPrePxMsgId.cprepx025_pragma_pack_not_a_power_of_2),
-         new ErrorCheck(
-            ExternalCompilerType.gcc_msys,"#pragma pack(push)\n#pragma pack(pop)\n#pragma pack(pop)\n",
+         new ErrorCheck("#pragma pack(3)","Wrong pack",CPrePxMsgId.cprepx025_pragma_pack_not_a_power_of_2),
+         new ErrorCheck("#pragma pack(push)\n#pragma pack(pop)\n#pragma pack(pop)\n",
             "Wrong pop",CCompilerMsgId.not_a_pragma_pack_to_pop),
       ];
 
@@ -34,7 +33,7 @@ namespace Gate.CLanguageTest
             (TypeId.pop,null),
          ];
 
-         public InnerPackMapTest() : base(ExternalCompilerType.gcc_msys) => Description = "Pack Map Test";
+         public InnerPackMapTest() => Description = "Pack Map Test";
 
          public CPragmaKindPack[] Packs
          {

@@ -1,6 +1,6 @@
 ﻿using Gate.Tools.Extensions;
 using Gate.Tools.Text;
-using GateTools.Properties;
+using Gate.Tools.Properties;
 
 namespace Gate.Tools.VisualStudio
 {

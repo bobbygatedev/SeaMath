@@ -9,22 +9,51 @@ namespace Gate.Tools.Binary
    /// data as a byte array and, if available, its associated file system information. It also provides methods to pin
    /// the underlying data in memory, which can be useful for interoperability scenarios that require a fixed memory
    /// address. Instances can be created from a file path, a FileInfo object, or directly from a byte array.</remarks>
-   public unsafe class BinaryFile
+   public unsafe class BinaryFile : HierarchicalItem
    {
-      public BinaryFile(FileInfo fileInfo)
+      private BinaryFileSection? myWholeFileSection;
+
+      public BinaryFile(FileInfo fileInfo, bool doNotPin = false)
       {
          FileInfo = fileInfo;
          Data = File.ReadAllBytes(fileInfo.FullName);
+
+         if (!doNotPin)
+         {
+            PinPointer();
+         }
       }
 
-      public BinaryFile(string path) : this(new FileInfo(path)) { }
+      public BinaryFile(string path, bool doNotPin = false) : this(new FileInfo(path), doNotPin) { }
 
-      public BinaryFile(byte[] data) => Data = data;
+      public BinaryFile(byte[] data, bool doNotPin = false)
+      {
+         Data = data;
+
+         if (!doNotPin)
+         {
+            PinPointer();
+         }
+      }
 
       public BinaryFile(nint pointer, int lenBytes)
       {
          Data = new byte[lenBytes];
-         Marshal.Copy(pointer,Data, 0, lenBytes);
+         Marshal.Copy(pointer, Data, 0, lenBytes);
+         Pointer = pointer;
+      }
+
+      public BinaryFileSection WholeFileSection
+      {
+         get
+         {
+            if (myWholeFileSection == null)
+            {
+               myWholeFileSection = new BinaryFileSection(this, 0, Data.Length);
+            }
+
+            return myWholeFileSection;
+         }
       }
 
       public FileInfo? FileInfo { get; private set; }
@@ -37,7 +66,7 @@ namespace Gate.Tools.Binary
 
       public void PinPointer()
       {
-         if (!Handle.HasValue)
+         if (!Handle.HasValue && !Pointer.HasValue)
          {
             Handle = GCHandle.Alloc(Data ?? throw new Gate.Tools.ToolsException(), GCHandleType.Pinned);
             Pointer = Handle.Value.AddrOfPinnedObject();
@@ -54,7 +83,7 @@ namespace Gate.Tools.Binary
          }
       }
 
-      public void ReLoad(string? path = null)
+      public void ReLoad(string? path = null, bool doNotPin = false)
       {
          UnPinPointer();
 

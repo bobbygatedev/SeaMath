@@ -11,7 +11,7 @@ namespace Gate.CLanguageTest
 
       public class InnerTest : FromStore
       {
-         public InnerTest() : base(ExternalCompilerType.gcc_msys) { }
+         public InnerTest() { }
 
          protected override CompileActionType? myMakeCompileAction() => null;
 

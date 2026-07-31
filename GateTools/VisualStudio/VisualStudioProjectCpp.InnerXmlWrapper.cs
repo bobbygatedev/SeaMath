@@ -1,5 +1,5 @@
 ﻿using Gate.Tools.Extensions;
-using GateTools.Properties;
+using Gate.Tools.Properties;
 using System.Xml;
 using System.Xml.Linq;
 using static Gate.Tools.RelativePath;
