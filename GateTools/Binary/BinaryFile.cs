@@ -13,9 +13,16 @@ namespace Gate.Tools.Binary
    {
       private BinaryFileSection? myWholeFileSection;
 
-      public BinaryFile(FileInfo fileInfo, bool doNotPin = false)
+      /// <summary>
+      /// Constructor. 
+      /// </summary>
+      /// <param name="fileInfo">File where data comes from</param>
+      /// <param name="logicalAddress">If specified indicates logical address of first byte of file</param>
+      /// <param name="doNotPin">If true data bytes are not pinned to pointer</param>
+      public BinaryFile(FileInfo fileInfo, nint? logicalAddress = null, bool doNotPin = false)
       {
          FileInfo = fileInfo;
+         LogicalAddress = logicalAddress;
          Data = File.ReadAllBytes(fileInfo.FullName);
 
          if (!doNotPin)
@@ -24,11 +31,24 @@ namespace Gate.Tools.Binary
          }
       }
 
-      public BinaryFile(string path, bool doNotPin = false) : this(new FileInfo(path), doNotPin) { }
+      /// <summary>
+      /// Constructor. 
+      /// </summary>
+      /// <param name="path"></param>
+      /// <param name="logicalAddress">If specified indicates logical address of first byte of file</param>
+      /// <param name="doNotPin">If true data bytes are not pinned to pointer</param>
+      public BinaryFile(string path, nint? logicalAddress = null, bool doNotPin = false) : this(new FileInfo(path), logicalAddress, doNotPin) { }
 
-      public BinaryFile(byte[] data, bool doNotPin = false)
+      /// <summary>
+      /// Constructor. 
+      /// </summary>
+      /// <param name="data"></param>
+      /// <param name="logicalAddress">If specified indicates logical address of first byte of file</param>
+      /// <param name="doNotPin">If true data bytes are not pinned to pointer</param>
+      public BinaryFile(byte[] data, nint? logicalAddress = null, bool doNotPin = false)
       {
          Data = data;
+         LogicalAddress = logicalAddress;
 
          if (!doNotPin)
          {
@@ -36,9 +56,16 @@ namespace Gate.Tools.Binary
          }
       }
 
-      public BinaryFile(nint pointer, int lenBytes)
+      /// <summary>
+      /// Constructor. 
+      /// </summary>
+      /// <param name="pointer"></param>
+      /// <param name="lenBytes"></param>
+      /// <param name="logicalAddress">If specified indicates logical address of first byte of file</param>
+      public BinaryFile(nint pointer, int lenBytes, nint? logicalAddress = null)
       {
          Data = new byte[lenBytes];
+         LogicalAddress = logicalAddress;
          Marshal.Copy(pointer, Data, 0, lenBytes);
          Pointer = pointer;
       }
@@ -59,6 +86,11 @@ namespace Gate.Tools.Binary
       public FileInfo? FileInfo { get; private set; }
 
       public byte[] Data { get; private set; }
+
+      /// <summary>
+      /// If has value indicates logical address of first byte of file</param>
+      /// </summary>
+      public nint? LogicalAddress { get; }
 
       public GCHandle? Handle { get; private set; }
 

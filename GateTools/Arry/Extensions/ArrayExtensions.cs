@@ -245,7 +245,12 @@ namespace Gate.Tools.Arry.Extensions
          return res;
       }
 
-
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="a"></param>
+      /// <param name="b"></param>
+      /// <returns></returns>
       public static bool ArrayCompare(this Array a, Array b)
       {
          // same reference
@@ -256,7 +261,7 @@ namespace Gate.Tools.Arry.Extensions
             return false;
          }
 
-         // dimensioni diverse
+         // different sizes
          for (int i = 0; i < a.Rank; i++)
          {
             if (a.GetLength(i) != b.GetLength(i))
@@ -265,7 +270,7 @@ namespace Gate.Tools.Arry.Extensions
             }
          }
 
-         // confronto elemento per elemento
+         // matching item-2-item
          var enu_a = a.GetEnumerator();
          var enu_b = b.GetEnumerator();
 
@@ -280,6 +285,48 @@ namespace Gate.Tools.Arry.Extensions
          return true;
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="bytes1"></param>
+      /// <param name="bytes2"></param>
+      /// <returns></returns>
+      public static int[] GetSequenceMatches(this byte[] bytes1, byte[] bytes2)
+      {
+         var lst = new List<int>();
+
+         var src = new ReadOnlySpan<byte>(bytes1);
+         var ptr = new ReadOnlySpan<byte>(bytes2);
+
+         var off = 0;
+
+         while (true)
+         {
+            var pos = src.IndexOf(ptr);
+
+            if (pos < 0)
+            {
+               break;
+            }
+
+            pos += off;
+
+            lst.Add(pos);
+
+            pos += ptr.Length;
+
+            off = pos;
+
+            if (off >= bytes1.Length)
+            {
+               break;
+            }
+
+            src = bytes1.AsSpan(off);
+         }
+
+         return lst.ToArray();
+      }
    }
 }
 

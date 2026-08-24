@@ -2,7 +2,7 @@
 
 namespace Gate.Tools.Binary
 {
-   public class BinaryFileSection : HierarchicalItem
+   public unsafe class BinaryFileSection : HierarchicalItem
    {
       public BinaryFileSection(Interval interval, BinaryFile? binaryFile = null, string? name = null)
       {
@@ -22,9 +22,19 @@ namespace Gate.Tools.Binary
 
       public BinaryFile? BinaryFile => ParentItem as BinaryFile;
 
-      public nint? Pointer =>
+      public nint? MemPointer =>
          BinaryFile?.Pointer.HasValue ?? false ?
          BinaryFile.Pointer.Value + Interval.From : throw new ToolsException("Binary file pointer is not pinned.");
+
+      public nint? LogicalAddress
+      {
+         get
+         {
+            var la = BinaryFile?.LogicalAddress;
+
+            return la.HasValue ? (nint?)((byte*)la + Interval.From) : null;
+         }
+      }
 
       public byte[] Bytes => BinaryFile?.Data.Skip(Interval.From).Take(Interval.Length).ToArray() ??
          throw new ToolsException("Binary file pointer not associated.");
@@ -32,19 +42,18 @@ namespace Gate.Tools.Binary
       public string GetHexDump(
          uint length = 0,
          BitNumber bitNumber = BitNumber.Bit8,
-         nint? offset = null,
          int? nWordPerRaw = null,
          bool isBigEndian = false) => 
-            (Pointer ?? throw new ToolsException()).GetHexDump(
-               length == 0 ? (uint)Interval.Length : length, bitNumber, offset, nWordPerRaw, isBigEndian);
+            (MemPointer ?? throw new ToolsException()).GetHexDump(
+               length == 0 ? (uint)Interval.Length : length, bitNumber, LogicalAddress, nWordPerRaw, isBigEndian);
 
-      public string DataRepresentation => (Pointer ?? throw new ToolsException()).
+      public string DataRepresentation => (MemPointer ?? throw new ToolsException()).
          GetHexDump((uint)Interval.Length, BitNumber.Bit8, Interval.From);
 
       public string DataRepresentationReduced => Interval.Length > RepresentationReducedValue ?
-         $"{(Pointer ?? throw new ToolsException()).GetHexDump(
+         $"{(MemPointer ?? throw new ToolsException()).GetHexDump(
             (uint)RepresentationReducedValue, BitNumber.Bit8, Interval.From, RepresentationColumns)}\n(...)" :
-         (Pointer ?? throw new ToolsException()).GetHexDump(
+         (MemPointer ?? throw new ToolsException()).GetHexDump(
             (uint)Interval.Length, BitNumber.Bit8, Interval.From, RepresentationColumns);
 
       public static int RepresentationReducedValue { get; set; } = 128;
