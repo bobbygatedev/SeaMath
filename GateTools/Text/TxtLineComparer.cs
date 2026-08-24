@@ -221,12 +221,37 @@ namespace Gate.Tools.Text
                se.LineIntervalOld0.GetIntersection(se_m_1.LineIntervalOld0).HasValue)
             {
                //to be remove
-               var x = new[] { se_m_1, se }.
+               var ses = new[] { se_m_1, se }.
                   OrderBy(s => s.LineIntervalNew0.Length).
                   FirstOrDefault().NnOrCrash();
 
-               lst_se.Remove(x);
+               lst_se.Remove(ses);
                i--; //nullate effect of i++
+            }
+         }
+
+         lst_se = lst_se.OrderBy(s => s.LineIntervalOld0.From).ToList();
+
+         var i0 = lst_se.FirstOrDefault().NnOrCrash();
+         var idx = 1;
+
+         //delete items not in order by LineIntervalNew
+         while (true)
+         {
+            var i1 = lst_se.ElementAtOrDefault(idx);
+
+            if (i1 == null)
+            {
+               break;
+            }
+            else if(i1.LineIntervalNew1.From <= i0.LineIntervalNew1.From)
+            {
+               lst_se.Remove(i1);
+            }
+            else
+            {
+               i0 = i1;
+               idx++;
             }
          }
 
@@ -269,10 +294,11 @@ namespace Gate.Tools.Text
                var equ_seq = equ_scs[i];
                var equ_seq_nxt = equ_scs[i + 1];
 
-               myAddSubItem(new SectionType(
-                  new Interval(equ_seq.LineIntervalOld0.To + 1, equ_seq_nxt.LineIntervalOld0.From - 1),
-                  new Interval(equ_seq.LineIntervalNew0.To + 1, equ_seq_nxt.LineIntervalNew0.From - 1),
-                  false));
+               var i_old = new Interval(equ_seq.LineIntervalOld0.To + 1, equ_seq_nxt.LineIntervalOld0.From - 1);
+               var i_new = new Interval(equ_seq.LineIntervalNew0.To + 1, equ_seq_nxt.LineIntervalNew0.From - 1);
+
+               //tododo baco
+               myAddSubItem(new SectionType(i_old, i_new, false));
             }
 
             //last sector old
