@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Gate.Tools.Extensions;
+using System.Collections;
 using System.Runtime.CompilerServices;
 
 namespace Gate.Tools
@@ -468,19 +469,10 @@ namespace Gate.Tools
       /// <exception cref="System.ArgumentOutOfRangeException"></exception>
       protected void myInsertSubItemRange(IEnumerable<HierarchicalItem> subItems, int atIndex)
       {
-         var sis = (subItems ?? []).Where(s => s != null).ToArray();
+         var sis = (subItems ?? []).Nn().ToArray();
 
          ///all item shall be (by ref) different
          var sis_ne = sis.Distinct(new InnerRefEqualComparer()).ToArray();//sub-items not equal
-         var all_hie = AllHierarchy.ToArray();
-
-         /// any from <see cref="subItems"/> is already in hierarchy
-         if (sis_ne.Any(s => all_hie.Any(h => ReferenceEquals(s, h))))
-         {
-            var wro_sub_its = sis_ne.Where(s => all_hie.Any(h => ReferenceEquals(s, h))).ToArray();
-
-            throw new Gate.Tools.ToolsException($"Some items({string.Join(",", wro_sub_its.Select(s => s.ToString()))}) already in this hierarchy!");
-         }
 
          ///then any from <see cref="sis"/> is duplicated 
          if (sis_ne.Length < sis.Count()) { throw new Gate.Tools.ToolsException("Subitems of difference instance!"); }
@@ -510,7 +502,7 @@ namespace Gate.Tools
       {
          if (subItem != null)
          {
-            myInsertSubItemRange(new[] { subItem }, atIndex);
+            myInsertSubItemRange([subItem], atIndex);
 
             return true;
          }

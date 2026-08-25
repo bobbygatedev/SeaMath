@@ -126,5 +126,7 @@ namespace Gate.Tools.Binary
 
          Data = File.ReadAllBytes(FileInfo?.FullName ?? throw new Gate.Tools.ToolsException());
       }
+
+      public BinaryFileSection GetSection(int offset, int length) => new BinaryFileSection(this, offset, length);
    }
 }

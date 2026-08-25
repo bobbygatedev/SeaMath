@@ -12,7 +12,7 @@ namespace Gate.Dock.DockDocu
       /// </summary>
       /// <param name="path"></param>
       /// <param name="line"></param>
-      public GateDockDocuMarkerBookmark(string path, int line)
+      public GateDockDocuMarkerBookmark(string? path, int line)
       {
          BookmarkPath = path;
          Line = line;

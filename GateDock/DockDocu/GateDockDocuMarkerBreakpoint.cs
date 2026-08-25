@@ -15,7 +15,7 @@ namespace Gate.Dock.DockDocu
       /// <param name="line"></param>
       /// <param name="col"></param>
       /// <param name="length"></param>
-      public GateDockDocuMarkerBreakpoint(string path, int line, int col, int length)
+      public GateDockDocuMarkerBreakpoint(string? path, int line, int col, int length)
       {
          BreakpointPath = path;
          Line = line;

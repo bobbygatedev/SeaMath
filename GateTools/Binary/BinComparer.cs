@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Gate.Tools
+namespace Gate.Tools.Binary
 {
    public class BinComparer
    {
@@ -17,68 +17,8 @@ namespace Gate.Tools
             NotEqualityIntervals = myGetNotEqualityIntervals();
          }
 
-         private static (int from, int to)[] myGetSequence(bool[] vector)
-         {
-            if (vector == null || vector.Length == 0)
-               return Array.Empty<(int from, int to)>();
-
-            var result = new List<(int from, int to)>();
-
-            int start = -1;
-
-            for (int i = 0; i < vector.Length; i++)
-            {
-               if (vector[i])
-               {
-                  // Inizio di una nuova sequenza
-                  if (start == -1)
-                     start = i;
-               }
-               else
-               {
-                  // Fine di una sequenza
-                  if (start != -1)
-                  {
-                     result.Add((start, i - 1));
-                     start = -1;
-                  }
-               }
-            }
-
-            // Se finisce con una sequenza aperta
-            if (start != -1)
-            {
-               result.Add((start, vector.Length - 1));
-            }
-
-            return result.ToArray();
-         }
-         private Interval[] myGetNotEqualityIntervals()
-         {
-            var seq = myGetSequence(Comparition.Select(c => !c).ToArray());
-
-            return seq.Select(
-               i => new Interval(
-                  (ulong)(i.from * Comparer.SectorLen), 
-                  (ulong)((i.to + 1) * Comparer.SectorLen))).ToArray();
-         }
-
-         private Interval[] myGetEqualityIntervals()
-         {
-            var seq = myGetSequence(Comparition);
-
-            return seq.Select(
-               i => new Interval(
-                  (ulong)(i.from * Comparer.SectorLen), 
-                  (ulong)((i.to + 1) * Comparer.SectorLen))).ToArray();
-         }
-
-         public Interval[] EqualityIntervals { get; }
-         public Interval[] NotEqualityIntervals { get; }
-
          public struct Interval
          {
-
             public Interval(UInt64 from, UInt64 to)
             {
                From = from;
@@ -121,6 +61,9 @@ namespace Gate.Tools
             public override string ToString() => Descriptor;
          }
 
+         public Interval[] EqualityIntervals { get; }
+         public Interval[] NotEqualityIntervals { get; }
+
          public bool EqualFull => Comparition.All(c => c);
 
          public string Report
@@ -152,6 +95,64 @@ namespace Gate.Tools
          public bool[] Comparition { get; }
 
          public override string ToString() => Report;
+
+         private static (int from, int to)[] myGetSequence(bool[] vector)
+         {
+            if (vector == null || vector.Length == 0)
+               return Array.Empty<(int from, int to)>();
+
+            var lst = new List<(int from, int to)>();
+            var sta = -1;
+
+            for (int i = 0; i < vector.Length; i++)
+            {
+               if (vector[i])
+               {
+                  // Inizio di una nuova sequenza
+                  if (sta == -1)
+                  {
+                     sta = i;
+                  }
+               }
+               else
+               {
+                  // Fine di una sequenza
+                  if (sta != -1)
+                  {
+                     lst.Add((sta, i - 1));
+                     sta = -1;
+                  }
+               }
+            }
+
+            // Se finisce con una sequenza aperta
+            if (sta != -1)
+            {
+               lst.Add((sta, vector.Length - 1));
+            }
+
+            return lst.ToArray();
+         }
+
+         private Interval[] myGetNotEqualityIntervals()
+         {
+            var seq = myGetSequence(Comparition.Select(c => !c).ToArray());
+
+            return seq.Select(
+               i => new Interval(
+                  (ulong)(i.from * Comparer.SectorLen),
+                  (ulong)((i.to + 1) * Comparer.SectorLen))).ToArray();
+         }
+
+         private Interval[] myGetEqualityIntervals()
+         {
+            var seq = myGetSequence(Comparition);
+
+            return seq.Select(
+               i => new Interval(
+                  (ulong)(i.from * Comparer.SectorLen),
+                  (ulong)((i.to + 1) * Comparer.SectorLen))).ToArray();
+         }
       }
 
       public byte[]? Data1 { get; private set; }
@@ -196,11 +197,6 @@ namespace Gate.Tools
          }
       }
 
-      private bool myCompareSector(int sectorIdx) =>
-         (Data1 ?? []).Skip(sectorIdx * SectorLen).
-         Take(SectorLen).
-         SequenceEqual((Data2 ?? []).Skip(sectorIdx * SectorLen).Take(SectorLen));
-
       public static int[] Search(byte[] file, byte[] dataToSearch)
       {
          var lst = new List<int>();
@@ -237,5 +233,11 @@ namespace Gate.Tools
 
          return lst.ToArray();
       }
+
+      private bool myCompareSector(int sectorIdx) =>
+         (Data1 ?? []).Skip(sectorIdx * SectorLen).
+         Take(SectorLen).
+         SequenceEqual((Data2 ?? []).Skip(sectorIdx * SectorLen).Take(SectorLen));
+
    }
 }

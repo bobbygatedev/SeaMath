@@ -20,6 +20,11 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
+      event OnSaveHandler? OnSave;
+
+      /// <summary>
+      /// 
+      /// </summary>
       int PpCurrLine { get; set; }
 
       /// <summary>

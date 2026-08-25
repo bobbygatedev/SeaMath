@@ -297,7 +297,6 @@ namespace Gate.Tools.Text
                var i_old = new Interval(equ_seq.LineIntervalOld0.To + 1, equ_seq_nxt.LineIntervalOld0.From - 1);
                var i_new = new Interval(equ_seq.LineIntervalNew0.To + 1, equ_seq_nxt.LineIntervalNew0.From - 1);
 
-               //tododo baco
                myAddSubItem(new SectionType(i_old, i_new, false));
             }
 

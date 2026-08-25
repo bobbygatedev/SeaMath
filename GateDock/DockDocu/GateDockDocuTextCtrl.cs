@@ -19,6 +19,7 @@ namespace Gate.Dock.DockDocu
 {
    public delegate void OnBreakpointsChangedHandler(object? sender, GateDockDocuMarkerBreakpoint[]? breakpoints);
    public delegate void OnBoomarksChangedHandler(object? sender, GateDockDocuMarkerBookmark[]? bookmarks);
+   public delegate void OnSaveHandler(object? sender, string path);
 
    /// <summary>
    /// 
@@ -27,6 +28,7 @@ namespace Gate.Dock.DockDocu
    {
       public event OnBreakpointsChangedHandler? OnBreakpointsChanged;
       public event OnBoomarksChangedHandler? OnBoomarksChanged;
+      public event OnSaveHandler? OnSave;
 
       private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
          myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
@@ -271,17 +273,17 @@ namespace Gate.Dock.DockDocu
       /// 
       /// </summary>
       /// <param name="path"></param>
-      public void MthSaveFile(string path)
-      {
-         MthSaveFileCopy(path);
-         PpDocuPath = path;
-      }
+      public void MthSaveFile(string path) => MthSaveFileCopy(PpDocuPath = path);
 
       /// <summary>
       /// 
       /// </summary>
       /// <param name="path"></param>
-      public void MthSaveFileCopy(string path) => CtrlText.MthSaveFile(path);
+      public void MthSaveFileCopy(string path)
+      {
+         CtrlText.MthSaveFile(path);
+         OnSave?.Invoke(this, path);
+      }
 
       public void MthOpenFile(string path)
       {
@@ -322,6 +324,10 @@ namespace Gate.Dock.DockDocu
 
                   var pos = (PpCurrLine, PpCurrCol);
 
+                  //tododo restore bookmark
+                  var old_bks = PpBookmarks?.ToArray() ?? [];
+                  var old_bps = PpBreakpoints?.ToArray() ?? [];
+
                   CtrlText.PpContentText = new_cnt;
                   PpIsModified = false;
 
@@ -329,26 +335,65 @@ namespace Gate.Dock.DockDocu
                   {
                      PpCurrLine = pos.PpCurrLine;
                      PpCurrCol = pos.PpCurrCol;
+                     PpBookmarks = old_bks;
                   }
                   else
                   {
-                     var sec = txt_cmp.Sections.FirstOrDefault(
+                     var eq_sqs = txt_cmp.Sections.
+                        Where(s => s.Type == TxtLineComparer.SectionType.TypeEnum.equal).ToArray();
+
+                     //tododo
+                     var lst_bok = new List<GateDockDocuMarkerBookmark>();
+                     var lst_bkp = new List<GateDockDocuMarkerBreakpoint>();
+
+                     foreach (var bok in old_bks)
+                     {
+                        var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
+
+                        if (eq_sec != null)
+                        {
+                           lst_bok.Add(new GateDockDocuMarkerBookmark(
+                              bok.BookmarkPath, bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From));
+                        }
+                     }
+
+                     foreach (var bok in old_bps)
+                     {
+                        var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
+
+                        if (eq_sec != null)
+                        {
+                           lst_bkp.Add(new GateDockDocuMarkerBreakpoint(
+                              bok.BreakpointPath, 
+                              bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From ,
+                              bok.Column,
+                              bok.TextLen));
+                        }
+                     }
+
+                     PpBookmarks = lst_bok.ToArray();
+                     PpBreakpoints = lst_bkp.ToArray();
+
+                     var sec_pos = txt_cmp.Sections.FirstOrDefault(
                         s => s.LineIntervalOld1.Contains(pos.PpCurrLine)).NnOrCrash();
 
-                     if (sec.Type == TxtLineComparer.SectionType.TypeEnum.equal)
+                     if (sec_pos.Type == TxtLineComparer.SectionType.TypeEnum.equal)
                      {
-                        var new_lin = pos.PpCurrLine - sec.LineIntervalOld1.From + sec.LineIntervalNew1.From;
+                        var new_lin = pos.PpCurrLine - sec_pos.LineIntervalOld1.From + sec_pos.LineIntervalNew1.From;
 
                         PpCurrLine = new_lin;
                         PpCurrCol = pos.PpCurrCol;
                      }
                      else
                      {
-                        PpCurrLine = sec.LineIntervalNew1.From;
+                        PpCurrLine = sec_pos.LineIntervalNew1.From;
                         PpCurrCol = 1;
                      }
                   }
                }
+
+               //raises save event
+               OnSave?.Invoke(this, PpDocuPath);
 
                return true;
             }

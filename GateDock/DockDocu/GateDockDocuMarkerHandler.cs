@@ -2,6 +2,7 @@
 using Gate.Dock.DockTab;
 using Gate.Tools;
 using Gate.Tools.Extensions;
+using Gate.Tools.Text;
 
 namespace Gate.Dock.DockDocu
 {
@@ -174,7 +175,8 @@ namespace Gate.Dock.DockDocu
       {
          myCheckExistance();
 
-         foreach (var txt_ctr in App.MainForm.PpTabPagesAll.OfType<IGateDockDocuText>()) { myDocuTextSaveMarkers(txt_ctr); }
+         //tododo
+         //foreach (var txt_ctr in App.MainForm.PpTabPagesAll.OfType<IGateDockDocuText>()) { myDocuTextSaveMarkers(txt_ctr); }
       }
 
       public static string? GetMarkerPath(IGateDockDocuText docuText) =>
@@ -235,6 +237,15 @@ namespace Gate.Dock.DockDocu
             txt_ctr.PpBookmarks = (Bookmarks ?? []).Where(p => p.BookmarkPath == mrk_pth).ToArray();
             txt_ctr.OnBreakpointsChanged += TextControl_OnBreakpointsChanged;
             txt_ctr.OnBoomarksChanged += TextControl_OnBoomarksChanged;
+            txt_ctr.OnSave += Txt_ctr_OnSave;
+         }
+      }
+
+      private void Txt_ctr_OnSave(object? sender, string path)
+      {
+         if (sender is IGateDockDocuText txt_ctr)
+         {
+            myDocuTextSaveMarkers(txt_ctr);
          }
       }
 
@@ -244,7 +255,10 @@ namespace Gate.Dock.DockDocu
          {
             txt_ctr.OnBreakpointsChanged -= TextControl_OnBreakpointsChanged;
             txt_ctr.OnBoomarksChanged -= TextControl_OnBoomarksChanged;
-            myDocuTextSaveMarkers(txt_ctr);
+            txt_ctr.OnSave -= Txt_ctr_OnSave;
+
+            //tododo save on doc save
+            //myDocuTextSaveMarkers(txt_ctr);
             OnBreakpointsChanged?.Invoke(this, Breakpoints);
          }
       }
@@ -252,14 +266,14 @@ namespace Gate.Dock.DockDocu
       private void TextControl_OnBreakpointsChanged(object? sender, GateDockDocuMarkerBreakpoint[]? breakpoints)
       {
          //this causes update of prop 'Breakpoints'
-         myDocuTextSaveMarkers(sender as GateDockDocuTextCtrl ?? throw new Crash());
+         //myDocuTextSaveMarkers(sender as GateDockDocuTextCtrl ?? throw new Crash()); //tododo
          OnBreakpointsChanged?.Invoke(this, Breakpoints);
       }
 
       private void TextControl_OnBoomarksChanged(object? sender, GateDockDocuMarkerBookmark[]? bookmarks)
       {
          //this causes update of prop 'Bookmarks'
-         myDocuTextSaveMarkers(sender as GateDockDocuTextCtrl ?? throw new Crash());
+         //myDocuTextSaveMarkers(sender as GateDockDocuTextCtrl ?? throw new Crash()); //tododo
          OnBoomarksChanged?.Invoke(this, Bookmarks);
       }
    }
