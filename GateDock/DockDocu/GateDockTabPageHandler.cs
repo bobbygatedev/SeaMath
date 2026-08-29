@@ -406,7 +406,10 @@ namespace Gate.Dock.DockDocu
       private void mySaveDocus(GateDockMainForm mainForm, IGateDockDocu[] selectedControls)
       {
          var sas_cts = selectedControls.Where(c => c.PpIsDocuNotEmpty && c.PpDocuPath == "").ToArray();
-         var sav_cts = selectedControls.Where(c => c.PpIsDocuNotEmpty && c.PpDocuPath != "" && c.PpIsModified).ToArray();
+         var sav_cts = selectedControls.Where(c => 
+            c.PpIsDocuNotEmpty && 
+            c.PpDocuPath != "" && 
+            (c.PpIsModified || !File.Exists(c.PpDocuPath))).ToArray();
 
          foreach (var ctr in sav_cts) { ctr.MthSaveFile(ctr.PpDocuPath.Nn()); }
 

@@ -2,6 +2,7 @@
 using Gate.Dock.DockFactories.Text;
 using Gate.Dock.DockSkin;
 using Gate.Dock.DockTab;
+using Gate.Dock.Extensions;
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Text;
@@ -13,6 +14,7 @@ using Gate.ToolsView.MenuCommand;
 using Gate.ToolsView.MenuExtended;
 using Gate.ToolsView.TextCtrl;
 using ScintillaNET.Gate;
+using System.ComponentModel;
 using static Gate.ToolsView.TextCtrl.GateTextControl;
 
 namespace Gate.Dock.DockDocu
@@ -27,8 +29,9 @@ namespace Gate.Dock.DockDocu
    public partial class GateDockDocuTextCtrl : GateDockTabPageCtrl, IGateDockDocuText
    {
       public event OnBreakpointsChangedHandler? OnBreakpointsChanged;
-      public event OnBoomarksChangedHandler? OnBoomarksChanged;
+      public event OnBoomarksChangedHandler? OnBookmarksChanged;
       public event OnSaveHandler? OnSave;
+      public event OnSaveHandler? OnSaveCopy;
 
       private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
          myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
@@ -53,6 +56,7 @@ namespace Gate.Dock.DockDocu
          myFileChangeObserver.OnFileEvent += FileChangeObserver_OnFileEvent;
          CtrlText.PpScintillaMarkers[GateTextMarkerScintillaIdEnum.marker_0_bookmark].SetBackColor(Color.Blue);
          CtrlText.PpToolWinGoto.AddFeature<GateDockToolWinFeature>();
+         CtrlText.OnTextChange += CtrlText_OnTextChange;
       }
 
       public class SkinChildCtrlDispactherForText : GateDockTabPageCtrlSkinDispacther
@@ -112,6 +116,11 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
+      public string PpContentText { get => CtrlText.PpContentText; set=> CtrlText.PpContentText = value; }
+
+      /// <summary>
+      /// 
+      /// </summary>
       public bool PpIsReadOnly { get => CtrlText.PpIsReadOnly; set => CtrlText.PpIsReadOnly = value; }
 
       /// <summary>
@@ -128,9 +137,9 @@ namespace Gate.Dock.DockDocu
 
          set
          {
-            if ((value ?? "").Trim() != "") { PpDocuName = Path.GetFileName(value); }
+            if (!value.IsBlank()) { PpDocuName = Path.GetFileName(value); }
 
-            myFileChangeObserver.FilePath = CtrlText.PpOpenPath = value ?? "";
+            myFileChangeObserver.FilePath = CtrlText.PpOpenPath = value.ExtTrim();
          }
       }
 
@@ -220,10 +229,7 @@ namespace Gate.Dock.DockDocu
       {
          get =>
             CtrlText.PpScintillaIndicators[GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints].
-            Select(
-               bkp_ind => new GateDockDocuMarkerBreakpoint(
-                  GateDockDocuMarkerHandler.GetMarkerPath(this).NnOrCrash(),
-                  bkp_ind.LineStart, bkp_ind.ColStart, bkp_ind.Len)).ToArray();
+            Select(bkp_ind => myMakeGateBreakpoint(bkp_ind)).ToArray();
 
          set
          {
@@ -234,17 +240,36 @@ namespace Gate.Dock.DockDocu
       }
 
       /// <summary>
-      /// 
+      /// All bookmarks inside text document as <see cref="GateDockDocuMarkerBookmark"/>
       /// </summary>
       public GateDockDocuMarkerBookmark[]? PpBookmarks
       {
-         get => CtrlText.PpAllMarkers.Where(m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark).
-            Select(m1 => myDictionaryBookmarkByScintillaMarker[m1]).ToArray();
+         get
+         {
+            var mks = CtrlText.PpAllMarkers.
+               Where(m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark).ToArray();
+
+            /// updating <see cref="GateDockDocuMarkerBookmark"/> in dictionary
+            foreach (var mrk in mks)
+            {
+               myDictionaryBookmarkByScintillaMarker[mrk].Line = mrk.Line;
+               myDictionaryBookmarkByScintillaMarker[mrk].BookmarkPath = this.GetMarkerPath();
+            }
+
+            /// returns <see cref="GateDockDocuMarkerBookmark"/>
+            return mks.Select(m1 => myDictionaryBookmarkByScintillaMarker[m1]).ToArray();
+         }
 
          set
          {
-            foreach (var mrk in CtrlText.PpAllMarkers.Where(m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark)) { CtrlText.MthScintillaMarkerDelete(mrk); }
+            //deletes all bookmark markers
+            foreach (var mrk in
+               CtrlText.PpAllMarkers.Where(m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark))
+            {
+               CtrlText.MthScintillaMarkerDelete(mrk);
+            }
 
+            /// adding <see cref="GateDockDocuMarkerBookmark"/>
             foreach (var bok in value ?? []) { myDoBookmarkAdd(bok); }
          }
       }
@@ -270,10 +295,20 @@ namespace Gate.Dock.DockDocu
       public bool PpIsUseTab { get => CtrlText.PpIsUseTab; set => CtrlText.PpIsUseTab = value; }
 
       /// <summary>
+      /// Selection token or null when no selection.
+      /// </summary>
+      [Browsable(false)]
+      public TxtToken? PpSelection => CtrlText.PpSelection;
+
+      /// <summary>
       /// 
       /// </summary>
       /// <param name="path"></param>
-      public void MthSaveFile(string path) => MthSaveFileCopy(PpDocuPath = path);
+      public void MthSaveFile(string path)
+      {
+         CtrlText.MthSaveFile(PpDocuPath = path);
+         OnSave?.Invoke(this, path);
+      }
 
       /// <summary>
       /// 
@@ -281,8 +316,8 @@ namespace Gate.Dock.DockDocu
       /// <param name="path"></param>
       public void MthSaveFileCopy(string path)
       {
-         CtrlText.MthSaveFile(path);
-         OnSave?.Invoke(this, path);
+         CtrlText.MthSaveFileCopy(path);
+         OnSaveCopy?.Invoke(this, path);
       }
 
       public void MthOpenFile(string path)
@@ -315,6 +350,7 @@ namespace Gate.Dock.DockDocu
                //line-2-line comparition
                var old_cnt = CtrlText.PpContentText;
                var new_cnt = File.ReadAllText(PpDocuPath);
+               var old_bks = PpBookmarks ?? [];
 
                if (old_cnt != new_cnt)
                {
@@ -324,8 +360,6 @@ namespace Gate.Dock.DockDocu
 
                   var pos = (PpCurrLine, PpCurrCol);
 
-                  //tododo restore bookmark
-                  var old_bks = PpBookmarks?.ToArray() ?? [];
                   var old_bps = PpBreakpoints?.ToArray() ?? [];
 
                   CtrlText.PpContentText = new_cnt;
@@ -335,44 +369,46 @@ namespace Gate.Dock.DockDocu
                   {
                      PpCurrLine = pos.PpCurrLine;
                      PpCurrCol = pos.PpCurrCol;
-                     PpBookmarks = old_bks;
+                     //PpBookmarks = old_bks;
                   }
                   else
                   {
-                     var eq_sqs = txt_cmp.Sections.
-                        Where(s => s.Type == TxtLineComparer.SectionType.TypeEnum.equal).ToArray();
+                     //var eq_sqs = txt_cmp.Sections.
+                     //   Where(s => s.Type == TxtLineComparer.SectionType.TypeEnum.equal).ToArray();
 
                      //tododo
-                     var lst_bok = new List<GateDockDocuMarkerBookmark>();
-                     var lst_bkp = new List<GateDockDocuMarkerBreakpoint>();
+                     //var lst_bok = new List<GateDockDocuMarkerBookmark>();
+                     //var lst_bkp = new List<GateDockDocuMarkerBreakpoint>();
 
-                     foreach (var bok in old_bks)
-                     {
-                        var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
+                     //foreach (var old_bok in old_bks)
+                     //{
+                     //   var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(old_bok.Line));
 
-                        if (eq_sec != null)
-                        {
-                           lst_bok.Add(new GateDockDocuMarkerBookmark(
-                              bok.BookmarkPath, bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From));
-                        }
-                     }
+                     //   if (eq_sec != null)
+                     //   {
+                     //      lst_bok.Add(new GateDockDocuMarkerBookmark(
+                     //         old_bok.BookmarkPath,
+                     //         old_bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From));
+                     //      lst_bok.Last().Guid = old_bok.Guid;
+                     //   }
+                     //}
 
-                     foreach (var bok in old_bps)
-                     {
-                        var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
+                     //foreach (var bok in old_bps)
+                     //{
+                     //   var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
 
-                        if (eq_sec != null)
-                        {
-                           lst_bkp.Add(new GateDockDocuMarkerBreakpoint(
-                              bok.BreakpointPath, 
-                              bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From ,
-                              bok.Column,
-                              bok.TextLen));
-                        }
-                     }
+                     //   if (eq_sec != null)
+                     //   {
+                     //      lst_bkp.Add(new GateDockDocuMarkerBreakpoint(
+                     //         bok.BreakpointPath,
+                     //         bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From,
+                     //         bok.Column,
+                     //         bok.TextLen));
+                     //   }
+                     //}
 
-                     PpBookmarks = lst_bok.ToArray();
-                     PpBreakpoints = lst_bkp.ToArray();
+                     //PpBookmarks = lst_bok.ToArray();
+                     //PpBreakpoints = lst_bkp.ToArray();
 
                      var sec_pos = txt_cmp.Sections.FirstOrDefault(
                         s => s.LineIntervalOld1.Contains(pos.PpCurrLine)).NnOrCrash();
@@ -446,25 +482,37 @@ namespace Gate.Dock.DockDocu
          }
       }
 
-      public void MthToggleBookmark()
+      bool IGateDockDocuText.IsSaved => !PpIsModified || PpDocuPath.IsEmpty();
+
+      public GateDockDocuMarkerBookmark? MthToggleBookmark()
       {
-         var bok_mrk = CtrlText.PpAllMarkers.Where(m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark).FirstOrDefault(m => m.Line == PpCurrLine);
+         var bok_mrk = CtrlText.PpAllMarkers.Where(
+            m => m.ScintillaId == GateTextMarkerScintillaIdEnum.marker_0_bookmark).
+            FirstOrDefault(m => m.Line == PpCurrLine);
+         var res = null as GateDockDocuMarkerBookmark;
 
          if (bok_mrk != null)
          {
             myDictionaryBookmarkByScintillaMarker.Remove(bok_mrk);
             CtrlText.MthScintillaMarkerDelete(bok_mrk);
          }
-         else { myDoBookmarkAdd(new GateDockDocuMarkerBookmark(GateDockDocuMarkerHandler.GetMarkerPath(this).NnOrCrash(), PpCurrLine)); }
+         else
+         {
+            myDoBookmarkAdd(
+               res = new GateDockDocuMarkerBookmark(this.GetMarkerPath().NnOrCrash(), PpCurrLine));
+         }
 
-         OnBoomarksChanged?.Invoke(this, PpBookmarks ?? []);
+         OnBookmarksChanged?.Invoke(this, PpBookmarks ?? []);
+
+         return res;
       }
 
-      public void MthToggleBreakpoint()
-      {
+      public GateDockDocuMarkerBreakpoint? MthToggleBreakpoint()
+      {  
          var ifs = CtrlText.PpScintillaIndicators[GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints].
             Where(i => i.IsIn).
             ToArray();
+         var res = null as GateDockDocuMarkerBreakpoint;
 
          if (ifs.Length > 0)
          {
@@ -480,10 +528,12 @@ namespace Gate.Dock.DockDocu
             {
                var fro = tok.From.NnOrCrash();
 
-               myDoMakeBreakpoint(fro.Line, fro.Col, tok.Length);
+               res = myMakeGateBreakpoint(myDoMakeBreakpoint(fro.Line, fro.Col, tok.Length).NnOrCrash());
                OnBreakpointsChanged?.Invoke(this, PpBreakpoints);
             }
          }
+
+         return res;
       }
 
       public void MthOutlineToggle(int line = -1) => CtrlText.MthOutlineToggle(line);
@@ -520,7 +570,8 @@ namespace Gate.Dock.DockDocu
       /// 
       /// </summary>
       /// <param name="bookmark"></param>
-      private void myDoBookmarkAdd(GateDockDocuMarkerBookmark bookmark) => myDictionaryBookmarkByScintillaMarker[CtrlText.MthScintilaMarkerAdd(bookmark.Line, GateTextMarkerScintillaIdEnum.marker_0_bookmark)] = bookmark;
+      private void myDoBookmarkAdd(GateDockDocuMarkerBookmark bookmark) =>
+         myDictionaryBookmarkByScintillaMarker[CtrlText.MthScintilaMarkerAdd(bookmark.Line, GateTextMarkerScintillaIdEnum.marker_0_bookmark)] = bookmark;
 
       /// <summary>
       /// 
@@ -528,8 +579,9 @@ namespace Gate.Dock.DockDocu
       /// <param name="line"></param>
       /// <param name="col"></param>
       /// <param name="length"></param>
-      private void myDoMakeBreakpoint(int line, int col, int length) => CtrlText.MthIndicatorOn(GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints, line, col, length, Color.Red, 50, 255);
-
+      private IndicatorInfo? myDoMakeBreakpoint(int line, int col, int length) => 
+         CtrlText.MthIndicatorOn(
+            GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints, line, col, length, Color.Red, 50, 255);
 
       /// <summary>
       /// 
@@ -543,6 +595,11 @@ namespace Gate.Dock.DockDocu
          CtrlText.PpCurrLine = line;
          CtrlText.PpCurrCol = col;
       }
+
+      private GateDockDocuMarkerBreakpoint myMakeGateBreakpoint(IndicatorInfo indicator) =>
+         new GateDockDocuMarkerBreakpoint(
+                           this.GetMarkerPath().NnOrCrash(),
+                           indicator.LineStart, indicator.ColStart, indicator.Len);
 
       /// <summary>
       /// Causes update of PpTitle. 
@@ -586,5 +643,7 @@ namespace Gate.Dock.DockDocu
             default: throw new Crash();
          }
       }
+
+      private void CtrlText_OnTextChange(object? sender, EventArgs e) => OnTextChanged(e);
    }
 }

@@ -35,6 +35,11 @@ namespace Gate.Dock.DockDocu
       public string? BookmarkPath { get => myBookmarkPath.Value; set => myBookmarkPath.Value = value; }
 
       /// <summary>
+      /// BookmarkPath is an existing file?
+      /// </summary>
+      public bool IsBookmarkPathExisting => Path.IsPathRooted(BookmarkPath) && File.Exists(BookmarkPath);
+
+      /// <summary>
       /// 
       /// </summary>
       public int Line { get => myLine.Value; set => myLine.Value = value; }

@@ -18,7 +18,6 @@ using static Gate.Tools.AppParams.AppParamLoadSaver;
 
 namespace Gate.Dock.DockApp
 {
-
    /// <summary>
    /// 
    /// </summary>
@@ -227,6 +226,7 @@ namespace Gate.Dock.DockApp
 
             Directory.CreateDirectory(OpenFilesDir);
 
+            //saving file copy onto open files dir
             foreach (var doc in MainForm.PpTabPagesAll.OfType<IGateDockDocu>().Where(d => d.PpDocuPath == ""))
             {
                doc.MthSaveFileCopy(Path.Combine(OpenFilesDir, doc.PpDocuName.Nn()));
@@ -277,8 +277,8 @@ namespace Gate.Dock.DockApp
             Environment.Exit(-1);
          }
 
-         DefaultFormScenario.Load(msg);
          (MarkerHandler ?? throw new Crash()).Load();
+         DefaultFormScenario.Load(msg);
 
          //todo define program log and put err msgs in
 
@@ -296,7 +296,11 @@ namespace Gate.Dock.DockApp
          }
       }
 
-      private void MainForm_OnMainFormClosing(object? sender, GateDockMainFormClosingEventArgs args) => args.IsClose2Confirm = myActionOnClose();
+      private void MainForm_OnMainFormClosing(object? sender, GateDockMainFormClosingEventArgs args)
+      {
+         args.IsClose2Confirm = myActionOnClose();
+         MarkerHandler.Dispose();
+      }
    }
 }
 

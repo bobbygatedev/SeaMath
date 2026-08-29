@@ -232,29 +232,32 @@ namespace Gate.Tools.Text
 
          lst_se = lst_se.OrderBy(s => s.LineIntervalOld0.From).ToList();
 
-         var i0 = lst_se.FirstOrDefault().NnOrCrash();
+         var i0 = lst_se.FirstOrDefault();
          var idx = 1;
 
-         //delete items not in order by LineIntervalNew
-         while (true)
+         if (i0 != null)
          {
-            var i1 = lst_se.ElementAtOrDefault(idx);
+            //delete items not in order by LineIntervalNew
+            while (true)
+            {
+               var i1 = lst_se.ElementAtOrDefault(idx);
 
-            if (i1 == null)
-            {
-               break;
-            }
-            else if(i1.LineIntervalNew1.From <= i0.LineIntervalNew1.From)
-            {
-               lst_se.Remove(i1);
-            }
-            else
-            {
-               i0 = i1;
-               idx++;
+               if (i1 == null)
+               {
+                  break;
+               }
+               else if (i1.LineIntervalNew1.From <= i0.LineIntervalNew1.From)
+               {
+                  lst_se.Remove(i1);
+               }
+               else
+               {
+                  i0 = i1;
+                  idx++;
+               }
             }
          }
-
+      
          myRemoveSubItemRange(Sections);
          myAddSubItemRange(lst_se);
       }

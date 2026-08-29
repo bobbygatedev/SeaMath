@@ -50,7 +50,8 @@ namespace Gate.ToolsView.TextCtrl
       }
 
       public event EventHandler? OnOpenPathChange;
- 
+      public event EventHandler? OnTextChange;
+
       private readonly List<GateTextLineAnnotation> myListAnotation = new List<GateTextLineAnnotation>();
       private readonly List<ScintillaMarkerWrapper> myListMarkerWrappers = new List<ScintillaMarkerWrapper>();
       private readonly CmdManagedByControlImpl[] myCommands;
@@ -111,7 +112,7 @@ namespace Gate.ToolsView.TextCtrl
          PpSelectionBackColor = PpSelectionBackColor;
          PpSelectionForeColor = PpSelectionForeColor;
          myUpdateThread = new InnerUpdateThread(this);
-         myCommands = new CmdManagedByControlImpl[] { new InnerCommands.Cut(this), new InnerCommands.Copy(this), new InnerCommands.Paste(this) };
+         myCommands = [new InnerCommands.Cut(this), new InnerCommands.Copy(this), new InnerCommands.Paste(this)];
          CtrlScrollBarV.PpWheelSensitivityMultiplier = 4;
       }
 
@@ -776,7 +777,7 @@ namespace Gate.ToolsView.TextCtrl
          get => myOpenPath;
          set
          {
-            myOpenPath = (value ?? "").Trim();
+            myOpenPath = value.ExtTrim();
             OnOpenPathChange?.Invoke(this, new EventArgs());
          }
       }
@@ -1315,7 +1316,7 @@ namespace Gate.ToolsView.TextCtrl
       /// <returns></returns>
       public int MthGetLine(int index)
       {
-         if (index <= 0 || index >= PpContentText.Length) { return -1; }
+         if (index < 0 || index >= PpContentText.Length) { return -1; }
          else
          {
             var ln_its = PpLineIntervals;
@@ -1327,7 +1328,7 @@ namespace Gate.ToolsView.TextCtrl
 
             var lst_int = ln_its.LastOrDefault();
 
-            return lst_int.Contains(index) ? ln_its.Length + 1 : throw new Crash();
+            return lst_int.Contains(index) ? ln_its.Length : throw new Crash();
          }
       }
 
@@ -1546,8 +1547,11 @@ namespace Gate.ToolsView.TextCtrl
          else { PpScintilla.Margins[LINE_NUMBER_MARGIN_IDX].Width = 0; }
       }
 
-      private void PpScintilla_TextChanged(object? sender, EventArgs e) =>
+      private void PpScintilla_TextChanged(object? sender, EventArgs e)
+      {
+         OnTextChange?.Invoke(this, new EventArgs());
          myUpdateThread.Enqueue(InnerUpdateThread.FlagsType.text | InnerUpdateThread.FlagsType.fold_zone | InnerUpdateThread.FlagsType.selection);
+      }
 
       private void CtrlScrollBarV_Scroll(object? sender, ScrollEventArgs e) => PpFirstLineVisible = CtrlScrollBarV.Value;
 

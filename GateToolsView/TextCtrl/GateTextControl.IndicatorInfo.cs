@@ -7,7 +7,12 @@ namespace Gate.ToolsView.TextCtrl
    {
       public struct IndicatorInfo
       {
-         public IndicatorInfo(Indicator indicator, int startPos, int endPos, GateTextControl gateTextControl, GateTextIndicatorScintillaIdEnum id)
+         public IndicatorInfo(
+            Indicator indicator,
+            int startPos,
+            int endPos,
+            GateTextControl gateTextControl,
+            GateTextIndicatorScintillaIdEnum id)
          {
             Indicator = indicator;
             StartPos = startPos;
@@ -83,9 +88,9 @@ namespace Gate.ToolsView.TextCtrl
          public int Len => EndPos - StartPos + 1;
 
          /// <summary>
-         /// Whether caret position is inside interval 
+         /// Whether caret position is inside interval
          /// </summary>
-         public bool IsIn => GateTextControl.PpCurrIdx >= StartPos && GateTextControl.PpCurrIdx <= EndPos;
+         public bool IsIn => GateTextControl.PpCurrIdx >= StartPos && GateTextControl.PpCurrIdx <= EndPos + 1;
       }
    }
 }

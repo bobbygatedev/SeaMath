@@ -15,12 +15,17 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
-      event OnBoomarksChangedHandler OnBoomarksChanged;
+      event OnBoomarksChangedHandler OnBookmarksChanged;
 
       /// <summary>
       /// 
       /// </summary>
       event OnSaveHandler? OnSave;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event EventHandler? TextChanged;
 
       /// <summary>
       /// 
@@ -35,6 +40,11 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
+      string PpContentText { get; set; }
+
+      /// <summary>
+      /// 
+      /// </summary>
       GateDockDocuMarkerBreakpoint[]? PpBreakpoints { get; set; }
 
       /// <summary>
@@ -43,9 +53,19 @@ namespace Gate.Dock.DockDocu
       GateDockDocuMarkerBookmark[]? PpBookmarks { get; set; }
 
       /// <summary>
-      /// Tokenb on execution in case a debug session is actives.
+      /// Token on execution in case a debug session is actives.
       /// </summary>
       TxtToken? PpDbgPointCurrent { get; set; }
+
+      /// <summary>
+      /// True when content has saved and has not been modified.
+      /// </summary>
+      bool IsSaved { get; }
+
+      /// <summary>
+      /// Selection token or null when no selection.
+      /// </summary>
+      TxtToken? PpSelection { get; }
 
       /// <summary>
       /// 
@@ -54,14 +74,14 @@ namespace Gate.Dock.DockDocu
       void MthSelectTokenFromOtherControl(TxtToken token);
 
       /// <summary>
-      /// 
+      ///  
       /// </summary>
-      void MthToggleBookmark();
+      GateDockDocuMarkerBookmark? MthToggleBookmark();
 
       /// <summary>
       /// 
       /// </summary>
-      void MthToggleBreakpoint();
+      GateDockDocuMarkerBreakpoint? MthToggleBreakpoint();
 
       /// <summary>
       /// 

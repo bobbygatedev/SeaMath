@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gate.Dock.DockDocu
+﻿namespace Gate.Dock.DockDocu
 {
    /// <summary>
    /// 
@@ -13,7 +11,7 @@ namespace Gate.Dock.DockDocu
       event EventHandler OnDocuPathChange;
 
       /// <summary>
-      ///  document path.
+      /// Document path.
       /// </summary>
       string? PpDocuPath { get; set; }
 

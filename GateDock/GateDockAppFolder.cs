@@ -3,6 +3,6 @@
 
    public static class GateDockAppFolder
    {
-      public static string GetStandard(string appName)=> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName);
+      public static string GetStandard(string appName) => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName);
    }
 }

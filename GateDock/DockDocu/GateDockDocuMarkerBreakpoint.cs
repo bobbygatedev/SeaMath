@@ -29,12 +29,12 @@ namespace Gate.Dock.DockDocu
       public GateDockDocuMarkerBreakpoint() { }
 
       /// <summary>
-      /// Set the position off brekpoint
+      /// Set the position off breakpoint
       /// </summary>
       public abstract class Positioner
       {
          /// <summary>
-         /// Move to first avalaible line
+         /// Move to first available line
          /// </summary>
          public class Standard : Positioner
          {
@@ -80,7 +80,6 @@ namespace Gate.Dock.DockDocu
 
       private readonly Simple<int> myColumn = new Simple<int>();
       private readonly Simple<int> myTextLen = new Simple<int>();
-      private readonly Simple<string> myGuid = new Simple<string>();
       private readonly Simple<int> myLine = new Simple<int>();
       private readonly Simple<string> myBreakpointPath = new Simple<string>();
    }
