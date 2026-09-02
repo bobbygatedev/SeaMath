@@ -7,7 +7,7 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Multithread;
 using Gate.Tools.Text;
 using Gate.ToolsView.Extensions;
-using System.Diagnostics;
+using static Gate.Tools.Text.TxtLineComparer.SectionType;
 
 namespace Gate.Dock.DockDocu
 {
@@ -50,19 +50,24 @@ namespace Gate.Dock.DockDocu
          public IGateDockDocuText TextDocu { get; }
 
          public string CurrentContent { get; set; }
+
+         public GateDockDocuMarkerBookmark[]? CurrentBookmarks { get; set; }
       }
 
       private class InnerChangeItem
       {
-         public InnerChangeItem(IGateDockDocuText? doc, string newContent)
+         public InnerChangeItem(IGateDockDocuText doc)
          {
             Doc = doc;
-            NewContent = newContent;
+            NewContent = doc.PpContentText;
+            PpBookmarks = (doc.PpBookmarks ?? []).Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
          }
 
          public IGateDockDocuText? Doc { get; }
 
          public string NewContent { get; }
+
+         public GateDockDocuMarkerBookmark[] PpBookmarks { get; }
       }
 
       public IGateDockDocuText[] AllDocus => App.MainForm.PpTabPagesAll.OfType<IGateDockDocuText>().ToArray();
@@ -398,41 +403,42 @@ namespace Gate.Dock.DockDocu
             {
                var cmp = new TxtLineComparer();
                var ctr = cng.Doc.ConvertOrCrash<Control>();
-               var new_cnt = null as string;
-               var bks = null as GateDockDocuMarkerBookmark[];
-
-               ctr.MthInvoke(() =>
-               {
-                  new_cnt = cng.NewContent;
-                  bks = itm.TextDocu.PpBookmarks ?? [];
-               });
 
                cmp.Compare(itm.CurrentContent, cng.NewContent);
 
-               foreach (var bok in bks ?? [])
+               var lst_bks = (itm.CurrentBookmarks ?? []).ToList();
+
+               foreach (var bok in itm.CurrentBookmarks ?? [])
                {
-                  var sec = cmp.Sections.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
+                  var sec = 
+                     cmp.Sections.
+                     FirstOrDefault(s => s.LineIntervalOld1.Contains(bok.Line)).NnOrCrash();
 
                   //check in which bookmark line are placed after change
                   //just bookmarks in unmodified section are confirmed
-                  if (!myIsSectionConfirmBookmarks(sec))
+                  if (myIsSectionConfirmBookmarks(sec))
+                  {
+                     bok.Line = sec.LineIntervalNew1.From + (bok.Line - sec.LineIntervalOld1.From);
+                  }
+                  else
                   {
                      //removes bookmark
-                     ctr.MthInvoke(() => 
-                        itm.TextDocu.PpBookmarks = (itm.TextDocu.PpBookmarks ?? []).Except([bok]).ToArray());
+                     lst_bks.Remove(bok);
                   }
                }
 
                itm.CurrentContent = cng.NewContent;
+               itm.CurrentBookmarks = lst_bks.ToArray();
+               ctr.MthInvoke(() => itm.TextDocu.PpBookmarks = lst_bks.ToArray());
             }
          }
       }
 
       private bool myIsSectionConfirmBookmarks(TxtLineComparer.SectionType? section) =>
-         section?.Type == TxtLineComparer.SectionType.TypeEnum.equal || myIsSimpleSectionReplace(section);
+         section?.Type == TypeEnum.equal || myIsSimpleSectionReplace(section);
 
-      private bool myIsSimpleSectionReplace(TxtLineComparer.SectionType? section) => 
-         section?.Type == TxtLineComparer.SectionType.TypeEnum.replace &&
+      private bool myIsSimpleSectionReplace(TxtLineComparer.SectionType? section) =>
+         section?.Type == TypeEnum.replace &&
          section.LineIntervalNew0.Length == 1 &&
          section.LineIntervalOld0.Length == 1 &&
          myIsSimpleLineChange(section.LinesOld[0], section.LinesNew[0]);
@@ -446,7 +452,7 @@ namespace Gate.Dock.DockDocu
       private bool myIsSimpleLineChange(string lineOld, string lineNew)
       {
          var ran = Enumerable.Range(1, Math.Min(lineOld.Length, lineNew.Length)).ToArray();
-         var beg = ran.TakeWhile(i => lineOld[i-1] == lineNew[i-1]).MaxOrDefault();
+         var beg = ran.TakeWhile(i => lineOld[i - 1] == lineNew[i - 1]).MaxOrDefault();
          var end = ran.TakeWhile(i => lineOld[lineOld.Length - i] == lineNew[lineNew.Length - i]).MaxOrDefault();
 
          return beg > 0 || end < 0;
@@ -517,11 +523,16 @@ namespace Gate.Dock.DockDocu
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private void Txt_ctr_OnTextChanged(object? sender, EventArgs e)
       {
          var doc = sender.ConvertOrCrash<IGateDockDocuText>();
 
-         myQueueChange.Produce([new InnerChangeItem(doc, doc.PpContentText)]);
+         myQueueChange.Produce([new InnerChangeItem(doc)]);
       }
 
       private void Txt_ctr_OnSave(object? sender, string path)
@@ -549,7 +560,14 @@ namespace Gate.Dock.DockDocu
       private void TextControl_OnBreakpointsChanged(object? sender, GateDockDocuMarkerBreakpoint[]? breakpoints) =>
          OnBreakpointsChanged?.Invoke(this, Breakpoints);
 
-      private void TextControl_OnBoomarksChanged(object? sender, GateDockDocuMarkerBookmark[]? bookmarks) =>
+      private void TextControl_OnBoomarksChanged(object? sender, GateDockDocuMarkerBookmark[]? bookmarks)
+      {
+         var doc = sender.ConvertOrCrash<IGateDockDocuText>();
+         var itm = myListDocuEntry.FirstOrDefault(d => d.TextDocu == doc).NnOrCrash();
+
+         itm.CurrentBookmarks = (bookmarks ?? []).Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
+
          OnBookmarksChanged?.Invoke(this, Bookmarks);
+      }
    }
 }

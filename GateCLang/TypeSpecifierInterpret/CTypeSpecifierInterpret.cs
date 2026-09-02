@@ -5,6 +5,7 @@ using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 
@@ -161,6 +162,22 @@ namespace Gate.CLanguage.TypeSpecifierInterpret
 
             case UsageId.type_name:
                output.PeekOrCrash<CTypeAlias>(offset).TypeBase = type;
+               break;
+
+            default: throw new Crash();
+         }
+      }
+
+      public static void ClearTypeBase(UsageId usage, CTokenInterpreterOutput output)
+      {
+         switch (usage)
+         {
+            case UsageId.decl_specifier:
+               output.ItemsOnStack.OfType<CDeclSpecifiers>().FirstOrDefault().NnOrCrash().TypeBase = null;
+               break;
+
+            case UsageId.type_name:
+               output.ItemsOnStack.OfType<CTypeAlias>().FirstOrDefault().NnOrCrash().TypeBase = null;
                break;
 
             default: throw new Crash();

@@ -138,9 +138,9 @@ namespace Gate.Tools.AppParams
             }
          }
 
-         public override AppParam GetCopyInstance()
+         public override AppParam MakeInstance(bool isCopy = false)
          {
-            var cpy = base.GetCopyInstance() as NestedContainerArray<PAR_CNT> ?? throw new Crash();
+            var cpy = base.MakeInstance(isCopy).ConvertOrCrash<NestedContainerArray<PAR_CNT>>();
 
             cpy.Flags = Flags;
 

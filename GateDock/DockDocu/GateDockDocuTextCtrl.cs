@@ -350,7 +350,6 @@ namespace Gate.Dock.DockDocu
                //line-2-line comparition
                var old_cnt = CtrlText.PpContentText;
                var new_cnt = File.ReadAllText(PpDocuPath);
-               var old_bks = PpBookmarks ?? [];
 
                if (old_cnt != new_cnt)
                {
@@ -359,7 +358,6 @@ namespace Gate.Dock.DockDocu
                   txt_cmp.Compare(old_cnt, new_cnt);
 
                   var pos = (PpCurrLine, PpCurrCol);
-
                   var old_bps = PpBreakpoints?.ToArray() ?? [];
 
                   CtrlText.PpContentText = new_cnt;
@@ -369,47 +367,10 @@ namespace Gate.Dock.DockDocu
                   {
                      PpCurrLine = pos.PpCurrLine;
                      PpCurrCol = pos.PpCurrCol;
-                     //PpBookmarks = old_bks;
                   }
                   else
                   {
-                     //var eq_sqs = txt_cmp.Sections.
-                     //   Where(s => s.Type == TxtLineComparer.SectionType.TypeEnum.equal).ToArray();
-
-                     //tododo
-                     //var lst_bok = new List<GateDockDocuMarkerBookmark>();
-                     //var lst_bkp = new List<GateDockDocuMarkerBreakpoint>();
-
-                     //foreach (var old_bok in old_bks)
-                     //{
-                     //   var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(old_bok.Line));
-
-                     //   if (eq_sec != null)
-                     //   {
-                     //      lst_bok.Add(new GateDockDocuMarkerBookmark(
-                     //         old_bok.BookmarkPath,
-                     //         old_bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From));
-                     //      lst_bok.Last().Guid = old_bok.Guid;
-                     //   }
-                     //}
-
-                     //foreach (var bok in old_bps)
-                     //{
-                     //   var eq_sec = eq_sqs.FirstOrDefault(s => s.LineIntervalNew1.Contains(bok.Line));
-
-                     //   if (eq_sec != null)
-                     //   {
-                     //      lst_bkp.Add(new GateDockDocuMarkerBreakpoint(
-                     //         bok.BreakpointPath,
-                     //         bok.Line + eq_sec.LineIntervalNew1.From - eq_sec.LineIntervalOld1.From,
-                     //         bok.Column,
-                     //         bok.TextLen));
-                     //   }
-                     //}
-
-                     //PpBookmarks = lst_bok.ToArray();
-                     //PpBreakpoints = lst_bkp.ToArray();
-
+                     //updating line position
                      var sec_pos = txt_cmp.Sections.FirstOrDefault(
                         s => s.LineIntervalOld1.Contains(pos.PpCurrLine)).NnOrCrash();
 

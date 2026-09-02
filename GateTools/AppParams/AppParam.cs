@@ -146,13 +146,23 @@ namespace Gate.Tools.AppParams
       /// </summary>
       public object? Tag { get; set; }
 
-      public virtual AppParam GetCopyInstance()
+      /// <summary>
+      /// Makes a new instance of the same type.
+      /// </summary>
+      /// <param name="isCopy">When true new content is populate using <see cref="CopyTo(AppParam)"/></param>
+      /// <returns></returns>
+      public virtual AppParam MakeInstance(bool isCopy = false)
       {
-         var new_par = myDefaultConstructor.Invoke(new object[0]) as AppParam ?? throw new Crash();
-      
+         var new_par = myDefaultConstructor.Invoke([]).ConvertOrCrash<AppParam>();
+
          new_par.myParamName = ParamName;
          new_par.myParamCaption = ParamCaption;
-      
+
+         if (isCopy)
+         {
+            CopyTo(new_par);
+         }
+
          return new_par;
       }
 
@@ -220,8 +230,8 @@ namespace Gate.Tools.AppParams
          if (ParentItem is AppParam app_par) { app_par.myActionOnAnyChange(this); }
       }
 
-      private ConstructorInfo myCheckForDefaultConstructor() => 
-         GetType().GetConstructor(new Type[0]) ?? 
+      private ConstructorInfo myCheckForDefaultConstructor() =>
+         GetType().GetConstructor(new Type[0]) ??
          throw new Crash($"{GetType().FullName} has not default constructor!");
    }
 }

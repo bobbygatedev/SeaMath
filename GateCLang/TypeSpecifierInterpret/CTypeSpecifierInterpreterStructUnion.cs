@@ -1,9 +1,11 @@
 ﻿using Gate.CLanguage.Compiler;
 using Gate.CLanguage.DeclInterpreter;
+using Gate.CLanguage.DeclSpecifiers;
 using Gate.CLanguage.Expressions;
 using Gate.CLanguage.Interpreter;
 using Gate.CLanguage.Types;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 using static Gate.CLanguage.TypeSpecifierInterpret.CTypeSpecifierInterpret;
@@ -119,7 +121,10 @@ namespace Gate.CLanguage.TypeSpecifierInterpret
 
             var res = myNested(cls, input, inData, ref output, myAnd, NestedMode.once_continue);
 
-            if (res != TxtElabResult.success) { SetOutputTypeBase(Usage, output ?? throw new Crash(), null, 0); }
+            if (res != TxtElabResult.success)
+            {
+               ClearTypeBase(Usage, output);
+            }
 
             return res;
          }

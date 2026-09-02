@@ -405,7 +405,11 @@ namespace Gate.ToolsView.TextCtrl
                   TextControl.MthInvoke(() =>
                   {
                      if ((flg & FlagsType.selection) != 0) { myDoUpdateLabelInfo(); }
-                     if ((flg & FlagsType.text) != 0) { TextControl.myDoUpdateLineNumber(); }
+                     if ((flg & FlagsType.text) != 0)
+                     {
+                        TextControl.myDoUpdateLineNumber();
+                        TextControl.OnTextChange?.Invoke(TextControl, new EventArgs());
+                     }
 
                      TextControl.CtrlScrollBarV.Maximum = TextControl.PpScintilla.Lines.Count;
                      TextControl.CtrlScrollBarV.LargeChange = TextControl.PpScintilla.LinesOnScreen;
@@ -1547,11 +1551,9 @@ namespace Gate.ToolsView.TextCtrl
          else { PpScintilla.Margins[LINE_NUMBER_MARGIN_IDX].Width = 0; }
       }
 
-      private void PpScintilla_TextChanged(object? sender, EventArgs e)
-      {
-         OnTextChange?.Invoke(this, new EventArgs());
-         myUpdateThread.Enqueue(InnerUpdateThread.FlagsType.text | InnerUpdateThread.FlagsType.fold_zone | InnerUpdateThread.FlagsType.selection);
-      }
+      private void PpScintilla_TextChanged(object? sender, EventArgs e) => 
+         myUpdateThread.Enqueue(
+            InnerUpdateThread.FlagsType.text | InnerUpdateThread.FlagsType.fold_zone | InnerUpdateThread.FlagsType.selection);
 
       private void CtrlScrollBarV_Scroll(object? sender, ScrollEventArgs e) => PpFirstLineVisible = CtrlScrollBarV.Value;
 

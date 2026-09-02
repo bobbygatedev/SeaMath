@@ -210,7 +210,7 @@ namespace Gate.Tools.AppParams
 
                   if (oth_par == null)
                   {
-                     oth.myAddSubItem(oth_par = par.GetCopyInstance());
+                     oth.myAddSubItem(oth_par = par.MakeInstance());
                   }
 
                   par.CopyTo(oth_par);

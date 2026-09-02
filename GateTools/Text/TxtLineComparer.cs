@@ -69,8 +69,33 @@ namespace Gate.Tools.Text
             Skip(LineIntervalOld0.From).
             Take(LineIntervalOld0.Length).ToArray();
 
-         public int CompareTo(object? obj) =>
-            obj is SectionType s ? LineIntervalOld0.From.CompareTo(s.LineIntervalOld0.From) : -1;
+         /// <summary>
+         /// Check interval old if both old and new intervals are not empty, otherwise check interval new
+         /// </summary>
+         /// <param name="obj"></param>
+         /// <returns></returns>
+         public int CompareTo(object? obj)
+         {
+            if (obj is SectionType s)
+            {
+               if (LineIntervalOld0.Length > 0 && s.LineIntervalOld0.Length > 0)
+               {
+                  return LineIntervalOld0.From.CompareTo(s.LineIntervalOld0.From);
+               }
+               else if (LineIntervalNew0.Length > 0 && s.LineIntervalNew0.Length > 0)
+               {
+                  return LineIntervalNew1.From.CompareTo(s.LineIntervalNew1.From);
+               }
+               else
+               {
+                  throw new Crash();
+               }
+            }
+            else
+            {
+                throw new Crash("Disallowed comparition");
+            }
+         }
 
          public override string ToString() => DescriptorPlus1;
       }

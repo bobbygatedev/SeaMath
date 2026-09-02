@@ -16,7 +16,7 @@ namespace Gate.SeaMath.Workspace.Libs
    {
       public const string NAME = "StdioFiles";
 
-      public SeaMathLibStdioFiles(SeaMathDbgIde dbgIde) : base(NAME, dbgIde) => Console = dbgIde?.Console ?? throw new Crash();
+      public SeaMathLibStdioFiles(SeaMathDbgIde dbgIde) : base(NAME, dbgIde) => Console = (dbgIde?.Console).NnOrCrash();
 
       public SeaMathConsole Console { get; }
 

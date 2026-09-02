@@ -128,5 +128,7 @@ namespace Gate.Tools.Binary
       }
 
       public BinaryFileSection GetSection(int offset, int length) => new BinaryFileSection(this, offset, length);
+
+      public BinaryFileSection[] SectionsAll => SubItems.OfType<BinaryFileSection>().ToArray();
    }
 }
