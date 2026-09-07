@@ -41,17 +41,38 @@ namespace Gate.Dock.DockDocu
 
       private class InnerDocuEntry
       {
+         private GateDockDocuMarkerBookmark[]? currentBookmarks;
+
          public InnerDocuEntry(IGateDockDocuText doc)
          {
             TextDocu = doc;
-            CurrentContent = doc.PpContentText;
+            //CurrentContent = doc.PpContentText;
          }
 
          public IGateDockDocuText TextDocu { get; }
 
-         public string CurrentContent { get; set; }
+         public string CurrentContent
+         {
+            get
+            {
+               var ctr = TextDocu.ConvertOrCrash<Control>();
 
-         public GateDockDocuMarkerBookmark[]? CurrentBookmarks { get; set; }
+               var cnt = null as string;
+
+               ctr.MthInvoke(() => cnt = TextDocu.PpContentText);
+
+               return cnt.NnOrCrash();
+            }
+         }
+
+         /// <summary>
+         /// tododo
+         /// </summary>
+         public GateDockDocuMarkerBookmark[]? CurrentBookmarks
+         {
+            get => currentBookmarks;
+            set => currentBookmarks = value;
+         }
       }
 
       private class InnerChangeItem
@@ -60,14 +81,14 @@ namespace Gate.Dock.DockDocu
          {
             Doc = doc;
             NewContent = doc.PpContentText;
-            PpBookmarks = (doc.PpBookmarks ?? []).Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
+            Bookmarks = myCloneBookmarks(doc);
          }
 
          public IGateDockDocuText? Doc { get; }
 
          public string NewContent { get; }
 
-         public GateDockDocuMarkerBookmark[] PpBookmarks { get; }
+         public GateDockDocuMarkerBookmark[] Bookmarks { get; }
       }
 
       public IGateDockDocuText[] AllDocus => App.MainForm.PpTabPagesAll.OfType<IGateDockDocuText>().ToArray();
@@ -368,7 +389,10 @@ namespace Gate.Dock.DockDocu
       public void Load()
       {
          myListBookmarkOrderedGuids =
-            App.StateContainer.Params.Bookmarks.Items.Select(i => i.Guid.NnOrCrash()).Distinct().ToList();
+            App.StateContainer.Params.Bookmarks.Items.
+            Select(i => i.Guid.NnOrCrash()).
+            Distinct().
+            ToList();
          myQueueChange.Consumer += myConsume;
       }
 
@@ -377,6 +401,19 @@ namespace Gate.Dock.DockDocu
          mySaveBookmarks();
          mySaveBreakpoints();
       }
+
+      private static GateDockDocuMarkerBookmark[] myCloneBookmarks(IGateDockDocuText doc)
+      {
+         var res = null as GateDockDocuMarkerBookmark[];
+         var ctr = doc.ConvertOrCrash<Control>();
+
+         ctr.MthInvoke(() => res = myCloneBookmarks(doc.PpBookmarks ?? []));
+
+         return res.NnOrCrash();
+      }
+
+      private static GateDockDocuMarkerBookmark[] myCloneBookmarks(IEnumerable<GateDockDocuMarkerBookmark> bookmarks) =>
+         bookmarks.Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
 
       protected override void myFreeManaged() => myQueueChange.Dispose();
 
@@ -395,7 +432,7 @@ namespace Gate.Dock.DockDocu
          //optimization in case of more update regarding a single file just last is considered
          var cns_dat = changeItems.GroupBy(b => b.Doc).Select(g => g.Last()).ToArray();
 
-         foreach (var cng in changeItems)
+         foreach (var cng in cns_dat)
          {
             var itm = myListDocuEntry.FirstOrDefault(d => d.TextDocu == cng.Doc);
 
@@ -406,30 +443,36 @@ namespace Gate.Dock.DockDocu
 
                cmp.Compare(itm.CurrentContent, cng.NewContent);
 
-               var lst_bks = (itm.CurrentBookmarks ?? []).ToList();
+               var lst_bks_rmv = new List<string>();
 
-               foreach (var bok in itm.CurrentBookmarks ?? [])
+               foreach (var bok in cng.Bookmarks)
                {
-                  var sec = 
+                  var sec =
                      cmp.Sections.
                      FirstOrDefault(s => s.LineIntervalOld1.Contains(bok.Line)).NnOrCrash();
 
                   //check in which bookmark line are placed after change
                   //just bookmarks in unmodified section are confirmed
-                  if (myIsSectionConfirmBookmarks(sec))
-                  {
-                     bok.Line = sec.LineIntervalNew1.From + (bok.Line - sec.LineIntervalOld1.From);
-                  }
-                  else
+                  if (!myIsSectionConfirmBookmarks(sec))
                   {
                      //removes bookmark
-                     lst_bks.Remove(bok);
+                     lst_bks_rmv.Add(bok.Guid.NnOrCrash());
                   }
                }
 
-               itm.CurrentContent = cng.NewContent;
-               itm.CurrentBookmarks = lst_bks.ToArray();
-               ctr.MthInvoke(() => itm.TextDocu.PpBookmarks = lst_bks.ToArray());
+               //itm.CurrentContent = cng.NewContent;
+
+               if (lst_bks_rmv.Count > 0)
+               {
+                  var bks = cng.Bookmarks.Where(b => !lst_bks_rmv.Contains(b.Guid.NnOrCrash())).ToArray();
+
+                  ctr.MthInvoke(() => itm.TextDocu.PpBookmarks = bks);
+               }
+               else
+               {
+                  //tododo
+                  //ctr.MthInvoke(() => itm.CurrentBookmarks = itm.TextDocu.PpBookmarks ?? []);
+               }
             }
          }
       }
@@ -510,17 +553,36 @@ namespace Gate.Dock.DockDocu
 
             doc.PpBreakpoints =
                App.StateContainer.Params.Breakpoints.Items.
-               Where(p => p.BreakpointPath == mrk_pth).ToArray();
+               Where(p => p.BreakpointPath == mrk_pth).
+               Select(b => (GateDockDocuMarkerBreakpoint)b.MakeInstance(true)).ToArray();
             doc.PpBookmarks =
-               App.StateContainer.Params.Bookmarks.Items.
-               Where(p => p.BookmarkPath == mrk_pth).ToArray();
+               myCloneBookmarks(
+                  App.StateContainer.Params.Bookmarks.Items.
+                  Where(p => p.BookmarkPath == mrk_pth));
             doc.OnBreakpointsChanged += TextControl_OnBreakpointsChanged;
             doc.OnBookmarksChanged += TextControl_OnBoomarksChanged;
             doc.OnSave += Txt_ctr_OnSave;
             doc.TextChanged += Txt_ctr_OnTextChanged;
+            doc.OnDocumentInsert += Doc_OnDocumentInsert;
+            doc.OnDocumentDelete += Doc_OnDocumentDelete;
 
             myListDocuEntry.Add(new InnerDocuEntry(doc));
+            myListDocuEntry.Last().CurrentBookmarks = myCloneBookmarks(doc);
          }
+      }
+
+      private void Doc_OnDocumentDelete(object? sender, int documentPos, int numCharDeleted)
+      {
+         var doc = sender.ConvertOrCrash<IGateDockDocuText>();
+
+         //doc.PpContentText.SplitLines();
+
+         throw new NotImplementedException();//tododo txtpos among params
+      }
+
+      private void Doc_OnDocumentInsert(object? sender, int documentPos, string insertedText)
+      {
+         //throw new NotImplementedException();//tododo
       }
 
       /// <summary>
@@ -552,6 +614,8 @@ namespace Gate.Dock.DockDocu
             doc.OnBookmarksChanged -= TextControl_OnBoomarksChanged;
             doc.OnSave -= Txt_ctr_OnSave;
             doc.TextChanged -= Txt_ctr_OnTextChanged;
+            doc.OnDocumentInsert -= Doc_OnDocumentInsert;
+            doc.OnDocumentDelete -= Doc_OnDocumentDelete;
             myListDocuEntry.Remove(myListDocuEntry.FirstOrDefault(e => e.TextDocu == doc).NnOrCrash());
             OnBreakpointsChanged?.Invoke(this, Breakpoints);
          }
@@ -565,7 +629,7 @@ namespace Gate.Dock.DockDocu
          var doc = sender.ConvertOrCrash<IGateDockDocuText>();
          var itm = myListDocuEntry.FirstOrDefault(d => d.TextDocu == doc).NnOrCrash();
 
-         itm.CurrentBookmarks = (bookmarks ?? []).Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
+         itm.CurrentBookmarks = myCloneBookmarks(bookmarks ?? []);
 
          OnBookmarksChanged?.Invoke(this, Bookmarks);
       }

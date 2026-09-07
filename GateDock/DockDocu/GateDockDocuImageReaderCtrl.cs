@@ -13,7 +13,6 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// Not used
       /// </summary>
-
 #pragma warning disable CS0067 // #warning directive
       public event EventHandler? OnDocuPathChange;
 #pragma warning restore CS0067 // #warning directive

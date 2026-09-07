@@ -18,6 +18,8 @@ using System.Windows.Forms.Layout;
 namespace Gate.ToolsView.TextCtrl
 {
    public delegate void OnGateTextControlSelectionChangeHandler(GateTextControl sender);
+   public delegate void OnDocumentInsertHandler(object? sender, int documentPos, string insertedText);
+   public delegate void OnDocumentDeleteHandler(object? sender, int documentPos, int numCharDeleted);
 
    /// <summary>
    /// Remember compile as X86 otherwise scintilla goes wrong in find.
@@ -29,6 +31,9 @@ namespace Gate.ToolsView.TextCtrl
       public const int FOLD_MARGIN_IDX = 2;
 
       private event OnCmdStateUpdateHandler? myOnCmdStateUpdate;
+
+      public event OnDocumentInsertHandler OnDocumentInsert;
+      public event OnDocumentDeleteHandler OnDocumentDelete;
 
       public event EventHandler<EventArgs> OnSavePointLeft
       {
@@ -89,6 +94,8 @@ namespace Gate.ToolsView.TextCtrl
          PpScintilla.HScrollBar = false;
          PpScintilla.BorderStyle = BorderStyle.None;
          PpScintilla.UpdateUI += Scintilla_UpdateUI;
+         PpScintilla.Insert += PpScintilla_Insert;
+         PpScintilla.Delete += PpScintilla_Delete;
 
          PpScintillaStyles = new GateTextStyle.Collection(PpScintilla);
          PpAnnotationMode = GateTextAnnotationMode.boxed;
@@ -114,6 +121,20 @@ namespace Gate.ToolsView.TextCtrl
          myUpdateThread = new InnerUpdateThread(this);
          myCommands = [new InnerCommands.Cut(this), new InnerCommands.Copy(this), new InnerCommands.Paste(this)];
          CtrlScrollBarV.PpWheelSensitivityMultiplier = 4;
+      }
+
+      private void PpScintilla_Delete(object? sender, ModificationEventArgs e)
+      {
+         OnDocumentDelete?.Invoke(sender, e.Position, e.Text.Length);
+
+         int a = 2;//throw new NotImplementedException();//tododo 
+      }
+
+      private void PpScintilla_Insert(object? sender, ModificationEventArgs e)
+      {
+         OnDocumentInsert?.Invoke(sender,e.Position,e.Text);
+
+         int a = 2;//throw new NotImplementedException();//tododo
       }
 
       private class InnerUpdateThread : IDisposable

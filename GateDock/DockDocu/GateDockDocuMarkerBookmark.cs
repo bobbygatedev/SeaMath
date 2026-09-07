@@ -60,3 +60,4 @@ namespace Gate.Dock.DockDocu
       private readonly Simple<int> myLine = new Simple<int>("Line", null);
    }
 }
+   

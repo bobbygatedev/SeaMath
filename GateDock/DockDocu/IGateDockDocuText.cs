@@ -1,4 +1,5 @@
 ﻿using Gate.Tools.Text;
+using Gate.ToolsView.TextCtrl;
 
 namespace Gate.Dock.DockDocu
 {
@@ -10,12 +11,12 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
-      event OnBreakpointsChangedHandler OnBreakpointsChanged;
+      event OnBreakpointsChangedHandler? OnBreakpointsChanged;
       
       /// <summary>
       /// 
       /// </summary>
-      event OnBoomarksChangedHandler OnBookmarksChanged;
+      event OnBoomarksChangedHandler? OnBookmarksChanged;
 
       /// <summary>
       /// 
@@ -26,6 +27,16 @@ namespace Gate.Dock.DockDocu
       /// 
       /// </summary>
       event EventHandler? TextChanged;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event OnDocumentInsertHandler? OnDocumentInsert;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event OnDocumentDeleteHandler? OnDocumentDelete;
 
       /// <summary>
       /// 

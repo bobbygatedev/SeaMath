@@ -32,6 +32,8 @@ namespace Gate.Dock.DockDocu
       public event OnBoomarksChangedHandler? OnBookmarksChanged;
       public event OnSaveHandler? OnSave;
       public event OnSaveHandler? OnSaveCopy;
+      public event OnDocumentInsertHandler? OnDocumentInsert;
+      public event OnDocumentDeleteHandler? OnDocumentDelete;
 
       private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
          myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
@@ -57,6 +59,8 @@ namespace Gate.Dock.DockDocu
          CtrlText.PpScintillaMarkers[GateTextMarkerScintillaIdEnum.marker_0_bookmark].SetBackColor(Color.Blue);
          CtrlText.PpToolWinGoto.AddFeature<GateDockToolWinFeature>();
          CtrlText.OnTextChange += CtrlText_OnTextChange;
+         CtrlText.OnDocumentInsert += (s, p, it) => OnDocumentInsert?.Invoke(this, p, it);
+         CtrlText.OnDocumentDelete += (s, p, ncd) => OnDocumentDelete?.Invoke(this, p, ncd);
       }
 
       public class SkinChildCtrlDispactherForText : GateDockTabPageCtrlSkinDispacther
@@ -116,7 +120,7 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
-      public string PpContentText { get => CtrlText.PpContentText; set=> CtrlText.PpContentText = value; }
+      public string PpContentText { get => CtrlText.PpContentText; set => CtrlText.PpContentText = value; }
 
       /// <summary>
       /// 
@@ -469,7 +473,7 @@ namespace Gate.Dock.DockDocu
       }
 
       public GateDockDocuMarkerBreakpoint? MthToggleBreakpoint()
-      {  
+      {
          var ifs = CtrlText.PpScintillaIndicators[GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints].
             Where(i => i.IsIn).
             ToArray();
@@ -540,7 +544,7 @@ namespace Gate.Dock.DockDocu
       /// <param name="line"></param>
       /// <param name="col"></param>
       /// <param name="length"></param>
-      private IndicatorInfo? myDoMakeBreakpoint(int line, int col, int length) => 
+      private IndicatorInfo? myDoMakeBreakpoint(int line, int col, int length) =>
          CtrlText.MthIndicatorOn(
             GateTextIndicatorScintillaIdEnum.indicator_9_breakpoints, line, col, length, Color.Red, 50, 255);
 
