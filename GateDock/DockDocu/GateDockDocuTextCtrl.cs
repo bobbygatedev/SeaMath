@@ -22,6 +22,8 @@ namespace Gate.Dock.DockDocu
    public delegate void OnBreakpointsChangedHandler(object? sender, GateDockDocuMarkerBreakpoint[]? breakpoints);
    public delegate void OnBoomarksChangedHandler(object? sender, GateDockDocuMarkerBookmark[]? bookmarks);
    public delegate void OnSaveHandler(object? sender, string path);
+   public delegate void OnReopenHandler(object? sender, TxtLineComparer lineComparer);
+   public delegate void OnBeforeReopenHandler(object? sender, string oldContent, string newContent);
 
    /// <summary>
    /// 
@@ -31,22 +33,26 @@ namespace Gate.Dock.DockDocu
       public event OnBreakpointsChangedHandler? OnBreakpointsChanged;
       public event OnBoomarksChangedHandler? OnBookmarksChanged;
       public event OnSaveHandler? OnSave;
+      public event OnReopenHandler? OnReopen;
+      public event OnBeforeReopenHandler? OnBeforeReopen;
       public event OnSaveHandler? OnSaveCopy;
       public event OnDocumentInsertHandler? OnDocumentInsert;
       public event OnDocumentDeleteHandler? OnDocumentDelete;
-
-      private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
-         myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
-      private readonly FileChangeObserver myFileChangeObserver = new FileChangeObserver();
-      private string? myDocuName = "";
-      private TxtToken? myExecutionToken;
-
+      public event OnDocumentBeforeInsertHandler? OnDocumentBeforeInsert;
+      public event OnDocumentBeforeDeleteHandler? OnDocumentBeforeDelete;
       public event EventHandler OnDocuPathChange
       {
          add { CtrlText.OnOpenPathChange += value; }
 
          remove { CtrlText.OnOpenPathChange -= value; }
       }
+
+      private readonly Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>
+         myDictionaryBookmarkByScintillaMarker = new Dictionary<ScintillaMarkerWrapper, GateDockDocuMarkerBookmark>();
+      private readonly FileChangeObserver myFileChangeObserver = new FileChangeObserver();
+      private string? myDocuName = "";
+      private TxtToken? myExecutionToken;
+      private string[]? myBookmarksGuids = null;
 
       public GateDockDocuTextCtrl()
       {
@@ -59,8 +65,60 @@ namespace Gate.Dock.DockDocu
          CtrlText.PpScintillaMarkers[GateTextMarkerScintillaIdEnum.marker_0_bookmark].SetBackColor(Color.Blue);
          CtrlText.PpToolWinGoto.AddFeature<GateDockToolWinFeature>();
          CtrlText.OnTextChange += CtrlText_OnTextChange;
-         CtrlText.OnDocumentInsert += (s, p, it) => OnDocumentInsert?.Invoke(this, p, it);
-         CtrlText.OnDocumentDelete += (s, p, ncd) => OnDocumentDelete?.Invoke(this, p, ncd);
+         CtrlText.OnDocumentInsert += (s, i, txt) => OnDocumentInsert?.Invoke(this, i, txt);
+         CtrlText.OnDocumentBeforeInsert += (s, p, fro, it) => OnDocumentBeforeInsert?.Invoke(this, p, fro, it);
+         CtrlText.OnDocumentBeforeDelete += CtrlText_OnDocumentBeforeDelete;
+         CtrlText.OnDocumentDelete += CtrlText_OnDocumentDelete;
+      }
+
+      private void CtrlText_OnDocumentDelete(object? sender, int documentIndex, int numCharDeleted, string? deletedText)
+      {
+         var bks = myBookmarksGuids ?? [];
+
+         foreach (var bok in bks)
+         {
+            var mrk =
+               myDictionaryBookmarkByScintillaMarker.FirstOrDefault(kv => kv.Value.Guid == bok);
+
+            myDictionaryBookmarkByScintillaMarker.Remove(mrk.Key);
+            CtrlText.MthScintillaMarkerDelete(mrk.Key);
+         }
+
+         myBookmarksGuids = null;
+         OnDocumentDelete?.Invoke(this, documentIndex, numCharDeleted, deletedText);
+      }
+
+      private void CtrlText_OnDocumentBeforeDelete(
+         object? sender, int documentIndex, int numCharDeleted, TxtPos deleteFrom, TxtPos deleteTo)
+      {
+         var fl = myGetFullLineDeletion(deleteFrom,deleteTo,documentIndex);
+
+         if (fl.Length > 0)
+         {
+            var bks = (PpBookmarks ?? []).Where(m => m.Line >= fl[0] && m.Line <= fl.Last()).ToArray();
+
+            myBookmarksGuids = bks.Select(b => b.Guid.NnOrCrash()).ToArray();
+         }
+
+         OnDocumentBeforeDelete?.Invoke(this, documentIndex, numCharDeleted, deleteFrom, deleteTo);
+      }
+
+      private int[] myGetFullLineDeletion(TxtPos deleteFrom, TxtPos deleteTo, int documentIndex)
+      {
+         var y = CtrlText.PpLineIntervals;
+         var lns = Enumerable.Range(deleteFrom.Line, deleteTo.Line - deleteFrom.Line + 1).ToArray();
+
+         if (deleteFrom.Col > 1)
+         {
+            lns = lns.Except([lns[0]]).ToArray();
+         }
+
+         if (lns.Length > 0)
+         {
+            lns = lns.Except([lns.Last()]).ToArray();
+         }
+
+         return lns;
       }
 
       public class SkinChildCtrlDispactherForText : GateDockTabPageCtrlSkinDispacther
@@ -359,6 +417,7 @@ namespace Gate.Dock.DockDocu
                {
                   var txt_cmp = new TxtLineComparer();
 
+                  OnBeforeReopen?.Invoke(this, old_cnt, new_cnt);
                   txt_cmp.Compare(old_cnt, new_cnt);
 
                   var pos = (PpCurrLine, PpCurrCol);
@@ -391,10 +450,11 @@ namespace Gate.Dock.DockDocu
                         PpCurrCol = 1;
                      }
                   }
+
+                  //raises reopen event
+                  OnReopen?.Invoke(this, txt_cmp);
                }
 
-               //raises save event
-               OnSave?.Invoke(this, PpDocuPath);
 
                return true;
             }

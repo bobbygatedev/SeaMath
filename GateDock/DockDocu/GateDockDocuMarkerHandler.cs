@@ -7,6 +7,7 @@ using Gate.Tools.Extensions;
 using Gate.Tools.Multithread;
 using Gate.Tools.Text;
 using Gate.ToolsView.Extensions;
+using System.Runtime.ConstrainedExecution;
 using static Gate.Tools.Text.TxtLineComparer.SectionType;
 
 namespace Gate.Dock.DockDocu
@@ -27,68 +28,15 @@ namespace Gate.Dock.DockDocu
       public event OnBreakpointsChangedHandler? OnBreakpointsChanged;
       public event OnBoomarksChangedHandler? OnBookmarksChanged;
 
-      private readonly List<InnerDocuEntry> myListDocuEntry = new List<InnerDocuEntry>();
-      private readonly QueueSafeThread<InnerChangeItem> myQueueChange = new QueueSafeThread<InnerChangeItem>(1024);
-
       private List<string> myListBookmarkOrderedGuids = new List<string>();
       private GateDockDocuMarkerBookmark? myBookmarkCurrent;
+      private Dictionary<IGateDockDocuText, GateDockDocuMarkerBookmark[]> myDictBookmarks =
+         new Dictionary<IGateDockDocuText, GateDockDocuMarkerBookmark[]>();
 
       public GateDockDocuMarkerHandler(GateDockApp app)
       {
          (App = app).MainForm.OnTabPageOpen += MainForm_OnTabPageOpen;
          app.MainForm.OnTabPageClosing += MainForm_OnTabPageClosing;
-      }
-
-      private class InnerDocuEntry
-      {
-         private GateDockDocuMarkerBookmark[]? currentBookmarks;
-
-         public InnerDocuEntry(IGateDockDocuText doc)
-         {
-            TextDocu = doc;
-            //CurrentContent = doc.PpContentText;
-         }
-
-         public IGateDockDocuText TextDocu { get; }
-
-         public string CurrentContent
-         {
-            get
-            {
-               var ctr = TextDocu.ConvertOrCrash<Control>();
-
-               var cnt = null as string;
-
-               ctr.MthInvoke(() => cnt = TextDocu.PpContentText);
-
-               return cnt.NnOrCrash();
-            }
-         }
-
-         /// <summary>
-         /// tododo
-         /// </summary>
-         public GateDockDocuMarkerBookmark[]? CurrentBookmarks
-         {
-            get => currentBookmarks;
-            set => currentBookmarks = value;
-         }
-      }
-
-      private class InnerChangeItem
-      {
-         public InnerChangeItem(IGateDockDocuText doc)
-         {
-            Doc = doc;
-            NewContent = doc.PpContentText;
-            Bookmarks = myCloneBookmarks(doc);
-         }
-
-         public IGateDockDocuText? Doc { get; }
-
-         public string NewContent { get; }
-
-         public GateDockDocuMarkerBookmark[] Bookmarks { get; }
       }
 
       public IGateDockDocuText[] AllDocus => App.MainForm.PpTabPagesAll.OfType<IGateDockDocuText>().ToArray();
@@ -386,15 +334,11 @@ namespace Gate.Dock.DockDocu
          OnBreakpointsChanged?.Invoke(this, Breakpoints);
       }
 
-      public void Load()
-      {
-         myListBookmarkOrderedGuids =
+      public void Load() => myListBookmarkOrderedGuids =
             App.StateContainer.Params.Bookmarks.Items.
             Select(i => i.Guid.NnOrCrash()).
             Distinct().
             ToList();
-         myQueueChange.Consumer += myConsume;
-      }
 
       public void ActionOnClosing()
       {
@@ -415,7 +359,7 @@ namespace Gate.Dock.DockDocu
       private static GateDockDocuMarkerBookmark[] myCloneBookmarks(IEnumerable<GateDockDocuMarkerBookmark> bookmarks) =>
          bookmarks.Select(b => (GateDockDocuMarkerBookmark)b.MakeInstance(true)).ToArray();
 
-      protected override void myFreeManaged() => myQueueChange.Dispose();
+      protected override void myFreeManaged() { }
 
       protected override void myFreeUnmanaged() { }
 
@@ -425,56 +369,6 @@ namespace Gate.Dock.DockDocu
 
          App.StateContainer.Params.Breakpoints.Clear();
          App.StateContainer.Params.Breakpoints.AddParams(b2s);
-      }
-
-      private void myConsume(QueueSafeThread<InnerChangeItem> queueSafe, InnerChangeItem[] changeItems)
-      {
-         //optimization in case of more update regarding a single file just last is considered
-         var cns_dat = changeItems.GroupBy(b => b.Doc).Select(g => g.Last()).ToArray();
-
-         foreach (var cng in cns_dat)
-         {
-            var itm = myListDocuEntry.FirstOrDefault(d => d.TextDocu == cng.Doc);
-
-            if (itm != null)
-            {
-               var cmp = new TxtLineComparer();
-               var ctr = cng.Doc.ConvertOrCrash<Control>();
-
-               cmp.Compare(itm.CurrentContent, cng.NewContent);
-
-               var lst_bks_rmv = new List<string>();
-
-               foreach (var bok in cng.Bookmarks)
-               {
-                  var sec =
-                     cmp.Sections.
-                     FirstOrDefault(s => s.LineIntervalOld1.Contains(bok.Line)).NnOrCrash();
-
-                  //check in which bookmark line are placed after change
-                  //just bookmarks in unmodified section are confirmed
-                  if (!myIsSectionConfirmBookmarks(sec))
-                  {
-                     //removes bookmark
-                     lst_bks_rmv.Add(bok.Guid.NnOrCrash());
-                  }
-               }
-
-               //itm.CurrentContent = cng.NewContent;
-
-               if (lst_bks_rmv.Count > 0)
-               {
-                  var bks = cng.Bookmarks.Where(b => !lst_bks_rmv.Contains(b.Guid.NnOrCrash())).ToArray();
-
-                  ctr.MthInvoke(() => itm.TextDocu.PpBookmarks = bks);
-               }
-               else
-               {
-                  //tododo
-                  //ctr.MthInvoke(() => itm.CurrentBookmarks = itm.TextDocu.PpBookmarks ?? []);
-               }
-            }
-         }
       }
 
       private bool myIsSectionConfirmBookmarks(TxtLineComparer.SectionType? section) =>
@@ -513,7 +407,6 @@ namespace Gate.Dock.DockDocu
             Select(g => bok_grs.TryGetValue(g, out var v) ? v : null).
             Nn().ToArray();
          var bmk_oth = bookmarks.Except(bmk_ord).ToArray();
-
          var res = bmk_ord.Concat(bmk_oth).ToArray();
 
          myListBookmarkOrderedGuids = res.Select(i => i.Guid.NnOrCrash()).ToList();
@@ -562,39 +455,45 @@ namespace Gate.Dock.DockDocu
             doc.OnBreakpointsChanged += TextControl_OnBreakpointsChanged;
             doc.OnBookmarksChanged += TextControl_OnBoomarksChanged;
             doc.OnSave += Txt_ctr_OnSave;
-            doc.TextChanged += Txt_ctr_OnTextChanged;
-            doc.OnDocumentInsert += Doc_OnDocumentInsert;
-            doc.OnDocumentDelete += Doc_OnDocumentDelete;
-
-            myListDocuEntry.Add(new InnerDocuEntry(doc));
-            myListDocuEntry.Last().CurrentBookmarks = myCloneBookmarks(doc);
+            doc.OnReopen += Doc_OnReopen;
+            doc.OnBeforeReopen += Doc_OnBeforeReopen;
          }
       }
 
-      private void Doc_OnDocumentDelete(object? sender, int documentPos, int numCharDeleted)
+      private void Doc_OnBeforeReopen(object? sender, string oldContent, string newContent)
       {
          var doc = sender.ConvertOrCrash<IGateDockDocuText>();
 
-         //doc.PpContentText.SplitLines();
-
-         throw new NotImplementedException();//tododo txtpos among params
+         myDictBookmarks[doc] = myCloneBookmarks(doc);
       }
 
-      private void Doc_OnDocumentInsert(object? sender, int documentPos, string insertedText)
-      {
-         //throw new NotImplementedException();//tododo
-      }
-
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="sender"></param>
-      /// <param name="e"></param>
-      private void Txt_ctr_OnTextChanged(object? sender, EventArgs e)
+      private void Doc_OnReopen(object? sender, TxtLineComparer lineComparer)
       {
          var doc = sender.ConvertOrCrash<IGateDockDocuText>();
+         var bks = myDictBookmarks.TryGetValue(doc, out var b) ? b : myCloneBookmarks(doc);
 
-         myQueueChange.Produce([new InnerChangeItem(doc)]);
+         myDictBookmarks.Remove(doc);
+
+         var lst_bks = new List<GateDockDocuMarkerBookmark>();
+
+         foreach (var bok in bks)
+         {
+            var sec =
+               lineComparer.Sections.
+               FirstOrDefault(s => s.LineIntervalOld1.Contains(bok.Line)).NnOrCrash();
+
+            //check in which bookmark line are placed after change
+            //just bookmarks in unmodified section are confirmed
+            if (myIsSectionConfirmBookmarks(sec))
+            {
+               //confirm bookmark
+               bok.Line = sec.LineIntervalNew1.From + (bok.Line - sec.LineIntervalOld1.From);
+               lst_bks.Add(bok);
+            }
+         }
+
+         doc.PpBookmarks = lst_bks.ToArray();
+         mySaveBookmarks();
       }
 
       private void Txt_ctr_OnSave(object? sender, string path)
@@ -613,10 +512,9 @@ namespace Gate.Dock.DockDocu
             doc.OnBreakpointsChanged -= TextControl_OnBreakpointsChanged;
             doc.OnBookmarksChanged -= TextControl_OnBoomarksChanged;
             doc.OnSave -= Txt_ctr_OnSave;
-            doc.TextChanged -= Txt_ctr_OnTextChanged;
-            doc.OnDocumentInsert -= Doc_OnDocumentInsert;
-            doc.OnDocumentDelete -= Doc_OnDocumentDelete;
-            myListDocuEntry.Remove(myListDocuEntry.FirstOrDefault(e => e.TextDocu == doc).NnOrCrash());
+            doc.OnReopen -= Doc_OnReopen;
+            doc.OnBeforeReopen -= Doc_OnBeforeReopen;
+
             OnBreakpointsChanged?.Invoke(this, Breakpoints);
          }
       }
@@ -624,14 +522,7 @@ namespace Gate.Dock.DockDocu
       private void TextControl_OnBreakpointsChanged(object? sender, GateDockDocuMarkerBreakpoint[]? breakpoints) =>
          OnBreakpointsChanged?.Invoke(this, Breakpoints);
 
-      private void TextControl_OnBoomarksChanged(object? sender, GateDockDocuMarkerBookmark[]? bookmarks)
-      {
-         var doc = sender.ConvertOrCrash<IGateDockDocuText>();
-         var itm = myListDocuEntry.FirstOrDefault(d => d.TextDocu == doc).NnOrCrash();
-
-         itm.CurrentBookmarks = myCloneBookmarks(bookmarks ?? []);
-
+      private void TextControl_OnBoomarksChanged(object? sender, GateDockDocuMarkerBookmark[]? bookmarks) => 
          OnBookmarksChanged?.Invoke(this, Bookmarks);
-      }
    }
 }

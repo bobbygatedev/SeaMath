@@ -12,7 +12,7 @@ namespace Gate.Dock.DockDocu
       /// 
       /// </summary>
       event OnBreakpointsChangedHandler? OnBreakpointsChanged;
-      
+
       /// <summary>
       /// 
       /// </summary>
@@ -36,7 +36,27 @@ namespace Gate.Dock.DockDocu
       /// <summary>
       /// 
       /// </summary>
+      event OnDocumentBeforeInsertHandler? OnDocumentBeforeInsert;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event OnDocumentBeforeDeleteHandler? OnDocumentBeforeDelete;
+
+      /// <summary>
+      /// 
+      /// </summary>
       event OnDocumentDeleteHandler? OnDocumentDelete;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event OnReopenHandler? OnReopen;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      event OnBeforeReopenHandler? OnBeforeReopen;
 
       /// <summary>
       /// 

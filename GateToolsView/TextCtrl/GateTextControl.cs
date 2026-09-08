@@ -18,8 +18,14 @@ using System.Windows.Forms.Layout;
 namespace Gate.ToolsView.TextCtrl
 {
    public delegate void OnGateTextControlSelectionChangeHandler(GateTextControl sender);
-   public delegate void OnDocumentInsertHandler(object? sender, int documentPos, string insertedText);
-   public delegate void OnDocumentDeleteHandler(object? sender, int documentPos, int numCharDeleted);
+   public delegate void OnDocumentBeforeInsertHandler(
+      object? sender, int documentIndex, TxtPos insertFrom, string insertedText);
+   public delegate void OnDocumentInsertHandler(
+      object? sender, int documentIndex, string insertedText);
+   public delegate void OnDocumentDeleteHandler(
+      object? sender, int documentIndex, int numCharDeleted, string? deletedText);
+   public delegate void OnDocumentBeforeDeleteHandler(
+      object? sender, int documentIndex, int numCharDeleted, TxtPos deleteFrom, TxtPos deleteTo);
 
    /// <summary>
    /// Remember compile as X86 otherwise scintilla goes wrong in find.
@@ -32,8 +38,10 @@ namespace Gate.ToolsView.TextCtrl
 
       private event OnCmdStateUpdateHandler? myOnCmdStateUpdate;
 
-      public event OnDocumentInsertHandler OnDocumentInsert;
-      public event OnDocumentDeleteHandler OnDocumentDelete;
+      public event OnDocumentInsertHandler? OnDocumentInsert;
+      public event OnDocumentBeforeInsertHandler? OnDocumentBeforeInsert;
+      public event OnDocumentDeleteHandler? OnDocumentDelete;
+      public event OnDocumentBeforeDeleteHandler? OnDocumentBeforeDelete;
 
       public event EventHandler<EventArgs> OnSavePointLeft
       {
@@ -96,6 +104,8 @@ namespace Gate.ToolsView.TextCtrl
          PpScintilla.UpdateUI += Scintilla_UpdateUI;
          PpScintilla.Insert += PpScintilla_Insert;
          PpScintilla.Delete += PpScintilla_Delete;
+         PpScintilla.BeforeDelete += PpScintilla_BeforeDelete;
+         PpScintilla.BeforeInsert += PpScintilla_BeforeInsert;
 
          PpScintillaStyles = new GateTextStyle.Collection(PpScintilla);
          PpAnnotationMode = GateTextAnnotationMode.boxed;
@@ -121,20 +131,6 @@ namespace Gate.ToolsView.TextCtrl
          myUpdateThread = new InnerUpdateThread(this);
          myCommands = [new InnerCommands.Cut(this), new InnerCommands.Copy(this), new InnerCommands.Paste(this)];
          CtrlScrollBarV.PpWheelSensitivityMultiplier = 4;
-      }
-
-      private void PpScintilla_Delete(object? sender, ModificationEventArgs e)
-      {
-         OnDocumentDelete?.Invoke(sender, e.Position, e.Text.Length);
-
-         int a = 2;//throw new NotImplementedException();//tododo 
-      }
-
-      private void PpScintilla_Insert(object? sender, ModificationEventArgs e)
-      {
-         OnDocumentInsert?.Invoke(sender,e.Position,e.Text);
-
-         int a = 2;//throw new NotImplementedException();//tododo
       }
 
       private class InnerUpdateThread : IDisposable
@@ -521,7 +517,7 @@ namespace Gate.ToolsView.TextCtrl
 
                   return ln_its;
                }
-               else { return myLineIntervals ?? TextControl.PpContentText.GetLineIntervals(); ; }
+               else { return myLineIntervals ?? TextControl.PpContentText.GetLineIntervals(); }
             }
          }
 
@@ -1341,7 +1337,7 @@ namespace Gate.ToolsView.TextCtrl
       /// <returns></returns>
       public int MthGetLine(int index)
       {
-         if (index < 0 || index >= PpContentText.Length) { return -1; }
+         if (index < 0 || index > PpContentText.Length) { return -1; }
          else
          {
             var ln_its = PpLineIntervals;
@@ -1353,7 +1349,34 @@ namespace Gate.ToolsView.TextCtrl
 
             var lst_int = ln_its.LastOrDefault();
 
+            lst_int = Interval.FromFromLen(lst_int.From, lst_int.Length + 1);
+
             return lst_int.Contains(index) ? ln_its.Length : throw new Crash();
+         }
+      }
+
+      public TxtPos? MthGetTxtPos(int index)
+      {
+         var txt = PpContentText;
+
+         if (index < 0 || index > PpContentText.Length) { return null; }
+         else
+         {
+            var ln_its = PpLineIntervals;
+
+            for (var i = 0; i < ln_its.Length - 1; i++)
+            {
+               if (index >= ln_its[i].From && index < ln_its[i + 1].From)
+               {
+                  return new TxtPos(i + 1, index - ln_its[i].From + 1);
+               }
+            }
+
+            var lst_int = ln_its.LastOrDefault();
+
+            lst_int = Interval.FromFromLen(lst_int.From, lst_int.Length + 1);
+
+            return lst_int.Contains(index) ? new TxtPos(ln_its.Length, index - lst_int.From + 1) : throw new Crash();
          }
       }
 
@@ -1378,6 +1401,8 @@ namespace Gate.ToolsView.TextCtrl
             }
 
             var lst_int = ln_its.Last();
+
+            lst_int = Interval.FromFromLen(lst_int.From, lst_int.Length + 1);
 
             return lst_int.Contains(index) ? index - lst_int.From + 1 : throw new Crash();
          }
@@ -1572,7 +1597,7 @@ namespace Gate.ToolsView.TextCtrl
          else { PpScintilla.Margins[LINE_NUMBER_MARGIN_IDX].Width = 0; }
       }
 
-      private void PpScintilla_TextChanged(object? sender, EventArgs e) => 
+      private void PpScintilla_TextChanged(object? sender, EventArgs e) =>
          myUpdateThread.Enqueue(
             InnerUpdateThread.FlagsType.text | InnerUpdateThread.FlagsType.fold_zone | InnerUpdateThread.FlagsType.selection);
 
@@ -1585,6 +1610,27 @@ namespace Gate.ToolsView.TextCtrl
       private void Scintilla_UpdateUI(object? sender, UpdateUIEventArgs e) => myUpdateThread?.OnScintillaUpdateUi(e.Change);
 
       private void PpScintilla_MarginClick(object? sender, MarginClickEventArgs e) => MthOutlineToggle(MthGetLine(e.Position) - 1);
+
+      private void PpScintilla_BeforeInsert(object? sender, BeforeModificationEventArgs e)
+      {
+         var ins_fro = MthGetTxtPos(e.Position).NnOrCrash();
+
+         OnDocumentBeforeInsert?.Invoke(sender, e.Position, ins_fro, e.Text);
+      }
+
+      private void PpScintilla_BeforeDelete(object? sender, BeforeModificationEventArgs e)
+      {
+         var del_fro = MthGetTxtPos(e.Position).NnOrCrash();
+         var del_to = MthGetTxtPos(e.Position + e.Text.Length).NnOrCrash();
+
+         OnDocumentBeforeDelete?.Invoke(sender, e.Position, e.Text.Length, del_fro, del_to);
+      }
+
+      private void PpScintilla_Delete(object? sender, ModificationEventArgs e) =>
+         OnDocumentDelete?.Invoke(sender, e.Position, e.Text.Length, e.Text);
+
+      private void PpScintilla_Insert(object? sender, ModificationEventArgs e) => 
+         OnDocumentInsert?.Invoke(sender, e.Position, e.Text);
    }
 }
 

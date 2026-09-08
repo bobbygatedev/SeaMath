@@ -1,5 +1,4 @@
 ﻿using ScintillaNET;
-using System;
 
 namespace Gate.ToolsView.TextCtrl
 {
