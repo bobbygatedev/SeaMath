@@ -785,7 +785,9 @@ namespace Gate.ToolsView.ConIO
          {
             PromptString = (promptString ?? PromptString).ExtTrim();
             MoveToNextCleanLine();
+
             var cur_pos = ConsoleController.IControl.CurrentPos;
+
             ConsoleController.IControl.CurrentPos = new TxtPos(cur_pos.Line, 1);
             ConsoleController.IControl.Insert2CurrentPos(PromptString);
          });

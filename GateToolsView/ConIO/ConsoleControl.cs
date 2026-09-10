@@ -1,4 +1,5 @@
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.Tools.Text;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
@@ -351,8 +352,12 @@ namespace Gate.ToolsView.ConIO
 
             if (line1 > myTxtStore.LineCount)
             {
-               myTxtStore.AddLines(Enumerable.Range(0, line1-myTxtStore.LineCount).Select(_=>"").ToArray());   
-               ln = myTxtStore.Lines[line1 - 1];
+               myTxtStore.AddLines(Enumerable.Range(0, line1-myTxtStore.LineCount).Select(_=>"").ToArray());
+
+               if (!myTxtStore.Content.IsEmpty())
+               {
+                  ln = myTxtStore.Lines[line1 - 1];
+               }
             }
             else
             {

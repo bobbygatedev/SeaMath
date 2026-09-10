@@ -96,13 +96,18 @@ namespace Gate.ToolsView.ConIO
          {
             myIsPromptPossible = false;
 
-            if (Conio.ReadLineLine != null)//console prompt is re-taking control
+            var con_rl = Conio.ReadLineLine;
+            var con_pos = Conio.ReadLinePos;
+
+            if (!IsPromptSuspended && con_rl != null)//console prompt is re-taking control
             {
-               myPromptSuspendedLine = Conio.ReadLineLine;
-               myPromptSuspendedPos = Conio.ReadLinePos;
+               Console.WriteLine($"Con Line: {con_rl} {Thread.CurrentThread.ManagedThreadId}");//tododo
+               myPromptSuspendedLine = con_rl;
+               myPromptSuspendedPos = con_pos;
+
                //start procedure of prompt suspension
                IsPromptSuspended = true;
-               (ConsoleController ?? throw new Crash()).IControl.SetLine("");//cancel current line
+               ConsoleController.NnOrCrash().IControl.SetLine("");//cancel current line
                Conio.CancelIO();
             }
 
@@ -130,6 +135,7 @@ namespace Gate.ToolsView.ConIO
          if (Conio.ReadLineLine == null && consoleTask == this && !IsPromptSuspended)
          {
             myPromptSuspendedLine = null;
+            Console.WriteLine($"myPromptSuspendedLine = null {Thread.CurrentThread.ManagedThreadId}");//tododo
          }
       }
 
@@ -172,11 +178,12 @@ namespace Gate.ToolsView.ConIO
             Conio.ConsoleInputKeyEventStroke?.Clear();
 
             var ln = "";
+            var cc = (ConsoleController?.Control).NnOrCrash();
 
-            (ConsoleController?.Control ?? throw new Crash()).MthInvoke(() =>
+            cc.MthInvoke(() =>
             {
-               ConsoleController.Control.BringToFront();
-               ConsoleController.Control.Focus();
+               cc.BringToFront();
+               cc.Focus();
             });
 
             if (IsPromptSuspended)
@@ -186,12 +193,13 @@ namespace Gate.ToolsView.ConIO
 
                IsPromptSuspended = false;
 
-               var ctr = ConsoleController.IControl;
+               var ctr = (ConsoleController?.IControl).NnOrCrash();
                var cur_pos = ctr.CurrentPos;
 
                ctr.CurrentPos = new TxtPos(cur_pos.Line, 1 + Conio.PromptString.Length);
                ctr.Insert2CurrentPos(myPromptSuspendedLine ?? "");
                ctr.CurrentPos = new TxtPos(cur_pos.Line, Conio.PromptString.Length + myPromptSuspendedPos + 1);
+               Console.WriteLine($"Restarting prompt at {cur_pos} {Thread.CurrentThread.ManagedThreadId}");//tododo
                ln = Conio.ReadLine(ssp_ln, ssp_pos);
             }
             else
