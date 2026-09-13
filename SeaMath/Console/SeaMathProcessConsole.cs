@@ -24,6 +24,14 @@ namespace Gate.SeaMath.Console
       {
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public SeaMathConsole? Console => ParentItem as SeaMathConsole;
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public override bool IsSystem => true;
    }
 }

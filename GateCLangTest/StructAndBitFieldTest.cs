@@ -84,7 +84,7 @@ namespace Gate.CLanguageTest
             var arr = IsUnsigned ? (Array?)BitFieldTest?.GccStdOutUnsigned : BitFieldTest?.GccStdOutSigned;
 
             var obj_prs_all =
-               BitFieldTest?.SeaMathExecutionHelper.Processes.SelectMany(p => p.ObjsPersistant).ToArray();
+               BitFieldTest?.SeaMathExecutionHelper.Processes.SelectMany(p => p.ObjsPersistent).ToArray();
 
             var arr_sea = IsUnsigned ?
                obj_prs_all?.FirstOrDefault(g => g.Decl?.Identifier == UNSIGNED_ARRAY_NAME) as CRtmObjArray :
@@ -158,7 +158,7 @@ namespace Gate.CLanguageTest
          protected override TxtElabResult myExecution()
          {
             var arr = IsUnsigned ? (Array?)BitFieldTest?.GccStdOutMatrixUnsigned : BitFieldTest?.GccStdOutMatrixSigned;
-            var prs_prs = BitFieldTest?.SeaMathExecutionHelper.Processes.SelectMany(p => p.ObjsPersistant).ToArray();
+            var prs_prs = BitFieldTest?.SeaMathExecutionHelper.Processes.SelectMany(p => p.ObjsPersistent).ToArray();
             var arr_sea = IsUnsigned ?
                prs_prs?.FirstOrDefault(g => g.Decl?.Identifier == UNSIGNED_B2BF_MATRIX) as CRtmObjArray :
                prs_prs?.FirstOrDefault(g => g.Decl?.Identifier == SIGNED_B2BF_MATRIX) as CRtmObjArray;

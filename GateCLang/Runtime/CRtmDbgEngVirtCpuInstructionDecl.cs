@@ -54,7 +54,7 @@ namespace Gate.CLanguage.Runtime
          protected override void myRun(RtmDbgEngStackVirtCpu stack, IRtmObjStrategy? rtmStrategy)
          {
             //is persistant (eg in C/C++ a static or not extern global object) and not yet init
-            var rtm_ojs = stack.Thread?.Process?.ObjsPersistant;
+            var rtm_ojs = stack.Thread?.Process?.ObjsPersistent;
             var rtm_obj =
                rtm_ojs?.FirstOrDefault(g => g.Decl == DeclVar) ??
                throw new Gate.LangBase.Runtime.RtmException($"Can't find '{DeclVar}'");

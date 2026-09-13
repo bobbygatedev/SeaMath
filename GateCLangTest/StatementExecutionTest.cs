@@ -94,7 +94,7 @@ namespace Gate.CLanguageTest
 
          protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
          {
-            var res = dbgEngProcess.ObjsPersistant.Where(o => o.VarName == "res").FirstOrDefault() ?? throw new Crash();
+            var res = dbgEngProcess.ObjsPersistent.Where(o => o.VarName == "res").FirstOrDefault() ?? throw new Crash();
 
             return res?.CSharpObj is int int_val ?
                int_val == 3 ? TxtElabResult.success : TxtElabResult.failure :

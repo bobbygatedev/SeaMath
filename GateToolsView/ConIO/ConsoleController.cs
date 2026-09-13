@@ -44,7 +44,9 @@ namespace Gate.ToolsView.ConIO
 
       public ConsoleTask[] ConsoleTasks => SubItems.OfType<ConsoleTask>().ToArray();
 
-      public ConsoleIo? CurrentConio => ConsoleTasks.LastOrDefault()?.Conio;
+      public ConsoleIo? CurrentConio => CurrentTask?.Conio;
+
+      public ConsoleTask? CurrentTask => ConsoleTasks.LastOrDefault();
 
       public bool IsInputEnabled => ConsoleTasks.Length > 0 && ConsoleTasks.Last().Conio.ReadLineLine != null;
 
@@ -54,7 +56,7 @@ namespace Gate.ToolsView.ConIO
          {
             if (consoleTask.ConsoleController == null)
             {
-               var old_tsk = ConsoleTasks.LastOrDefault();
+               var old_tsk = CurrentTask;
 
                if (old_tsk != null) { myTaskControlLosing(old_tsk, LoseReason.above_task_started); }
 

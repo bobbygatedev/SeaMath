@@ -41,7 +41,7 @@ namespace Gate.CLanguageTest
 
          protected override TxtElabResult myEval(IRtmDbgEngProcess dbgEngProcess)
          {
-            var var = dbgEngProcess.ObjsPersistant.Select(o => o.Decl).OfType<CDeclStorage>().FirstOrDefault(d => d.Identifier == VAR);
+            var var = dbgEngProcess.ObjsPersistent.Select(o => o.Decl).OfType<CDeclStorage>().FirstOrDefault(d => d.Identifier == VAR);
             var pri_ali = var?.TypeAlias?.PrimitiveAlias;
             var cmp = new GccCompilerHelper();
 

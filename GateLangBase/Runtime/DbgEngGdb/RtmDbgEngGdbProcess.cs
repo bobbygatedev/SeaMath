@@ -4,6 +4,9 @@ using Gate.Tools.Watch;
 
 namespace Gate.LangBase.Runtime.DbgEngGdb
 {
+   /// <summary>
+   /// todo
+   /// </summary>
    public class RtmDbgEngGdbProcess : IRtmDbgEngProcess
    {
 #pragma warning disable CS0067
@@ -33,9 +36,11 @@ namespace Gate.LangBase.Runtime.DbgEngGdb
 
       public RtmObj[] ObjVisibleFromBreakThreadAll => throw new System.NotImplementedException();
 
-      public RtmObj[] ObjsPersistant => throw new System.NotImplementedException();
+      public RtmObj[] ObjsPersistent => throw new System.NotImplementedException();
 
       public bool IsStartedFromUser => throw new NotImplementedException();
+
+      public bool IsSystem => throw new NotImplementedException();
 
       public void Continue()
       {

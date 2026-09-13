@@ -154,12 +154,16 @@ namespace Gate.LangBase.Runtime.DbgEng
       private void myBuildCleanAction(Action action)
       {
          var ide_pss = Processes.
-            Where(p => p.DbgIde == DbgIdeReady2Start && (p.State == RtmDbgEngRunState.running || p.State == RtmDbgEngRunState.halt)).
+            Where(p =>
+               !p.IsSystem &&
+               p.DbgIde == DbgIdeReady2Start &&
+               (p.State == RtmDbgEngRunState.running || p.State == RtmDbgEngRunState.halt)).
             ToArray();
 
          if (ide_pss.Length > 0)
          {
-            throw new Gate.LangBase.Runtime.RtmException($"There are {ide_pss.Length} processes running stop them before building.");
+            throw new Gate.LangBase.Runtime.RtmException(
+               $"There are {ide_pss.Length} processes running stop them before building.");
          }
 
          action();

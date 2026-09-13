@@ -21,7 +21,7 @@ namespace Gate.ToolsView.ConIO
       private QueueSafeThread<InnerCmdWrapper>? myQueueCmdWrapperFromExternal;
       private TimeSpan myCommandQueueDrainTimeout = TimeSpan.FromMilliseconds(DEFAULT_CMD_QUEUE_DRAIN_TOUT_MS);
       private string? myPromptSuspendedLine;
-      private int myPromptSuspendedPos;
+      private int myPromptSuspendedPos = -1;
       private Semaphore mySemaphoreIsPromptPossible = new Semaphore(0, int.MaxValue);
       private bool myIsPromptPossible = false;
 
@@ -92,51 +92,48 @@ namespace Gate.ToolsView.ConIO
 
       private void ConsoleController_OnTaskLosingControl(ConsoleTask consoleTask, LoseReason loseReason)
       {
-         if (consoleTask == this)
+         ConsoleController?.IControl.InQueueInvoke(() =>
          {
-            myIsPromptPossible = false;
-
-            var con_rl = Conio.ReadLineLine;
-            var con_pos = Conio.ReadLinePos;
-
-            if (!IsPromptSuspended && con_rl != null)//console prompt is re-taking control
+            if (consoleTask == this)
             {
-               Console.WriteLine($"Con Line: {con_rl} {Thread.CurrentThread.ManagedThreadId}");//tododo
-               myPromptSuspendedLine = con_rl;
-               myPromptSuspendedPos = con_pos;
+               myIsPromptPossible = false;
 
-               //start procedure of prompt suspension
-               IsPromptSuspended = true;
-               ConsoleController.NnOrCrash().IControl.SetLine("");//cancel current line
-               Conio.CancelIO();
+               var con_rl = Conio.ReadLineLine;
+               var con_pos = Conio.ReadLinePos;
+
+               if (!IsPromptSuspended && con_rl != null)//console prompt is re-taking control
+               {
+                  lock (this)
+                  {
+                     myPromptSuspendedLine = con_rl;
+                     myPromptSuspendedPos = con_pos;
+                  }
+
+                  //start procedure of prompt suspension
+                  IsPromptSuspended = true;
+                  ConsoleController.NnOrCrash().IControl.SetLine("");//cancel current line
+                  Conio.CancelIO();
+               }
+
+               switch (loseReason)
+               {
+                  case LoseReason.end: break;
+                  case LoseReason.above_task_started:
+                     Conio.MoveToNextCleanLine();
+                     break;
+
+                  default: throw new Crash();
+               }
             }
-
-            switch (loseReason)
+            else if (
+               loseReason == LoseReason.end && 
+               ConsoleController?.ConsoleTasks.Except([consoleTask]).LastOrDefault() == this)
             {
-               case LoseReason.end: break;
-               case LoseReason.above_task_started:
-                  Conio.MoveToNextCleanLine();
-                  break;
-
-               default: throw new Crash();
+               Conio.FlushOutput(1.0);
+               myIsPromptPossible = true;
+               mySemaphoreIsPromptPossible.Release();
             }
-         }
-      }
-
-      private void ConsoleController_OnTaskTakeControl(ConsoleTask consoleTask)
-      {
-         if (consoleTask == this)
-         {
-            myIsPromptPossible = true;
-            mySemaphoreIsPromptPossible.Release();
-         }
-
-         //is prompt active
-         if (Conio.ReadLineLine == null && consoleTask == this && !IsPromptSuspended)
-         {
-            myPromptSuspendedLine = null;
-            Console.WriteLine($"myPromptSuspendedLine = null {Thread.CurrentThread.ManagedThreadId}");//tododo
-         }
+         });
       }
 
       /// <summary>
@@ -152,14 +149,13 @@ namespace Gate.ToolsView.ConIO
          var mgs = new MsgCollection();
          var lst_cmd_wrp = new List<InnerCmdWrapper>();
 
-         (ConsoleController ?? throw new Crash()).OnTaskTakeControl += ConsoleController_OnTaskTakeControl;
-         ConsoleController.OnTaskLosingControl += ConsoleController_OnTaskLosingControl;
+         ConsoleController.NnOrCrash().OnTaskLosingControl += ConsoleController_OnTaskLosingControl;
 
-         (myQueueCmdWrapperFromExternal ?? throw new Crash()).Consumer = (q, cmd_wrs) =>
+         (myQueueCmdWrapperFromExternal.NnOrCrash()).Consumer = (q, cmd_wrs) =>
          {
             foreach (var cmd_wrp in cmd_wrs)
             {
-               var is_any_tsk_act = ConsoleController.ConsoleTasks.Last() != this;
+               var is_any_tsk_act = ConsoleController?.ConsoleTasks.Last() != this;
 
                //token is not caught (semaphore does timeout) just supervisor command can be executed
                if (is_any_tsk_act && !cmd_wrp.Cmd.IsSupervisor) { return; }
@@ -174,40 +170,48 @@ namespace Gate.ToolsView.ConIO
          while (true)
          {
             myWaitForIsPromptPossible();
-            Conio.WritePrompt(Conio.PromptString);
-            Conio.ConsoleInputKeyEventStroke?.Clear();
 
-            var ln = "";
-            var cc = (ConsoleController?.Control).NnOrCrash();
-
-            cc.MthInvoke(() =>
+            ConsoleController?.IControl.InQueueInvoke(() =>
             {
-               cc.BringToFront();
-               cc.Focus();
-            });
+               Conio.WritePrompt(Conio.PromptString);
+               Conio.ConsoleInputKeyEventStroke?.Clear();
 
-            if (IsPromptSuspended)
-            {
-               var ssp_ln = myPromptSuspendedLine;
-               var ssp_pos = myPromptSuspendedPos;
+               var cc = (ConsoleController?.Control).NnOrCrash();
 
-               IsPromptSuspended = false;
+               cc.MthInvoke(() =>
+               {
+                  cc.BringToFront();
+                  cc.Focus();
+               });
 
                var ctr = (ConsoleController?.IControl).NnOrCrash();
                var cur_pos = ctr.CurrentPos;
 
-               ctr.CurrentPos = new TxtPos(cur_pos.Line, 1 + Conio.PromptString.Length);
-               ctr.Insert2CurrentPos(myPromptSuspendedLine ?? "");
-               ctr.CurrentPos = new TxtPos(cur_pos.Line, Conio.PromptString.Length + myPromptSuspendedPos + 1);
-               Console.WriteLine($"Restarting prompt at {cur_pos} {Thread.CurrentThread.ManagedThreadId}");//tododo
-               ln = Conio.ReadLine(ssp_ln, ssp_pos);
-            }
-            else
+               if (IsPromptSuspended)
+               {
+                  IsPromptSuspended = false;
+                  ctr.CurrentPos = new TxtPos(cur_pos.Line, 1 + Conio.PromptString.Length);
+                  ctr.Insert2CurrentPos(myPromptSuspendedLine.NnOrCrash());
+                  ctr.CurrentPos = new TxtPos(cur_pos.Line, Conio.PromptString.Length + myPromptSuspendedPos + 1);
+               }
+            });
+
+            var ln = Conio.ReadLine(myPromptSuspendedLine, myPromptSuspendedPos);
+
+            if (ln != null)
             {
-               ln = Conio.ReadLine();
+               lock (this)
+               {
+                  myPromptSuspendedLine = null;
+                  myPromptSuspendedPos = -1;
+               }
             }
 
             if (!ln.IsBlank()) { myExecCmd(ln ?? ""); }
+            else
+            {
+               ConsoleController.NnOrCrash().IControl.SetLine("");//cancel current line
+            }
          }
       }
 

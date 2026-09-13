@@ -286,6 +286,7 @@ namespace Gate.ToolsView.ConIO
       public class StandardOut : Stream
       {
          private readonly ConcurrentQueue<byte> myQueue = new ConcurrentQueue<byte>();
+         private static int myInstanceCounter = 0;
 
          /// <summary>
          /// <br> Initializes a new instance of the <see cref="StandardOut"/> class. </br>
@@ -296,6 +297,7 @@ namespace Gate.ToolsView.ConIO
          {
             Conio = conio;
             Encoding = encoding;
+            Instance = ++myInstanceCounter;
          }
 
          /// <summary>
@@ -340,6 +342,8 @@ namespace Gate.ToolsView.ConIO
 
             public override void Write(byte[] buffer, int offset, int count) => throw new Crash("Can't use");
          }
+
+         public int Instance { get; }
 
          public override bool CanRead => false;
 
@@ -408,7 +412,16 @@ namespace Gate.ToolsView.ConIO
          /// <param name="count"></param>
          public override void Write(byte[] buffer, int offset, int count)
          {
-            for (int i = 0; i < count; i++) { myQueue.Enqueue(buffer[offset + i]); }
+            var x = "";//tododo
+
+            for (int i = 0; i < count; i++)
+            {
+               x += (char)buffer[offset + i];
+
+               myQueue.Enqueue(buffer[offset + i]);
+            }
+
+            Console.WriteLine($"Ist {Instance} Plot '{x}'");
 
             Flush();
          }
@@ -762,7 +775,7 @@ namespace Gate.ToolsView.ConIO
       /// </summary>
       public void MoveToNextCleanLine()
       {
-         if (ConsoleInputKeyEventStroke != null)
+         ConsoleController?.IControl.InQueueInvoke(() =>
          {
             FlushOutput(1.0);
 
@@ -774,8 +787,7 @@ namespace Gate.ToolsView.ConIO
             {
                ctr.CurrentPos = new TxtPos(cur_ln_idx + 1, 1);
             }
-         }
-         else { throw new Crash(); }
+         });
       }
 
       public void WritePrompt(string? promptString = null)
@@ -1189,6 +1201,8 @@ namespace Gate.ToolsView.ConIO
 
       private void myStdOutDirect((EventType, char?)[] strokeEvents)
       {
+         var cc = IConsoleControl.NnOrCrash();
+
          ConsoleController?.Control?.MthInvoke(() =>
          {
             var spo = mySplitObjects(strokeEvents);
@@ -1198,19 +1212,19 @@ namespace Gate.ToolsView.ConIO
                switch (str_ev.Item2)
                {
                   case '\r': //beginning of row
-                     (IConsoleControl ?? throw new Crash()).CurrentPos = new TxtPos(IConsoleControl.CurrentPos.Line, 1);
+                     cc.CurrentPos = new TxtPos(cc.CurrentPos.Line, 1);
                      break;
 
                   case '\n'://beginning of next row
-                     (IConsoleControl ?? throw new Crash()).CurrentPos = new TxtPos(IConsoleControl.CurrentPos.Line + 1, 1);
+                     cc.CurrentPos = new TxtPos(cc.CurrentPos.Line + 1, 1);
                      break;
 
                   case '\b':
-                     IConsoleControl?.CancelChar(true);
+                     cc.CancelChar(true);
                      break;
 
                   default:
-                     IConsoleControl?.Insert2CurrentPos($"{(string)str_ev.Item2}");
+                     cc.Insert2CurrentPos($"{(string)str_ev.Item2}");
                      break;
                }
             }

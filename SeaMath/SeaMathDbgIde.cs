@@ -191,7 +191,9 @@ namespace Gate.SeaMath
       /// </summary>
       public void Build()
       {
-         if (Processes.All(p => p.State != RtmDbgEngRunState.running && p.State != RtmDbgEngRunState.halt)) { myBuild(); }
+         if (Processes.All(p =>
+            p.IsSystem ||
+            p.State != RtmDbgEngRunState.running && p.State != RtmDbgEngRunState.halt)) { myBuild(); }
          else { throw new Crash("Can't clean during running"); }
       }
 

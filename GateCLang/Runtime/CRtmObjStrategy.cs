@@ -429,7 +429,9 @@ namespace Gate.CLanguage.Runtime
       protected virtual CRtmObjAllocator myMakeAllocator() => new CRtmObjAllocatorByPrivateHeap();
 
       RtmObj IRtmObjStrategy.Assign(RtmObj lObject, RtmObj rObject) =>
-         Assign(lObject as CRtmObj ?? throw new Crash(), rObject);
+         lObject is RtmDbgEngVirtCpuFunction fnc ?
+            throw new Gate.LangBase.Runtime.RtmException("Can't assign a function object") :
+            (RtmObj)Assign(lObject as CRtmObj ?? throw new Crash(), rObject);
 
       RtmObj IRtmObjStrategy.CopyFunctionOptionalParamByValue(RtmObj paramValue) =>
          paramValue is CRtmObj cpa ? CopyFunctionOptionalParamByValue(cpa) : throw new Crash();
@@ -540,7 +542,7 @@ namespace Gate.CLanguage.Runtime
          return lst.ToArray();
       }
 
-      RtmObj[]? IRtmObjStrategy.GetFunctionVisibleObject(IRtmDbgEngStack? stack) => 
+      RtmObj[]? IRtmObjStrategy.GetFunctionVisibleObject(IRtmDbgEngStack? stack) =>
          GetFunctionVisibleObject(stack as RtmDbgEngStackVirtCpu);
    }
 }

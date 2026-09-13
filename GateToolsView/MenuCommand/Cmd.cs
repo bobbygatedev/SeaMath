@@ -237,6 +237,20 @@ namespace Gate.ToolsView.MenuCommand
       public void InvokeAction() => Action?.Invoke(this);
 
       /// <summary>
+      /// Calls an action asynchronously and disable/reenable the command 
+      /// </summary>
+      /// <param name="action"></param>
+      public void InvokeAsync(Action action)
+      {
+         Task.Run(() =>
+         {
+            IsEnabled = false;
+            action();
+            IsEnabled = true;
+         });
+      }
+
+      /// <summary>
       /// 
       /// </summary>
       /// <returns></returns>

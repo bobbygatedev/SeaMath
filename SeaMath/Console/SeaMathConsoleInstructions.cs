@@ -78,7 +78,11 @@ namespace Gate.SeaMath.Console
 
             if (!IsOmitReturn)
             {
-               (Console.Writer ?? throw new Crash()).WriteLine($"ret = {(res != null ? res.DisplayValue : "void")}");
+               var cw = Console.Writer.NnOrCrash();
+
+               //tododo
+               cw.WriteLine($"ret = {(res != null ? res.DisplayValue : "void")}");
+               cw.Flush();
             }
          }
       }

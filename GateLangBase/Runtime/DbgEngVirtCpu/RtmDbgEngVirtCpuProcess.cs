@@ -111,9 +111,9 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
          AdditionalObjectsRuntime.Concat(RtmModules.SelectMany(m => m.ObjectsPersistant)).ToArray();
 
       /// <summary>
-      /// <see cref="ObjsPersistant"/> + <see cref="ObjsPersistantDescendents"/>
+      /// <see cref="ObjsPersistent"/> + <see cref="ObjsPersistantDescendents"/>
       /// </summary>
-      public RtmObj[] ObjsPersistant
+      public RtmObj[] ObjsPersistent
       {
          get
          {
@@ -126,7 +126,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// All of <see cref="ObjsPersistantAll"/> of visibility <see cref="ExprDeclVisibility.global_extern"/>.
       /// </summary>
-      public RtmObj[] ObjsGlobal => ObjsPersistant.Where(o => IsGlobal(o)).ToArray();
+      public RtmObj[] ObjsGlobal => ObjsPersistent.Where(o => IsGlobal(o)).ToArray();
 
       /// <summary>
       /// 
@@ -136,7 +136,7 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       /// <summary>
       /// 
       /// </summary>
-      public RtmDbgEngVirtCpuFunction[] FunctionsAll => ObjsPersistant.OfType<RtmDbgEngVirtCpuFunction>().ToArray();
+      public RtmDbgEngVirtCpuFunction[] FunctionsAll => ObjsPersistent.OfType<RtmDbgEngVirtCpuFunction>().ToArray();
 
       /// <summary>
       /// 
@@ -293,7 +293,14 @@ namespace Gate.LangBase.Runtime.DbgEngVirtCpu
       public bool IsStartedFromUser { get; }
 
       /// <summary>
-      /// Starts thread in this process. We consider that all threads are "childs" of main thread and main thread is "parent" for all threads. This is important for determining visibility of objects in threads: if thread is "child" for main thread then it see all objects visible for main thread, otherwise it see only global objects.
+      /// 
+      /// </summary>
+      public virtual bool IsSystem => false;
+
+      /// <summary>
+      /// Starts thread in this process. 
+      /// We consider that all threads are "childs" of main thread and main thread is "parent" for all threads. 
+      /// This is important for determining visibility of objects in threads: if thread is "child" for main thread then it see all objects visible for main thread, otherwise it see only global objects.
       /// </summary>
       /// <param name="dbgSettings"></param>
       /// <param name="entryPoint"></param>

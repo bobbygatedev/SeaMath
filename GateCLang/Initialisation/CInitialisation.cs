@@ -116,7 +116,8 @@ namespace Gate.CLanguage.Initialisation
             var sz_of = runTimeObj.ItemSizeOf;
 
             if (runTimeObj.Sizes.Length != 1) { throw new Crash(); }
-            else if (runTimeObj.ItemType != initString.TokenString.RtmObjStringLiteral.ItemType)
+            else if (!runTimeObj.ItemType.NnOrCrash().IsEqual(
+               initString.TokenString.RtmObjStringLiteral.ItemType.NnOrCrash()))
             {
                throw new Gate.LangBase.Runtime.RtmException(
                   $"Init string has char type {initString.TokenString.RtmObjStringLiteral.ItemType} " +

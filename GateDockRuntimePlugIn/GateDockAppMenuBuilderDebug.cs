@@ -35,13 +35,15 @@ namespace Gate.DockRuntimePlugin
       public virtual void DeleteAllBreakpoint(Cmd command) => Plugin.App.MarkerHandler.BreakpointDeleteAll();
 
       [CmdDef(Id = CMD_START_DEBUGGING, Caption = "&Start Debugging", ShortCut = Keys.F5)]
-      public virtual void StartDebugging(Cmd command) => Plugin.DbgDbgEng.StartDebugging();
+      public virtual void StartDebugging(Cmd command) =>
+         command.InvokeAsync(() => Plugin.DbgDbgEng.StartDebugging());
 
       [CmdDef(Id = CMD_CONTINUE_DEBUGGING, Caption = "&Continue", ShortCut = Keys.F5)]
       public virtual void ContinueDebugging(Cmd command) => Plugin.DbgDbgEng.Continue();
 
       [CmdDef(Id = CMD_START_WITHOUT_DEBUGGING, Caption = "&Start without debugging", ShortCut = Keys.Control | Keys.F5)]
-      public virtual void StartWithoutDebugging(Cmd command) => Plugin.DbgDbgEng.StartWthoutDebugging();
+      public virtual void StartWithoutDebugging(Cmd command) =>
+         command.InvokeAsync(Plugin.DbgDbgEng.StartWthoutDebugging);
 
       [CmdDef(Id = CMD_START_NEW_INSTANCE, Caption = "Start &new instance")]
       public virtual void StartNewInstance(Cmd command) => Plugin.DbgDbgEng.StartNewInstance();
@@ -50,21 +52,16 @@ namespace Gate.DockRuntimePlugin
       public virtual void StepIntoNewInstance(Cmd command) => Plugin.DbgDbgEng.StepIntoNewInstance();
 
       [CmdDef(Id = CMD_STEP_INTO, Caption = "Step &Into", ShortCut = Keys.F11)]
-      public virtual void StepInto(Cmd command) => Plugin.DbgDbgEng.StepInto();
+      public virtual void StepInto(Cmd command) => command.InvokeAsync(Plugin.DbgDbgEng.StepInto);
 
       [CmdDef(Id = CMD_STEP_OVER, Caption = "Step &Over", ShortCut = Keys.F10)]
-      public virtual void StepOver(Cmd command) => Plugin.DbgDbgEng.StepOver();
+      public virtual void StepOver(Cmd command) => command.InvokeAsync(Plugin.DbgDbgEng.StepOver);
 
       [CmdDef(Id = CMD_BREAK_ALL, Caption = "&Break all", ShortCut = Keys.Control | Keys.Shift | Keys.Pause)]
-      public virtual void BreakAll(Cmd command) => Plugin.DbgDbgEng.BreakAll();
+      public virtual void BreakAll(Cmd command) => command.InvokeAsync(Plugin.DbgDbgEng.BreakAll);
 
       [CmdDef(Id = CMD_TERMINATE_ALL, Caption = "Terminate All", ShortCut = Keys.Shift | Keys.F5)]
-      public virtual void TerminateAll(Cmd command)
-      {
-         var tsk = new Task(() => Plugin?.DbgDbgEng?.TerminateAll());
-
-         tsk.Start();
-      }
+      public virtual void TerminateAll(Cmd command) => command.InvokeAsync(() => Plugin?.DbgDbgEng?.TerminateAll());
 
       protected override Image? myGetCmdImage(Cmd cmd) => null;
 

@@ -58,20 +58,25 @@ namespace Gate.LangBase.Runtime.DbgEng
       RtmObj[] AdditionalObjectsRuntime { get; set; }
 
       /// <summary>
-      /// All visible object (globals + static object of break_thread module) from "point of view" of <see cref="BreakThread"/>
+      /// All visible object (global + static objects of break_thread module) from "point of view" of <see cref="BreakThread"/>
       /// </summary>
       RtmObj[] ObjVisibleFromBreakThreadAll { get; }
 
       /// <summary>
       /// All objects that are persistent (not removed when process is terminated) including static object.
       /// </summary>
-      RtmObj[] ObjsPersistant { get; }
+      RtmObj[] ObjsPersistent { get; }
 
       /// <summary>
       /// True when process is launched by user, otw it launched from-inside program
       /// a NOT <see cref="IsStartedFromUser"/> can't be regarded for debug menu disable/enable handling 
       /// </summary>
       bool IsStartedFromUser { get; }
+
+      /// <summary>
+      /// Special process like console.
+      /// </summary>
+      bool IsSystem { get; }
 
       /// <summary>
       /// Terminate process NOTICE is blocking execute on task when call from window message queueu
