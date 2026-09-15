@@ -49,9 +49,19 @@ namespace Gate.ToolsView.ConIO
          ConsolePromptTask?.ConsoleController?.PushTask(myConsoleTask);
       }
 
-      public void Join(double timeout = 0)
+      public void Join(double? timeout = null)
       {
-         if (myConsoleTask != null) { myConsoleTask.Join(timeout); }
+         if (myConsoleTask != null)
+         {
+            if (timeout == null)
+            {
+               myConsoleTask.Join();
+            }
+            else
+            {
+               myConsoleTask.Join(timeout.Value);
+            }
+         }
          else { throw new Crash("Never runned!"); }
       }
    }

@@ -126,12 +126,10 @@ namespace Gate.ToolsView.ConIO
                }
             }
             else if (
-               loseReason == LoseReason.end && 
+               loseReason == LoseReason.end &&
                ConsoleController?.ConsoleTasks.Except([consoleTask]).LastOrDefault() == this)
             {
                Conio.FlushOutput(1.0);
-               myIsPromptPossible = true;
-               mySemaphoreIsPromptPossible.Release();
             }
          });
       }
@@ -148,8 +146,10 @@ namespace Gate.ToolsView.ConIO
       {
          var mgs = new MsgCollection();
          var lst_cmd_wrp = new List<InnerCmdWrapper>();
+         var cc = ConsoleController.NnOrCrash();
 
-         ConsoleController.NnOrCrash().OnTaskLosingControl += ConsoleController_OnTaskLosingControl;
+         cc.OnTaskLosingControl += ConsoleController_OnTaskLosingControl;
+         cc.OnTaskTakeControl += ConsoleController_OnTaskTakeControl;
 
          (myQueueCmdWrapperFromExternal.NnOrCrash()).Consumer = (q, cmd_wrs) =>
          {
@@ -212,6 +212,15 @@ namespace Gate.ToolsView.ConIO
             {
                ConsoleController.NnOrCrash().IControl.SetLine("");//cancel current line
             }
+         }
+      }
+
+      private void ConsoleController_OnTaskTakeControl(ConsoleTask consoleTask)
+      {
+         if (consoleTask == this)
+         {
+            myIsPromptPossible = true;
+            mySemaphoreIsPromptPossible.Release();
          }
       }
 
