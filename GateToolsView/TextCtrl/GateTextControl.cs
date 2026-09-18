@@ -1615,19 +1615,19 @@ namespace Gate.ToolsView.TextCtrl
       {
          var ins_fro = MthGetTxtPos(e.Position).NnOrCrash();
 
-         OnDocumentBeforeInsert?.Invoke(sender, e.Position, ins_fro, e.Text);
+         OnDocumentBeforeInsert?.Invoke(sender, e.Position, ins_fro, e.Text.Nn());
       }
-
       private void PpScintilla_BeforeDelete(object? sender, BeforeModificationEventArgs e)
       {
+         var et = e.Text.Nn();
          var del_fro = MthGetTxtPos(e.Position).NnOrCrash();
-         var del_to = MthGetTxtPos(e.Position + e.Text.Length).NnOrCrash();
+         var del_to = MthGetTxtPos(e.Position + et.Length).NnOrCrash();
 
-         OnDocumentBeforeDelete?.Invoke(sender, e.Position, e.Text.Length, del_fro, del_to);
+         OnDocumentBeforeDelete?.Invoke(sender, e.Position, et.Length, del_fro, del_to);
       }
 
       private void PpScintilla_Delete(object? sender, ModificationEventArgs e) =>
-         OnDocumentDelete?.Invoke(sender, e.Position, e.Text.Length, e.Text);
+         OnDocumentDelete?.Invoke(sender, e.Position, e.Text.Nn().Length, e.Text);
 
       private void PpScintilla_Insert(object? sender, ModificationEventArgs e) => 
          OnDocumentInsert?.Invoke(sender, e.Position, e.Text);
