@@ -54,7 +54,7 @@ namespace Gate.Dock.DockAppWidgets
 
          public override string ContentDescriptor => "List of Find files result";
 
-         public override string CtrlGuid => "{488EF3FC-FE06-474D-A677-07F0198D4D4C}";
+         public override string CtrlGuid => "488EF3FC-FE06-474D-A677-07F0198D4D4C";
 
          public override string MenuCmdId => "Gate.Widget.Find";
 

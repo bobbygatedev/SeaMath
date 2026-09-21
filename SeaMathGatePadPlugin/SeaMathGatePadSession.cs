@@ -36,10 +36,14 @@ namespace Gate.SeaMathGatePadPlugin
 
          public MsgListControl ControlMessage => MessageWidget.PpMessageListControl;
 
-         public void AddMsg(params Msg[] msgs)
+         public void AddMsg(params Msg[] messages)
          {
-            App.MainForm.MthInvoke(() => ControlMessage.MthAddMsg(msgs));
-            App.MainForm.MthWidgetShow(MessageWidget);
+            App.MainForm.MthInvoke(() => ControlMessage.MthAddMsg(messages));
+
+            if (!MessageWidget.PpIsWidgetVisible)
+            {
+               App.MainForm.MthWidgetShow(MessageWidget);
+            }
          }
 
          public void Clear() => App.MainForm.MthInvoke(() => ControlMessage?.MthClear());

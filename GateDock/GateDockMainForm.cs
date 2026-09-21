@@ -520,7 +520,7 @@ namespace Gate.Dock
       /// 
       /// </summary>
       /// <param name="toolBar"></param>
-      public void MthToolBarAdd(CmdToolBarCtrl toolBar) => 
+      public void MthToolBarAdd(CmdToolBarCtrl toolBar) =>
          (CtrlMainFormLayout.PpCtrlToolBarContainer as CmdToolBarContainerCtrl)?.MthToolBarAdd(toolBar);
 
       /// <summary>
@@ -705,7 +705,7 @@ namespace Gate.Dock
       private void CtrlDockArea_DragEnter(object? sender, DragEventArgs e) =>
          e.Effect = (e.Data?.GetDataPresent(DataFormats.FileDrop) ?? false) ? DragDropEffects.Copy : DragDropEffects.None;
 
-      private void TabCtrl_VisiblePageChanged(object? sender, Control? newVisibleControl) => 
+      private void TabCtrl_VisiblePageChanged(object? sender, Control? newVisibleControl) =>
          OnTabPageCurrentChanged?.Invoke(this, PpTabPageCurrent);
    }
 }

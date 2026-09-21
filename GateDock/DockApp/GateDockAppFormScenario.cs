@@ -51,6 +51,11 @@ namespace Gate.Dock.DockApp
          {
             var dck_ctr = app.MainForm.MthGetNephew<DockableAreaCtrl>();
 
+            var y = app.AppWidgets.Where(w=>w.PpIsWidgetVisible).ToArray();
+            var x = app.AppWidgets;
+
+            //tododo tutti i widget devono essere salvati 
+            //se non sono visibili si mantiene il valore salvato o quello di default
             foreach (var ctr in dck_ctr?.PpControlsDocked ?? []) { myDoWriteToRepo((dynamic)ctr); }
          }
 
@@ -272,7 +277,7 @@ namespace Gate.Dock.DockApp
 
                   if (pg.ObjValue is string s2 && !s2.IsBlank())
                   {
-                     foreach (var or in SubRecords.Except(new[] { rec }))
+                     foreach (var or in SubRecords.Except([rec]))
                      {
                         var p = or.SubParams.OfType<Scalar>().FirstOrDefault(p1 => p1.ParamName == CTRL_GUID_FIELD) ?? throw new Crash();
 

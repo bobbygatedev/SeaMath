@@ -1,8 +1,6 @@
 ﻿using Gate.Dock.DockApp;
 using Gate.Dock.DockWidget;
 using Gate.ToolsView.MenuCommand;
-using System;
-using System.Windows.Forms;
 
 namespace Gate.Dock.DockFactories
 {

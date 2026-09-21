@@ -281,14 +281,14 @@ namespace Gate.Dock.DockWidget
             {
                return
                   GateDockWidgetStateFlags.group |
-                  my_GetPosFromAnchor(((GateDockWidgetGroupCtrl)hie.First(c => c is GateDockWidgetGroupCtrl)).PpAnchorMode);
+                  myGetPosFromAnchor(((GateDockWidgetGroupCtrl)hie.First(c => c is GateDockWidgetGroupCtrl)).PpAnchorMode);
             }
             else if (hie.Any(c => c is GateDockTabCtrl)) { return GateDockWidgetStateFlags.tabbed; }
             else if (ParentForm is GateDockMainForm)//docked
             {
                return
                   GateDockWidgetStateFlags.dock |
-                  my_GetPosFromAnchor(((DockableAreaCtrl)hie.First(c => c is DockableAreaCtrl)).MthGetAnchorFromControl(this));
+                  myGetPosFromAnchor(((DockableAreaCtrl)hie.First(c => c is DockableAreaCtrl)).MthGetAnchorFromControl(this));
             }
             else if (ParentForm is GateDockFloatContainerForm) { return GateDockWidgetStateFlags.floating; }
             else { return GateDockWidgetStateFlags.invisible; }
@@ -409,7 +409,7 @@ namespace Gate.Dock.DockWidget
          }
       }
 
-      private static GateDockWidgetStateFlags my_GetPosFromAnchor(DockableAreaCtrlSlotAnchorModeEnum anchor)
+      private static GateDockWidgetStateFlags myGetPosFromAnchor(DockableAreaCtrlSlotAnchorModeEnum anchor)
       {
          switch (anchor)
          {

@@ -4,7 +4,6 @@ using Gate.Dock.DockFactories;
 using Gate.Dock.DockWidget;
 using Gate.ToolsView.Extended;
 using Gate.ToolsView.MenuCommand;
-using System.Windows.Forms;
 
 namespace Gate.Dock.DockAppWidgets
 {
@@ -26,7 +25,7 @@ namespace Gate.Dock.DockAppWidgets
 
          public override string ContentDescriptor => "Message List Container";
 
-         public override string CtrlGuid => " {20C79BB3-733E-4284-8758-44FB3F94A505}";
+         public override string CtrlGuid => "20C79BB3-733E-4284-8758-44FB3F94A505";
 
          public override string MenuCmdId => "Gate.Widget.MsgList";
 
