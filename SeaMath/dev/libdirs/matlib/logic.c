@@ -68,5 +68,19 @@ DLL_EXPORT uint64_t swapbit64(uint64_t val)
    return swapbitn(val,64);
 }
 
+//get bit interval
+DLL_EXPORT uint64_t bitint(uint64_t val, int hi, int lo)
+{
+   if (hi >= lo)
+   {
+      int nb = hi - lo + 1;
+
+      return (val >> lo) & ( (1 << nb) - 1);
+   }
+   else
+   {
+      return (uint64_t)-1;
+   }
+}
 
 

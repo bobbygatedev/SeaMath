@@ -23,4 +23,7 @@ uint16_t swapbit16(uint16_t val);
 uint32_t swapbit32(uint32_t val);
 uint64_t swapbit64(uint64_t val);
 
+//get bit interval
+uint64_t bitint(uint64_t val, int hi, int lo);
+
 #endif
