@@ -51,11 +51,6 @@ namespace Gate.Dock.DockApp
          {
             var dck_ctr = app.MainForm.MthGetNephew<DockableAreaCtrl>();
 
-            var y = app.AppWidgets.Where(w=>w.PpIsWidgetVisible).ToArray();
-            var x = app.AppWidgets;
-
-            //tododo tutti i widget devono essere salvati 
-            //se non sono visibili si mantiene il valore salvato o quello di default
             foreach (var ctr in dck_ctr?.PpControlsDocked ?? []) { myDoWriteToRepo((dynamic)ctr); }
          }
 

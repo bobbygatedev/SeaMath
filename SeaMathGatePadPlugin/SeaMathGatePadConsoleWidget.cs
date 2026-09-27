@@ -41,7 +41,7 @@ namespace Gate.SeaMathGatePadPlugin
 
          public override string WidgetTitle => "SeaMath Console";
 
-         public override GateDockWidgetStateFlags DefaultState => GateDockWidgetStateFlags.dock_down;
+         public override GateDockWidgetStateFlags DefaultState => GateDockWidgetStateFlags.group_down;
 
          public override Keys ShortCut => Keys.Control | Keys.W;
 

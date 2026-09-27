@@ -8,11 +8,11 @@ namespace Gate.Dock
    {
       /// <summary>
       /// <br> State machine based on state design pattern. </br>
-      /// <br> Client class will instanciate </br>
+      /// <br> Client class will instantiate </br>
       /// </summary>
       private class InnerWdgStateTransitionHandler
       {
-         private static WidgetState[] myStates = new WidgetState[] {
+         private static WidgetState[] myStates = [
             new States.Invisible() ,
             new States.Floating(),
             new States.Grouped.Left(),
@@ -23,9 +23,9 @@ namespace Gate.Dock
             new States.Docked.Right(),
             new States.Docked.Up(),
             new States.Docked.Down(),
-            new States.Tabbed()};
+            new States.Tabbed()];
 
-         private WidgetState? myWidgetCurrentState;
+         private WidgetState myWidgetCurrentState;
 
          /// <summary>
          /// 
@@ -84,7 +84,11 @@ namespace Gate.Dock
             /// <param name="widget"></param>
             /// <returns></returns>
             /// <seealso cref="Gate.Dock.GateDockMainForm.InnerWdgStateTransitionHandler.SetState"/>
-            public abstract bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget);
+            public abstract bool IsTransactionToMePossible(
+               WidgetState stateOnCleanup,
+               GateDockMainForm mainForm,
+               GateDockWidgetCtrl widget,
+               out GateDockWidgetStateFlags? alternateState);
 
             public override string ToString() => StateFlags.ToString();
          }
@@ -134,7 +138,15 @@ namespace Gate.Dock
 
                public override void HandlerNoChangeState(GateDockMainForm mainForm, GateDockWidgetCtrl widget) { }
 
-               public override bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget) => true;
+               public override bool IsTransactionToMePossible(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  out GateDockWidgetStateFlags? alternateState)
+               {
+                  alternateState = null;
+                  return true;
+               }
             }
 
             public class Floating : IsVisible
@@ -155,28 +167,49 @@ namespace Gate.Dock
                   mainForm.myDoMakeControlFloat(widget, flo_loc);
                }
 
-               public override bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget) => true;
+               public override bool IsTransactionToMePossible(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  out GateDockWidgetStateFlags? alternateState)
+               {
+                  alternateState = null;
+                  return true;
+               }
             }
 
             public abstract class Grouped : IsVisible
             {
-               public Grouped(GateDockWidgetStateFlags stateFlags) => StateFlags = stateFlags;
+               public Grouped(GateDockWidgetStateFlags stateFlags, GateDockWidgetStateFlags alternateState)
+               {
+                  StateFlags = stateFlags;
+                  AlternateState = alternateState;
+               }
 
-               public class Left : Grouped { public Left() : base(GateDockWidgetStateFlags.group_left) { } }
-               public class Right : Grouped { public Right() : base(GateDockWidgetStateFlags.group_right) { } }
-               public class Up : Grouped { public Up() : base(GateDockWidgetStateFlags.group_up) { } }
-               public class Down : Grouped { public Down() : base(GateDockWidgetStateFlags.group_down) { } }
+               public class Left : Grouped { public Left() : base(GateDockWidgetStateFlags.group_left, GateDockWidgetStateFlags.dock_left) { } }
+               public class Right : Grouped { public Right() : base(GateDockWidgetStateFlags.group_right, GateDockWidgetStateFlags.dock_right) { } }
+               public class Up : Grouped { public Up() : base(GateDockWidgetStateFlags.group_up, GateDockWidgetStateFlags.dock_up) { } }
+               public class Down : Grouped { public Down() : base(GateDockWidgetStateFlags.group_down, GateDockWidgetStateFlags.dock_down) { } }
 
                public override GateDockWidgetStateFlags StateFlags { get; }
+               public GateDockWidgetStateFlags AlternateState { get; }
 
-               public override bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget)
+               public override bool IsTransactionToMePossible(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  out GateDockWidgetStateFlags? alternateState)
                {
                   var anc_mod = InnerDockHelper.GetAnchorFromDockState(StateFlags);
                   var dck_wds = mainForm.CtrlDockArea.PpControlsDocked.OfType<GateDockWidgetCtrl>().ToArray();
 
-                  return
+                  var res =
                      mainForm.PpWidgetGroups.Any(g => g.PpAnchorMode == anc_mod) ||
                      dck_wds.Any(w => w != widget && w.PpAnchorMode == anc_mod);
+
+                  alternateState = res ? null : AlternateState;
+
+                  return res;
                }
 
                protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
@@ -200,7 +233,15 @@ namespace Gate.Dock
 
                public override GateDockWidgetStateFlags StateFlags { get; }
 
-               public override bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget) => true;
+               public override bool IsTransactionToMePossible(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  out GateDockWidgetStateFlags? alternateState)
+               {
+                  alternateState = null;
+                  return true;
+               }
 
                protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
                   InnerDockHelper.WidgetRemove(mainForm, widget);
@@ -217,7 +258,15 @@ namespace Gate.Dock
             {
                public override GateDockWidgetStateFlags StateFlags => GateDockWidgetStateFlags.tabbed;
 
-               public override bool IsTransactionToMePossible(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget) => true;
+               public override bool IsTransactionToMePossible(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  out GateDockWidgetStateFlags? alternateState)
+               {
+                  alternateState = null;
+                  return true;
+               }
 
                protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
                   mainForm.myTabPageHandling.DocuForceControlOrWidgetClose(widget);
@@ -265,13 +314,20 @@ namespace Gate.Dock
             var sta_beg = myWidgetCurrentState;
             var sta_end = myGetWidgetState(targetStateFlags);
 
-            if (!sta_end.IsTransactionToMePossible(sta_end, MainFrm, Widget)) { return; }
+            if (!sta_end.IsTransactionToMePossible(sta_beg, MainFrm, Widget, out var alt_sta))
+            {
+               //if transaction is not possible set to alternate state
+               //ie group_down not having any group on down -> doc_down
+               SetState(alt_sta.NnOrCrash(), floatLocation);
+
+               return;
+            }
             else if (sta_beg != sta_end)
             {
                sta_beg.NnOrCrash().HandlerCleanup(sta_end, MainFrm, Widget, ref floatLocation);
                sta_end.HandlerSetup(sta_beg.NnOrCrash(), MainFrm, Widget, floatLocation);
             }
-            else if (sta_end != null) { sta_end.HandlerNoChangeState(MainFrm, Widget); }
+            else { sta_end.HandlerNoChangeState(MainFrm, Widget); }
 
             myWidgetCurrentState = sta_end;
          }

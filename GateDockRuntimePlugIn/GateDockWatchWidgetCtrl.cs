@@ -63,7 +63,7 @@ namespace Gate.DockRuntimePlugin
          /// <summary>
          /// 
          /// </summary>
-         public override GateDockWidgetStateFlags DefaultState => GateDockWidgetStateFlags.dock_down;
+         public override GateDockWidgetStateFlags DefaultState => GateDockWidgetStateFlags.group_down;
 
          /// <summary>
          /// 

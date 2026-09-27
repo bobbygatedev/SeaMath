@@ -31,33 +31,40 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       private void InitializeComponent()
       {
-         this.CtrlDockTabbed = new ExtendedTabbedCtrl();
-         this.SuspendLayout();
+         CtrlDockTabbed = new ExtendedTabbedCtrl();
+         SuspendLayout();
          // 
          // CtrlDockTabbed
          // 
-         this.CtrlDockTabbed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-         this.CtrlDockTabbed.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.CtrlDockTabbed.ForeColor = System.Drawing.Color.White;
-         this.CtrlDockTabbed.Location = new System.Drawing.Point(0, 0);
-         this.CtrlDockTabbed.MinimumSize = new System.Drawing.Size(0, 20);
-         this.CtrlDockTabbed.Name = "CtrlDockTabbed";
-         this.CtrlDockTabbed.PpButtonBackColorSelected = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
-         this.CtrlDockTabbed.PpButtonsPos = ExtendedTabbedCtrl.ButtonsPosEnum.down;
-         this.CtrlDockTabbed.PpButtonForeColorSelected = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(50)))), ((int)(((byte)(255)))));
-         this.CtrlDockTabbed.PpTabVisibleIdx = -1;
-         this.CtrlDockTabbed.PpFixedTabHeight = 20;
-         this.CtrlDockTabbed.Size = new System.Drawing.Size(580, 351);
-         this.CtrlDockTabbed.TabIndex = 0;
+         CtrlDockTabbed.BackColor = Color.FromArgb(40, 40, 40);
+         CtrlDockTabbed.Dock = DockStyle.Fill;
+         CtrlDockTabbed.ForeColor = Color.White;
+         CtrlDockTabbed.Location = new Point(0, 0);
+         CtrlDockTabbed.Margin = new Padding(4, 5, 4, 5);
+         CtrlDockTabbed.MinimumSize = new Size(0, 20);
+         CtrlDockTabbed.Name = "CtrlDockTabbed";
+         CtrlDockTabbed.PpButtonBackColorSelected = Color.FromArgb(25, 25, 25);
+         CtrlDockTabbed.PpButtonBackColorVisible = Color.FromArgb(0, 50, 255);
+         CtrlDockTabbed.PpButtonForeColorSelected = Color.FromArgb(0, 50, 255);
+         CtrlDockTabbed.PpButtonForeColorVisible = Color.FromArgb(255, 255, 255);
+         CtrlDockTabbed.PpButtonsPos = ExtendedTabbedCtrl.ButtonsPosEnum.down;
+         CtrlDockTabbed.PpFixedTabHeight = 23;
+         CtrlDockTabbed.PpHasCloseButton = false;
+         CtrlDockTabbed.PpIsFixedTabHeightToUse = true;
+         CtrlDockTabbed.PpTabVisible = null;
+         CtrlDockTabbed.PpTabVisibleIdx = -1;
+         CtrlDockTabbed.Size = new Size(773, 540);
+         CtrlDockTabbed.TabIndex = 0;
          // 
          // GateDockWidgetGroupCtrl
          // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.Controls.Add(this.CtrlDockTabbed);
-         this.Name = "GateDockWidgetGroupCtrl";
-         this.Size = new System.Drawing.Size(580, 351);
-         this.ResumeLayout(false);
+         AutoScaleDimensions = new SizeF(8F, 20F);
+         AutoScaleMode = AutoScaleMode.Font;
+         Controls.Add(CtrlDockTabbed);
+         Margin = new Padding(4, 5, 4, 5);
+         Name = "GateDockWidgetGroupCtrl";
+         Size = new Size(773, 540);
+         ResumeLayout(false);
 
       }
 
