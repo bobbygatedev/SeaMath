@@ -40,11 +40,21 @@ namespace Gate.Dock.DockApp
          public readonly Simple<DockableCtrlRowDirectionEnum> TabDirection = new Simple<DockableCtrlRowDirectionEnum>(DockableCtrlRowDirectionEnum.left_2_right);
          public readonly Arry<TabRecord> Tabs = new Arry<TabRecord>();
          public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
-         public readonly Arry<WidgetGroupRecord> Groups = new Arry<WidgetGroupRecord>();
+
+         public readonly WidgetGroupRecord GroupUp = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupDown = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupLeft = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupRight = new WidgetGroupRecord();
 
          public void ReadFromRecord(GateDockApp app)
          {
+            GroupUp.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.up);
+            GroupLeft.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.left);
+
             foreach (var itm in SubItems) { myDoReadFromRepo((dynamic)itm, app); }
+
+            GroupDown.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.down);
+            GroupRight.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.right);
          }
 
          public void WriteToRecord(GateDockApp app)
@@ -77,16 +87,6 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         private void myDoReadFromRepo(Arry<WidgetGroupRecord> arryWidgetGroupRecord, GateDockApp app)
-         {
-            foreach (var wdg_gru_rec in arryWidgetGroupRecord.Items)
-            {
-               var wds = wdg_gru_rec.WidgetWrappers.Select(w => w.ReadFromRepo(app)).Nn().ToArray();
-
-               app.MainForm.MthGroupWidgets(wdg_gru_rec.AnchorMode.Value, wdg_gru_rec.Size, wds);
-            }
-         }
-
          private void myDoReadFromRepo(AppParam appParam, GateDockApp app) { }//do nothing
 
          private void myDoReadFromRepo(object par, GateDockApp app) => throw new Crash();
@@ -113,20 +113,34 @@ namespace Gate.Dock.DockApp
 
          private void myDoWriteToRepo(GateDockWidgetGroupCtrl widgetGroupCtrl)
          {
-            var gru_wrp = new WidgetGroupRecord();
+            var gru_rec = null as WidgetGroupRecord;
 
-            foreach (var wdg in widgetGroupCtrl.PpWidgets)
+            switch (widgetGroupCtrl.PpAnchorMode)
             {
-               var wdg_rec = new WidgetRecord();
+               case DockableAreaCtrlSlotAnchorModeEnum.left:
+                  gru_rec = GroupLeft;
+                  break;
 
-               wdg_rec.WriteToRecord(wdg);
-               gru_wrp.Widgets.AddParam(wdg_rec);
+               case DockableAreaCtrlSlotAnchorModeEnum.right:
+                  gru_rec = GroupRight;
+                  break;
+
+               case DockableAreaCtrlSlotAnchorModeEnum.up:
+                  gru_rec = GroupUp;
+                  break;
+
+               case DockableAreaCtrlSlotAnchorModeEnum.down:
+                  gru_rec = GroupDown;
+                  break;
+
+               default: throw new Crash();
             }
 
-            gru_wrp.WriteToRepo(widgetGroupCtrl);
+            gru_rec.Widgets.Clear();
+            gru_rec.WriteToRepo(widgetGroupCtrl);
          }
 
-         private void myDoWriteToTabWrapper(Control ctr, TabRecord tabRepo) => throw new Crash();
+         private void myDoWriteToTabWrapper(Control control, TabRecord tabRepo) => throw new Crash();
 
          private void myDoWriteToTabWrapper(GateDockWidgetCtrl widgetCtrl, TabRecord tabRecord)
          {
@@ -165,12 +179,16 @@ namespace Gate.Dock.DockApp
 
          public readonly Arry<TabRecord> Tabs = new Arry<TabRecord>();
          public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
+         public readonly WidgetGroupRecord GroupUp = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupDown = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupLeft = new WidgetGroupRecord();
+         public readonly WidgetGroupRecord GroupRight = new WidgetGroupRecord();
 
          public void ReadFromRecord(GateDockApp app)
          {
             foreach (var wdg_rep in Widgets.Items)
             {
-               app.MainForm.MthWidgetShow((wdg_rep?.ReadFromRepo(app)).NnOrCrash(), 
+               app.MainForm.MthWidgetShow((wdg_rep?.ReadFromRepo(app)).NnOrCrash(),
                   GateDockWidgetStateFlags.floating, wdg_rep.NnOrCrash().FloatLocation);
             }
 
@@ -475,9 +493,9 @@ namespace Gate.Dock.DockApp
 
       public class WidgetGroupRecord : AppParam.Record
       {
-         public WidgetGroupRecord() : base("WidgetGroup") { }
+         public WidgetGroupRecord() { }
 
-         public Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
+         public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
 
          public void WriteToRepo(GateDockWidgetGroupCtrl widgetGroup)
          {
@@ -492,15 +510,19 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         public WidgetRecord[] WidgetWrappers => SubItems.OfType<WidgetRecord>().ToArray();
+         public void ReadWidgets(GateDockApp app, DockableAreaCtrlSlotAnchorModeEnum anchor)
+         {
+            if (Widgets.ItemCount > 0)
+            {
+               var wds = Widgets.Items.Select(w => w.ReadFromRepo(app)).Nn().ToArray();
+
+               app.MainForm.MthGroupWidgets(anchor, Size, wds);
+            }
+         }
 
          public readonly Simple<int> Width = new Simple<int>();
 
          public readonly Simple<int> Height = new Simple<int>();
-
-         public readonly Simple<DockableAreaCtrlSlotAnchorModeEnum> AnchorMode = new Simple<DockableAreaCtrlSlotAnchorModeEnum>(DockableAreaCtrlSlotAnchorModeEnum.none);
-
-         public readonly Simple<int> PpSelectedIndex = new Simple<int>();
 
          public Size Size => new Size(Width.Value, Height.Value);
       }

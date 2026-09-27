@@ -22,7 +22,7 @@ namespace Gate.Dock
                {
                   gru.MthWidgetRemove(widget);
 
-                  if (gru.PpWidgets.Length == 1) { my_DoGroupRemove(mainForm, gru); }
+                  if (gru.PpWidgets.Length == 1) { myDoGroupRemove(mainForm, gru); }
                }
                else if (tab != null)
                {
@@ -58,18 +58,24 @@ namespace Gate.Dock
 
                gru.MthWidgetRemove(widget);
 
-               if (gru.PpWidgets.Length == 1) { my_DoGroupRemove(mainForm, gru); }
+               if (gru.PpWidgets.Length == 1) { myDoGroupRemove(mainForm, gru); }
                dck_ctr.MthControlDock(widget, anchorMode);
             }
             else { dck_ctr.MthControlDock(widget, anchorMode); }
          }
 
+         /// <summary>
+         /// Add a widget to a group
+         /// </summary>
+         /// <param name="mainForm"></param>
+         /// <param name="widget">Widget to be added to group </param>
+         /// <param name="anchorMode">Anchor of widget group</param>
+         /// <returns></returns>
          public static GateDockWidgetGroupCtrl? GroupWidget(
             GateDockMainForm mainForm, GateDockWidgetCtrl widget, DockableAreaCtrlSlotAnchorModeEnum anchorMode)
          {
             var cnt_gru = mainForm.PpWidgetGroups.FirstOrDefault(g => g.PpWidgets.Contains(widget));
             var dck_ctr = mainForm.CtrlDockArea;
-            var dck_wds = dck_ctr.PpControlsDocked.OfType<GateDockWidgetCtrl>().ToArray();
             var dck_grs = dck_ctr.PpControlsDocked.OfType<GateDockWidgetGroupCtrl>().ToArray();
 
             if (cnt_gru != null)
@@ -81,36 +87,51 @@ namespace Gate.Dock
                   cnt_gru.MthWidgetRemove(widget);
 
                   //group with just a widget not allowed: converted to single
-                  if (cnt_gru.PpWidgets.Length == 1) { my_DoGroupRemove(mainForm, cnt_gru); }
+                  if (cnt_gru.PpWidgets.Length == 1) { myDoGroupRemove(mainForm, cnt_gru); }
                }
-               else { return cnt_gru; }//do nothing: wigdetCtr is already docked in anchorMode
+               else { return cnt_gru; }//do nothing: widget control is already docked in anchorMode
             }
+
+            //group with same anchor mode
+            var gru_anc_1 = dck_grs.FirstOrDefault(g => g.PpAnchorMode == anchorMode);
+            var dck_wds = dck_ctr.PpControlsDocked.OfType<GateDockWidgetCtrl>().ToArray();
 
             if (dck_wds.Any(w => dck_ctr.MthGetAnchorFromControl(w) == anchorMode))
             {
                if (dck_ctr.PpControlsDocked.Contains(widget)) { dck_ctr.MthControlUndock(widget); }
-
-               var gru = dck_grs.FirstOrDefault(g => g.PpAnchorMode == anchorMode);
-
-               if (gru == null)//if a group with same anchor not exists, create it
+    
+               if (gru_anc_1 == null)//if a group with same anchor not exists, create it
                {
-                  gru = new GateDockWidgetGroupCtrl();
-                  gru.PpAnchorMode = anchorMode;
-                  gru.PpMainFrm = mainForm;
-                  gru.Size = widget.Size;
+                  gru_anc_1 = new GateDockWidgetGroupCtrl();
 
-                  foreach (var ctr in dck_ctr.PpControlsDocked.Where(c => c is GateDockWidgetCtrl && dck_ctr.MthGetAnchorFromControl(c) == anchorMode))
+                  //other controls control with same anchor
+                  var oth_cts =
+                     dck_ctr.PpControlsDocked.OfType<GateDockWidgetCtrl>().
+                     Where(c => dck_ctr.MthGetAnchorFromControl(c) == anchorMode).
+                     ToArray();
+
+                  gru_anc_1.PpAnchorMode = anchorMode;
+                  gru_anc_1.PpMainFrm = mainForm;
+                  gru_anc_1.Size = oth_cts.FirstOrDefault()?.Size ?? widget.Size;
+
+                  foreach (var ctr in oth_cts)
                   {
                      dck_ctr.MthControlUndock(ctr);
-                     gru.MthWidgetAdd((GateDockWidgetCtrl)ctr);
+                     gru_anc_1.MthWidgetAdd(ctr);
                   }
 
-                  dck_ctr.MthControlDock(gru, anchorMode);
+                  dck_ctr.MthControlDock(gru_anc_1, anchorMode);
                }
 
-               gru.MthWidgetAdd(widget);
+               gru_anc_1.MthWidgetAdd(widget);
 
-               return gru;
+               return gru_anc_1;
+            }
+
+            //a group with same anchor exist adding to it 
+            if (gru_anc_1 != null)
+            {
+               gru_anc_1.MthWidgetAdd(widget);
             }
 
             return null;
@@ -125,7 +146,7 @@ namespace Gate.Dock
             else { throw new Crash(); }
          }
 
-         private static void my_DoGroupRemove(GateDockMainForm mainForm, GateDockWidgetGroupCtrl widgetGroup)
+         private static void myDoGroupRemove(GateDockMainForm mainForm, GateDockWidgetGroupCtrl widgetGroup)
          {
             if (mainForm.PpWidgetGroups.Contains(widgetGroup))
             {

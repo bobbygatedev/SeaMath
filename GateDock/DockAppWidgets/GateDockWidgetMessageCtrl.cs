@@ -31,9 +31,9 @@ namespace Gate.Dock.DockAppWidgets
 
          public override GateDockWidgetStateFlags DefaultState => GateDockWidgetStateFlags.group_down;
 
-         public override Keys ShortCut => Keys.None;
+         public override Keys ShortCut => Keys.Control | Keys.W;
 
-         public override Keys ShortCut2 => Keys.None;
+         public override Keys ShortCut2 => Keys.Control | Keys.M;
 
          public override void AddExtraMenus(CmdContainer cmdContainer) { }
 

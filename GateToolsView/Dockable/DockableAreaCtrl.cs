@@ -153,7 +153,7 @@ namespace Gate.ToolsView.Dockable
       /// Adds a docked control to me. 
       /// </summary>
       /// <param name="control">Control to dock.</param>
-      /// <param name="anchorMode">Anchor mode(up,down,left,roght,center)</param>
+      /// <param name="anchorMode">Anchor mode(up,down,left,right,center)</param>
       /// <returns>False if number of already docked control >= PpNumCreatable</returns>
       /// <exception cref="Gate.ToolsView.GateDockException">Control is null or already contained.</exception>
       public bool MthControlDock(Control control, DockableAreaCtrlSlotAnchorModeEnum anchorMode)

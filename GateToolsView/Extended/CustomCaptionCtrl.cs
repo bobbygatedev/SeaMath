@@ -8,6 +8,7 @@ using Gate.ToolsView.MenuCommand;
 using Gate.ToolsView.Properties;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms.Layout;
@@ -243,15 +244,32 @@ namespace Gate.ToolsView.Extended
 
          set
          {
-            if (myButtonMaximize != null) { Controls.Remove(myButtonMaximize); }
-
-            if ((myButtonMaximize = value) != null)
+            if (myButtonMaximize != value)
             {
-               myButtonMaximize.Click += (s, e) => myActionOnDockCaptionEvent(this, EventType.button_maximize);
-            }
+               if (myButtonMaximize != null)
+               {
+                  myButtonMaximize.Click -= MyButtonMaximize_Click;
+                  Controls.Remove(myButtonMaximize);
+               }
 
-            myDoStandardButtonRefresh(myButtonMaximize);
+               if ((myButtonMaximize = value) != null)
+               {
+                  myButtonMaximize.Click += MyButtonMaximize_Click;
+               }
+
+               myDoStandardButtonRefresh(myButtonMaximize);
+            }
          }
+      }
+
+      /// <summary>
+      /// tododo
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
+      private void MyButtonMaximize_Click(object? sender, EventArgs e)
+      {
+         myActionOnDockCaptionEvent(this, EventType.button_maximize);
       }
 
       public Button? PpButtonClose
@@ -333,40 +351,18 @@ namespace Gate.ToolsView.Extended
 
             if ((myFormBound = value) != null)
             {
-               var fea = myFormBound.GetFeature<FormFeatureCustomCaptionResize>() ?? throw new Crash();
+               var fea = myFormBound.GetFeature<FormFeatureCustomCaptionResize>().NnOrCrash();
+
+               //tododo
+               Console.WriteLine($"{this.MthGetParentForm()?.GetType().Name} {this.MthGetParentForm()?.Text}");
 
                fea.CustomCaptionControl = this;
                fea.OnStateChanged += MyExtendedFormBound_OnStateChange;
-               OnDockCaptionEvent += MthDefaultBehaviour;
+               OnDockCaptionEvent += MthDefaultBehaviour;//tododo ok ma incoerente
                myFormBound.Refresh();
                myFormBound.PerformLayout();
             }
          }
-      }
-
-      private static Bitmap myResizeImage(Image image, int width, int height)
-      {
-         var destRect = new Rectangle(0, 0, width, height);
-         var destImage = new Bitmap(width, height);
-
-         destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-         using (var graphics = Graphics.FromImage(destImage))
-         {
-            graphics.CompositingMode = CompositingMode.SourceCopy;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            using (var wrapMode = new ImageAttributes())
-            {
-               wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-               graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
-            }
-         }
-
-         return destImage;
       }
 
       /// <summary>
@@ -407,21 +403,26 @@ namespace Gate.ToolsView.Extended
       /// <param name="eventType"></param>
       public void MthDefaultBehaviour(object? sender, EventType eventType)
       {
+         Console.WriteLine($"{this.MthGetParentForm()?.GetType().Name}: {eventType}");//tododo
+
+         var x = new StackTrace();
+
          switch (eventType)
          {
             case EventType.button_minimize:
-               (PpFormBound ?? throw new Crash()).WindowState = FormWindowState.Minimized;
+               PpFormBound.NnOrCrash().WindowState = FormWindowState.Minimized;
                break;
 
-            case EventType.button_maximize:
-               (PpFormBound ?? throw new Crash()).WindowState = PpFormBound.WindowState == FormWindowState.Maximized ?
-                  PpFormBound.WindowState = FormWindowState.Normal :
-                  PpFormBound.WindowState = FormWindowState.Maximized;
+            case EventType.button_maximize://tododo due volte?
+               var fb = PpFormBound.NnOrCrash();
+
+               fb.WindowState = fb.WindowState == FormWindowState.Maximized ?
+                  FormWindowState.Normal : FormWindowState.Maximized;
                PerformLayout();
                break;
 
             case EventType.button_close:
-               (PpFormBound ?? throw new Crash()).Close();
+               PpFormBound?.Close();
                break;
 
             case EventType.start_tracking:
@@ -432,7 +433,12 @@ namespace Gate.ToolsView.Extended
          }
       }
 
-      protected virtual void myActionOnDockCaptionEvent(object? sender, EventType eventType) => OnDockCaptionEvent?.Invoke(sender, eventType);
+      protected virtual void myActionOnDockCaptionEvent(object? sender, EventType eventType)
+      {
+         Console.WriteLine("myActionOnDockCaptionEvent");
+         //tododo now
+         OnDockCaptionEvent?.Invoke(sender, eventType);
+      }
 
       private void myDoShowSysMenu(MouseEventArgs e)
       {
@@ -464,6 +470,31 @@ namespace Gate.ToolsView.Extended
          but.Name = name;
 
          return but;
+      }
+
+      private static Bitmap myResizeImage(Image image, int width, int height)
+      {
+         var dts_rc = new Rectangle(0, 0, width, height);
+         var dst_img = new Bitmap(width, height);
+
+         dst_img.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+         using (var gr = Graphics.FromImage(dst_img))
+         {
+            gr.CompositingMode = CompositingMode.SourceCopy;
+            gr.CompositingQuality = CompositingQuality.HighQuality;
+            gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            gr.SmoothingMode = SmoothingMode.HighQuality;
+            gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            using (var ia = new ImageAttributes())
+            {
+               ia.SetWrapMode(WrapMode.TileFlipXY);
+               gr.DrawImage(image, dts_rc, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, ia);
+            }
+         }
+
+         return dst_img;
       }
 
       private void CtrlPictureIcon_MouseDown(object? sender, MouseEventArgs e) => myDoShowSysMenu(e);

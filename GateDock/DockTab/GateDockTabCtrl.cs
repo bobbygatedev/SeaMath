@@ -321,7 +321,8 @@ namespace Gate.Dock.DockTab
             case EventType.button_close:
             case EventType.start_tracking:
             case EventType.end_tracking:
-               this.MthGetNephew<CustomCaptionCtrl>()?.MthDefaultBehaviour(sender, eventType);
+               //tododo test
+               //this.MthGetNephew<CustomCaptionCtrl>()?.MthDefaultBehaviour(sender, eventType);
                break;
 
             default: throw new Crash();

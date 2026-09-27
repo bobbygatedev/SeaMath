@@ -69,7 +69,10 @@ namespace Gate.Dock.DockWidget
          PpBorderWidth = GateDockSkin.Constants.WIDGET_DOCUTAB_BORDER;
          CtrlWidgetCaption.Height = GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT;
 
-         var fea = (this.MthGetNephew<CustomCaptionCtrl>()?.AddFeature<CtrlFeatureTrackStartSense>()).NnOrCrash();
+         //label 
+         var cap_lab = this.MthGetNephew<CustomCaptionCtrl>()?.MthGetNephew<Label>();
+
+         var fea = (cap_lab?.AddFeature<CtrlFeatureTrackStartSense>()).NnOrCrash();
 
          fea.OnStartingDragging += Fea_OnAskForDragging;
       }

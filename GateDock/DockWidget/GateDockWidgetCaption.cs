@@ -133,7 +133,7 @@ namespace Gate.Dock.DockWidget
          set
          {
             if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show(string.Format("{0}.PpSkinChildCtrlDispacther can't be null", GetType().Name)); }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
          }
       }
 

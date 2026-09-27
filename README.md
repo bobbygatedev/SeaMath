@@ -15,7 +15,7 @@ a mathematics assist development environment based on SEA
 - SeaChecks     coding rule checker base on GateCLang
 - SeaMath:      script oriented language suitable for Mathematics (based on GateCLang)
 
-## Compilation instrucions:
+## Compilation instructions:
   - open SeaMath.sln on repository root
   - select GatePad as sturtup project and compile
   - launch GatePad (includes seamath as a plug-in) 

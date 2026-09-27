@@ -4,6 +4,7 @@ using Gate.Dock.DockTab;
 using Gate.Dock.DockWidget;
 using Gate.Tools;
 using Gate.Tools.AppParams;
+using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
@@ -133,7 +134,7 @@ namespace Gate.Dock
       }
 
       /// <summary>
-      ///  main menu object.
+      /// Main menu object.
       /// </summary>
       public CmdMainMenu? PpCmdMainMenu
       {
@@ -149,12 +150,12 @@ namespace Gate.Dock
       }
 
       /// <summary>
-      ///  array of all tabs.
+      /// Array of all tabs.
       /// </summary>
       public GateDockTabCtrl[] PpTabsAll => myTabPageHandling.TabsAll;
 
       /// <summary>
-      ///  array of docked tabs.
+      /// Array of docked tabs.
       /// </summary>
       public GateDockTabCtrl[] PpTabsDocked => myTabPageHandling.TabsDocked;
 
@@ -171,15 +172,17 @@ namespace Gate.Dock
       /// <summary>
       /// Direction tab group are placed.
       /// </summary>
-      public DockableCtrlRowDirectionEnum? PpTabGroupDirection => PpTabsAll.Length >= 2 ? CtrlDockArea.PpCenterDirectionToSet : null as DockableCtrlRowDirectionEnum?;
+      public DockableCtrlRowDirectionEnum? PpTabGroupDirection => PpTabsAll.Length >= 2 ? CtrlDockArea.PpCenterDirectionToSet : null;
 
       /// <summary>
       /// All widgets
       /// </summary>
-      public GateDockWidgetCtrl[] PpAllWidgets =>
-         CtrlDockArea.PpControlsDocked.OfType<GateDockWidgetCtrl>().
-            Concat(CtrlDockArea.PpControlsDocked.OfType<GateDockTabCtrl>().SelectMany(t => t.PpWidgets)).
-            Concat(myListFloatContainerForm.SelectMany(f => f.MthGetNephews()).OfType<GateDockWidgetCtrl>()).ToArray();
+      public GateDockWidgetCtrl[] PpAllWidgets => 
+         this.MthGetNephews().
+            OfType<GateDockWidgetCtrl>().
+            Concat(
+               myListFloatContainerForm.SelectMany(f => f.MthGetNephews()).OfType<GateDockWidgetCtrl>()).
+            ToArray();
 
       /// <summary>
       /// All widgets.
@@ -405,11 +408,9 @@ namespace Gate.Dock
          DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size? groupControlSize, params GateDockWidgetCtrl[] widgets)
       {
          if (widgets.Any(w => w.PpMainFrm != null && w.PpMainFrm != this)) { throw new Gate.Dock.GateDockException("Widget bound to other form"); }
-         else
+         else if(widgets.Length > 0)
          {
             var gru = new GateDockWidgetGroupCtrl();
-
-            foreach (var wdg in widgets.Where(w => w.PpIsWidgetVisible)) { MthWidgetHide(wdg); }
 
             gru.PpAnchorMode = anchorMode;
             gru.PpMainFrm = this;
@@ -417,7 +418,15 @@ namespace Gate.Dock
             gru.MthWidgetAdd(widgets);
             CtrlDockArea.MthControlDock(gru, anchorMode);
 
+            foreach (var wdg in widgets.Where(w => w.PpIsWidgetVisible)) { MthWidgetShow(wdg); }
+
+            widgets.FirstOrDefault().NnOrCrash().Focus();
+
             return gru;
+         }
+         else
+         {
+            throw new Crash();
          }
       }
 

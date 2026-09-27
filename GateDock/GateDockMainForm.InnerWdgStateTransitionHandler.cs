@@ -192,6 +192,7 @@ namespace Gate.Dock
                public class Down : Grouped { public Down() : base(GateDockWidgetStateFlags.group_down, GateDockWidgetStateFlags.dock_down) { } }
 
                public override GateDockWidgetStateFlags StateFlags { get; }
+               
                public GateDockWidgetStateFlags AlternateState { get; }
 
                public override bool IsTransactionToMePossible(
@@ -304,7 +305,7 @@ namespace Gate.Dock
 
          /// <summary>
          /// <br> Select the target state of transition and perform it. </br>
-         /// <br> Transiton alwasy consist of two transaction: </br>
+         /// <br> Transition always consist of two transaction: </br>
          /// <br> Start-State(call HandlerCleanup) --> null-state --> End-State(call HandlerSetup)</br>
          /// </summary>
          /// <param name="targetStateFlags"></param>

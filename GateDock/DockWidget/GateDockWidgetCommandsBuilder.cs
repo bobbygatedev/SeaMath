@@ -32,7 +32,7 @@ namespace Gate.Dock.DockWidget
       public GateDockWidgetCommandsBuilder(GateDockApp app) : base(app, MENU_ID, "") { }
 
       /// <summary>
-      /// Observers the selection of the componenent and enable/disables visibility of commands
+      /// Observers the selection of the component and enable/disables visibility of commands
       /// </summary>
       private class InnerWidgetSelectionObserver
       {
@@ -47,7 +47,7 @@ namespace Gate.Dock.DockWidget
             foreach (var cmd in cmdMenu.AllCmds) { cmd.IsVisible = false; }
 
             cmdMenu.Commands.First(c => c.Id == CMD_CLOSE).IsVisible = true;
-            myUpadateWidgetVisibility();
+            myUpdateWidgetVisibility();
          }
 
          /// <summary>
@@ -70,9 +70,9 @@ namespace Gate.Dock.DockWidget
          /// </summary>
          public GateDockMainForm MainForm { get; }
 
-         private void myActionOnWidgetSelectedChange(object? sender, GateDockWidgetCtrl? widget) => myUpadateWidgetVisibility();
+         private void myActionOnWidgetSelectedChange(object? sender, GateDockWidgetCtrl? widget) => myUpdateWidgetVisibility();
 
-         private void myUpadateWidgetVisibility()
+         private void myUpdateWidgetVisibility()
          {
             CmdMenu.Commands[CMD_CLOSE].IsEnabled = MainForm.PpSelectedWidget != null;
             CmdMenu.Commands[CMD_FLOAT].IsVisible = Parent.myIsWidgetStatePossible(GateDockWidgetStateFlags.floating);
@@ -129,7 +129,7 @@ namespace Gate.Dock.DockWidget
       /// 
       /// </summary>
       [CmdDef(Id = CMD_GROUP_LEFT, Caption = "Group &Left", ShortCut = Keys.Control | Keys.P, ShortCut2 = Keys.Control | Keys.Left)]
-      public virtual void DoWidgetStateGroupleft() => myDoSetWidgetState(GateDockWidgetStateFlags.group_left);
+      public virtual void DoWidgetStateGroupLeft() => myDoSetWidgetState(GateDockWidgetStateFlags.group_left);
 
       /// <summary>
       /// 
@@ -165,7 +165,7 @@ namespace Gate.Dock.DockWidget
          }
       }
 
-      private bool myIsWidgetStatePossible(GateDockWidgetStateFlags widgetState) =>
+      private bool myIsWidgetStatePossible(GateDockWidgetStateFlags widgetState) => 
          MainForm.PpSelectedWidget != null && MainForm.PpSelectedWidget.PpDockState != widgetState;
 
       protected override Image? myGetCmdImage(Cmd cmd) => null;
