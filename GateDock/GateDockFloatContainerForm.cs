@@ -1,13 +1,14 @@
 ﻿using Gate.Dock.DockTab;
 using Gate.Dock.DockWidget;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.ControlObserve;
 using Gate.ToolsView.Extended;
 using Gate.ToolsView.Extensions;
 using System.ComponentModel;
-using static Gate.ToolsView.ControlFeature.FormFeatureCustomCaptionResize;
+using static Gate.ToolsView.ControlFeature.FormFeatureCustomCaptionResizeAndTrack;
 
 namespace Gate.Dock
 {
@@ -42,7 +43,11 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      private FormFeatureCustomCaptionResize myFormFeatureNoBorderResize;
+      private FormFeatureCustomCaptionResizeAndTrack myFormFeatureCustomCaptionResizeAndTrack;
+
+      /// <summary>
+      /// 
+      /// </summary>
       private CtrlFeatureBorder myFeatureBorder;
 
       /// <summary>
@@ -55,7 +60,7 @@ namespace Gate.Dock
       /// </summary>
       public GateDockFloatContainerForm()
       {
-         myFormFeatureNoBorderResize = this.AddFeature<FormFeatureCustomCaptionResize>();
+         myFormFeatureCustomCaptionResizeAndTrack = this.AddFeature<FormFeatureCustomCaptionResizeAndTrack>();
          myFeatureBorder = this.AddFeature<CtrlFeatureBorder>();
          myObservableChild = new ControlObservableChild(this);
          myObservableChild.OnControlAdded += MyObservableChild_OnControlAdded;
@@ -63,14 +68,14 @@ namespace Gate.Dock
 
          InitializeComponent();
 
-         myFormFeatureNoBorderResize.OnStateChanged += PpFeature_OnStateChanged;
+         myFormFeatureCustomCaptionResizeAndTrack.OnStateChanged += PpFeature_OnStateChanged;
          PpBorderWidth = 1;
       }
 
       /// <summary>
       /// Track state of form.
       /// </summary>
-      public TrackState PpTrackState => myFormFeatureNoBorderResize.State;
+      public TrackState PpTrackState => myFormFeatureCustomCaptionResizeAndTrack.State;
 
       /// <summary>
       /// Border color.
@@ -121,13 +126,14 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      public bool PpIsInTaskBar { get => myFormFeatureNoBorderResize.IsInTaskBar; set => myFormFeatureNoBorderResize.IsInTaskBar = value; }
+      public bool PpIsInTaskBar { get => myFormFeatureCustomCaptionResizeAndTrack.IsInTaskBar; set => myFormFeatureCustomCaptionResizeAndTrack.IsInTaskBar = value; }
 
       /// <summary>
       /// 
       /// </summary>
       /// <param name="captionRelLocation">Relative to caption location where mouse points while tracking (if null or outside caption bounds center caption is set).</param>
-      public void MthStartTracking(Point? captionRelLocation = null) => myFormFeatureNoBorderResize.TrackStart(captionRelLocation);
+      public void MthStartTracking(Point? captionRelLocation = null) => 
+         myFormFeatureCustomCaptionResizeAndTrack.TrackStart(captionRelLocation);
 
       protected override void OnClosing(CancelEventArgs e)
       {
@@ -170,7 +176,7 @@ namespace Gate.Dock
 
       private void MyObservableChild_OnControlAdded(Control control)
       {
-         if (control is GateDockWidgetCtrl) { myFormFeatureNoBorderResize.IsAeroSnapEnable = false; }
+         if (control is GateDockWidgetCtrl) { myFormFeatureCustomCaptionResizeAndTrack.IsAeroSnapEnable = false; }
          else if (control is CustomCaptionCtrl cap) { cap.PpFormBound = this; }
 
          if (PpMainFrm != null) { Icon = PpMainFrm.Icon; }

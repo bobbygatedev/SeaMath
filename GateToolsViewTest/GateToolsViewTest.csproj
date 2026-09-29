@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <StartupObject>Gate.ToolsViewTest.ExtendedListViewTester</StartupObject>
+    <StartupObject>GateToolsViewTest.CustomCaptionTestForm</StartupObject>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GateDock\GateDock.csproj" />
     <ProjectReference Include="..\GateTools\GateTools.csproj" />
     <ProjectReference Include="..\ScintillaNet\ScintillaNET.csproj" />
     <ProjectReference Include="..\GateToolsView\GateToolsView.csproj" />

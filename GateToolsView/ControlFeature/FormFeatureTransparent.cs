@@ -1,11 +1,13 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace Gate.ToolsView.ControlFeature
+﻿namespace Gate.ToolsView.ControlFeature
 {
    public class FormFeatureTransparent : CtrlFeature.Specialized<Form>
    {
       private Color myTransparentColor = Color.Black;
+
+      public FormFeatureTransparent()
+      {
+         
+      }
 
       public Color TransparentColor
       {
@@ -14,7 +16,7 @@ namespace Gate.ToolsView.ControlFeature
          {
             myTransparentColor = value;
 
-            if (BoundControl != null) { ((Form)BoundControl).TransparencyKey = myTransparentColor; }
+            if (BoundControl != null) { BoundControl.TransparencyKey = myTransparentColor; }
          }
       }
 

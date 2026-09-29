@@ -32,13 +32,31 @@ namespace Gate.Dock.DockWidget
       private void InitializeComponent()
       {
          components = new System.ComponentModel.Container();
+         CtrlButtonDockState = new ExtendedButtonCtrl();
          CtrlImageList = new ImageList(components);
          CtrlCaption = new CustomCaptionCtrl();
-         CtrlLabelTitle = new Label();
-         CtrlButtonDockState = new ExtendedButtonCtrl();
          CtrlMenuDropDown = new ExtendedMenuDropDown();
          CtrlCaption.SuspendLayout();
          SuspendLayout();
+         // 
+         // CtrlButtonDockState
+         // 
+         CtrlButtonDockState.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+         CtrlButtonDockState.BackColor = Color.FromArgb(40, 40, 40);
+         CtrlButtonDockState.FlatAppearance.BorderSize = 0;
+         CtrlButtonDockState.FlatStyle = FlatStyle.Flat;
+         CtrlButtonDockState.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+         CtrlButtonDockState.ForeColor = Color.White;
+         CtrlButtonDockState.ImageList = CtrlImageList;
+         CtrlButtonDockState.IsToggled = null;
+         CtrlButtonDockState.Location = new Point(507, 2);
+         CtrlButtonDockState.Margin = new Padding(0);
+         CtrlButtonDockState.Name = "CtrlButtonDockState";
+         CtrlButtonDockState.PpIsToggleActive = false;
+         CtrlButtonDockState.Size = new Size(32, 17);
+         CtrlButtonDockState.TabIndex = 4;
+         CtrlButtonDockState.UseVisualStyleBackColor = false;
+         CtrlButtonDockState.Click += CtrlButtonDockState_Click;
          // 
          // CtrlImageList
          // 
@@ -49,13 +67,12 @@ namespace Gate.Dock.DockWidget
          // CtrlCaption
          // 
          CtrlCaption.BackColor = Color.FromArgb(40, 40, 40);
-         CtrlCaption.Controls.Add(CtrlLabelTitle);
          CtrlCaption.Controls.Add(CtrlButtonDockState);
          CtrlCaption.Dock = DockStyle.Fill;
          CtrlCaption.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
          CtrlCaption.ForeColor = Color.White;
          CtrlCaption.Location = new Point(0, 0);
-         CtrlCaption.Margin = new Padding(4, 5, 4, 5);
+         CtrlCaption.Margin = new Padding(4);
          CtrlCaption.Name = "CtrlCaption";
          CtrlCaption.PpButtonMaximize = null;
          CtrlCaption.PpButtonMinimize = null;
@@ -63,46 +80,14 @@ namespace Gate.Dock.DockWidget
          CtrlCaption.PpButtonTransparentColor = Color.Black;
          CtrlCaption.PpFormBound = null;
          CtrlCaption.PpImage = null;
-         CtrlCaption.PpItemRightThreshold = 1;
+         CtrlCaption.PpIsFormAutobound = false;
+         CtrlCaption.PpItemRightThreshold = 0;
          CtrlCaption.PpItemSeparation = 5;
          CtrlCaption.PpStandardButtonSeparation = 5;
-         CtrlCaption.Size = new Size(647, 29);
+         CtrlCaption.PpText = "";
+         CtrlCaption.Size = new Size(566, 22);
          CtrlCaption.TabIndex = 0;
          CtrlCaption.OnDockCaptionEvent += CtrlCaptionStrip_OnDockCaptionEvent;
-         // 
-         // CtrlLabelTitle
-         // 
-         CtrlLabelTitle.BackColor = Color.FromArgb(40, 40, 40);
-         CtrlLabelTitle.Dock = DockStyle.Fill;
-         CtrlLabelTitle.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-         CtrlLabelTitle.ForeColor = Color.White;
-         CtrlLabelTitle.ImageAlign = ContentAlignment.MiddleLeft;
-         CtrlLabelTitle.Location = new Point(0, 3);
-         CtrlLabelTitle.Margin = new Padding(0);
-         CtrlLabelTitle.Name = "CtrlLabelTitle";
-         CtrlLabelTitle.Size = new Size(572, 23);
-         CtrlLabelTitle.TabIndex = 3;
-         CtrlLabelTitle.Text = "Ctrl Caption Strip XXXXXX";
-         CtrlLabelTitle.TextAlign = ContentAlignment.MiddleLeft;
-         CtrlLabelTitle.TextChanged += CtrlLabelTitle_TextChanged;
-         // 
-         // CtrlButtonDockState
-         // 
-         CtrlButtonDockState.BackColor = Color.FromArgb(40, 40, 40);
-         CtrlButtonDockState.FlatAppearance.BorderSize = 0;
-         CtrlButtonDockState.FlatStyle = FlatStyle.Flat;
-         CtrlButtonDockState.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-         CtrlButtonDockState.ForeColor = Color.White;
-         CtrlButtonDockState.ImageList = CtrlImageList;
-         CtrlButtonDockState.Location = new Point(577, 3);
-         CtrlButtonDockState.Margin = new Padding(0);
-         CtrlButtonDockState.Name = "CtrlButtonDockState";
-         CtrlButtonDockState.PpIsToggleActive = false;
-         CtrlButtonDockState.IsToggled = null;
-         CtrlButtonDockState.Size = new Size(36, 23);
-         CtrlButtonDockState.TabIndex = 4;
-         CtrlButtonDockState.UseVisualStyleBackColor = false;
-         CtrlButtonDockState.Click += CtrlButtonDockState_Click;
          // 
          // CtrlMenuDropDown
          // 
@@ -120,13 +105,13 @@ namespace Gate.Dock.DockWidget
          // 
          // GateDockWidgetCaption
          // 
-         AutoScaleDimensions = new SizeF(8F, 20F);
+         AutoScaleDimensions = new SizeF(7F, 15F);
          AutoScaleMode = AutoScaleMode.Font;
          BackColor = Color.FromArgb(40, 40, 40);
          Controls.Add(CtrlCaption);
-         Margin = new Padding(4, 5, 4, 5);
+         Margin = new Padding(4);
          Name = "GateDockWidgetCaption";
-         Size = new Size(647, 29);
+         Size = new Size(566, 22);
          CtrlCaption.ResumeLayout(false);
          ResumeLayout(false);
 
@@ -135,7 +120,6 @@ namespace Gate.Dock.DockWidget
       #endregion
 
       private CustomCaptionCtrl CtrlCaption;
-      private System.Windows.Forms.Label CtrlLabelTitle;
       private ExtendedButtonCtrl CtrlButtonDockState;
       private System.Windows.Forms.ImageList CtrlImageList;
       private ExtendedMenuDropDown CtrlMenuDropDown;

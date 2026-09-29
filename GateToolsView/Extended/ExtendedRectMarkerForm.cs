@@ -2,9 +2,6 @@
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.Extensions;
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace Gate.ToolsView.Extended
 {

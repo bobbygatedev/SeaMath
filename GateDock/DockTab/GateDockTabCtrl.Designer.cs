@@ -114,7 +114,6 @@ namespace Gate.Dock.DockTab
          this.CtrlCaption.PpStandardButtonSeparation = 5;
          this.CtrlCaption.Size = new System.Drawing.Size(875, 39);
          this.CtrlCaption.TabIndex = 1;
-         this.CtrlCaption.OnDockCaptionEvent += new CustomCaptionCtrl.OnDockCaptionEventHandler(this.CtrlCaption_OnDockCaptionEvent);
          // 
          // GateDockTabCtrl
          // 

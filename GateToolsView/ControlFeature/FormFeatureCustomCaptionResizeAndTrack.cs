@@ -9,10 +9,11 @@ namespace Gate.ToolsView.ControlFeature
 {
    /// <summary>
    /// <br>Add the capability to define a form without standard caption, but with the capability of being resized and tracked(not possible if you set FormBorderStyle != Sizable.</br>
+   /// <br>Removes form standard caption.</br>
    /// <br>User can add a custom caption control or choose to leave the feature to paint it.</br>
    /// <br>Differently from standard caption, user can add controls to caption area.</br>
    /// </summary>
-   public class FormFeatureCustomCaptionResize : CtrlFeatureByWndHook.Specialized<Form>
+   public class FormFeatureCustomCaptionResizeAndTrack : CtrlFeatureByWndHook.Specialized<Form>
    {
       /// <summary>
       /// State of the form regarding resize and moving.
@@ -70,7 +71,7 @@ namespace Gate.ToolsView.ControlFeature
       /// <summary>
       /// Constructor.
       /// </summary>
-      public FormFeatureCustomCaptionResize()
+      public FormFeatureCustomCaptionResizeAndTrack()
       {
          myObservable.OnControlAdded += MyObservable_OnControlAdded;
          myObservable.OnControlRemoved += MyObservable_OnControlRemoved;
@@ -93,17 +94,17 @@ namespace Gate.ToolsView.ControlFeature
          public bool IsByEscape { get; }
       }
 
-      private class InnerTransparentCheckHandler : TransparentToMsgCheckHandler
+      private class InnerMsgTransparentCheckHandler : TransparentToMsgCheckHandler
       {
-         public InnerTransparentCheckHandler(FormFeatureCustomCaptionResize formFeature) => FormFeature = formFeature;
+         public InnerMsgTransparentCheckHandler(FormFeatureCustomCaptionResizeAndTrack formFeature) => FormFeature = formFeature;
 
-         public FormFeatureCustomCaptionResize FormFeature { get; }
+         public FormFeatureCustomCaptionResizeAndTrack FormFeature { get; }
 
          public unsafe override bool IsTransparent(
             int screenX, int screenY, CtrlFeatureMessageTransparent featureTransparent)
          {
             var cap_ctr = FormFeature.CustomCaptionControl;
-            var bnd_ctr = featureTransparent.BoundControl ?? throw new Crash();
+            var bnd_ctr = featureTransparent.BoundControl;
 
             if (bnd_ctr == cap_ctr) { return true; }//client area of caption control always transparent
             else if (bnd_ctr.MthGetAnchestors().Contains(cap_ctr)) { return false; }//client area of child and child of child always opaque
@@ -173,7 +174,7 @@ namespace Gate.ToolsView.ControlFeature
       }
 
       /// <summary>
-      /// <br>  the caption control.</br> 
+      /// <br> Caption control.</br> 
       /// <br> Custom caption define area where the form can be tracked.</br>
       /// <br> Can be placed not necessary to form top.</br>
       /// <br> It's area is event transparent (uses <seealso cref="Gate.ToolsView.ControlFeature.CtrlFeatureMessageTransparent"/>) </br>
@@ -403,7 +404,7 @@ namespace Gate.ToolsView.ControlFeature
                break;
 
             case WinMsgEnum.WM_NCCALCSIZE:
-               msg.Result = (IntPtr)0;
+               msg.Result = 0;
 
                return false;
 
@@ -475,7 +476,7 @@ namespace Gate.ToolsView.ControlFeature
          {
             var fea = control.AddFeature<CtrlFeatureMessageTransparent>();
 
-            fea.TransparentToMsgCheck = new InnerTransparentCheckHandler(this);
+            fea.TransparentToMsgCheck = new InnerMsgTransparentCheckHandler(this);
          }
       }
 

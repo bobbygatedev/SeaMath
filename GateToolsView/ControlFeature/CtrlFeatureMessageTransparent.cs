@@ -1,6 +1,4 @@
 ﻿using Gate.ToolsView.Native;
-using System;
-using System.Windows.Forms;
 
 namespace Gate.ToolsView.ControlFeature
 {

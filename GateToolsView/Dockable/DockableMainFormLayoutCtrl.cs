@@ -26,7 +26,10 @@ namespace Gate.ToolsView.Dockable
       {
          InitializeComponent();
 
-         PpCtrlCaption = new CustomCaptionCtrl();
+         var cap = new CustomCaptionCtrl();
+
+         cap.PpIsFormAutobound = true;
+         PpCtrlCaption = cap;
          PpCtrlToolBarContainer = new CmdToolBarContainerCtrl();
       }
 

@@ -70,8 +70,7 @@ namespace Gate.Dock.DockWidget
          CtrlWidgetCaption.Height = GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT;
 
          //label 
-         var cap_lab = this.MthGetNephew<CustomCaptionCtrl>()?.MthGetNephew<Label>();
-
+         var cap_lab = this.MthGetNephew<CustomCaptionCtrl>();
          var fea = (cap_lab?.AddFeature<CtrlFeatureTrackStartSense>()).NnOrCrash();
 
          fea.OnStartingDragging += Fea_OnAskForDragging;
@@ -101,7 +100,7 @@ namespace Gate.Dock.DockWidget
          set
          {
             if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show(string.Format("{0}.PpSkinChildCtrlDispacther can't be null", GetType().Name)); }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
          }
       }
 
@@ -431,6 +430,12 @@ namespace Gate.Dock.DockWidget
          if (PpDockState != GateDockWidgetStateFlags.floating)
          {
             PpMainFrm?.MthWidgetShow(this, GateDockWidgetStateFlags.floating)?.MthStartTracking(pos_rel);
+         }
+         else
+         {
+            var flt_frm = ParentForm.ConvertOrCrash<GateDockFloatContainerForm>();
+
+            flt_frm.MthStartTracking(pos_rel);
          }
       }
 

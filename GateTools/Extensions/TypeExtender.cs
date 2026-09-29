@@ -82,7 +82,8 @@ namespace Gate.Tools.Extensions
       /// <param name="obj">The object to validate for non-nullity.</param>
       /// <returns>The original object if it is not null.</returns>
       /// <exception cref="Crash">Thrown if obj is null.</exception>
-      public static T NnOrCrash<T>(this T? obj) where T : class => obj ?? throw new Crash($"Object of type {typeof(T).Name} is null");
+      public static T NnOrCrash<T>(this T? obj , string? crashMessage = null) where T : class =>
+         obj ?? throw new Crash(crashMessage ?? $"Object of type {typeof(T).Name} is null");
 
       /// <summary>
       /// Ensures that the specified object is not null, throwing a Crash exception if it is.

@@ -5,13 +5,11 @@ using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlObserve;
 using Gate.ToolsView.Dockable;
-using Gate.ToolsView.Extended;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
 using Gate.ToolsView.MenuExtended;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using static Gate.ToolsView.Extended.CustomCaptionCtrl;
 using static Gate.ToolsView.Extended.ExtendedTabbedCtrl;
 
 namespace Gate.Dock.DockTab
@@ -52,9 +50,6 @@ namespace Gate.Dock.DockTab
          obs.OnControlRemoved += myActionOnAnyAnchestorControlChanged;
          CtrlTabbed.OnSelectedTabChanged += CtrlTabbed_OnSelectedTabChanged;
       }
-
-      private void CtrlTabbed_OnSelectedTabChanged(object? sender, int newTabIdx, Control? newTabbedControl) =>
-         OnVisibleTabPageChanged?.Invoke(this, CtrlTabbed.PpTabVisible);
 
       /// <summary>
       /// 
@@ -312,22 +307,8 @@ namespace Gate.Dock.DockTab
 
       private void MainFrm_OnSkinChange(object? sender, GateDockSkin? skin) => PpSkin = skin;
 
-      private void CtrlCaption_OnDockCaptionEvent(object? sender, EventType eventType)
-      {
-         switch (eventType)
-         {
-            case EventType.button_minimize:
-            case EventType.button_maximize:
-            case EventType.button_close:
-            case EventType.start_tracking:
-            case EventType.end_tracking:
-               //tododo test
-               //this.MthGetNephew<CustomCaptionCtrl>()?.MthDefaultBehaviour(sender, eventType);
-               break;
-
-            default: throw new Crash();
-         }
-      }
+      private void CtrlTabbed_OnSelectedTabChanged(object? sender, int newTabIdx, Control? newTabbedControl) =>
+         OnVisibleTabPageChanged?.Invoke(this, CtrlTabbed.PpTabVisible);
 
       private void Widget_OnTitleChange(object? sender, EventArgs e) =>
          CtrlTabbed.MthGetButton(sender as Control ?? throw new Crash()).PpText =

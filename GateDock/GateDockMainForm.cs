@@ -69,7 +69,7 @@ namespace Gate.Dock
       /// </summary>
       public GateDockMainForm()
       {
-         this.AddFeature<FormFeatureCustomCaptionResize>();
+         this.AddFeature<FormFeatureCustomCaptionResizeAndTrack>();
          this.AddFeature<CtrlFeatureBorder>();
 
          myTabPageHandling = new InnerTabPageHandling(this);

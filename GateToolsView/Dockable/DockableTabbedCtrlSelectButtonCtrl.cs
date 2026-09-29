@@ -1,4 +1,4 @@
-﻿using Gate.Tools;
+﻿using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.MenuExtended;
@@ -8,8 +8,53 @@ using static Gate.ToolsView.ControlFeature.CtrlFeatureTrackStartSense;
 namespace Gate.ToolsView.Dockable
 {
    /// <summary>
-   /// 
+   /// <br> Control representing a selectable tab-like button that optionally shows a close button
+   /// and may host a context menu. </br>
+   /// <br> The control exposes events for selection, close requests,
+   /// and the start of a drag operation.</br>
    /// </summary>
+   /// <remarks>
+   /// <br>Pseudocode / Implementation plan:</br>
+   /// <br>1) Constructor:</br>
+   ///    <br>- Initialize components.</br>
+   ///    <br>- Add images to the internal image list (minimize, maximize, close).</br>
+   ///    <br>- Add feature CtrlFeatureToolTip to the select button.</br>
+   ///    <br>- Add feature CtrlFeatureTrackStartSense to the select button and subscribe its
+   ///      OnStartingDragging to forward to this control's OnAskForDragging event.</br>
+   ///    <br>- Enable ControlStyles.ResizeRedraw and call PerformLayout() to compute initial layout.</br>
+   ///
+   /// <br>2) Layout (InnerLayoutEngine.Layout):</br>
+   ///    <br>- Cast container to this control.</br>
+   ///    <br>- If PpHasCloseButton is true, show the close button, set its width/height to control height,
+   ///      position it on the right, and reserve its width for layout.</br>
+   ///    <br>- Set the select button height to the control height and width to remaining width.</br>
+   ///    <br>- Update MinimumSize to PreferredSize so parent layouts can query correctly.</br>
+   ///
+   /// <br>3) Properties:</br>
+   ///    <br>- PpDraggingDelaySeconds: forward to CtrlFeatureTrackStartSense.DraggingDelaySeconds (null-safe).</br>
+   ///    <br>- PpText: maps to CtrlSelectButton.Text and triggers PerformLayout().</br>
+   ///    <br>- PpHasCloseButton: simple backing field toggle that affects layout when changed.</br>
+   ///    <br>- PpGuardWidth: number of pixels before/after text; triggers PerformLayout() when changed.</br>
+   ///    <br>- LayoutEngine: returns a new InnerLayoutEngine instance for custom layout logic.</br>
+   ///    <br>- PpToolTipText: forwards to CtrlFeatureToolTip.ToolTipText (throws if missing).</br>
+   ///    <br>- PpMenuDropDown: sets the select button's ContextMenuStrip and stores reference.</br>
+   ///
+   /// <br>4) GetPreferredSize:</br>
+   ///    <br>- Measure the select button text using a temporary Graphics object.</br>
+   ///    <br>- Compute height as max of measured text height and a minimum.</br>
+   ///    <br>- Compute width as height (for possible icon/spacing) + measured text width + guard padding.</br>
+   ///
+   /// <br>5) Events:</br>
+   ///    <br>- CtrlSelectButton_MouseDown: on left button, invoke OnAskForSelect.</br>
+   ///    <br>- CtrlAskForClose_Click: invoke OnAskForClose.</br>
+   ///
+   /// <br>6) Styling:
+   ///    - OnBackColorChanged / OnForeColorChanged: propagate colors to child controls (select and close button).</br>
+   ///
+   /// <br>Notes:</br>
+   /// <br>- Use null-conditional / null-coalescing operators where appropriate and throw Crash() when a required feature is unexpectedly missing.</br>
+   /// <br>- Keep layout calculations minimal and avoid allocating heavy resources in Layout; measuring occurs in GetPreferredSize.</br>
+   /// </remarks>
    public partial class DockableTabbedCtrlSelectButtonCtrl : UserControl
    {
       private bool myHasCloseButton = false;
@@ -34,7 +79,8 @@ namespace Gate.ToolsView.Dockable
 
          //for tool tip
          CtrlSelectButton.AddFeature<CtrlFeatureToolTip>();
-         CtrlSelectButton.AddFeature<CtrlFeatureTrackStartSense>().OnStartingDragging += (_) => OnAskForDragging?.Invoke(this);
+         CtrlSelectButton.AddFeature<CtrlFeatureTrackStartSense>().OnStartingDragging += 
+            (_) => OnAskForDragging?.Invoke(this);
          SetStyle(ControlStyles.ResizeRedraw, true);
          PerformLayout();
       }
@@ -62,15 +108,12 @@ namespace Gate.ToolsView.Dockable
       }
 
       /// <summary>
-      ///  the timeout for start dragging (from button down).
+      /// Timeout for start dragging (from button down).
       /// </summary>
       public double PpDraggingDelaySeconds
       {
-         get => this.GetFeature<CtrlFeatureTrackStartSense>()?.DraggingDelaySeconds ?? -1.0;
-         set
-         {
-            (this.GetFeature<CtrlFeatureTrackStartSense>() ?? throw new Crash()).DraggingDelaySeconds = value;
-         }
+         get => this.GetFeature<CtrlFeatureTrackStartSense>()?.DraggingDelaySeconds ?? -1.0; 
+         set => this.GetFeature<CtrlFeatureTrackStartSense>().NnOrCrash().DraggingDelaySeconds = value;
       }
 
       /// <summary>
@@ -98,7 +141,7 @@ namespace Gate.ToolsView.Dockable
       }
 
       /// <summary>
-      ///  num pixels before and after text.
+      /// Num pixels before and after text.
       /// </summary>
       public int PpGuardWidth
       {
@@ -122,10 +165,7 @@ namespace Gate.ToolsView.Dockable
       {
          get => CtrlSelectButton.GetFeature<CtrlFeatureToolTip>()?.ToolTipText;
 
-         set
-         {
-            (CtrlSelectButton.GetFeature<CtrlFeatureToolTip>() ?? throw new Crash()).ToolTipText = value;
-         }
+         set => (CtrlSelectButton.GetFeature<CtrlFeatureToolTip>().NnOrCrash()).ToolTipText = value;
       }
 
       /// <summary>

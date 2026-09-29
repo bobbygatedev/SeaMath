@@ -66,7 +66,7 @@ namespace Gate.Dock
 
          public void OnNewFloatForm(GateDockFloatContainerForm floatForm)
          {
-            if (floatForm.PpTrackState == FormFeatureCustomCaptionResize.TrackState.moving) { AnyForm_OnTrackingStart(floatForm); }
+            if (floatForm.PpTrackState == FormFeatureCustomCaptionResizeAndTrack.TrackState.moving) { AnyForm_OnTrackingStart(floatForm); }
             else { floatForm.OnTrackingStart += AnyForm_OnTrackingStart; }
 
             floatForm.Move += AnyForm_Move;

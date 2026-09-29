@@ -9,13 +9,11 @@ namespace Gate.Dock
 {
    public partial class GateDockSimpleForm : Form
    {
-
-
       public GateDockSimpleForm()
       {
          InitializeComponent();
 
-         var fea = this.AddFeature<FormFeatureCustomCaptionResize>();
+         var fea = this.AddFeature<FormFeatureCustomCaptionResizeAndTrack>();
 
          fea.CustomCaptionControl = customCaptionCtrl1;
       }

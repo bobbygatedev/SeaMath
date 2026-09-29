@@ -527,6 +527,11 @@ namespace Gate.Dock.DockApp
          public Size Size => new Size(Width.Value, Height.Value);
       }
 
+      /// <summary>
+      /// tododo 
+      /// save mode (just significant size shall be saved):
+      /// eg if the widget is docked at top, just the height is significant, if docked at left, just the width is significant, if floating, both are significant
+      /// </summary>
       public class WidgetRecord : AppParam.Record
       {
          public WidgetRecord() : base("Widget") { }

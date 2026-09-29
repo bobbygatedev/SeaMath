@@ -1,4 +1,5 @@
 ﻿using Gate.Dock.DockSkin;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.MenuCommand;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -37,7 +38,6 @@ namespace Gate.Dock.DockWidget
          CtrlButtonDockState.ImageIndex = 0;
          DoubleBuffered = true;
          mySkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
-         CtrlLabelTitle_TextChanged(null, new EventArgs());
          Height = GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT;
       }
 
@@ -91,8 +91,8 @@ namespace Gate.Dock.DockWidget
       [AllowNull]
       public override string Text
       {
-         get => CtrlLabelTitle.Text;
-         set => CtrlLabelTitle.Text = value;
+         get => CtrlCaption.PpText;
+         set => CtrlCaption.PpText = value.Nn();
       }
 
       /// <summary>
@@ -160,13 +160,6 @@ namespace Gate.Dock.DockWidget
 
          base.OnFontChanged(e);
       }
-
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="sender"></param>
-      /// <param name="e"></param>
-      private void CtrlLabelTitle_TextChanged(object? sender, EventArgs e) => CtrlLabelTitle.Size = new Size(CtrlLabelTitle.PreferredWidth, Height);
 
       /// <summary>
       /// 

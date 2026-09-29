@@ -1,10 +1,6 @@
 ﻿using Gate.Tools.AppParams;
 using Gate.ToolsView.AppParams;
 using Gate.ToolsView.Extensions;
-using System;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace Gate.ToolsViewTest
 {
