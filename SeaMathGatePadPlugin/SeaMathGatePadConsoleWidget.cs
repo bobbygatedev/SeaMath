@@ -27,7 +27,7 @@ namespace Gate.SeaMathGatePadPlugin
          InitializeComponent();
          PpBody = PpConsoleView = ctr;
          ctr.PpIsUseDirectCommandsAction = true;
-         PpSkinChildCtrlDispacther = new InnerSkinDispatcher(this);
+         PpSkinChildCtrlDispatcher = new InnerSkinDispatcher(this);
       }
 
 
@@ -59,7 +59,7 @@ namespace Gate.SeaMathGatePadPlugin
       /// <summary>
       /// Avoid modify on console font (it remains set by <see cref="Gate.ToolsView.ConIO.ConsoleControl"/>). 
       /// </summary>
-      private class InnerSkinDispatcher : GateDockWidgetSkinDispacther
+      private class InnerSkinDispatcher : GateDockWidgetSkinDispatcher
       {
          public InnerSkinDispatcher(SeaMathGatePadConsoleWidget parent) : base(parent) { }
 

@@ -362,10 +362,10 @@ namespace Gate.Dock
 
          this.MthInvoke(new Action(() =>
          {
-            var dck_sta = widget.PpLastDockState == GateDockWidgetStateFlags.invisible ?
-               widget.PpFactory?.DefaultState : widget.PpLastDockState;
+            var dck_sta = widget.PpSavedDockState == GateDockWidgetStateFlags.invisible ?
+               widget.PpFactory?.DefaultState : widget.PpSavedDockState;
 
-            res = MthWidgetShow(widget, dck_sta ?? throw new Crash(), widget.PpLastFloatLocation);
+            res = MthWidgetShow(widget, dck_sta.NnOrCrash(), widget.PpSavedFloatLocation);
          }));
 
          return res;
@@ -392,9 +392,10 @@ namespace Gate.Dock
 
          sm.SetState(dockState, floatLocation);
          widget.OnSelectedChanged += Widget_OnSelectedChanged;
-         widget.MthSaveLast();
 
-         return widget.PpDockState == GateDockWidgetStateFlags.floating ? widget?.ParentForm as GateDockFloatContainerForm : null;
+         return widget.PpDockState == 
+            GateDockWidgetStateFlags.floating ? 
+               widget?.ParentForm as GateDockFloatContainerForm : null;
       }
 
       /// <summary>

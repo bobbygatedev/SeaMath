@@ -527,11 +527,6 @@ namespace Gate.Dock.DockApp
          public Size Size => new Size(Width.Value, Height.Value);
       }
 
-      /// <summary>
-      /// tododo 
-      /// save mode (just significant size shall be saved):
-      /// eg if the widget is docked at top, just the height is significant, if docked at left, just the width is significant, if floating, both are significant
-      /// </summary>
       public class WidgetRecord : AppParam.Record
       {
          public WidgetRecord() : base("Widget") { }
@@ -561,14 +556,15 @@ namespace Gate.Dock.DockApp
          {
             DockState = widget.PpDockState;
 
+            widget.MthSaveLast();
+
             WriteProperties(widget, false);
             WriteProperties(widget.PpFactory.NnOrCrash(), false);
 
-            if (widget.ParentForm?.WindowState == FormWindowState.Minimized)
-            {
-               Width.Value = widget.PpRestoreSize.Width;
-               Height.Value = widget.PpRestoreSize.Height;
-            }
+            var siz = widget.PpSavedSize ?? DefaultWidgetSize;
+
+            Width.Value = siz.Width;
+            Height.Value = siz.Height;
          }
 
          /// <summary>
@@ -592,6 +588,8 @@ namespace Gate.Dock.DockApp
                FloatTop.Value = value.Y;
             }
          }
+
+         public Size DefaultWidgetSize => new Size(500, 200);
 
          public readonly Simple<int> FloatLeft = new Simple<int>();
          public readonly Simple<int> FloatTop = new Simple<int>();

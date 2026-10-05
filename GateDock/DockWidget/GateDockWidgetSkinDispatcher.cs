@@ -8,11 +8,11 @@ namespace Gate.Dock.DockWidget
    /// <summary>
    /// 
    /// </summary>
-   public class GateDockWidgetSkinDispacther : GateDockSkinChildCtrlDispatcher
+   public class GateDockWidgetSkinDispatcher : GateDockSkinChildCtrlDispatcher
    {
       private UpdateViUpdateWidgetControlsVisitor myUpdateWidgetControlsVisitor = new UpdateViUpdateWidgetControlsVisitor();
 
-      public GateDockWidgetSkinDispacther(GateDockWidgetCtrl parent) : base(parent) { }
+      public GateDockWidgetSkinDispatcher(GateDockWidgetCtrl parent) : base(parent) { }
 
       protected class UpdateViUpdateWidgetControlsVisitor
       {

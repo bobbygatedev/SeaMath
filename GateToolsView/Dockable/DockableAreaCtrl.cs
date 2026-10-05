@@ -52,12 +52,14 @@ namespace Gate.ToolsView.Dockable
       /// <summary>
       /// Effective direction, property has value if more than one center slot has created.
       /// </summary>
-      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective => mySlotRowRoot.AllRows.Last().SlotsAnyCenter.Length >= 2 ? (DockableCtrlRowDirectionEnum?)mySlotRowRoot.AllRows.Last().Direction : null;
+      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective => 
+         mySlotRowRoot.AllRows.Last().SlotsAnyCenter.Length >= 2 ? mySlotRowRoot.AllRows.Last().Direction : null;
 
       /// <summary>
       /// Array with all docked controls.
       /// </summary>
-      public Control[] PpControlsDocked => mySlotRowRoot.SlotsAllControlUser.Select(s => s.UserControl).Nn().ToArray() ?? [];
+      public Control[] PpControlsDocked => 
+         mySlotRowRoot.SlotsAllControlUser.Select(s => s.UserControl).Nn().ToArray() ?? [];
 
       /// <summary>
       /// Left-docked controls.

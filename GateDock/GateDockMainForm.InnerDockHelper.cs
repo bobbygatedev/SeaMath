@@ -42,6 +42,8 @@ namespace Gate.Dock
          {
             var dck_ctr = mainForm.CtrlDockArea;
 
+            widget.Size = widget.PpSavedSize ?? widget.Size;
+
             if (dck_ctr.PpControlsDocked.Contains(widget))
             {
                var anc = dck_ctr.MthGetAnchorFromControl(widget);

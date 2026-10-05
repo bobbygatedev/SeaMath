@@ -41,7 +41,7 @@ namespace Gate.Dock.DockAppWidgets
          myCtrlMessages.PpScintilla.CaretStyle = CaretStyle.Invisible;
          myCtrlMessages.PpScintilla.CaretLineVisible = true;
          myCtrlMessages.PpScintilla.CaretLineBackColor = GateDockSkin.DefaultValues.FindWindowLineHighlight;
-         PpSkinChildCtrlDispacther = new InnerSkinDispatcher(this);
+         PpSkinChildCtrlDispatcher = new InnerSkinDispatcher(this);
       }
 
       public class Factory : GateDockWidgetFactory
@@ -69,7 +69,7 @@ namespace Gate.Dock.DockAppWidgets
          protected override GateDockWidgetCtrl myMakeWidget() => new GateDockFindResultWidgetCtrl();
       }
 
-      private class InnerSkinDispatcher : GateDockWidgetSkinDispacther
+      private class InnerSkinDispatcher : GateDockWidgetSkinDispatcher
       {
          public InnerSkinDispatcher(GateDockFindResultWidgetCtrl parent) : base(parent) { }
 

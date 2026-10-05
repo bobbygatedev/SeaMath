@@ -20,7 +20,7 @@ namespace Gate.Dock.DockWidget
    /// </summary>
    public partial class GateDockWidgetCtrl : UserControl, IGateDockCtrlWithSkin
    {
-      public delegate void OnChanginMainFormHandler(object? sender, GateDockMainForm? mainForm);
+      public delegate void OnChangingMainFormHandler(object? sender, GateDockMainForm? mainForm);
 
       /// <summary>
       /// 
@@ -42,14 +42,14 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      public event OnChanginMainFormHandler? OnChangingMainForm;
+      public event OnChangingMainFormHandler? OnChangingMainForm;
 
       private ControlObservableFocused myControlFocusedObservable;
       private ControlObservableParent myParentObservable;
       private Color myBorderColor = GateDockSkin.DefaultValues.BorderColor;
       private int myBorderPixels;
       private GateDockMainForm? myMainFrm = null;
-      private GateDockWidgetSkinDispacther? mySkinChildCtrlDispacther = null;
+      private GateDockWidgetSkinDispatcher? mySkinChildCtrlDispacther = null;
       private bool myIsSelected = false;
       private string myTitle = "";
 
@@ -60,7 +60,7 @@ namespace Gate.Dock.DockWidget
       {
          InitializeComponent();
 
-         PpSkinChildCtrlDispacther = new GateDockWidgetSkinDispacther(this);
+         PpSkinChildCtrlDispatcher = new GateDockWidgetSkinDispatcher(this);
          myControlFocusedObservable = new ControlObservableFocused(this);
          myControlFocusedObservable.OnIsFocusedChanged += MyControlFocusedObservable_OnIsFocusedChanged;
          myParentObservable = new ControlObservableParent(this);
@@ -94,7 +94,7 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      public GateDockWidgetSkinDispacther? PpSkinChildCtrlDispacther
+      public GateDockWidgetSkinDispatcher? PpSkinChildCtrlDispatcher
       {
          get => mySkinChildCtrlDispacther;
          set
@@ -212,12 +212,12 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      public Point? PpLastFloatLocation { get; private set; }
+      public Point? PpSavedFloatLocation { get; private set; }
 
       /// <summary>
       /// 
       /// </summary>
-      public Size? PpLastSize { get; private set; }
+      public Size? PpSavedSize { get; private set; }
 
       /// <summary>
       ///  
@@ -297,16 +297,16 @@ namespace Gate.Dock.DockWidget
          }
       }
 
-      public GateDockWidgetStateFlags PpLastDockState { get; private set; } = GateDockWidgetStateFlags.invisible;
+      public GateDockWidgetStateFlags PpSavedDockState { get; private set; } = GateDockWidgetStateFlags.invisible;
 
       public GateDockSkin? PpSkin
       {
-         get => PpSkinChildCtrlDispacther?.Skin;
+         get => PpSkinChildCtrlDispatcher?.Skin;
          set
          {
-            if (PpSkinChildCtrlDispacther != null)
+            if (PpSkinChildCtrlDispatcher != null)
             {
-               PpSkinChildCtrlDispacther.Skin = value;
+               PpSkinChildCtrlDispatcher.Skin = value;
             }
          }
       }
@@ -357,25 +357,63 @@ namespace Gate.Dock.DockWidget
       {
          if (PpMainFrm != null)
          {
-            var dck_sta = PpLastDockState;
+            var dck_sta = PpSavedDockState;
 
             if (dck_sta == GateDockWidgetStateFlags.invisible)
             {
                dck_sta = PpFactory != null ? PpFactory.DefaultState : GateDockWidgetStateFlags.floating;
             }
 
-            PpMainFrm.MthWidgetShow(this, dck_sta, PpLastFloatLocation);
+            PpMainFrm.MthWidgetShow(this, dck_sta, PpSavedFloatLocation);
          }
+      }
+
+      private void myDoSaveSize()
+      {
+         var sav = PpSavedSize ?? DefaultSize;
+
+         if (PpIsWidgetVisible && ParentForm?.WindowState != FormWindowState.Minimized)
+         {
+            if (
+               PpDockState == GateDockWidgetStateFlags.tabbed ||
+               PpDockState.HasFlag(GateDockWidgetStateFlags.group) &&
+               PpWidgetGroup.NnOrCrash().PpWidgets.ToList().IndexOf(this) != 0)
+            {
+               sav = Size;
+            }
+            else if (
+               PpDockState is
+                  GateDockWidgetStateFlags.group_left or
+                  GateDockWidgetStateFlags.group_right or
+                  GateDockWidgetStateFlags.dock_left or
+                  GateDockWidgetStateFlags.dock_right)
+            {
+               //just width is significant-> height is restored
+               sav.Width = Width;
+            }
+            else if (
+               PpDockState is
+                  GateDockWidgetStateFlags.group_up or
+                  GateDockWidgetStateFlags.group_down or
+                  GateDockWidgetStateFlags.dock_up or
+                  GateDockWidgetStateFlags.dock_down)
+            {
+               //just heigh is significant-> width is restored
+               sav.Height = Height;
+            }
+         }
+
+         PpSavedSize = sav;
       }
 
       internal void MthSaveLast()
       {
-         PpLastSize = Size;
+         myDoSaveSize();
 
-         if ((PpLastDockState = PpDockState) == GateDockWidgetStateFlags.floating)
+         if ((PpSavedDockState = PpDockState) == GateDockWidgetStateFlags.floating)
          {
-            PpLastFloatLocation = Parent?.PointToScreen(Location);
-            PpLastDockState = PpDockState;
+            PpSavedFloatLocation = Parent?.PointToScreen(Location);
+            PpSavedDockState = PpDockState;
          }
       }
 

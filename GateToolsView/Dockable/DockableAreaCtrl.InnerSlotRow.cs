@@ -166,7 +166,7 @@ namespace Gate.ToolsView.Dockable
          public abstract DockableCtrlRowDirectionEnum Direction { get; }
 
          /// <summary>
-         ///  depth(info) value, where 0 is row direct bound to DockCtrl and Max is top value (which contains center controls).
+         /// Depth(info) value, where 0 is row direct bound to DockCtrl and Max is top value (which contains center controls).
          /// </summary>
          public int Depth => ParentDockCtrl == ParentCtrl ? 0 : (SlotParentSubRow?.ParentRow?.Depth ?? 0) + 1;
 
