@@ -368,38 +368,31 @@ namespace Gate.Dock.DockWidget
          }
       }
 
+      /// <summary>
+      /// Index inside a group or null if not in a group.
+      /// </summary>
+      public int? PpGroupIndex =>
+         PpWidgetGroup?.PpWidgets.ToList().IndexOf(this) is int idx && idx != -1 ?
+            idx : (int?)null;
+
       private void myDoSaveSize()
       {
          var sav = PpSavedSize ?? DefaultSize;
+         var is_dck = PpDockState.HasFlag(GateDockWidgetStateFlags.dock);
 
-         if (PpIsWidgetVisible && ParentForm?.WindowState != FormWindowState.Minimized)
+         if (PpIsWidgetVisible && is_dck && ParentForm?.WindowState != FormWindowState.Minimized)
          {
-            if (
-               PpDockState == GateDockWidgetStateFlags.tabbed ||
-               PpDockState.HasFlag(GateDockWidgetStateFlags.group) &&
-               PpWidgetGroup.NnOrCrash().PpWidgets.ToList().IndexOf(this) != 0)
+            if (PpDockState is GateDockWidgetStateFlags.dock_left or GateDockWidgetStateFlags.dock_right)
             {
-               sav = Size;
-            }
-            else if (
-               PpDockState is
-                  GateDockWidgetStateFlags.group_left or
-                  GateDockWidgetStateFlags.group_right or
-                  GateDockWidgetStateFlags.dock_left or
-                  GateDockWidgetStateFlags.dock_right)
-            {
-               //just width is significant-> height is restored
                sav.Width = Width;
             }
-            else if (
-               PpDockState is
-                  GateDockWidgetStateFlags.group_up or
-                  GateDockWidgetStateFlags.group_down or
-                  GateDockWidgetStateFlags.dock_up or
-                  GateDockWidgetStateFlags.dock_down)
+            else if (PpDockState is GateDockWidgetStateFlags.dock_up or GateDockWidgetStateFlags.dock_down)
             {
-               //just heigh is significant-> width is restored
                sav.Height = Height;
+            }
+            else if (!PpDockState.HasFlag(GateDockWidgetStateFlags.group))
+            {
+               throw new Crash();
             }
          }
 

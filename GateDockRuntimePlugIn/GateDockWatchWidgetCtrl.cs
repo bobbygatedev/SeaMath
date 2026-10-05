@@ -53,7 +53,7 @@ namespace Gate.DockRuntimePlugin
          /// <summary>
          /// 
          /// </summary>
-         public override string CtrlGuid => "{52046715-5032-4B4E-A01D-365F3D904E8F}";
+         public override string CtrlGuid => "52046715-5032-4B4E-A01D-365F3D904E8F";
 
          /// <summary>
          /// 

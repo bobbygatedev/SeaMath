@@ -465,7 +465,6 @@ namespace Gate.Dock.DockApp
             WriteProperties(tab_pag.PpFactory.NnOrCrash(), false);
          }
 
-
          /// <summary>
          /// 
          /// </summary>
@@ -497,9 +496,23 @@ namespace Gate.Dock.DockApp
 
          public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
 
+         public readonly Simple<int> DockOrder = new Simple<int>();
+
+         public readonly Simple<int> Width = new Simple<int>();
+
+         public readonly Simple<int> Height = new Simple<int>();
+
+         public Size Size => new Size(Width.Value, Height.Value);
+
          public void WriteToRepo(GateDockWidgetGroupCtrl widgetGroup)
          {
+            widgetGroup.MthSaveLast();
             WriteProperties(widgetGroup, false);
+
+            var siz = widgetGroup.PpSavedSize ?? widgetGroup.Size;
+
+            Width.Value = siz.Width;
+            Height.Value = siz.Height;
 
             foreach (var wdg in widgetGroup.PpWidgets)
             {
@@ -520,16 +533,48 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         public readonly Simple<int> Width = new Simple<int>();
-
-         public readonly Simple<int> Height = new Simple<int>();
-
-         public Size Size => new Size(Width.Value, Height.Value);
       }
 
       public class WidgetRecord : AppParam.Record
       {
          public WidgetRecord() : base("Widget") { }
+
+         /// <summary>
+         /// tododo develop (lowest first to be docked) 
+         /// </summary>
+         public readonly Simple<int> DockOrder = new Simple<int>();
+
+         /// <summary>
+         /// 
+         /// </summary>
+         public readonly Simple<string> CtrlGuid = new Simple<string>();
+
+         public readonly Simple<int> FloatLeft = new Simple<int>();
+         public readonly Simple<int> FloatTop = new Simple<int>();
+         public readonly Simple<int> Width = new Simple<int>();
+
+         public readonly Simple<int> Height = new Simple<int>();
+
+         public readonly Simple<GateDockWidgetStateFlags> DockStateParam = new Simple<GateDockWidgetStateFlags>("DockState", null, GateDockWidgetStateFlags.invisible);
+
+         public readonly Simple<string> ContentDescriptor = new Simple<string>();
+
+         public GateDockWidgetStateFlags DockState
+         {
+            get => DockStateParam.Value;
+
+            set => DockStateParam.Value = value;
+         }
+
+         public Point FloatLocation
+         {
+            get => new Point(FloatLeft.Value, FloatTop.Value);
+            set
+            {
+               FloatLeft.Value = value.X;
+               FloatTop.Value = value.Y;
+            }
+         }
 
          public GateDockWidgetCtrl? ReadFromRepo(GateDockApp app)
          {
@@ -561,45 +606,11 @@ namespace Gate.Dock.DockApp
             WriteProperties(widget, false);
             WriteProperties(widget.PpFactory.NnOrCrash(), false);
 
-            var siz = widget.PpSavedSize ?? DefaultWidgetSize;
+            var siz = widget.PpSavedSize ?? widget.Size;
 
             Width.Value = siz.Width;
             Height.Value = siz.Height;
          }
-
-         /// <summary>
-         /// 
-         /// </summary>
-         public readonly Simple<string> CtrlGuid = new Simple<string>();
-
-         public GateDockWidgetStateFlags DockState
-         {
-            get => DockStateParam.Value;
-
-            set => DockStateParam.Value = value;
-         }
-
-         public Point FloatLocation
-         {
-            get => new Point(FloatLeft.Value, FloatTop.Value);
-            set
-            {
-               FloatLeft.Value = value.X;
-               FloatTop.Value = value.Y;
-            }
-         }
-
-         public Size DefaultWidgetSize => new Size(500, 200);
-
-         public readonly Simple<int> FloatLeft = new Simple<int>();
-         public readonly Simple<int> FloatTop = new Simple<int>();
-         public readonly Simple<int> Width = new Simple<int>();
-
-         public readonly Simple<int> Height = new Simple<int>();
-
-         public readonly Simple<GateDockWidgetStateFlags> DockStateParam = new Simple<GateDockWidgetStateFlags>("DockState", null, GateDockWidgetStateFlags.invisible);
-
-         public readonly Simple<string> ContentDescriptor = new Simple<string>();
       };
 
       public class FormStateRecord : AppParam.Record

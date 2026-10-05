@@ -109,6 +109,7 @@ namespace Gate.Dock
                public sealed override void HandlerCleanup(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
                {
                   //common de-settings
+                  widget.MthSaveLast();
                   myHandlerHide(stateOnSetup, mainForm, widget, ref floatLocation);
                   myCommonOnAfterHide(stateOnSetup, mainForm, widget, ref floatLocation);
                }

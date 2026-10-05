@@ -89,6 +89,13 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       public SkinChildCtrlDispacther PpSkinChildCtrlDispacther { get; set; }
 
+      public Size? PpSavedSize { get; private set; }
+
+      /// <summary>
+      /// Is widget is visible independently from dock-state (not necessary equal to Control.Visible)?
+      /// </summary>
+      public bool PpIsWidgetGroupVisible => ParentForm != null && ParentForm.Visible;
+
       public void MthWidgetAdd(params GateDockWidgetCtrl[] widgetCtrs)
       {
          foreach (var wdg in widgetCtrs)
@@ -115,6 +122,28 @@ namespace Gate.Dock.DockWidget
       public void MthWidgetBring2Front(GateDockWidgetCtrl widget)
       {
          if (PpWidgets.Contains(widget)) { CtrlDockTabbed.PpTabVisible = widget; }
+      }
+
+      internal void MthSaveLast()
+      {
+         var sav = PpSavedSize ?? DefaultSize;
+         var is_dck = PpDockState.HasFlag(GateDockWidgetStateFlags.dock);
+
+         if (PpIsWidgetGroupVisible && is_dck && ParentForm?.WindowState != FormWindowState.Minimized)
+         {
+            if (PpDockState is GateDockWidgetStateFlags.group_left or GateDockWidgetStateFlags.group_right)
+            {
+               sav.Width = Width;
+            }
+            else if (PpDockState is GateDockWidgetStateFlags.group_up or GateDockWidgetStateFlags.group_down)
+            {
+               sav.Height = Height;
+            }
+            else
+            {
+               throw new Crash();
+            }
+         }
       }
 
       private GateDockWidgetStateFlags myGetStateFromAnchor(DockableAreaCtrlSlotAnchorModeEnum anchor)
