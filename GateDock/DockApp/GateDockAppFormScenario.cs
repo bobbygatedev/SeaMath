@@ -48,20 +48,53 @@ namespace Gate.Dock.DockApp
 
          public void ReadFromRecord(GateDockApp app)
          {
-            GroupUp.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.up);
-            GroupLeft.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.left);
-
-            foreach (var itm in SubItems) { myDoReadFromRepo((dynamic)itm, app); }
-
-            GroupDown.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.down);
-            GroupRight.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.right);
+            foreach (var itm in SubItems.OfType<IWithDockOrder>().OrderBy(i => i.DockOrder))
+            {
+               if (itm == GroupUp)
+               {
+                  GroupUp.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.up);
+               }
+               else if (itm == GroupLeft)
+               {
+                  GroupLeft.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.left);
+               }
+               else if (itm == GroupDown)
+               {
+                  GroupDown.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.down);
+               }
+               else if (itm == GroupRight)
+               {
+                  GroupRight.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.right);
+               }
+               else
+               {
+                  myDoReadFromRepo((dynamic)itm, app);
+               }
+            }
          }
 
+         /// <summary>
+         /// Writes content of <see cref="DockableAreaCtrl"/> to <see cref="AppParam.Record"/>
+         /// ordering the items by <see cref="DockableAreaCtrl.PpControlsDocked"/> property
+         /// Ordering is implemented by <see cref="IWithDockOrder"/> interface, 
+         /// which is implemented by <see cref="TabRecord"/>, <see cref="WidgetRecord"/> and 
+         /// <see cref="WidgetGroupRecord"/>
+         /// </summary>
+         /// <param name="app"></param>
          public void WriteToRecord(GateDockApp app)
          {
             var dck_ctr = app.MainForm.MthGetNephew<DockableAreaCtrl>();
+            var cts = dck_ctr?.PpControlsDocked ?? [];
+            var id = 1;
 
-            foreach (var ctr in dck_ctr?.PpControlsDocked ?? []) { myDoWriteToRepo((dynamic)ctr); }
+            foreach (var ctr in cts)
+            {
+               /// Convert <see cref="AppParam.Record"/> to <see cref="IWithDockOrder"/> 
+               /// to set the DockOrder property"/> 
+               var itm = (myDoWriteToRepo((dynamic)ctr) as object).ConvertOrCrash<IWithDockOrder>();
+
+               itm.DockOrder = id++;
+            }
          }
 
          private void myDoReadFromRepo(Arry<TabRecord> arryTabRecord, GateDockApp app)
@@ -91,16 +124,18 @@ namespace Gate.Dock.DockApp
 
          private void myDoReadFromRepo(object par, GateDockApp app) => throw new Crash();
 
-         private void myDoWriteToRepo(GateDockTabCtrl tabCtrl)
+         private IWithDockOrder myDoWriteToRepo(GateDockTabCtrl tabCtrl)
          {
             var tab_wrp = new TabRecord();
 
             foreach (var ctr in tabCtrl.PpAllControls) { myDoWriteToTabWrapper((dynamic)ctr, tab_wrp); }
 
             Tabs.AddParam(tab_wrp);
+
+            return tab_wrp;
          }
 
-         private void myDoWriteToRepo(GateDockWidgetCtrl widgetCtrl)
+         private IWithDockOrder myDoWriteToRepo(GateDockWidgetCtrl widgetCtrl)
          {
             if (widgetCtrl.PpFactory != null)//only widget with factory can be saved
             {
@@ -108,10 +143,16 @@ namespace Gate.Dock.DockApp
 
                wdg_rec.WriteToRecord(widgetCtrl);
                Widgets.AddParam(wdg_rec);
+
+               return wdg_rec;
+            }
+            else
+            {
+               throw new Crash();
             }
          }
 
-         private void myDoWriteToRepo(GateDockWidgetGroupCtrl widgetGroupCtrl)
+         private IWithDockOrder myDoWriteToRepo(GateDockWidgetGroupCtrl widgetGroupCtrl)
          {
             var gru_rec = null as WidgetGroupRecord;
 
@@ -138,6 +179,8 @@ namespace Gate.Dock.DockApp
 
             gru_rec.Widgets.Clear();
             gru_rec.WriteToRepo(widgetGroupCtrl);
+
+            return gru_rec;
          }
 
          private void myDoWriteToTabWrapper(Control control, TabRecord tabRepo) => throw new Crash();
@@ -232,23 +275,9 @@ namespace Gate.Dock.DockApp
          }
       }
 
-      public class TabRecord : AppParam.Record
+      public class TabRecord : AppParam.Record, IWithDockOrder
       {
          public TabRecord() : base("Tab") { }
-
-         public readonly Arry<TabItem> TabItems = new Arry<TabItem>();
-         public readonly Simple<int> FloatLeft = new Simple<int>();
-         public readonly Simple<int> FloatTop = new Simple<int>();
-
-         public Point FloatLocation
-         {
-            get => new Point(FloatLeft.Value, FloatTop.Value);
-            set
-            {
-               FloatLeft.Value = value.X;
-               FloatTop.Value = value.Y;
-            }
-         }
 
          /// <summary>
          /// 
@@ -286,7 +315,7 @@ namespace Gate.Dock.DockApp
                {
                   base.myActionOnAnyChange(changedParamField);
 
-                  var pg = rec.SubParams.OfType<Scalar>().FirstOrDefault(p1 => p1.ParamName == CTRL_GUID_FIELD) ?? throw new Crash();
+                  var pg = rec.SubParams.OfType<Scalar>().FirstOrDefaultUnique(p1 => p1.ParamName == CTRL_GUID_FIELD) ?? throw new Crash();
 
                   if (pg.ObjValue is string s2 && !s2.IsBlank())
                   {
@@ -307,6 +336,23 @@ namespace Gate.Dock.DockApp
                }
             }
          }
+
+         public readonly Arry<TabItem> TabItems = new Arry<TabItem>();
+         public readonly Simple<int> FloatLeft = new Simple<int>();
+         public readonly Simple<int> FloatTop = new Simple<int>();
+         public readonly Simple<int> DockOrder = new Simple<int>();
+
+         public Point FloatLocation
+         {
+            get => new Point(FloatLeft.Value, FloatTop.Value);
+            set
+            {
+               FloatLeft.Value = value.X;
+               FloatTop.Value = value.Y;
+            }
+         }
+
+         int IWithDockOrder.DockOrder { get => DockOrder.Value; set => DockOrder.Value = value; }
 
          public void WriteToRepo(GateDockTabCtrl tab)
          {
@@ -490,7 +536,12 @@ namespace Gate.Dock.DockApp
          public readonly Simple<string> ContentDescriptor = new Simple<string>();
       }
 
-      public class WidgetGroupRecord : AppParam.Record
+      public interface IWithDockOrder
+      {
+         int DockOrder { get; set; }
+      }
+
+      public class WidgetGroupRecord : AppParam.Record, IWithDockOrder
       {
          public WidgetGroupRecord() { }
 
@@ -503,6 +554,8 @@ namespace Gate.Dock.DockApp
          public readonly Simple<int> Height = new Simple<int>();
 
          public Size Size => new Size(Width.Value, Height.Value);
+
+         int IWithDockOrder.DockOrder { get => DockOrder.Value; set => DockOrder.Value = value; }
 
          public void WriteToRepo(GateDockWidgetGroupCtrl widgetGroup)
          {
@@ -535,12 +588,12 @@ namespace Gate.Dock.DockApp
 
       }
 
-      public class WidgetRecord : AppParam.Record
+      public class WidgetRecord : AppParam.Record, IWithDockOrder
       {
          public WidgetRecord() : base("Widget") { }
 
          /// <summary>
-         /// tododo develop (lowest first to be docked) 
+         ///  
          /// </summary>
          public readonly Simple<int> DockOrder = new Simple<int>();
 
@@ -575,6 +628,8 @@ namespace Gate.Dock.DockApp
                FloatTop.Value = value.Y;
             }
          }
+
+         int IWithDockOrder.DockOrder { get => DockOrder.Value; set => DockOrder.Value = value; }
 
          public GateDockWidgetCtrl? ReadFromRepo(GateDockApp app)
          {
