@@ -45,7 +45,7 @@ namespace Gate.ToolsView.Dockable
       }
 
       /// <summary>
-      ///  Orientation of the center docked controls. Setting has no effect when more than a center control is docked.
+      /// Orientation of the center docked controls. Setting has no effect when more than a center control is docked.
       /// </summary>
       public DockableCtrlRowDirectionEnum PpCenterDirectionToSet { get; set; } = DockableCtrlRowDirectionEnum.left_2_right;
 

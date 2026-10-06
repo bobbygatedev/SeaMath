@@ -208,12 +208,15 @@ namespace Gate.ToolsView.MenuCommand
             //if user select shortcut1(keydata matching ShortCut where ShortCut2 != none )
             if (myCmdsShortCut1.Length > 0)
             {
+               var cmd_sho_2 = myCmdsShortCut1.FirstOrDefault(c => c.ShortCut2 == keyData);
+
                //if key stroke not contains letter returns returns and elaboration continues 
-               if (((int)keyData & 0xff) < (int)Keys.A || ((int)keyData & 0xff) > (int)Keys.Z) { return true; }
+               if (cmd_sho_2 == null && ((int)keyData & 0xff) < (int)Keys.A || ((int)keyData & 0xff) > (int)Keys.Z) 
+               {                  
+                  return true; 
+               }
                else
                {
-                  var cmd_sho_2 = myCmdsShortCut1.FirstOrDefault(c => c.ShortCut2 == keyData);
-
                   //if an action is contained 
                   cmd_sho_2?.Action?.Invoke(cmd_sho_2);
                   myCmdsShortCut1 = [];

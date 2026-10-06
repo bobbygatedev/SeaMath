@@ -82,8 +82,6 @@ namespace Gate.Dock.DockApp
 
             public DocuTextFactoryPage() => InsertSubParamDynamically(new TabsFrame());
 
-            public TabsFrame FrameTabs => SubRecords.OfType<TabsFrame>().FirstOrDefault() ?? throw new NullReferenceException();
-
             public class TabsFrame : Record
             {
                public TabsFrame() : base("Tabs") { }
@@ -98,6 +96,8 @@ namespace Gate.Dock.DockApp
                /// </summary>
                public readonly Simple<bool> UseTabs = new Simple<bool>(false);
             }
+
+            public TabsFrame FrameTabs => SubRecords.OfType<TabsFrame>().FirstOrDefault() ?? throw new NullReferenceException();
 
             public GateDockCtrlFactoryDocuText? FactoryDocuText { get; }
 

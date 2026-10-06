@@ -36,13 +36,7 @@ namespace Gate.ToolsView.ControlObserve
          control.LostFocus += Control_LostFocus;
 
          base.myAddObservedControl(control);
-         FocusedControl = ObservedControls.FirstOrDefault(c =>
-         {
-            //shall be executed on thread
-            bool res = my_GetFocused(c);
-
-            return res;
-         });
+         FocusedControl = ObservedControls.FirstOrDefault(myGetFocused);
       }
 
       protected override void myRemoveObservedControl(Control? control)
@@ -71,14 +65,14 @@ namespace Gate.ToolsView.ControlObserve
       /// </summary>
       /// <param name="sender"></param>
       /// <param name="e"></param>
-      private void Control_LostFocus(object? sender, EventArgs e) => FocusedControl = ObservedControls.FirstOrDefault(c => my_GetFocused(c));
+      private void Control_LostFocus(object? sender, EventArgs e) => FocusedControl = ObservedControls.FirstOrDefault(c => myGetFocused(c));
 
       /// <summary>
       /// On-Thread <see cref="Control.Focused"/>
       /// </summary>
       /// <param name="control"></param>
       /// <returns></returns>
-      private static bool my_GetFocused(Control control)
+      private static bool myGetFocused(Control control)
       {
          var res = false;
 

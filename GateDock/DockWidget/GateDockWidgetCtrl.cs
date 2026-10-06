@@ -11,6 +11,7 @@ using Gate.ToolsView.Extended;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
 using Gate.ToolsView.Native;
+using System.Diagnostics;
 using static Gate.ToolsView.Extended.CustomCaptionCtrl;
 
 namespace Gate.Dock.DockWidget
@@ -228,11 +229,8 @@ namespace Gate.Dock.DockWidget
 
          private set
          {
-            if (value != myIsSelected)
-            {
-               myIsSelected = value;
-               OnSelectedChanged?.Invoke(this, value);
-            }
+            myIsSelected = value;
+            OnSelectedChanged?.Invoke(this, value);
          }
       }
 

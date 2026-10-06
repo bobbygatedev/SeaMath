@@ -231,6 +231,20 @@ namespace Gate.Tools.AppParams
             Enumerable.Range(0, SubParams.Length).
                All(i => SubParams[i].Compare(rec.SubParams[i]));
 
+         /// <summary>
+         /// Call <see cref="AppParam.Clear"/> and remove dynamic sub params. Predefined sub params are not removed.
+         /// </summary>
+         public void Blank()
+         {
+            RemoveSubParamsDynamic();
+            Clear();
+         }
+
+         /// <summary>
+         /// Removes all dynamic sub params. Predefined sub params are not removed.
+         /// </summary>
+         public void RemoveSubParamsDynamic() => myRemoveSubItemRange(SubParamsDynamic);
+
          private void myMakePredefinedParams()
          {
             lock (this)

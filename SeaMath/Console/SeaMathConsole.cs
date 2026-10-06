@@ -58,7 +58,7 @@ namespace Gate.SeaMath.Console
          {
             var iss = null as RtmDbgEngVirtCpuInstruction[];
             var thr = stack.Thread.NnOrCrash();
-
+               
             try
             {
                iss = myQueueInstructions.Take().NnOrCrash();//wait for instructions to be added

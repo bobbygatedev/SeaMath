@@ -177,7 +177,7 @@ namespace Gate.Dock
       /// <summary>
       /// All widgets
       /// </summary>
-      public GateDockWidgetCtrl[] PpAllWidgets => 
+      public GateDockWidgetCtrl[] PpAllWidgets =>
          this.MthGetNephews().
             OfType<GateDockWidgetCtrl>().
             Concat(
@@ -309,6 +309,9 @@ namespace Gate.Dock
       /// </summary>
       public CmdMenu? PpPageButtonContextCmdMenu { get; set; } = null;
 
+      /// <summary>
+      /// 
+      /// </summary>
       public Image? PpImage
       {
          get => myImage;
@@ -349,6 +352,7 @@ namespace Gate.Dock
 
          widget.MthSaveLast();
          sm.SetState(GateDockWidgetStateFlags.invisible, null);
+         widget.OnSelectedChanged -= Widget_OnSelectedChanged;
       }
 
       /// <summary>
@@ -374,14 +378,6 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      /// <param name="sender"></param>
-      /// <param name="isSelected"></param>
-      private void Widget_OnSelectedChanged(object? sender, bool isSelected) =>
-         OnWidgetSelectedChange?.Invoke(this, isSelected ? sender as GateDockWidgetCtrl : null);
-
-      /// <summary>
-      /// 
-      /// </summary>
       /// <param name="widget"></param>
       /// <param name="dockState"></param>
       /// <param name="floatLocation"></param>
@@ -393,8 +389,15 @@ namespace Gate.Dock
          sm.SetState(dockState, floatLocation);
          widget.OnSelectedChanged += Widget_OnSelectedChanged;
 
-         return widget.PpDockState == 
-            GateDockWidgetStateFlags.floating ? 
+         if (widget.PpDockState != GateDockWidgetStateFlags.invisible)
+         {
+            //patch forces init of drop down menu
+            widget.Focus();
+            Widget_OnSelectedChanged(this, true);
+         }
+
+         return widget.PpDockState ==
+            GateDockWidgetStateFlags.floating ?
                widget?.ParentForm as GateDockFloatContainerForm : null;
       }
 
@@ -409,7 +412,7 @@ namespace Gate.Dock
          DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size? groupControlSize, params GateDockWidgetCtrl[] widgets)
       {
          if (widgets.Any(w => w.PpMainFrm != null && w.PpMainFrm != this)) { throw new Gate.Dock.GateDockException("Widget bound to other form"); }
-         else if(widgets.Length > 0)
+         else if (widgets.Length > 0)
          {
             var gru = new GateDockWidgetGroupCtrl();
 
@@ -417,10 +420,8 @@ namespace Gate.Dock
             gru.PpMainFrm = this;
             gru.Size = groupControlSize.HasValue ? groupControlSize.Value : widgets.Last().Size;
             gru.MthWidgetAdd(widgets);
-            CtrlDockArea.MthControlDock(gru, anchorMode);
-
-            foreach (var wdg in widgets.Where(w => w.PpIsWidgetVisible)) { MthWidgetShow(wdg); }
-
+            CtrlDockArea.MthControlDock(gru, anchorMode);            
+            gru.MthWidgetAdd(widgets.Where(w => w.PpIsWidgetVisible).ToArray());
             widgets.FirstOrDefault().NnOrCrash().Focus();
 
             return gru;
@@ -717,5 +718,13 @@ namespace Gate.Dock
 
       private void TabCtrl_VisiblePageChanged(object? sender, Control? newVisibleControl) =>
          OnTabPageCurrentChanged?.Invoke(this, PpTabPageCurrent);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="isSelected"></param>
+      private void Widget_OnSelectedChanged(object? sender, bool isSelected) =>
+         OnWidgetSelectedChange?.Invoke(this, isSelected ? sender as GateDockWidgetCtrl : null);
    }
 }

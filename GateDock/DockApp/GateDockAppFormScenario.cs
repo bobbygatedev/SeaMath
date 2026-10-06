@@ -9,9 +9,12 @@ using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.ToolsView.Dockable;
 using Gate.ToolsView.Extensions;
+using System.CodeDom;
 using static Gate.Dock.DockApp.GateDockAppFormScenario;
 using static Gate.Dock.DockApp.GateDockAppFormScenario.TabRecord;
 using static Gate.Tools.AppParams.AppParamLoadSaver;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using Timer = System.Windows.Forms.Timer;
 
 namespace Gate.Dock.DockApp
@@ -21,6 +24,11 @@ namespace Gate.Dock.DockApp
       private readonly Timer myTimer = new Timer();
 
       public GateDockAppFormScenario(GateDockApp app) => App = app;
+
+      public interface IWithDockOrder
+      {
+         int DockOrder { get; set; }
+      }
 
       public class ScenarioParams : AppParam.Record
       {
@@ -46,30 +54,45 @@ namespace Gate.Dock.DockApp
          public readonly WidgetGroupRecord GroupLeft = new WidgetGroupRecord();
          public readonly WidgetGroupRecord GroupRight = new WidgetGroupRecord();
 
+         /// <summary>
+         /// 
+         /// </summary>
+         /// <param name="app"></param>
+         /// <exception cref="Crash"></exception>
          public void ReadFromRecord(GateDockApp app)
          {
-            foreach (var itm in SubItems.OfType<IWithDockOrder>().OrderBy(i => i.DockOrder))
+            // Order the items by DockOrder property, which is implemented by IWithDockOrder interface
+            var its = SubItems;
+            var lst = new List<IWithDockOrder>();
+
+            foreach (var itm in SubItems)
             {
-               if (itm == GroupUp)
+               if (itm is WidgetGroupRecord wr)
                {
-                  GroupUp.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.up);
+                  lst.Add(wr);
                }
-               else if (itm == GroupLeft)
+               else if (itm == Widgets)
                {
-                  GroupLeft.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.left);
+                  lst.AddRange(Widgets.Items);
                }
-               else if (itm == GroupDown)
+            }
+
+            lst = lst.Where(i => i.DockOrder > 0).OrderBy(i => i.DockOrder).ToList();
+            myDoReadFromRepo(Tabs, app);
+
+            foreach (var itm in lst)
+            {
+               if (itm is WidgetGroupRecord gru_rec) { gru_rec.ReadWidgets(app); }
+               else if (itm is WidgetRecord wdg_rec)
                {
-                  GroupDown.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.down);
+                  var wdg = wdg_rec.ReadFromRepo(app);
+
+                  if (wdg != null)
+                  {
+                     app.MainForm.MthWidgetShow(wdg, wdg_rec.DockState, null);
+                  }
                }
-               else if (itm == GroupRight)
-               {
-                  GroupRight.ReadWidgets(app, DockableAreaCtrlSlotAnchorModeEnum.right);
-               }
-               else
-               {
-                  myDoReadFromRepo((dynamic)itm, app);
-               }
+               else { throw new Crash(); }
             }
          }
 
@@ -536,14 +559,12 @@ namespace Gate.Dock.DockApp
          public readonly Simple<string> ContentDescriptor = new Simple<string>();
       }
 
-      public interface IWithDockOrder
-      {
-         int DockOrder { get; set; }
-      }
-
       public class WidgetGroupRecord : AppParam.Record, IWithDockOrder
       {
          public WidgetGroupRecord() { }
+
+         public readonly Simple<DockableAreaCtrlSlotAnchorModeEnum> AnchorMode =
+            new Simple<DockableAreaCtrlSlotAnchorModeEnum>();
 
          public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
 
@@ -566,6 +587,7 @@ namespace Gate.Dock.DockApp
 
             Width.Value = siz.Width;
             Height.Value = siz.Height;
+            AnchorMode.Value = widgetGroup.PpAnchorMode;
 
             foreach (var wdg in widgetGroup.PpWidgets)
             {
@@ -576,16 +598,15 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         public void ReadWidgets(GateDockApp app, DockableAreaCtrlSlotAnchorModeEnum anchor)
+         public void ReadWidgets(GateDockApp app)
          {
-            if (Widgets.ItemCount > 0)
+            foreach (var wdg_rec in Widgets.Items)
             {
-               var wds = Widgets.Items.Select(w => w.ReadFromRepo(app)).Nn().ToArray();
+               var wdg = wdg_rec.ReadFromRepo(app).NnOrCrash();
 
-               app.MainForm.MthGroupWidgets(anchor, Size, wds);
+               app.MainForm.MthWidgetShow(wdg, wdg_rec.DockStateParam.Value);
             }
          }
-
       }
 
       public class WidgetRecord : AppParam.Record, IWithDockOrder
