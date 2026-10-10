@@ -23,13 +23,7 @@ using Timer = System.Windows.Forms.Timer;
 namespace Gate.Dock
 {
    /// <summary> 
-   ///  --TICKETS
-   ///    -review docking in general
-   ///       - widget state box not working after migration to .net 8.0
-   ///       - widget dragging not working after migration to .net 8.0
-   ///       - floating tab tab not working
-   ///       - console and message widget shall be accomodated on same group
-   ///    - main form state not to be saved when minimized
+   /// 
    /// </summary>
    public partial class GateDockMainForm : Form, IGateDockCtrlWithSkin
    {
@@ -58,7 +52,7 @@ namespace Gate.Dock
       private readonly List<ControlObservableFocused> myListFocusObserver = new List<ControlObservableFocused>();
       private readonly InnerTabPageHandling myTabPageHandling;
       private readonly InnerFloatingMovingHandler myFloatingMovingHandler;
-      private SkinChildCtrlDispacther mySkinChildCtrlDispacther;
+      private SkinChildCtrlDispatcher mySkinChildCtrlDispatcher;
       private bool myIsCloseActionStarted = false;
       private CmdMainMenu? myCmdMainMenu = new CmdMainMenu("DockMainForm.MainMenu");
       private GateDockTabCtrl? myTabCurrent;
@@ -76,7 +70,7 @@ namespace Gate.Dock
          myFloatingMovingHandler = new InnerFloatingMovingHandler(this);
          PpBorderColor = GateDockSkin.DefaultValues.BorderColor;
          ForeColor = GateDockSkin.DefaultValues.ForeColor;
-         mySkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
+         mySkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
          AllFocusedFormsObserver = new ControlObservableFocusedAllForms(this);
 
          InitializeComponent();
@@ -89,9 +83,9 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      public class SkinChildCtrlDispacther : GateDockSkinChildCtrlDispatcher
+      public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
-         public SkinChildCtrlDispacther(GateDockMainForm parent) : base(parent) { }
+         public SkinChildCtrlDispatcher(GateDockMainForm parent) : base(parent) { }
       }
 
       /// <summary>
@@ -259,13 +253,13 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      public SkinChildCtrlDispacther PpSkinChildCtrlDispacther
+      public SkinChildCtrlDispatcher PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show(string.Format("{0}.PpSkinChildCtrlDispacther can't be null", GetType().Name)); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 
@@ -275,7 +269,7 @@ namespace Gate.Dock
       [Browsable(false)]
       public GateDockSkin? PpSkin
       {
-         get => PpSkinChildCtrlDispacther?.Skin;
+         get => PpSkinChildCtrlDispatcher?.Skin;
 
          set
          {
@@ -283,7 +277,7 @@ namespace Gate.Dock
             {
                if (PpSkin != null) { PpSkin.OnAppParamChanged -= PpSkin_OnAnyAppParamChanged; }
 
-               PpSkinChildCtrlDispacther.Skin = value;
+               PpSkinChildCtrlDispatcher.Skin = value;
 
                if (PpSkin != null)
                {
@@ -293,7 +287,7 @@ namespace Gate.Dock
 
                myActionOnSkinChange(this, PpSkin);
             }
-            else if (PpSkin != null) { PpSkinChildCtrlDispacther.Skin = value; }
+            else if (PpSkin != null) { PpSkinChildCtrlDispatcher.Skin = value; }
 
             PpSkin?.Save();
          }
@@ -435,7 +429,7 @@ namespace Gate.Dock
       public void MthTabPageMove(Control[] widgetOrTabPageArray, GateDockTabCtrl tab)
       {
          foreach (var ctr in widgetOrTabPageArray) { myTabPageHandling.DocuForceControlOrWidgetClose(ctr); }
-         foreach (var ctr in widgetOrTabPageArray) { myTabPageHandling.TabWidgetOrDocu(ctr); }
+         foreach (var ctr in widgetOrTabPageArray) { myTabPageHandling.TabWidgetOrDocu(ctr, tab); }
       }
 
       /// <summary>
@@ -636,9 +630,9 @@ namespace Gate.Dock
 
       protected override void OnFormClosing(FormClosingEventArgs e)
       {
-         if (!myIsCloseActionStarted) { throw new Crash("Close shall be initiziated by 'myDoActionOnClose'"); }
+         if (!myIsCloseActionStarted) { throw new Crash("Close shall be initialized by 'myDoActionOnClose'"); }
 
-         e.Cancel = false;//forces closing of form otheriwe blocked by owned forms (widgets)
+         e.Cancel = false;//forces closing of form otherwise blocked by owned forms (widgets)
       }
 
       protected override void OnKeyDown(KeyEventArgs e)

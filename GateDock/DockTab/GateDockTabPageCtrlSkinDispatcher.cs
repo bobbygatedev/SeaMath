@@ -3,11 +3,11 @@ using System.Windows.Forms;
 
 namespace Gate.Dock.DockTab
 {
-   public class GateDockTabPageCtrlSkinDispacther : GateDockSkinChildCtrlDispatcher
+   public class GateDockTabPageCtrlSkinDispatcher : GateDockSkinChildCtrlDispatcher
    {
       private readonly UpdateVisitor2 myUpdateVisitor = new UpdateVisitor2();
 
-      public GateDockTabPageCtrlSkinDispacther(GateDockTabPageCtrl parent) : base(parent) { }
+      public GateDockTabPageCtrlSkinDispatcher(GateDockTabPageCtrl parent) : base(parent) { }
 
       protected class UpdateVisitor2 : UpdateVisitor
       {

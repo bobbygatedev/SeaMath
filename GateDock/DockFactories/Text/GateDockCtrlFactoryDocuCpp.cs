@@ -7,7 +7,7 @@ namespace Gate.Dock.DockFactories.Text
    {
       public const string CONTEXT_MENU_ID = "MenuContext.TextFile.Cpp";
 
-      public override string DocuTypeGuid => "{B0F7C156-136E-4D6E-949B-A5180AB9898B}";
+      public override string DocuTypeGuid => "B0F7C156-136E-4D6E-949B-A5180AB9898B";
 
       public override string LanguageName => "C/C++";
 

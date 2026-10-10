@@ -7,20 +7,20 @@ namespace Gate.Dock
 {
    public partial class GateDockMainFormCaption : CustomCaptionCtrl, IGateDockCtrlWithSkin
    {
-      private SkinChildCtrlDispacther? mySkinChildCtrlDispacther = null;
+      private SkinChildCtrlDispatcher? mySkinChildCtrlDispatcher = null;
 
       public GateDockMainFormCaption()
       {
          InitializeComponent();
 
-         PpSkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
+         PpSkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
       }
 
-      public class SkinChildCtrlDispacther : GateDockSkinChildCtrlDispatcher
+      public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
          private readonly UpdateVisitor2 myUpdateVisitor = new UpdateVisitor2();
 
-         public SkinChildCtrlDispacther(GateDockMainFormCaption parent) : base(parent) { }
+         public SkinChildCtrlDispatcher(GateDockMainFormCaption parent) : base(parent) { }
 
          protected class UpdateVisitor2 : UpdateVisitor
          {
@@ -41,13 +41,13 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      public SkinChildCtrlDispacther? PpSkinChildCtrlDispacther
+      public SkinChildCtrlDispatcher? PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 
@@ -57,12 +57,12 @@ namespace Gate.Dock
       [Browsable(false)]
       public GateDockSkin? PpSkin
       {
-         get => PpSkinChildCtrlDispacther?.Skin;
+         get => PpSkinChildCtrlDispatcher?.Skin;
          set
          {
-            if (PpSkinChildCtrlDispacther != null)
+            if (PpSkinChildCtrlDispatcher != null)
             {
-               PpSkinChildCtrlDispacther.Skin = value;
+               PpSkinChildCtrlDispatcher.Skin = value;
             }
          }
       }

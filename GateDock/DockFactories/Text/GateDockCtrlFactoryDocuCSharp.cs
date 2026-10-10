@@ -7,7 +7,7 @@ namespace Gate.Dock.DockFactories.Text
    {
       public const string CONTEXT_MENU_ID = "MenuContext.TextFile.CSharp";
 
-      public override string DocuTypeGuid => "{F23D2176-16C5-4F59-B730-A4B53B8A94DC}";
+      public override string DocuTypeGuid => "F23D2176-16C5-4F59-B730-A4B53B8A94DC";
 
       public override string LanguageName => "C#";
 

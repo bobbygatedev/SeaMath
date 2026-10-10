@@ -20,7 +20,7 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      private SkinChildCtrlDispacther mySkinChildCtrlDispacther;
+      private SkinChildCtrlDispatcher mySkinChildCtrlDispatcher;
 
       /// <summary>
       /// 
@@ -37,19 +37,19 @@ namespace Gate.Dock.DockWidget
          CtrlImageList.Images.Add(Properties.Resources.CtrlBtnDockState);
          CtrlButtonDockState.ImageIndex = 0;
          DoubleBuffered = true;
-         mySkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
+         mySkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
          Height = GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT;
       }
 
       /// <summary>
       /// 
       /// </summary>
-      public class SkinChildCtrlDispacther : GateDockSkinChildCtrlDispatcher
+      public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
          private readonly GateDockWidgetCaption myParent;
          private readonly UpdateVisitor2 myUpdateVisitor;
 
-         public SkinChildCtrlDispacther(GateDockWidgetCaption parent) : base(parent)
+         public SkinChildCtrlDispatcher(GateDockWidgetCaption parent) : base(parent)
          {
             myParent = parent;
             myUpdateVisitor = new UpdateVisitor2(this);
@@ -57,9 +57,9 @@ namespace Gate.Dock.DockWidget
 
          protected class UpdateVisitor2 : UpdateVisitor
          {
-            public UpdateVisitor2(SkinChildCtrlDispacther parent) => Parent = parent;
+            public UpdateVisitor2(SkinChildCtrlDispatcher parent) => Parent = parent;
 
-            public SkinChildCtrlDispacther Parent { get; }
+            public SkinChildCtrlDispatcher Parent { get; }
 
             public virtual void Visit(GateDockSkin skin, GateDockWidgetCaption dockWidgetCaption)
             {
@@ -99,7 +99,7 @@ namespace Gate.Dock.DockWidget
       /// 
       /// </summary>
       [Browsable(false)]
-      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispacther.Skin; set => PpSkinChildCtrlDispacther.Skin = value; }
+      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispatcher.Skin; set => PpSkinChildCtrlDispatcher.Skin = value; }
 
       /// <summary>
       /// 
@@ -127,13 +127,13 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      public SkinChildCtrlDispacther PpSkinChildCtrlDispacther
+      public SkinChildCtrlDispatcher PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 

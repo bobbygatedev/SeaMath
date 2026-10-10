@@ -58,7 +58,7 @@ namespace Gate.Dock.DockDocu
       {
          InitializeComponent();
 
-         PpSkinChildCtrlDispacther = new SkinChildCtrlDispactherForText(this);
+         PpSkinChildCtrlDispatcher = new SkinChildCtrlDispatcherForText(this);
          CtrlText.PpOpenPath = "";
          CtrlText.PpScintilla.ContextMenuStrip = new ExtendedMenuDropDown();
          myFileChangeObserver.OnFileEvent += FileChangeObserver_OnFileEvent;
@@ -121,12 +121,12 @@ namespace Gate.Dock.DockDocu
          return lns;
       }
 
-      public class SkinChildCtrlDispactherForText : GateDockTabPageCtrlSkinDispacther
+      public class SkinChildCtrlDispatcherForText : GateDockTabPageCtrlSkinDispatcher
       {
          private readonly UpdateVisitor3 myUpdateVisitor = new UpdateVisitor3();
          private readonly Control[] myTextControlHierarchy;
 
-         public SkinChildCtrlDispactherForText(GateDockDocuTextCtrl parent) : base(parent)
+         public SkinChildCtrlDispatcherForText(GateDockDocuTextCtrl parent) : base(parent)
          {
             var txt_ctr = parent.MthGetNephew<GateTextControl>();
 

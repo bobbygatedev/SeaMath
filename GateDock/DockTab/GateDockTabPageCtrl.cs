@@ -12,7 +12,7 @@ namespace Gate.Dock.DockTab
    public partial class GateDockTabPageCtrl : UserControl, IGateDockCtrlWithSkin
    {
       private GateDockMainForm? myMainFrm = null;
-      private GateDockTabPageCtrlSkinDispacther? mySkinChildCtrlDispacther = null;
+      private GateDockTabPageCtrlSkinDispatcher? mySkinChildCtrlDispatcher = null;
       private ControlObservableFocused myObservableFocused;
       private string? myTitle = "";
       private GateDockTabPageFactory? myFactory = null;
@@ -26,7 +26,7 @@ namespace Gate.Dock.DockTab
          myObservableFocused = new ControlObservableFocused(this);
          myObservableFocused.OnIsFocusedChanged += MyObservableFocused_OnIsFocusedChanged;
 
-         PpSkinChildCtrlDispacther = new GateDockTabPageCtrlSkinDispacther(this);
+         PpSkinChildCtrlDispatcher = new GateDockTabPageCtrlSkinDispatcher(this);
       }
 
       /// <summary>
@@ -69,12 +69,12 @@ namespace Gate.Dock.DockTab
       [Browsable(false)]
       public GateDockSkin? PpSkin
       {
-         get => PpSkinChildCtrlDispacther?.Skin;
+         get => PpSkinChildCtrlDispatcher?.Skin;
          set 
          {
-            if (PpSkinChildCtrlDispacther != null)
+            if (PpSkinChildCtrlDispatcher != null)
             {
-               PpSkinChildCtrlDispacther.Skin = value;
+               PpSkinChildCtrlDispatcher.Skin = value;
             }
          }
       }
@@ -98,13 +98,13 @@ namespace Gate.Dock.DockTab
       /// <summary>
       /// 
       /// </summary>
-      public GateDockTabPageCtrlSkinDispacther? PpSkinChildCtrlDispacther
+      public GateDockTabPageCtrlSkinDispatcher? PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 

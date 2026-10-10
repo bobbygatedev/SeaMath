@@ -1,14 +1,13 @@
-﻿using System.Windows.Forms;
-using Gate.Dock.DockSkin;
+﻿using Gate.Dock.DockSkin;
 using Gate.Dock.DockTab;
 
 namespace Gate.Dock.DockDocu
 {
-   public class GateDockTabCtrlSkinDispacther : GateDockSkinChildCtrlDispatcher
+   public class GateDockTabCtrlSkinDispatcher : GateDockSkinChildCtrlDispatcher
    {
       private readonly UpdateVisitor2 myUpdateVisitor = new UpdateVisitor2();
 
-      public GateDockTabCtrlSkinDispacther(GateDockTabCtrl parent) : base(parent) { }
+      public GateDockTabCtrlSkinDispatcher(GateDockTabCtrl parent) : base(parent) { }
 
       protected class UpdateVisitor2 : UpdateVisitor
       {

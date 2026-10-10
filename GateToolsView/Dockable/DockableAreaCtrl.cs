@@ -221,8 +221,9 @@ namespace Gate.ToolsView.Dockable
       {
          if (control != null)
          {
-            myControlUnderWork = control;
             var slt = mySlotRowRoot.SlotsAllControlUser.FirstOrDefault(s => s.FramedControl == control);
+
+            myControlUnderWork = control;
 
             if (slt != null)
             {

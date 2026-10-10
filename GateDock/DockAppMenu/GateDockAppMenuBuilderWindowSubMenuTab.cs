@@ -60,9 +60,12 @@ namespace Gate.Dock.DockAppMenu
       {
          if (myIsMoveToNextPossible(MainForm))
          {
-            var nxt_tab_pag = MainForm.PpTabsDocked[MainForm.PpTabCurrent.NnOrCrash().PpDockedIndex + 1];
+            //next tab container
+            var nxt_tab = MainForm.PpTabsDocked[MainForm.PpTabCurrent.NnOrCrash().PpDockedIndex + 1];
+            var tab_pgs = MainForm.PpTabPagesSelected;
 
-            MainForm.MthTabPageMove(MainForm.PpTabPagesSelected, nxt_tab_pag);
+            MainForm.MthTabPageMove(tab_pgs, nxt_tab);
+            tab_pgs.FirstOrCrash().Focus();
          }
       }
 
@@ -71,9 +74,12 @@ namespace Gate.Dock.DockAppMenu
       {
          if (myIsMoveToPreviousPossible(MainForm))
          {
-            var prv_tab_pag = MainForm.PpTabsDocked[MainForm.PpTabCurrent.NnOrCrash().PpDockedIndex - 1];
+            //previous tab container
+            var prv_tab = MainForm.PpTabsDocked[MainForm.PpTabCurrent.NnOrCrash().PpDockedIndex - 1];
+            var tab_pgs = MainForm.PpTabPagesSelected;
 
-            MainForm.MthTabPageMove(MainForm.PpTabPagesSelected, prv_tab_pag);
+            MainForm.MthTabPageMove(tab_pgs, prv_tab);
+            tab_pgs.FirstOrCrash().Focus();
          }
       }
 

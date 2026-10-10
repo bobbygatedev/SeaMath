@@ -23,13 +23,13 @@ namespace Gate.Dock.DockFactories.Text
       public abstract string LanguageName { get; }
 
       /// <summary>
-      /// Language id (format constraints varname like eg 'CPP').
+      /// Language id (format constraints var name like eg 'CPP').
       /// </summary>
       public abstract string LanguageId { get; }
 
       public override string ContentDescriptor => $"{LanguageName} File";
 
-      public override string CtrlGuid => "{CB63BC74-055D-40A3-A1C3-2ED7A3083E2D}";
+      public override string CtrlGuid => "CB63BC74-055D-40A3-A1C3-2ED7A3083E2D";
 
       protected sealed override GateDockTabPageCtrl myMakeTabPageControl() => new GateDockDocuTextCtrl();
 

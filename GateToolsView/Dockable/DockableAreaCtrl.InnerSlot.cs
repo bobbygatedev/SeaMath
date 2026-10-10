@@ -17,22 +17,6 @@ namespace Gate.ToolsView.Dockable
             FramedControl = control;
 
             if (SplitCont == null) { throw new Crash(); }
-
-            switch (anchorMode)
-            {
-               case DockableAreaCtrlSlotAnchorModeEnum.left:
-               case DockableAreaCtrlSlotAnchorModeEnum.right:
-               case DockableAreaCtrlSlotAnchorModeEnum.center:
-                  SplitCont.Orientation = System.Windows.Forms.Orientation.Vertical;
-                  break;
-
-               case DockableAreaCtrlSlotAnchorModeEnum.up:
-               case DockableAreaCtrlSlotAnchorModeEnum.down:
-                  SplitCont.Orientation = System.Windows.Forms.Orientation.Horizontal;
-                  break;
-
-               default: throw new Crash();
-            }
          }
 
          public class RowSubSlot : InnerSlot

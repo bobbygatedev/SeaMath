@@ -50,7 +50,7 @@ namespace Gate.Dock.DockWidget
       private Color myBorderColor = GateDockSkin.DefaultValues.BorderColor;
       private int myBorderPixels;
       private GateDockMainForm? myMainFrm = null;
-      private GateDockWidgetSkinDispatcher? mySkinChildCtrlDispacther = null;
+      private GateDockWidgetSkinDispatcher? mySkinChildCtrlDispatcher = null;
       private bool myIsSelected = false;
       private string myTitle = "";
 
@@ -97,11 +97,11 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       public GateDockWidgetSkinDispatcher? PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispacther can't be null"); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 
@@ -477,7 +477,15 @@ namespace Gate.Dock.DockWidget
       {
          if (eventType == EventType.button_close)
          {
-            PpMainFrm?.MthWidgetHide(this);
+            if (PpMainFrm != null)
+            {
+               PpMainFrm?.MthWidgetHide(this);
+            }
+            else
+            {
+               //for debug purpose ctrl not bound
+               Visible = false;
+            }
          }
       }
 
@@ -496,5 +504,7 @@ namespace Gate.Dock.DockWidget
          PpBorderColor = PpIsSelected ? col_sel : col_bor;
          CtrlWidgetCaption.PpIsWidgetSelected = PpIsSelected;
       }
+
+      public override string ToString() => $"Widget {GetType().Name} {PpTitle}";
    }
 }

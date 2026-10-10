@@ -59,7 +59,7 @@ namespace Gate.Dock
                   {
                      if ((dck_sta & pos) != 0)
                      {
-                        var css = my_GetControls(dck_are, pos);
+                        var css = myGetControls(dck_are, pos);
 
                         if (css.Last() == controlMovingFormIsOver)
                         {
@@ -107,7 +107,7 @@ namespace Gate.Dock
                }
             }
 
-            private static Control[] my_GetControls(DockableAreaCtrl dockableAreaCtrl, GateDockWidgetStateFlags pos)
+            private static Control[] myGetControls(DockableAreaCtrl dockableAreaCtrl, GateDockWidgetStateFlags pos)
             {
                switch (pos)
                {

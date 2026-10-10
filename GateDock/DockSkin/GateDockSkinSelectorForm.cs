@@ -15,7 +15,7 @@ namespace Gate.Dock.DockSkin
    public partial class GateDockSkinSelectorForm : Form, IGateDockCtrlWithSkin
    {
       private GateDockSkin? myBackUpSkin;
-      private SkinChildCtrlDispacther? mySkinChildCtrlDispacther;
+      private SkinChildCtrlDispatcher? mySkinChildCtrlDispatcher;
       private bool myIsAccepting = false;
       private bool myIsDefaultChanged = false;
       private GateDockMainForm? myMainForm;
@@ -23,12 +23,12 @@ namespace Gate.Dock.DockSkin
       public GateDockSkinSelectorForm()
       {
          InitializeComponent();
-         mySkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
+         mySkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
       }
 
-      public class SkinChildCtrlDispacther : GateDockSkinChildCtrlDispatcher
+      public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
-         public SkinChildCtrlDispacther(GateDockSkinSelectorForm parent) : base(parent) { }
+         public SkinChildCtrlDispatcher(GateDockSkinSelectorForm parent) : base(parent) { }
       }
 
       private static class InnerColorHelper
@@ -81,20 +81,20 @@ namespace Gate.Dock.DockSkin
 
       public TxtStringConverter PpAppParamStringConverter { get; set; } = new TxtStringConverter.Default();
 
-      public SkinChildCtrlDispacther? PpSkinChildCtrlDispacther
+      public SkinChildCtrlDispatcher? PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show(string.Format("{0}.PpSkinChildCtrlDispacther can't be null", GetType().Name)); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 
       public GateDockSkin? PpSkin
       {
-         get => PpSkinChildCtrlDispacther?.Skin;
-         set => PpSkinChildCtrlDispacther.NnOrCrash().Skin = value;
+         get => PpSkinChildCtrlDispatcher?.Skin;
+         set => PpSkinChildCtrlDispatcher.NnOrCrash().Skin = value;
       }
 
       public AppParam.Scalar? PpSelectedAppParam =>

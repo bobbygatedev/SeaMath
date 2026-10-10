@@ -15,7 +15,7 @@ using static Gate.ToolsView.Extended.ExtendedTabbedCtrl;
 namespace Gate.Dock.DockTab
 {
    /// <summary>
-   /// Tab container control, can contain tab page and documents
+   /// Tab container control, can contain <see cref="GateDockTabPageCtrl"/> and documents.
    /// </summary>
    public partial class GateDockTabCtrl : UserControl, IGateDockCtrlWithSkin
    {
@@ -29,7 +29,7 @@ namespace Gate.Dock.DockTab
 
       private GateDockTabStateEnum myState = GateDockTabStateEnum.none;
       private GateDockMainForm? myMainFrm = null;
-      private GateDockTabCtrlSkinDispacther mySkinChildCtrlDispacther;
+      private GateDockTabCtrlSkinDispatcher mySkinChildCtrlDispatcher;
       private Label myLabelTitle = new Label();
 
       public GateDockTabCtrl()
@@ -39,7 +39,7 @@ namespace Gate.Dock.DockTab
          myLabelTitle.BorderStyle = BorderStyle.None;
          myLabelTitle.Text = "";
          CtrlCaption.Controls.Add(myLabelTitle);
-         mySkinChildCtrlDispacther = new GateDockTabCtrlSkinDispacther(this);
+         mySkinChildCtrlDispatcher = new GateDockTabCtrlSkinDispatcher(this);
          CtrlTabbed.PpIsFixedTabHeightToUse = true;
          CtrlTabbed.PpFixedTabHeight =
             GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT + GateDockSkin.Constants.WIDGET_DOCUTAB_BORDER;
@@ -179,18 +179,18 @@ namespace Gate.Dock.DockTab
       /// 
       /// </summary>
       [Browsable(false)]
-      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispacther.Skin; set => PpSkinChildCtrlDispacther.Skin = value; }
+      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispatcher.Skin; set => PpSkinChildCtrlDispatcher.Skin = value; }
 
       /// <summary>
       /// 
       /// </summary>
-      public GateDockTabCtrlSkinDispacther PpSkinChildCtrlDispacther
+      public GateDockTabCtrlSkinDispatcher PpSkinChildCtrlDispatcher
       {
-         get => mySkinChildCtrlDispacther;
+         get => mySkinChildCtrlDispatcher;
          set
          {
-            if (value != null) { mySkinChildCtrlDispacther = value; }
-            else { MessageBox.Show(string.Format("{0}.PpSkinChildCtrlDispacther can't be null", GetType().Name)); }
+            if (value != null) { mySkinChildCtrlDispatcher = value; }
+            else { MessageBox.Show($"{GetType().Name}.PpSkinChildCtrlDispatcher can't be null"); }
          }
       }
 

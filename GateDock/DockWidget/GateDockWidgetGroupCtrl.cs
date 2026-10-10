@@ -17,13 +17,13 @@ namespace Gate.Dock.DockWidget
       public GateDockWidgetGroupCtrl()
       {
          InitializeComponent();
-         PpSkinChildCtrlDispacther = new SkinChildCtrlDispacther(this);
+         PpSkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
          DoubleBuffered = true;
       }
 
-      public class SkinChildCtrlDispacther : GateDockSkinChildCtrlDispatcher
+      public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
-         public SkinChildCtrlDispacther(GateDockWidgetGroupCtrl parent) : base(parent) { }
+         public SkinChildCtrlDispatcher(GateDockWidgetGroupCtrl parent) : base(parent) { }
 
          protected override void myUpdate(GateDockSkin skin, Control control)
          {
@@ -77,7 +77,7 @@ namespace Gate.Dock.DockWidget
       /// 
       /// </summary>
       [Browsable(false)]
-      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispacther.Skin; set => PpSkinChildCtrlDispacther.Skin = value; }
+      public GateDockSkin? PpSkin { get => PpSkinChildCtrlDispatcher.Skin; set => PpSkinChildCtrlDispatcher.Skin = value; }
 
       /// <summary>
       /// 
@@ -87,7 +87,7 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      public SkinChildCtrlDispacther PpSkinChildCtrlDispacther { get; set; }
+      public SkinChildCtrlDispatcher PpSkinChildCtrlDispatcher { get; set; }
 
       public Size? PpSavedSize { get; private set; }
 

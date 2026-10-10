@@ -7,7 +7,7 @@ namespace Gate.Dock.DockFactories.Text
    {
       public const string CONTEXT_MENU_ID = "MenuContext.TextFile.Ada";
 
-      public override string DocuTypeGuid => "{514FED5D-70B2-48A3-B9BE-BC443E7A486B}";
+      public override string DocuTypeGuid => "514FED5D-70B2-48A3-B9BE-BC443E7A486B";
 
       public override string LanguageName => "Ada";
 

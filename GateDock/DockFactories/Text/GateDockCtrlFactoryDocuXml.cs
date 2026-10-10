@@ -19,7 +19,7 @@ namespace Gate.Dock.DockFactories.Text
 
       public override string LanguageId => LanguageName;
 
-      public override string DocuTypeGuid => "{BD6E3322-80F9-46A8-819C-4E44B0801AA8}";
+      public override string DocuTypeGuid => "BD6E3322-80F9-46A8-819C-4E44B0801AA8";
    }
 }
 

@@ -1,4 +1,5 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using System.Data;
 
 namespace Gate.ToolsView.Dockable
@@ -135,6 +136,8 @@ namespace Gate.ToolsView.Dockable
             }
 
             public void UpdateCache() => myCache.Update();
+
+            public override string ToString() => $"{base.ToString()}(root)";
          }
 
          public class SubRow : InnerSlotRow
@@ -289,6 +292,7 @@ namespace Gate.ToolsView.Dockable
 
             myRemoveSubItem(slot);
             mySlotAddInCollection(rep_slt);
+            ParentDockCtrl.NnOrCrash().mySlotRowRoot.FlushChanges();
          }
 
          /// <summary>
@@ -307,64 +311,66 @@ namespace Gate.ToolsView.Dockable
          /// <param name="slot"></param>
          public void RemoveSlot(InnerSlot.User slot)
          {
-            var roo_row = (Root)ParentItemChain.First(p => p is InnerSlotRow.Root);
+            var roo_row = ParentItemChain.OfType<Root>().FirstOrCrash();
             var all_rws = roo_row.AllRows;
-            var row = slot.ParentRow;
-            var row_idx = row == null ? -1 : all_rws.ToList().IndexOf(row);
-            var row_pls_1 = row_idx + 1 < all_rws.Length ? all_rws[row_idx + 1] : null;
-            var row_pls_2 = row_idx + 2 < all_rws.Length ? all_rws[row_idx + 2] : null;
+            var row = slot.ParentRow.NnOrCrash();
+            var row_idx = all_rws.ToList().IndexOf(row);
+            var row_pls_1 = all_rws.ElementAtOrDefault(row_idx + 1);
+            var row_pls_2 = all_rws.ElementAtOrDefault(row_idx + 2);
 
-            row?.myRemoveSubItem(slot);
+            row.myRemoveSubItem(slot);
 
-            if (row_idx == 0)
-            {
-               if (row?.SlotsUser.Length == 0)
+            if (row is Root roo)
+            {           
+               if (row.SlotsUser.Length == 0 && row_pls_1 != null)
                {
-                  if (row_pls_1 != null)
+                  var sls = row_pls_1.SlotsUser;
+
+                  row_pls_1.myRemoveSubItemRange(sls);
+                  row.mySlotAddInCollection(sls);
+
+                  if (RowSubSlot != null && row.SlotsCenterUser.Length > 0)
                   {
-                     var sls = row_pls_1.SlotsUser;
-
-                     row_pls_1.myRemoveSubItemRange(sls);
-                     row?.mySlotAddInCollection(sls);
-
-                     if (RowSubSlot != null && row?.SlotsCenterUser.Length > 0) { row?.myRemoveSubItem(RowSubSlot); }
-
-                     if (row_pls_2 != null) { row_pls_2.myReplaceParent(row?.RowSubSlot); }
+                     row.myRemoveSubItem(RowSubSlot);
                   }
+
+                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row.RowSubSlot); }
+
+                  roo.SetDirection(row_pls_1.Direction);
                }
             }
-            else
+            else if (row.SlotsUser.Length == 0)
             {
-               if (row?.SlotsUser.Length == 0)
+               var row_min_1 = all_rws[row_idx - 1];
+
+               if (row_pls_1 != null)
                {
-                  var row_min_1 = all_rws[row_idx - 1];
+                  var row_p1_sls = row_pls_1.SlotsUser;//slots of row plus 1
 
-                  if (row_pls_1 != null)
-                  {
-                     var row_p1_sls = row_pls_1.SlotsUser;//slots of row plus 1
+                  row_pls_1.myRemoveSubItemRange(row_p1_sls);//empties row slot 1 
+                  row_min_1.mySlotAddInCollection(row_p1_sls);
 
-                     row_pls_1.myRemoveSubItemRange(row_p1_sls);//empties row slot 1 
-                     row_min_1.mySlotAddInCollection(row_p1_sls);
-
-                     if (row_pls_2 != null) { row_pls_2.myReplaceParent(row_min_1.RowSubSlot); }
-                     else { row.myReplaceParent(null); }
-                  }
-               }
-               else if (row?.SlotsUser.Length == 1 && row.SlotsUser[0].AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
-               {
-                  if (all_rws.Last() != row) { throw new Crash("Center rows shall be the last one!"); }//check 
-
-                  var oth_cnt_slt = row.SlotsUser[0];//other center slot (not removed)
-
-                  row.myRemoveSubItem(oth_cnt_slt);//empties row
-                  row.ParentItem = null;//remove row as child row-sub-slot of lower-level row
-                  all_rws = roo_row.AllRows;
-                  row = all_rws.Last();
-
-                  if (row.RowSubSlot != null) { row.ReplaceRowSubWithUser(oth_cnt_slt?.UserControl); }
-                  else { throw new Crash(); }//row lower than top should have row-sub-slot
+                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row_min_1.RowSubSlot); }
+                  else { row.myReplaceParent(null); }
                }
             }
+            else if (
+               row.SlotsUser.Length == 1 && 
+               row.SlotsUser[0].AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
+            {
+               if (all_rws.Last() != row) { throw new Crash("Center rows shall be the last one!"); }//check 
+
+               var oth_cnt_slt = row.SlotsUser[0];//other center slot (not removed)
+
+               row.myRemoveSubItem(oth_cnt_slt);//empties row
+               row.ParentItem = null;//remove row as child row-sub-slot of lower-level row
+               all_rws = roo_row.AllRows;
+               row = all_rws.Last();
+
+               if (row.RowSubSlot != null) { row.ReplaceRowSubWithUser(oth_cnt_slt?.UserControl); }
+               else { throw new Crash(); }//row lower than top should have row-sub-slot
+            }
+
 
             if (slot.FramedControl != null) { slot.FramedControl.Parent = null; }
          }
@@ -379,8 +385,8 @@ namespace Gate.ToolsView.Dockable
 
             if (num_new_row >= 1)
             {
-               var new_top_row = new SubRow(my_GetInvertedDirection(Direction));//new slot has differenta new level(top row) is needed.
-
+               //new slot has differential new level(top row) is needed.
+               var new_top_row = new SubRow(myGetInvertedDirection(Direction));
                var cnt_sls = SlotsCenterUser;
 
                mySlotRemoveFromCollection(cnt_sls);
@@ -556,7 +562,7 @@ namespace Gate.ToolsView.Dockable
             // resizes center slots to new calculated center size
             var slt_cnt = SlotsAnyCenter;
             var cnt_szs = slt_cnt.Select(s => s.FloatSizeToProgram).ToArray();
-            var cnt_szs_pro = my_MakeProportional(cnt_szs, CenterSizeToProgram);
+            var cnt_szs_pro = myMakeProportional(cnt_szs, CenterSizeToProgram);
 
             for (int i = 0; i < slt_cnt.Length; i++) { slt_cnt[i].FloatSizeToProgram = cnt_szs_pro[i]; }
          }
@@ -575,9 +581,9 @@ namespace Gate.ToolsView.Dockable
          /// <param name="inSizes"></param>
          /// <param name="totalSize"></param>
          /// <returns></returns>
-         private static int[] my_MakeProportional(int[] inSizes, int totalSize)
+         private static int[] myMakeProportional(int[] inSizes, int totalSize)
          {
-            if (inSizes.Length == 0) { return new int[0]; }
+            if (inSizes.Length == 0) { return []; }
             else
             {
                var fac = (double)totalSize / inSizes.Sum(s => s);
@@ -595,7 +601,7 @@ namespace Gate.ToolsView.Dockable
          /// </summary>
          /// <param name="direction"></param>
          /// <returns></returns>
-         private static DockableCtrlRowDirectionEnum my_GetInvertedDirection(DockableCtrlRowDirectionEnum direction)
+         private static DockableCtrlRowDirectionEnum myGetInvertedDirection(DockableCtrlRowDirectionEnum direction)
          {
             switch (direction)
             {

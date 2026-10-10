@@ -9,12 +9,9 @@ using Gate.Tools.Message;
 using Gate.Tools.Text;
 using Gate.ToolsView.Dockable;
 using Gate.ToolsView.Extensions;
-using System.CodeDom;
 using static Gate.Dock.DockApp.GateDockAppFormScenario;
 using static Gate.Dock.DockApp.GateDockAppFormScenario.TabRecord;
 using static Gate.Tools.AppParams.AppParamLoadSaver;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using Timer = System.Windows.Forms.Timer;
 
 namespace Gate.Dock.DockApp
