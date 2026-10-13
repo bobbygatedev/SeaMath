@@ -11,7 +11,6 @@ using Gate.ToolsView.Extended;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
 using Gate.ToolsView.Native;
-using System.Diagnostics;
 using static Gate.ToolsView.Extended.CustomCaptionCtrl;
 
 namespace Gate.Dock.DockWidget

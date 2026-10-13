@@ -46,8 +46,6 @@ namespace Gate.ToolsViewTest
          myMsgType = lst[id];
       }
 
-
-
       static void Main()
       {
          /*

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace Gate.ToolsView.MenuCommand
+﻿namespace Gate.ToolsView.MenuCommand
 {
    /// <summary>
    /// Interface for command association (with menu,button) strategy.

@@ -1,5 +1,6 @@
 ﻿using Gate.LangBase.Runtime.DbgEng;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
 using static Gate.ToolsView.MenuCommand.CmdMenu;
@@ -67,9 +68,9 @@ namespace Gate.DockRuntimePlugin
 
       protected override void myCustomInit(CmdMenu cmdMenu)
       {
-         (Plugin.App ?? throw new Crash()).OnLoadFinished += a => myCheckVisibility();
-         (Plugin.DbgDbgEng ?? throw new Crash()).OnCurrentInfrastructureChange += (i) => myCheckVisibility();
-         (Plugin.DbgDbgEng ?? throw new Crash()).OnAnyProcessChangeState += (i, n, o) => myCheckVisibility();
+         (Plugin.App.NnOrCrash()).OnLoadFinished += a => myCheckVisibility();
+         (Plugin.DbgDbgEng.NnOrCrash()).OnCurrentInfrastructureChange += (i) => myCheckVisibility();
+         (Plugin.DbgDbgEng.NnOrCrash()).OnAnyProcessChangeState += (i, n, o) => myCheckVisibility();
       }
 
       private void myCheckVisibility()

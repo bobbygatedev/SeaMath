@@ -189,7 +189,7 @@ namespace Gate.Dock.DockDocu
       {
          if (mainForm.PpTabPageCurrent is IGateDockDocu)
          {
-            mySaveDocus(mainForm, new IGateDockDocu[] { (IGateDockDocu)mainForm.PpTabPageCurrent });
+            mySaveDocus(mainForm, [(IGateDockDocu)mainForm.PpTabPageCurrent]);
          }
       }
 

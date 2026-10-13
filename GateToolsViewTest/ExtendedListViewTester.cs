@@ -90,16 +90,10 @@ namespace Gate.ToolsViewTest
             ctr.MthRowAdd();
             ctr.MthRowAdd();
 
-            ctr.OnCellTextUpdating += (c, a) =>
-            {
-               int aa = 2;
-            };
-
             ctr.OnCellKeyUp += (s, c, e) =>
             {
                if (e.KeyCode == Keys.F2)
                {
-                  int a = 2;
                   c.Edit();
                }
             };

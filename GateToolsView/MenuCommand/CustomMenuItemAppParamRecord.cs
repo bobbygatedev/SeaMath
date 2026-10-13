@@ -35,32 +35,32 @@ namespace Gate.ToolsView.MenuCommand
       /// </summary>
       private static class InnerMakerFromMenuItem
       {
-         public static CustomMenuItemAppParamRecord Create(ICmdMenuItem itm) => my_Create((dynamic)itm);
+         public static CustomMenuItemAppParamRecord Create(ICmdMenuItem itm) => myCreate((dynamic)itm);
 
-         private static CustomMenuItemAppParamRecord my_Create(Cmd.Slot cmdSlot)
+         private static CustomMenuItemAppParamRecord myCreate(Cmd.Slot cmdSlot)
          {
             var itm = new CustomMenuItemAppParamRecord();
 
             itm.Id = cmdSlot.Cmd.Id;
-            itm.Type = CustomMenuItemAppParamRecord.TypeEnum.cmd;
+            itm.Type = TypeEnum.cmd;
 
             return itm;
          }
 
-         private static CustomMenuItemAppParamRecord my_Create(CmdMenuSeparator cmdMenuSeparator)
+         private static CustomMenuItemAppParamRecord myCreate(CmdMenuSeparator cmdMenuSeparator)
          {
             var itm = new CustomMenuItemAppParamRecord();
 
-            itm.Type = CustomMenuItemAppParamRecord.TypeEnum.separator;
+            itm.Type = TypeEnum.separator;
 
             return itm;
          }
 
-         private static CustomMenuItemAppParamRecord my_Create(CmdMenu.Ref subMenu)
+         private static CustomMenuItemAppParamRecord myCreate(CmdMenu.Ref subMenu)
          {
             var itm = new CustomMenuItemAppParamRecord();
 
-            itm.Type = CustomMenuItemAppParamRecord.TypeEnum.sub_menu;
+            itm.Type = TypeEnum.sub_menu;
             itm.Id = subMenu.Id;
             itm.SubMenuCmdId = subMenu.CmdMenu.Id;
             itm.SubMenuCaption = subMenu?.Caption ?? "";
@@ -68,7 +68,7 @@ namespace Gate.ToolsView.MenuCommand
             return itm;
          }
 
-         private static CustomMenuItemAppParamRecord my_Create(ICmdMenuItem hierarchicalItem) => throw new Crash($"Unexpected type {hierarchicalItem.GetType().Name}");
+         private static CustomMenuItemAppParamRecord myCreate(ICmdMenuItem hierarchicalItem) => throw new Crash($"Unexpected type {hierarchicalItem.GetType().Name}");
       }
 
 

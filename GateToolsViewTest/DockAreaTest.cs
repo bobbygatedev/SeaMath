@@ -1,4 +1,5 @@
 ﻿using Gate.Dock.DockWidget;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Dockable;
 
 namespace GateToolsViewTest
@@ -15,7 +16,7 @@ namespace GateToolsViewTest
          wdg.PpTitle = $"Widget{myCounter++}";
          wdg.VisibleChanged += (s, e) =>
          {
-            var dck = myForm.Controls.OfType<DockableAreaCtrl>().FirstOrDefault();
+            var dck = myForm.Controls.OfType<DockableAreaCtrl>().FirstOrCrash();
 
             if (!wdg.Visible && dck.PpControlsDocked.Contains(wdg))
             {

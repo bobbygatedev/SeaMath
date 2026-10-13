@@ -44,6 +44,31 @@ namespace Gate.ToolsView.MenuCommand
          private static void myAdd(ICmdMenuItem cmd, ICmdMenuControlAssociation association, int atIndex) => throw new Crash($"Not valid item type {cmd.GetType().Name}");
       }
 
+      private class InnerAddRemoveVisitor
+      {
+         public InnerAddRemoveVisitor(CmdMenu cmdMenu) => CmdMenu = cmdMenu;
+
+         public CmdMenu CmdMenu { get; }
+
+         public bool RemoveItem(ICmdMenuItem item) => myRemoveItem((dynamic)item);
+
+         private bool myRemoveItem(ICmdMenuItem item) => throw new Crash($"Unexpected type '{item.GetType()}' for '{GetType()}'.");
+
+         private bool myRemoveItem(Cmd.Slot cmdSlot) => CmdMenu.RemoveCommand(cmdSlot.Cmd) != null;
+         private bool myRemoveItem(CmdMenuSeparator separator) => CmdMenu.RemoveSeparator(separator) != null;
+         private bool myRemoveItem(Ref subMenu) => CmdMenu.RemoveSubMenu(subMenu) != null;
+
+         public bool InsertItem(ICmdMenuItem item, int atIndex) => myInsertItem((dynamic)item, atIndex);
+
+         private bool myInsertItem(ICmdMenuItem item, int atIndex) => throw new Crash($"Unexpected type '{item.GetType()}' for '{GetType()}'.");
+
+         private bool myInsertItem(Cmd.Slot cmdSlot, int atIndex) => CmdMenu.InsertCommandSlot(cmdSlot, atIndex);
+
+         private bool myInsertItem(Ref subMenu, int atIndex) => CmdMenu.InsertSubMenu(atIndex, subMenu) != null;
+
+         private bool myInsertItem(CmdMenuSeparator separator, int atIndex) => CmdMenu.InsertSeparator(atIndex, separator) != null;
+      }
+
       /// <summary>
       /// Whether menu and all its ref appear on customisation forms.
       /// </summary>
@@ -171,31 +196,6 @@ namespace Gate.ToolsView.MenuCommand
          }
 
          return false;
-      }
-
-      private class InnerAddRemoveVisitor
-      {
-         public InnerAddRemoveVisitor(CmdMenu cmdMenu) => CmdMenu = cmdMenu;
-
-         public CmdMenu CmdMenu { get; }
-
-         public bool RemoveItem(ICmdMenuItem item) => myRemoveItem((dynamic)item);
-
-         private bool myRemoveItem(ICmdMenuItem item) => throw new Crash($"Unexpected type '{item.GetType()}' for '{GetType()}'.");
-
-         private bool myRemoveItem(Cmd.Slot cmdSlot) => CmdMenu.RemoveCommand(cmdSlot.Cmd) != null;
-         private bool myRemoveItem(CmdMenuSeparator separator) => CmdMenu.RemoveSeparator(separator) != null;
-         private bool myRemoveItem(Ref subMenu) => CmdMenu.RemoveSubMenu(subMenu) != null;
-
-         public bool InsertItem(ICmdMenuItem item, int atIndex) => myInsertItem((dynamic)item, atIndex);
-
-         private bool myInsertItem(ICmdMenuItem item, int atIndex) => throw new Crash($"Unexpected type '{item.GetType()}' for '{GetType()}'.");
-
-         private bool myInsertItem(Cmd.Slot cmdSlot, int atIndex) => CmdMenu.InsertCommandSlot(cmdSlot, atIndex);
-
-         private bool myInsertItem(CmdMenu.Ref subMenu, int atIndex) => CmdMenu.InsertSubMenu(atIndex, subMenu) != null;
-
-         private bool myInsertItem(CmdMenuSeparator separator, int atIndex) => CmdMenu.InsertSeparator(atIndex, separator) != null;
       }
 
       public CmdMenuSeparator? InsertSeparator(int atIndex, bool isDefault) => InsertSeparator(atIndex, new CmdMenuSeparator(isDefault));

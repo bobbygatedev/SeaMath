@@ -1,6 +1,8 @@
 ﻿using Gate.Dock.DockApp;
+using Gate.Dock.DockDocu;
 using Gate.Dock.DockTab;
 using Gate.Dock.Properties;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.MenuCommand;
 using static Gate.ToolsView.MenuCommand.CmdMenu;
 
@@ -19,7 +21,7 @@ namespace Gate.Dock.DockAppMenu
       public const string CMD_SAVE_ALL = "Cmd.File.SaveAll";
       public const string CMD_UNDO = "Cmd.File.Undo";
       public const string CMD_REDO = "Cmd.File.Redo";
-      public const string CMD_CLOSE = "Cmd.File.Close";
+      public const string CMD_CLOSE_TAB = "Cmd.File.Close";
       public const string CMD_EXIT = "Cmd.File.Exit";
 
       public GateDockAppMenuBuilderFile(GateDockApp app) : base(app, MENU_ID, "&File") { }
@@ -49,7 +51,7 @@ namespace Gate.Dock.DockAppMenu
       /// Closes document or tabbed window
       /// </summary>
       /// <param name="command"></param>
-      [CmdDef(Id = CMD_CLOSE, Caption = "Close", ShortCut = Keys.Control | Keys.F4)]
+      [CmdDef(Id = CMD_CLOSE_TAB, Caption = "Close", ShortCut = Keys.Control | Keys.F4)]
       public virtual void DoCloseTabPage(Cmd command)
       {
          var tab_pgs = MainForm.PpTabPagesSelected.OfType<GateDockTabPageCtrl>().ToArray();
@@ -73,6 +75,31 @@ namespace Gate.Dock.DockAppMenu
          }
       }
 
-      protected override void myCustomInit(CmdMenu cmdMenu) { }
+      protected override void myCustomInit(CmdMenu cmdMenu)
+      {
+         MainForm.OnTabPageCurrentChanged += myTabChanged;
+         MainForm.OnTabPageClose += myTabCloseOrOpen;
+         MainForm.OnTabPageOpen += myTabCloseOrOpen;
+      }
+
+      private void myTabChanged(object? sender, Control? newTopLevelPage)
+      {
+         var is_doc = newTopLevelPage is IGateDockDocu;
+         var cms = (MainForm.PpCmdMainMenu?.AllCmds).NnOrCrash();
+
+         cms[CMD_SAVE].IsEnabled = is_doc;
+         cms[CMD_SAVE_AS].IsEnabled = is_doc;
+         cms[CMD_CLOSE_TAB].IsEnabled = is_doc;
+         cms[CMD_REDO].IsEnabled = is_doc;
+         cms[CMD_UNDO].IsEnabled = is_doc;
+      }
+
+      private void myTabCloseOrOpen(object? sender, GateDockTabPageCtrl? tabPage)
+      {
+         var cms = (MainForm.PpCmdMainMenu?.AllCmds).NnOrCrash();
+
+         cms[CMD_SAVE_ALL].IsEnabled = MainForm.PpTabsAll.Length > 0;
+         cms[CMD_CLOSE_TAB].IsEnabled = MainForm.PpTabsAll.Length > 0;
+      }
    }
 }
