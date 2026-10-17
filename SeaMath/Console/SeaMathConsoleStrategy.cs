@@ -25,6 +25,11 @@
 
       public abstract void OnConsoleTerminate();
 
+      /// <summary>
+      /// Places console control/terminal on foreground.  
+      /// </summary>
+      public abstract void OnForeground();
+
       public abstract void OnNewProcessCreated(SeaMathProcessExecutable process);
 
       protected abstract (Stream stdIn, Stream stdOut, Stream stdErr) myOnMakingConsole(SeaMathConsole console);

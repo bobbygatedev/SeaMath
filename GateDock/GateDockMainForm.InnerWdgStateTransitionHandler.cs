@@ -97,7 +97,7 @@ namespace Gate.Dock
          {
             public abstract class IsVisible : WidgetState
             {
-               public override void HandlerNoChangeState(GateDockMainForm mainForm, GateDockWidgetCtrl widget) => widget.MthBring2Front();
+               public override void HandlerNoChangeState(GateDockMainForm mainForm, GateDockWidgetCtrl widget) => widget.MthBringWidget2Front();
 
                public sealed override void HandlerSetup(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
                {
@@ -119,7 +119,7 @@ namespace Gate.Dock
                protected abstract void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation);
 
                protected virtual void myCommonOnAfterShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation) =>
-                  widget.MthBring2Front();
+                  widget.MthBringWidget2Front();
 
                protected virtual void myCommonOnAfterHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) { }
             }
@@ -252,7 +252,7 @@ namespace Gate.Dock
                {
                   widget.PpIsCaptionVisible = true;
                   InnerDockHelper.AddNoGroupedWidget(mainForm, widget, InnerDockHelper.GetAnchorFromDockState(StateFlags));
-                  widget.MthBring2Front();
+                  widget.MthBringWidget2Front();
                }
             }
 

@@ -113,5 +113,7 @@ namespace Gate.SeaMath.Console
       public override void OnConsoleTerminate() { }
 
       public override void OnNewProcessCreated(SeaMathProcessExecutable process) { }
+
+      public override void OnForeground() { }
    }
 }

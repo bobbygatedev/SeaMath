@@ -294,6 +294,7 @@ namespace Gate.SeaMath
          var mgs = new MsgCollection();
 
          MessageDisplayer?.Clear();
+         MessageDisplayer?.OnForeground();
          mgs.OnMsg2DisplayAdded += (m) => MessageDisplayer?.AddMsg(m);
          mgs.Add(new Msg(MsgType.info, "Start Building"));
 
@@ -303,6 +304,12 @@ namespace Gate.SeaMath
          var bui_res = Builder.Build(SEA_EXE_NAME, false, mgs);
 
          mgs.Add(new Msg(MsgType.info, mgs.Resume));
+
+         if (bui_res)
+         {
+            //console on foreground
+            Console.ConsoleStrategy.OnForeground();
+         }
 
          return bui_res;
       }

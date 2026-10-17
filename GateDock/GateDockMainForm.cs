@@ -190,7 +190,7 @@ namespace Gate.Dock
       {
          get => PpAllWidgets.FirstOrDefault(w => w.PpIsSelected);
 
-         set => value?.MthBring2Front();
+         set => value?.MthBringWidget2Front();
       }
 
       /// <summary>

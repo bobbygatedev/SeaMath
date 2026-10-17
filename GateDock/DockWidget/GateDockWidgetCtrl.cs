@@ -323,7 +323,7 @@ namespace Gate.Dock.DockWidget
          }
       }
 
-      public void MthBring2Front()
+      public void MthBringWidget2Front()
       {
          switch (PpDockState & (GateDockWidgetStateFlags.dock | GateDockWidgetStateFlags.group | GateDockWidgetStateFlags.floating | GateDockWidgetStateFlags.tabbed))
          {

@@ -62,6 +62,22 @@ namespace Gate.CLanguageTest
             }
          }
 
+         private class InnerConsoleStrategyByConsoleController : SeaMathConsoleStrategyByConsoleController
+         {
+            public InnerConsoleStrategyByConsoleController(IConsoleControl consoleControl) :
+               base(consoleControl)
+            { }
+
+            public override void OnForeground()
+            {
+               var ctr = ConsoleControl.ConvertOrCrash<Control>();
+               var frm = ctr.MthGetParentForm().NnOrCrash();
+
+               frm.MthBringToFront();
+               ctr.Focus();
+            }
+         }
+
          public override ISeaMathMessageDisplayer MessageDisplayer => new InnerMessageDisplayer();
 
          public bool HasConsole { get; }
@@ -74,17 +90,10 @@ namespace Gate.CLanguageTest
 
          protected override SeaMathDocManager myMakeDocManager() => new InnerDocManager();
 
-         protected override SeaMathConsoleStrategy myMakeConsoleStrategy()
-         {
-            if (HasConsole)
-            {
-               return new SeaMathConsoleStrategyByConsoleController(ConsoleControl);
-            }
-            else
-            {
-               return new SeaMathConsoleStrategyBySystemConsole();
-            }
-         }
+         protected override SeaMathConsoleStrategy myMakeConsoleStrategy() =>
+            HasConsole ?
+               new InnerConsoleStrategyByConsoleController(ConsoleControl) :
+               new SeaMathConsoleStrategyBySystemConsole();
       }
 
       private class InnerDocManager : SeaMathDocManager
@@ -112,6 +121,8 @@ namespace Gate.CLanguageTest
          }
 
          public void Clear() { }
+
+         public void OnForeground() { }
       }
 
       public RtmDbgEngVirtCpuProcess[] Processes => mySession?.DbgIde?.Processes ?? [];
@@ -185,7 +196,7 @@ namespace Gate.CLanguageTest
          t.Join();
       }
 
-      public bool WaitForEnd(double? timeoup = null)
+      public bool WaitForEnd(double? timeout = null)
       {
          var prc_sel = Processes.
             Where(p => p.State == RtmDbgEngRunState.running || p.State == RtmDbgEngRunState.halt).
@@ -205,7 +216,7 @@ namespace Gate.CLanguageTest
 
          var res = true;
 
-         if (timeoup.HasValue) { res = smp.WaitOne((int)(1000 * timeoup.Value)); }
+         if (timeout.HasValue) { res = smp.WaitOne((int)(1000 * timeout.Value)); }
          else
          {
             smp.WaitOne();

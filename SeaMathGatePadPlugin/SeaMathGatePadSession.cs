@@ -1,5 +1,6 @@
 ﻿using Gate.Dock.DockApp;
 using Gate.Dock.DockAppWidgets;
+using Gate.Dock.DockWidget;
 using Gate.DockRuntimePlugin;
 using Gate.SeaMath;
 using Gate.SeaMath.Console;
@@ -17,15 +18,32 @@ namespace Gate.SeaMathGatePadPlugin
 {
    public class SeaMathGatePadSession : SeaMathSession
    {
-      public SeaMathGatePadSession(GateDockRuntimePlugin plugIn) : base(plugIn.DbgDbgEng ?? throw new Crash()) =>
+      public SeaMathGatePadSession(GateDockRuntimePlugin plugIn) : base(plugIn.DbgDbgEng.NnOrCrash()) =>
          RuntimePlugin = plugIn;
 
+      /// <summary>
+      /// 
+      /// </summary>
+      private class InnerConsoleStrategyByConsoleController : SeaMathConsoleStrategyByConsoleController
+      {
+         public InnerConsoleStrategyByConsoleController(SeaMathGatePadConsoleWidget consoleWidget) :
+            base(consoleWidget.PpConsoleView.ConvertOrCrash<IConsoleControl>()) =>
+            ConsoleWidget = consoleWidget;
+
+         public SeaMathGatePadConsoleWidget ConsoleWidget { get; }
+
+         public override void OnForeground() => ConsoleWidget.MthInvoke(ConsoleWidget.MthBringWidget2Front);
+      }
+
+      /// <summary>
+      /// 
+      /// </summary>
       private class InnerMessageDisplayer : ISeaMathMessageDisplayer
       {
          public InnerMessageDisplayer(GateDockApp app)
          {
             App = app;
-            MessageWidget = App.AppWidgets.OfType<GateDockWidgetMessageCtrl>().FirstOrDefault() ?? throw new Crash();
+            MessageWidget = App.AppWidgets.OfType<GateDockWidgetMessageCtrl>().FirstOrCrash();
 
             if (MessageWidget == null) { throw new Crash(); }
          }
@@ -47,8 +65,14 @@ namespace Gate.SeaMathGatePadPlugin
          }
 
          public void Clear() => App.MainForm.MthInvoke(() => ControlMessage?.MthClear());
+
+         public void OnForeground() => App.MainForm.MthInvoke(() =>
+            ControlMessage.MthGetAnchestor<GateDockWidgetCtrl>().NnOrCrash().MthBringWidget2Front());
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       private class InnerPlotStrategy : SeaMathPlotStrategyScottPlot
       {
          private static UInt64 myPlotCounter = 0;
@@ -59,13 +83,15 @@ namespace Gate.SeaMathGatePadPlugin
 
          public override void ShowPlot(Func<object> controlCreator, string title)
          {
-            (Parent.App ?? throw new Crash()).MainForm.MthInvoke(() =>
+            var app = Parent.App.NnOrCrash();
+
+            app.MainForm.MthInvoke(() =>
             {
-               var pag = Parent.PlotTabPageFactory.MakeTabPageControl(Parent.App.MainForm);
-               var ctr = controlCreator() as Control ?? throw new Crash();
+               var pag = Parent.PlotTabPageFactory.MakeTabPageControl(app.MainForm);
+               var ctr = controlCreator().ConvertOrCrash<Control>();
 
                ctr.Dock = DockStyle.Fill;
-               Parent.App.MainForm.MthTabPageAdd(pag);
+               app.MainForm.MthTabPageAdd(pag);
                pag.Controls.Add(ctr);
                pag.PpTitle = myGetTitle(title);
             });
@@ -81,16 +107,12 @@ namespace Gate.SeaMathGatePadPlugin
 
       public GateDockRuntimePlugin RuntimePlugin { get; }
 
-      public override ISeaMathMessageDisplayer MessageDisplayer => new InnerMessageDisplayer(App ?? throw new Gate.Tools.ToolsException());
+      public override ISeaMathMessageDisplayer MessageDisplayer => 
+         new InnerMessageDisplayer(App ?? throw new Gate.Tools.ToolsException());
 
-      protected override SeaMathConsoleStrategy myMakeConsoleStrategy()
-      {
-         var cns =
-            App?.AppWidgets.OfType<SeaMathGatePadConsoleWidget>().FirstOrDefault()?.PpConsoleView as IConsoleControl ??
-            throw new Crash();
-
-         return new SeaMathConsoleStrategyByConsoleController(cns);
-      }
+      protected override SeaMathConsoleStrategy myMakeConsoleStrategy() => 
+         new InnerConsoleStrategyByConsoleController(
+            App.NnOrCrash().AppWidgets.OfType<SeaMathGatePadConsoleWidget>().FirstOrCrash());
 
       public override string XmlStatePath => App?.AppFolder ?? "";
 

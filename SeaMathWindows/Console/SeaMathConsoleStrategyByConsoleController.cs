@@ -9,7 +9,7 @@ namespace Gate.SeaMath.Windows.Console
    /// <summary>
    /// 
    /// </summary>
-   public class SeaMathConsoleStrategyByConsoleController : SeaMathConsoleStrategy
+   public abstract class SeaMathConsoleStrategyByConsoleController : SeaMathConsoleStrategy
    {
       public SeaMathConsoleStrategyByConsoleController(IConsoleControl consoleControl) => ConsoleController = new ConsoleController(ConsoleControl = consoleControl);
 

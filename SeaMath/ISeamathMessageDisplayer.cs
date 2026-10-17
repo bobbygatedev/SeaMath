@@ -17,5 +17,10 @@ namespace Gate.SeaMath
       /// 
       /// </summary>
       void Clear();
+
+      /// <summary>
+      /// Place message display control/console on foreground.
+      /// </summary>
+      void OnForeground();
    }
 }
