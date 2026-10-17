@@ -76,6 +76,7 @@ namespace Gate.ToolsView.Dockable
          CtrlImageList.Images.Add(Properties.Resources.CtrlBtnMinimize_Image);
          CtrlImageList.Images.Add(Properties.Resources.CtrlBtnMaximizeImage);
          CtrlImageList.Images.Add(Properties.Resources.CtrlBtnClose_Image);
+         CtrlButtonAskForClose.ImageIndex = 2;//set image = Properties.Resources.CtrlBtnClose_Image
 
          //for tool tip
          CtrlSelectButton.AddFeature<CtrlFeatureToolTip>();
@@ -92,10 +93,10 @@ namespace Gate.ToolsView.Dockable
             var par = (DockableTabbedCtrlSelectButtonCtrl)container;
             var clo_w = 0;
 
-            if (par.CtrlAskForClose.Visible = par.PpHasCloseButton)
+            if (par.CtrlButtonAskForClose.Visible = par.PpHasCloseButton)
             {
-               clo_w = par.CtrlAskForClose.Width = par.CtrlAskForClose.Height = par.Height;
-               par.CtrlAskForClose.Location = new Point(par.Width - par.Height, 0);
+               clo_w = par.CtrlButtonAskForClose.Width = par.CtrlButtonAskForClose.Height = par.Height;
+               par.CtrlButtonAskForClose.Location = new Point(par.Width - par.Height, 0);
                par.CtrlSelectButton.Height = par.Height;
             }
 
@@ -205,14 +206,14 @@ namespace Gate.ToolsView.Dockable
       {
          base.OnBackColorChanged(e);
 
-         CtrlSelectButton.BackColor = CtrlAskForClose.BackColor = BackColor;
+         CtrlSelectButton.BackColor = CtrlButtonAskForClose.BackColor = BackColor;
       }
 
       protected override void OnForeColorChanged(EventArgs e)
       {
          base.OnForeColorChanged(e);
 
-         CtrlSelectButton.ForeColor = CtrlAskForClose.ForeColor = ForeColor;
+         CtrlSelectButton.ForeColor = CtrlButtonAskForClose.ForeColor = ForeColor;
       }
    }
 }

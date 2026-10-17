@@ -32,7 +32,7 @@ namespace Gate.ToolsView.Dockable
          components = new System.ComponentModel.Container();
          CtrlImageList = new ImageList(components);
          CtrlSelectButton = new Gate.ToolsView.Extended.ExtendedButtonCtrl();
-         CtrlAskForClose = new Gate.ToolsView.Extended.ExtendedButtonCtrl();
+         CtrlButtonAskForClose = new Gate.ToolsView.Extended.ExtendedButtonCtrl();
          SuspendLayout();
          // 
          // CtrlImageList
@@ -45,31 +45,31 @@ namespace Gate.ToolsView.Dockable
          // 
          CtrlSelectButton.FlatAppearance.BorderSize = 0;
          CtrlSelectButton.FlatStyle = FlatStyle.Flat;
+         CtrlSelectButton.IsToggled = null;
          CtrlSelectButton.Location = new Point(0, 0);
          CtrlSelectButton.Margin = new Padding(0);
          CtrlSelectButton.Name = "CtrlSelectButton";
          CtrlSelectButton.PpIsToggleActive = false;
-         CtrlSelectButton.IsToggled = null;
          CtrlSelectButton.Size = new Size(204, 31);
          CtrlSelectButton.TabIndex = 1;
          CtrlSelectButton.Text = "TabbedCtrlSelectCtrl";
          CtrlSelectButton.UseVisualStyleBackColor = true;
          CtrlSelectButton.MouseDown += CtrlSelectButton_MouseDown;
          // 
-         // CtrlAskForClose
+         // CtrlButtonAskForClose
          // 
-         CtrlAskForClose.FlatAppearance.BorderSize = 0;
-         CtrlAskForClose.FlatStyle = FlatStyle.Flat;
-         CtrlAskForClose.ImageList = CtrlImageList;
-         CtrlAskForClose.Location = new Point(204, 0);
-         CtrlAskForClose.Margin = new Padding(0);
-         CtrlAskForClose.Name = "CtrlAskForClose";
-         CtrlAskForClose.PpIsToggleActive = false;
-         CtrlAskForClose.IsToggled = null;
-         CtrlAskForClose.Size = new Size(27, 31);
-         CtrlAskForClose.TabIndex = 0;
-         CtrlAskForClose.UseVisualStyleBackColor = true;
-         CtrlAskForClose.Click += CtrlAskForClose_Click;
+         CtrlButtonAskForClose.FlatAppearance.BorderSize = 0;
+         CtrlButtonAskForClose.FlatStyle = FlatStyle.Flat;
+         CtrlButtonAskForClose.ImageList = CtrlImageList;
+         CtrlButtonAskForClose.IsToggled = null;
+         CtrlButtonAskForClose.Location = new Point(204, 0);
+         CtrlButtonAskForClose.Margin = new Padding(0);
+         CtrlButtonAskForClose.Name = "CtrlButtonAskForClose";
+         CtrlButtonAskForClose.PpIsToggleActive = false;
+         CtrlButtonAskForClose.Size = new Size(27, 31);
+         CtrlButtonAskForClose.TabIndex = 0;
+         CtrlButtonAskForClose.UseVisualStyleBackColor = true;
+         CtrlButtonAskForClose.Click += CtrlAskForClose_Click;
          // 
          // DockableTabbedCtrlSelectButtonCtrl
          // 
@@ -77,7 +77,7 @@ namespace Gate.ToolsView.Dockable
          AutoScaleMode = AutoScaleMode.Font;
          BackColor = SystemColors.ActiveCaptionText;
          Controls.Add(CtrlSelectButton);
-         Controls.Add(CtrlAskForClose);
+         Controls.Add(CtrlButtonAskForClose);
          DoubleBuffered = true;
          ForeColor = Color.White;
          Margin = new Padding(4, 5, 4, 5);
@@ -89,7 +89,7 @@ namespace Gate.ToolsView.Dockable
 
       #endregion
 
-      private Extended.ExtendedButtonCtrl CtrlAskForClose;
+      private Extended.ExtendedButtonCtrl CtrlButtonAskForClose;
       private Extended.ExtendedButtonCtrl CtrlSelectButton;
       private System.Windows.Forms.ImageList CtrlImageList;
    }

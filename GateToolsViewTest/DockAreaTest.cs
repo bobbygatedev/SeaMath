@@ -29,6 +29,16 @@ namespace GateToolsViewTest
 
       static void Main(string[] args)
       {
+         //tododo
+         var but = new DockableTabbedCtrlSelectButtonCtrl();
+
+         var frm = new Form();
+
+         frm.Controls.Add(but);
+         frm.ShowDialog();
+
+         return;
+
          var dck = new DockableAreaCtrl();
 
          var wds = Enumerable.Range(0, 5).Select(_ => myAddWidget()).ToArray();
