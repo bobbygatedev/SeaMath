@@ -1,4 +1,5 @@
-﻿using Gate.ToolsView.Extensions;
+﻿using Gate.Tools.Extensions;
+using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
 
 namespace Gate.ToolsView.MenuExtended
@@ -39,12 +40,16 @@ namespace Gate.ToolsView.MenuExtended
 
          set
          {
-            if (myCmdMenuRef != null)
-            {
-               myCmdMenuRef.CmdMenu.RemoveAssociation(myCmdMenuRef.CmdMenu.Associations.OfType<InnerCmdMenuControlAssociation>().First(a => a.MenuDropDown == this));
-            }
+            myCmdMenuRef?.CmdMenu.RemoveAssociation(
+               myCmdMenuRef.CmdMenu.Associations.
+               OfType<InnerCmdMenuControlAssociation>().
+               FirstOrCrash(a => ReferenceEquals(a.MenuDropDown, this)));
 
-            if ((myCmdMenuRef = value) != null) { myCmdMenuRef.CmdMenu.AddAssociation(new InnerCmdMenuControlAssociation(this, myCmdMenuRef)); }
+            if ((myCmdMenuRef = value) != null)
+            {
+               myCmdMenuRef.CmdMenu.AddAssociation(
+                  new InnerCmdMenuControlAssociation(this, myCmdMenuRef));
+            }
          }
       }
 

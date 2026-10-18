@@ -159,7 +159,9 @@ namespace Gate.ToolsView.MenuCommand
       {
          if (myListAssociations.Contains(association))
          {
-            foreach (var cmd in Commands) { association.RemoveCommand(cmd); }
+            var sls = AllDescendant.OfType<Cmd.Slot>().ToArray();
+
+            foreach (var cmd in sls) { association.RemoveCommand(cmd.Cmd); }
 
             myListAssociations.Remove(association);
          }
@@ -392,7 +394,10 @@ namespace Gate.ToolsView.MenuCommand
          {
             myRemoveSubItem(subMenu);
 
-            foreach (var ass in Associations) { ass.RemoveSubMenu(subMenu); }
+            foreach (var ass in Associations)
+            { 
+               ass.RemoveSubMenu(subMenu); 
+            }
          }
 
          return subMenu;

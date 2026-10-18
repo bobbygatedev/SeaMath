@@ -2,7 +2,6 @@
 using Gate.Tools.AppParams;
 using Gate.Tools.Text;
 using Gate.ToolsView.MenuCommand;
-using System.IO;
 
 namespace Gate.Dock.DockAppMenu
 {

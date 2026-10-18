@@ -54,7 +54,7 @@ namespace Gate.Dock
       private readonly InnerFloatingMovingHandler myFloatingMovingHandler;
       private SkinChildCtrlDispatcher mySkinChildCtrlDispatcher;
       private bool myIsCloseActionStarted = false;
-      private CmdMainMenu? myCmdMainMenu = new CmdMainMenu("DockMainForm.MainMenu");
+      private CmdMainMenu? myCmdMainMenu;
       private GateDockTabCtrl? myTabCurrent;
       private Image? myImage;
 

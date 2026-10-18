@@ -83,13 +83,9 @@ namespace Gate.ToolsView.MenuExtended
 
          public void RemoveCommand(Cmd command)
          {
-            var ass = command.Associations.OfType<CmdControlMenuItemAssociation>().
-               FirstOrDefault(a => a.Command == command);
-
-            if (ass != null)
+            if (myDictToolStripMenuItem.TryGetValue(command,out var men_itm))
             {
-               ToolStripItem.DropDownItems.Remove(myDictToolStripMenuItem[command]);
-               command.RemoveAssociation(ass);
+               ToolStripItem.DropDownItems.Remove(men_itm);
             }
          }
 

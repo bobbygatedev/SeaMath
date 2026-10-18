@@ -289,6 +289,9 @@ namespace Gate.Dock.DockTab
       {
          if (PpWidgets.Contains(widget))
          {
+            var but = CtrlTabbed.MthGetButton(widget);
+
+            but.PpMenuDropDown.NnOrCrash().PpCmdMenuRef = null;
             widget.OnTitleChange -= Widget_OnTitleChange;
             CtrlTabbed.MthControlRemove(widget);
          }
