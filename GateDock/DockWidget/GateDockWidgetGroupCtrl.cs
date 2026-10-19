@@ -1,5 +1,6 @@
 ﻿using Gate.Dock.DockSkin;
 using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Dockable;
 using Gate.ToolsView.Extensions;
 using System.ComponentModel;
@@ -167,5 +168,16 @@ namespace Gate.Dock.DockWidget
 
          but.PpText = wdg.PpTitle;
       }
+
+      /// <summary>
+      /// Brings the newly selected widget tab to the front.
+      /// </summary>
+      /// <param name="sender">The control that raised the event.</param>
+      /// <param name="newTabIdx">The index of the newly selected tab.</param>
+      /// <param name="newTabbedControl">The control displayed in the newly selected tab.</param>
+      private void CtrlDockTabbed_OnSelectedTabChanged(object sender, int newTabIdx, Control newTabbedControl) => 
+         newTabbedControl.
+         ConvertOrCrash<GateDockWidgetCtrl>().
+         MthBringToFront();
    }
 }

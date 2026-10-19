@@ -55,6 +55,7 @@ namespace Gate.Dock.DockWidget
          CtrlDockTabbed.PpTabVisibleIdx = -1;
          CtrlDockTabbed.Size = new Size(773, 540);
          CtrlDockTabbed.TabIndex = 0;
+         CtrlDockTabbed.OnSelectedTabChanged += CtrlDockTabbed_OnSelectedTabChanged;
          // 
          // GateDockWidgetGroupCtrl
          // 
