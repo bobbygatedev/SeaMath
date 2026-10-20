@@ -68,6 +68,7 @@ namespace Gate.Dock.DockDocu
                      }
                      else
                      {
+                        myBookmarkCurrent = value;
                         doc =
                            App.MainForm.PpDocuHandler.OpenPath(
                               App.MainForm, (myBookmarkCurrent?.BookmarkPath).NnOrCrash()) as IGateDockDocuText ??
