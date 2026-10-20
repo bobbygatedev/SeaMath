@@ -204,7 +204,7 @@ namespace Gate.ToolsView.Extended
       }
 
       /// <summary>
-      ///  the only visible tab. 
+      /// The only visible tab. 
       /// </summary>
       public Control? PpTabVisible
       {
@@ -212,11 +212,14 @@ namespace Gate.ToolsView.Extended
 
          set
          {
-            var ctr_h = myListControlHolder.FirstOrDefault(h => h.Control == value);
-
-            if (ctr_h != null)
+            if (!ReferenceEquals(value, PpTabVisible))
             {
-               PpTabVisibleIdx = myListControlHolder.IndexOf(ctr_h);
+               var ctr_h = myListControlHolder.FirstOrDefault(h => h.Control == value);
+
+               if (ctr_h != null)
+               {
+                  PpTabVisibleIdx = myListControlHolder.IndexOf(ctr_h);
+               }
             }
          }
       }

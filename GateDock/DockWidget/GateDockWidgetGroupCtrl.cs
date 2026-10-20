@@ -1,6 +1,5 @@
 ﻿using Gate.Dock.DockSkin;
 using Gate.Tools;
-using Gate.Tools.Extensions;
 using Gate.ToolsView.Dockable;
 using Gate.ToolsView.Extensions;
 using System.ComponentModel;
@@ -22,6 +21,9 @@ namespace Gate.Dock.DockWidget
          DoubleBuffered = true;
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public class SkinChildCtrlDispatcher : GateDockSkinChildCtrlDispatcher
       {
          public SkinChildCtrlDispatcher(GateDockWidgetGroupCtrl parent) : base(parent) { }
@@ -33,6 +35,9 @@ namespace Gate.Dock.DockWidget
          }
       }
 
+      /// <summary>
+      /// Docking state of widget group (<see cref="GateDockWidgetStateFlags"/>)
+      /// </summary>
       public GateDockWidgetStateFlags PpDockState
       {
          get
@@ -49,10 +54,19 @@ namespace Gate.Dock.DockWidget
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public DockableAreaCtrlSlotAnchorModeEnum PpAnchorMode { get; internal set; }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public GateDockWidgetCtrl[] PpWidgets => CtrlDockTabbed.PpTabs.Cast<GateDockWidgetCtrl>().ToArray();
 
+      /// <summary>
+      /// 
+      /// </summary>
       public GateDockMainForm? PpMainFrm
       {
          get => myMainFrm;
@@ -90,6 +104,9 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       public SkinChildCtrlDispatcher PpSkinChildCtrlDispatcher { get; set; }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public Size? PpSavedSize { get; private set; }
 
       /// <summary>
@@ -175,9 +192,7 @@ namespace Gate.Dock.DockWidget
       /// <param name="sender">The control that raised the event.</param>
       /// <param name="newTabIdx">The index of the newly selected tab.</param>
       /// <param name="newTabbedControl">The control displayed in the newly selected tab.</param>
-      private void CtrlDockTabbed_OnSelectedTabChanged(object sender, int newTabIdx, Control newTabbedControl) => 
-         newTabbedControl.
-         ConvertOrCrash<GateDockWidgetCtrl>().
-         MthBringToFront();
+      private void CtrlDockTabbed_OnSelectedTabChanged(object sender, int newTabIdx, Control? newTabbedControl) => 
+         (newTabbedControl as GateDockWidgetCtrl)?.Focus();
    }
 }
