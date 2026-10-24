@@ -50,6 +50,20 @@ namespace Gate.Dock
             public abstract GateDockWidgetStateFlags StateFlags { get; }
 
             /// <summary>
+            /// Direction of state 
+            /// <see cref="GateDockWidgetStateFlags.left"/>,
+            /// <see cref="GateDockWidgetStateFlags.down"/>,
+            /// <see cref="GateDockWidgetStateFlags.right"/>,
+            /// <see cref="GateDockWidgetStateFlags.up"/>
+            /// </summary>
+            public GateDockWidgetStateFlags DirectionFlags =>
+               StateFlags & (
+                  GateDockWidgetStateFlags.left |
+                  GateDockWidgetStateFlags.right |
+                  GateDockWidgetStateFlags.up |
+                  GateDockWidgetStateFlags.down);
+
+            /// <summary>
             /// State cleanup: called whenever widget is going to exit from this state.
             /// </summary>
             /// <param name="stateOnSetup"></param>
@@ -146,6 +160,7 @@ namespace Gate.Dock
                   out GateDockWidgetStateFlags? alternateState)
                {
                   alternateState = null;
+
                   return true;
                }
             }
@@ -154,18 +169,28 @@ namespace Gate.Dock
             {
                public override GateDockWidgetStateFlags StateFlags => GateDockWidgetStateFlags.floating;
 
-               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               protected override void myHandlerHide(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation)
                {
                   widget.ParentForm?.Close();
                   widget.Parent = null;
                }
 
-               protected override void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
+               protected override void myHandlerShow(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation)
                {
-                  var flo_loc = floatLocation;
-
                   widget.PpIsCaptionVisible = true;
-                  mainForm.myDoMakeControlFloat(widget, flo_loc);
+                  
+                  var frm = mainForm.myDoMakeControlFloat(widget, floatLocation, widget.PpSavedSize ?? widget.Size);
+
+                  //always on top of main form (but not other application forms)
+                  frm.Owner = mainForm;
                }
 
                public override bool IsTransactionToMePossible(
@@ -175,6 +200,7 @@ namespace Gate.Dock
                   out GateDockWidgetStateFlags? alternateState)
                {
                   alternateState = null;
+                  
                   return true;
                }
             }
@@ -193,7 +219,7 @@ namespace Gate.Dock
                public class Down : Grouped { public Down() : base(GateDockWidgetStateFlags.group_down, GateDockWidgetStateFlags.dock_down) { } }
 
                public override GateDockWidgetStateFlags StateFlags { get; }
-               
+
                public GateDockWidgetStateFlags AlternateState { get; }
 
                public override bool IsTransactionToMePossible(
@@ -214,13 +240,23 @@ namespace Gate.Dock
                   return res;
                }
 
-               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
-                  InnerDockHelper.WidgetRemove(mainForm, widget);
+               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               {
+                  if (stateOnSetup is not Docked || stateOnSetup.DirectionFlags != DirectionFlags)
+                  {
+                     InnerDockHelper.WidgetRemove(mainForm, widget);
+                  }
+               }
 
-               protected override void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
+               protected override void myHandlerShow(
+                  WidgetState stateOnCleanup,
+                  GateDockMainForm mainForm,
+                  GateDockWidgetCtrl widget,
+                  Point? floatLocation)
                {
                   widget.PpIsCaptionVisible = true;
-                  InnerDockHelper.GroupWidget(mainForm, widget, InnerDockHelper.GetAnchorFromDockState(StateFlags));
+                  InnerDockHelper.GroupWidget(
+                     mainForm, widget, InnerDockHelper.GetAnchorFromDockState(StateFlags));
                }
             }
 
@@ -245,8 +281,13 @@ namespace Gate.Dock
                   return true;
                }
 
-               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
-                  InnerDockHelper.WidgetRemove(mainForm, widget);
+               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               {
+                  if (stateOnSetup is not Grouped || stateOnSetup.DirectionFlags != DirectionFlags)
+                  {
+                     InnerDockHelper.WidgetRemove(mainForm, widget);
+                  }
+               }
 
                protected override void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
                {

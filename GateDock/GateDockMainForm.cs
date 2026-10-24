@@ -360,10 +360,18 @@ namespace Gate.Dock
 
          this.MthInvoke(new Action(() =>
          {
-            var dck_sta = widget.PpSavedDockState == GateDockWidgetStateFlags.invisible ?
-               widget.PpFactory?.DefaultState : widget.PpSavedDockState;
+            //if invisible use saved state
+            var dck_sta = widget.PpDockState == GateDockWidgetStateFlags.invisible ? 
+               widget.PpSavedDockState : 
+               widget.PpDockState;
 
-            res = MthWidgetShow(widget, dck_sta.NnOrCrash(), widget.PpSavedFloatLocation);
+            //if still invisible uses default state
+            if (dck_sta == GateDockWidgetStateFlags.invisible)
+            {
+               dck_sta = widget.PpFactory.NnOrCrash().DefaultState;
+            }
+
+            res = MthWidgetShow(widget, dck_sta, widget.PpSavedFloatLocation);
          }));
 
          return res;
@@ -414,7 +422,7 @@ namespace Gate.Dock
             gru.PpMainFrm = this;
             gru.Size = groupControlSize.HasValue ? groupControlSize.Value : widgets.Last().Size;
             gru.MthWidgetAdd(widgets);
-            CtrlDockArea.MthControlDock(gru, anchorMode);            
+            CtrlDockArea.MthControlDock(gru, anchorMode);
             gru.MthWidgetAdd(widgets.Where(w => w.PpIsWidgetVisible).ToArray());
             widgets.FirstOrDefault().NnOrCrash().Focus();
 
@@ -661,12 +669,12 @@ namespace Gate.Dock
          TopMost = false;
       }
 
-      private GateDockFloatContainerForm myDoMakeControlFloat(Control control, Point? startPos)
+      private GateDockFloatContainerForm myDoMakeControlFloat(Control control, Point? startPos, Size? size)
       {
          if (control.Parent == null)
          {
             var frm = new GateDockFloatContainerForm();
-            var ctr_siz = control.Size;
+            var ctr_siz = size ?? control.Size;
 
             control.Dock = DockStyle.Fill;
             frm.StartPosition = FormStartPosition.Manual;

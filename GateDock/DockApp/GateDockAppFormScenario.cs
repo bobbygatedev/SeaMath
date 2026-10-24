@@ -670,6 +670,10 @@ namespace Gate.Dock.DockApp
             }
          }
 
+         /// <summary>
+         /// 
+         /// </summary>
+         /// <param name="widget"></param>
          public void WriteToRecord(GateDockWidgetCtrl widget)
          {
             DockState = widget.PpDockState;

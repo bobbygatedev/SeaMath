@@ -392,6 +392,10 @@ namespace Gate.Dock.DockWidget
                throw new Crash();
             }
          }
+         else if (PpIsWidgetVisible && PpDockState == GateDockWidgetStateFlags.floating)
+         {
+            sav = Size;
+         }
 
          PpSavedSize = sav;
       }
@@ -400,10 +404,11 @@ namespace Gate.Dock.DockWidget
       {
          myDoSaveSize();
 
-         if ((PpSavedDockState = PpDockState) == GateDockWidgetStateFlags.floating)
+         if 
+            (PpDockState != GateDockWidgetStateFlags.invisible && 
+            (PpSavedDockState = PpDockState) == GateDockWidgetStateFlags.floating)
          {
             PpSavedFloatLocation = Parent?.PointToScreen(Location);
-            PpSavedDockState = PpDockState;
          }
       }
 

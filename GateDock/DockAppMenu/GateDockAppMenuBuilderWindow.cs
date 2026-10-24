@@ -12,7 +12,6 @@ namespace Gate.Dock.DockAppMenu
 {
    public class GateDockAppMenuBuilderWindow : GateDockAppMenuBuilder
    {
-      public const string SUBMENU_WIDGET_ID = "Menu.Window.Widget";
       public const string MENU_ID = "Menu.Window";
 
       public const string CMD_SKIN_MANAGER = "Cmd.Window.SkinManager";
@@ -71,12 +70,6 @@ namespace Gate.Dock.DockAppMenu
       /// <returns></returns>
       [Submenu(IsAddCommandOnly = true)]
       public GateDockAppMenuBuilderWindowSubMenuTab GetSubMenuTab() => new GateDockAppMenuBuilderWindowSubMenuTab(App);
-
-      /// <summary>
-      /// 
-      /// </summary>
-      [Submenu(Caption = "&Widget", SubMenuId = "Cmd.Window.SubMenu.Widget", MenuId = GateDockWidgetCommandsBuilder.MENU_ID)]
-      public void Dummy1() { }
 
       /// <summary>
       /// 

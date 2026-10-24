@@ -52,13 +52,13 @@ namespace Gate.ToolsView.Dockable
       /// <summary>
       /// Effective direction, property has value if more than one center slot has created.
       /// </summary>
-      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective => 
+      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective =>
          mySlotRowRoot.AllRows.Last().SlotsAnyCenter.Length >= 2 ? mySlotRowRoot.AllRows.Last().Direction : null;
 
       /// <summary>
       /// Array with all docked controls.
       /// </summary>
-      public Control[] PpControlsDocked => 
+      public Control[] PpControlsDocked =>
          mySlotRowRoot.SlotsAllControlUser.Select(s => s.UserControl).Nn().ToArray() ?? [];
 
       /// <summary>
@@ -242,6 +242,7 @@ namespace Gate.ToolsView.Dockable
 
                control.VisibleChanged -= Control_VisibleChanged;
                myControlUnderWork = null;
+      
                return true;
             }
          }
@@ -257,9 +258,26 @@ namespace Gate.ToolsView.Dockable
          else { throw new Gate.Tools.ToolsException($"Control '{control.Name}' not belongs to this '{GetType().Name}'"); }
       }
 
+      public void MthControlReplace(Control oldControl, Control? newControl)
+      {
+         var slo =
+            mySlotRowRoot.
+            SlotsAllControlUser.
+            FirstOrDefault(
+               s => ReferenceEquals(s.UserControl, oldControl)) ??
+               throw new Gate.Tools.ToolsException(
+                  $"Control {oldControl.Name}({oldControl.GetType().Name}) not existing!");
+
+         myControlUnderWork = oldControl;//avoid slot remove from hierarchy
+         slo.FramedControl = null;
+         myControlUnderWork = newControl;//avoid slot remove from hierarchy
+         slo.FramedControl = newControl;
+         mySlotRowRoot.FlushChanges();
+      }
+
       private void Control_VisibleChanged(object? sender, EventArgs e)
       {
-         var ctr = sender as Control ?? throw new Crash();
+         var ctr = sender.ConvertOrCrash<Control>();
 
          //avoid spurious deletion
          if (!ctr.Visible && ctr != myControlUnderWork) { MthControlUndock(ctr); }

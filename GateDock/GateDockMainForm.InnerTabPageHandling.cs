@@ -284,7 +284,7 @@ namespace Gate.Dock
             myListTabFloating.Add(tab);
 
             tab.Parent = null;
-            var frm = MainForm.myDoMakeControlFloat(tab, fromPoint);
+            var frm = MainForm.myDoMakeControlFloat(tab, fromPoint,null);
 
             frm.FormClosing += Frm_FormClosing;
             frm.MthStartTracking();
