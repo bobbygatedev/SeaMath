@@ -88,8 +88,28 @@ namespace Gate.Dock
          /// <param name="widgetOrDocuTabs"></param>
          /// <param name="docuTabState"></param>
          /// <returns></returns>
-         public GateDockTabCtrl TabDocuOrWidgets(Control[] widgetOrDocuTabs, GateDockTabStateEnum docuTabState, Point? floatStartLocation)
+         public GateDockTabCtrl? TabDocuOrWidgets(
+            Control[] widgetOrDocuTabs, GateDockTabStateEnum docuTabState, Point? floatStartLocation)
          {
+            /// in case float is requested and widgetOrDocuTabs includes widget
+            /// <see cref="MainForm.MthWidgetShow(GateDockWidgetCtrl, GateDockWidgetStateFlags, Point?)"/>
+            if (docuTabState == GateDockTabStateEnum.floating)
+            {
+               var wds = widgetOrDocuTabs.OfType<GateDockWidgetCtrl>().ToArray();
+
+               foreach (var wdg in wds)
+               {
+                  MainForm.MthWidgetShow(wdg, GateDockWidgetStateFlags.floating, floatStartLocation);
+               }
+
+               widgetOrDocuTabs = widgetOrDocuTabs.Except(wds).ToArray();
+            }
+
+            if (widgetOrDocuTabs.Length == 0)
+            {
+               return null;
+            }
+
             var dck_tab = myMakeFreshDocuTab();
 
             foreach (var ctr in widgetOrDocuTabs) { myRemoveVisitor.TryRemove(ctr); }
@@ -284,7 +304,7 @@ namespace Gate.Dock
             myListTabFloating.Add(tab);
 
             tab.Parent = null;
-            var frm = MainForm.myDoMakeControlFloat(tab, fromPoint,null);
+            var frm = MainForm.myDoMakeControlFloat(tab, fromPoint, null);
 
             frm.FormClosing += Frm_FormClosing;
             frm.MthStartTracking();

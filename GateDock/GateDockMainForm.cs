@@ -471,7 +471,7 @@ namespace Gate.Dock
       /// <param name="floatLocation"></param>
       /// <returns></returns>
       /// <exception cref="Gate.Dock.GateDockException">Grouping can be horizontal/vertical at certain time(multiple direction not allowed).</exception>
-      public GateDockTabCtrl MthTabAdd(
+      public GateDockTabCtrl? MthTabAdd(
          Control[] tabPages,
          GateDockTabStateEnum docuTabState,
          DockableCtrlRowDirectionEnum? direction = null,
@@ -490,7 +490,10 @@ namespace Gate.Dock
 
          var res = myTabPageHandling.TabDocuOrWidgets(tabPages, docuTabState, floatLocation);
 
-         foreach (var doc in dcs_to_sgn) { OnTabPageOpen?.Invoke(this, doc); }
+         if (res != null)
+         {
+            foreach (var doc in dcs_to_sgn) { OnTabPageOpen?.Invoke(this, doc); }
+         }
 
          return res;
       }
