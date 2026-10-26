@@ -1025,5 +1025,10 @@ namespace Gate.ToolsView.Extended
             myLineContainer.FoldedLinesFirstId = ln.FoldedLines[0].FoldedGeneralIdx1;
          }
       }
+
+      void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
+      {
+        
+      }
    }
 }

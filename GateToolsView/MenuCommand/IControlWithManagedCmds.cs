@@ -21,5 +21,11 @@
       /// <param name="id"></param>
       /// <returns></returns>
       CmdManagedByControlImpl? this[string id] { get; }
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="cmdContainer"></param>
+      void OnConnected(CmdContainer cmdContainer);
    }
 }

@@ -474,5 +474,10 @@ namespace Gate.ToolsView.WatchControl
 
          myDoInsertClickToInsertMsgIfNeeded();
       }
+
+      void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
+      {
+  
+      }
    }
 }

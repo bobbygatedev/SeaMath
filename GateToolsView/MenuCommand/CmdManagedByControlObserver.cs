@@ -1,5 +1,4 @@
-﻿using Gate.Tools;
-using Gate.ToolsView.ControlObserve;
+﻿using Gate.ToolsView.ControlObserve;
 using Gate.ToolsView.Extensions;
 
 namespace Gate.ToolsView.MenuCommand
@@ -18,7 +17,9 @@ namespace Gate.ToolsView.MenuCommand
       /// </summary>
       /// <param name="observableFocusedAllForms"></param>
       /// <param name="cmdContainer"></param>
-      public CmdManagedByControlObserver(ControlObservableFocusedAllForms observableFocusedAllForms, CmdContainer cmdContainer)
+      public CmdManagedByControlObserver(
+         ControlObservableFocusedAllForms observableFocusedAllForms, 
+         CmdContainer cmdContainer)
       {
          CmdContainer = cmdContainer;
          ObservableFocusedAllForms = observableFocusedAllForms;
@@ -26,7 +27,7 @@ namespace Gate.ToolsView.MenuCommand
       }
 
       /// <summary>
-      /// Indicates the state of a control id when focused control doesnt
+      /// Indicates the state of a control id when focused control doesn't
       /// </summary>
       public class Default
       {
@@ -44,12 +45,13 @@ namespace Gate.ToolsView.MenuCommand
          public bool IsVisible { get; }
       }
 
-
       public void AddDefault(Default @default)
       {
          myListDefault.Add(@default);
 
-         if (ActiveControlWithCommands != null && !ActiveControlWithCommands.CmdsImpl.Any(c => c.Id == @default.CmdId))
+         if (
+            ActiveControlWithCommands != null && 
+            !ActiveControlWithCommands.CmdsImpl.Any(c => c.Id == @default.CmdId))
          {
             var cmd = CmdContainer.AllCmds[@default.CmdId];
 
@@ -60,22 +62,17 @@ namespace Gate.ToolsView.MenuCommand
 
       public IControlWithManagedCmds? ActiveControlWithCommands { get; private set; }
 
-      private void ObservableFocusedAllForms_OnFocusedControlChanged(
-         ControlObservableFocusedAllForms sender, Control? oldFocusedControl, Control? focusedControl)
-      {
-         var cut_pst_ctr =
-            focusedControl as IControlWithManagedCmds ??
-            focusedControl?.MthGetAnchestors().OfType<IControlWithManagedCmds>().FirstOrDefault();
-
-         if (cut_pst_ctr != ActiveControlWithCommands)
-         {
-            myActionOnControlCommandChanged(cut_pst_ctr);
-         }
-      }
-
       public ControlObservableFocusedAllForms ObservableFocusedAllForms { get; }
 
       public CmdContainer CmdContainer { get; }
+
+      public void DoCommandAction(string cmdId)
+      {
+         if (ActiveControlWithCommands?[cmdId]?.IsActive ?? false)
+         {
+            ActiveControlWithCommands?[cmdId]?.ActionImpl();
+         }
+      }
 
       protected virtual void myActionOnControlCommandChanged(IControlWithManagedCmds? activeControlWithCommands)
       {
@@ -89,11 +86,10 @@ namespace Gate.ToolsView.MenuCommand
             activeControlWithCommands.OnCmdStateUpdate += ActiveControlWithCommands_OnCommandControlChanged;
          }
 
+         activeControlWithCommands?.OnConnected(CmdContainer);
          ActiveControlWithCommands = activeControlWithCommands;
          myRefresh();
       }
-
-      private void ActiveControlWithCommands_OnCommandControlChanged(IControlWithManagedCmds control) => myRefresh();
 
       private void myRefresh()
       {
@@ -124,12 +120,21 @@ namespace Gate.ToolsView.MenuCommand
          }
       }
 
-      public void DoCommandAction(string cmdId)
+      private void ActiveControlWithCommands_OnCommandControlChanged(IControlWithManagedCmds control) =>
+         myRefresh();
+
+      private void ObservableFocusedAllForms_OnFocusedControlChanged(
+         ControlObservableFocusedAllForms sender, Control? oldFocusedControl, Control? focusedControl)
       {
-         if (ActiveControlWithCommands?[cmdId]?.IsActive??false)
+         var cut_pst_ctr =
+            focusedControl as IControlWithManagedCmds ??
+            focusedControl?.MthGetAnchestors().OfType<IControlWithManagedCmds>().FirstOrDefault();
+
+         if (cut_pst_ctr != ActiveControlWithCommands)
          {
-            ActiveControlWithCommands?[cmdId]?.ActionImpl();
+            myActionOnControlCommandChanged(cut_pst_ctr);
          }
       }
+
    }
 }

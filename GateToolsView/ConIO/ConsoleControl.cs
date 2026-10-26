@@ -5,6 +5,7 @@ using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
+using Gate.ToolsView.MenuExtended;
 using Gate.ToolsView.TextCtrl;
 using ScintillaNET;
 using ScintillaNET.Gate;
@@ -38,9 +39,12 @@ namespace Gate.ToolsView.ConIO
 
       public ConsoleControl()
       {
+         var mdd = new ExtendedMenuDropDown();
+
          myScintilla = new ScintillaExtension();
          myScintilla.Dock = DockStyle.Fill;
          myScintilla.BorderStyle = BorderStyle.None;
+         myScintilla.ContextMenuStrip = mdd;
 
          InitializeComponent();
 
@@ -352,7 +356,7 @@ namespace Gate.ToolsView.ConIO
 
             if (line1 > myTxtStore.LineCount)
             {
-               myTxtStore.AddLines(Enumerable.Range(0, line1-myTxtStore.LineCount).Select(_=>"").ToArray());
+               myTxtStore.AddLines(Enumerable.Range(0, line1 - myTxtStore.LineCount).Select(_ => "").ToArray());
 
                if (!myTxtStore.Content.IsEmpty())
                {
@@ -609,5 +613,25 @@ namespace Gate.ToolsView.ConIO
       /// </summary>
       /// <param name="action"></param>
       void IConsoleControl.InQueueInvoke(Action action) => this.MthInvoke(action);
+
+      void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
+      {
+         var mm = myScintilla.ContextMenuStrip.ConvertOrCrash<ExtendedMenuDropDown>();
+         var cms = myCommands.Select(c => cmdContainer.AllCmds.FirstOrDefault(c => c.Id == c.Id)).ToArray();
+         var men = new CmdMenu(false);
+
+         for (var i = 0; i < myCommands.Length; i++)
+         {
+            var cmd = myCommands[i];
+            var c = cmdContainer.AllCmds.FirstOrDefault(c => c.Id == myCommands[i].Id);
+
+            if (c != null)
+            {
+               men.AddCommand(c, false).Cmd.Action = c => cmd.ActionImpl();
+            }
+         }
+
+         mm.PpCmdMenuRef = new CmdMenu.Ref(men, false);
+      }
    }
 }

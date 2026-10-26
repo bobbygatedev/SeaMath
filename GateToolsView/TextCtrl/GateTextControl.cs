@@ -1631,6 +1631,10 @@ namespace Gate.ToolsView.TextCtrl
 
       private void PpScintilla_Insert(object? sender, ModificationEventArgs e) => 
          OnDocumentInsert?.Invoke(sender, e.Position, e.Text);
+
+      void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
+      {
+      }
    }
 }
 

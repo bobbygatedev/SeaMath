@@ -64,5 +64,9 @@
          base.OnReadOnlyChanged(e);
          myOnCmdStateUpdate?.Invoke(this);
       }
+
+      void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
+      {
+      }
    }
 }

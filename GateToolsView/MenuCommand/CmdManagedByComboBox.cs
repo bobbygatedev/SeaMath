@@ -5,11 +5,11 @@
       private OnCmdStateUpdateHandler? myOnCmdStateUpdate;
       private CmdManagedByControlImpl[] myCommands;
 
-      public CmdManagedByComboBox() => myCommands = new CmdManagedByControlImpl[] {
+      public CmdManagedByComboBox() => myCommands = [
             new InnerImpl.Copy(this),
             new InnerImpl.Cut(this),
             new InnerImpl.Paste(this),
-         };
+         ];
       private static class InnerImpl
       {
          public class Copy : CmdManagedByControlImpl
@@ -83,6 +83,11 @@
          add => myOnCmdStateUpdate += value;
 
          remove => myOnCmdStateUpdate -= value;
+      }
+
+      public void OnConnected(CmdContainer cmdContainer)
+      {
+         
       }
    }
 }
