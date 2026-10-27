@@ -71,7 +71,8 @@ namespace Gate.Dock
          PpBorderColor = GateDockSkin.DefaultValues.BorderColor;
          ForeColor = GateDockSkin.DefaultValues.ForeColor;
          mySkinChildCtrlDispatcher = new SkinChildCtrlDispatcher(this);
-         AllFocusedFormsObserver = new ControlObservableFocusedAllForms(this);
+         PpAllFocusedFormsObserver = new ControlObservableFocusedAllForms(this);
+         PpAllFocusedFormsObserver.OnFocusedControlChanged += PpAllFocusedFormsObserver_OnFocusedControlChanged;
 
          InitializeComponent();
 
@@ -91,7 +92,7 @@ namespace Gate.Dock
       /// <summary>
       /// 
       /// </summary>
-      public ControlObservableFocusedAllForms AllFocusedFormsObserver { get; }
+      public ControlObservableFocusedAllForms PpAllFocusedFormsObserver { get; }
 
       /// <summary>
       /// 
@@ -105,12 +106,7 @@ namespace Gate.Dock
       {
          get => this.GetFeature<CtrlFeatureBorder>()?.BorderColor ?? Color.Empty;
 
-         set
-         {
-            var fea = this.GetFeature<CtrlFeatureBorder>() ?? throw new Crash();
-
-            fea.BorderColor = value;
-         }
+         set => this.GetFeature<CtrlFeatureBorder>().NnOrCrash().BorderColor = value;
       }
 
       /// <summary>
@@ -186,12 +182,7 @@ namespace Gate.Dock
       /// <summary>
       /// Selected widget.
       /// </summary>
-      public GateDockWidgetCtrl? PpSelectedWidget
-      {
-         get => PpAllWidgets.FirstOrDefault(w => w.PpIsSelected);
-
-         set => value?.MthBringWidget2Front();
-      }
+      public GateDockWidgetCtrl? PpSelectedWidget { get; private set; } = null;
 
       /// <summary>
       /// Current tab which contains selected(s) tab page(s).
@@ -337,7 +328,7 @@ namespace Gate.Dock
       }
 
       /// <summary>
-      /// 
+      /// Makes <paramref name="widget"/> invisible.
       /// </summary>
       /// <param name="widget"></param>
       public void MthWidgetHide(GateDockWidgetCtrl widget)
@@ -346,7 +337,6 @@ namespace Gate.Dock
 
          widget.MthSaveLast();
          sm.SetState(GateDockWidgetStateFlags.invisible, null);
-         widget.OnSelectedChanged -= Widget_OnSelectedChanged;
       }
 
       /// <summary>
@@ -361,8 +351,8 @@ namespace Gate.Dock
          this.MthInvoke(new Action(() =>
          {
             //if invisible use saved state
-            var dck_sta = widget.PpDockState == GateDockWidgetStateFlags.invisible ? 
-               widget.PpSavedDockState : 
+            var dck_sta = widget.PpDockState == GateDockWidgetStateFlags.invisible ?
+               widget.PpSavedDockState :
                widget.PpDockState;
 
             //if still invisible uses default state
@@ -384,24 +374,42 @@ namespace Gate.Dock
       /// <param name="dockState"></param>
       /// <param name="floatLocation"></param>
       /// <returns></returns>
-      public GateDockFloatContainerForm? MthWidgetShow(GateDockWidgetCtrl widget, GateDockWidgetStateFlags dockState, Point? floatLocation = null)
+      public GateDockFloatContainerForm? MthWidgetShow(
+         GateDockWidgetCtrl widget, GateDockWidgetStateFlags dockState, Point? floatLocation = null)
       {
          var sm = new InnerWdgStateTransitionHandler(this, widget);
 
          sm.SetState(dockState, floatLocation);
-         widget.OnSelectedChanged += Widget_OnSelectedChanged;
 
          if (widget.PpDockState != GateDockWidgetStateFlags.invisible)
          {
             //patch forces init of drop down menu
-            widget.Focus();
-            Widget_OnSelectedChanged(this, true);
+            widget.MthBringWidget2Front();
          }
 
          return widget.PpDockState ==
             GateDockWidgetStateFlags.floating ?
                widget?.ParentForm as GateDockFloatContainerForm : null;
       }
+
+      /// <summary>
+      /// Init a group with certain anchor and size.
+      /// </summary>
+      /// <param name="widgets"></param>
+      /// <param name="anchorMode"></param>
+      /// <param name="size"></param>
+      /// <returns></returns>
+      public GateDockWidgetGroupCtrl MthInitGroup(
+         GateDockWidgetCtrl[] widgets, DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size size)
+      {
+         var gru = InnerDockHelper.InitGroupWidget(this, widgets, anchorMode, size);
+         var wdg_0 = gru.PpWidgets.FirstOrCrash();
+
+         wdg_0.MthBringWidget2Front();
+
+         return gru;
+      }
+
 
       /// <summary>
       /// 
@@ -413,7 +421,10 @@ namespace Gate.Dock
       public GateDockWidgetGroupCtrl MthGroupWidgets(
          DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size? groupControlSize, params GateDockWidgetCtrl[] widgets)
       {
-         if (widgets.Any(w => w.PpMainFrm != null && w.PpMainFrm != this)) { throw new Gate.Dock.GateDockException("Widget bound to other form"); }
+         if (widgets.Any(w => w.PpMainFrm != null && w.PpMainFrm != this))
+         {
+            throw new Gate.Dock.GateDockException("Widget bound to other form");
+         }
          else if (widgets.Length > 0)
          {
             var gru = new GateDockWidgetGroupCtrl();
@@ -428,12 +439,14 @@ namespace Gate.Dock
 
             return gru;
          }
-         else
-         {
-            throw new Crash();
-         }
+         else { throw new Crash(); }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="widgetOrTabPageArray"></param>
+      /// <param name="tab"></param>
       public void MthTabPageMove(Control[] widgetOrTabPageArray, GateDockTabCtrl tab)
       {
          foreach (var ctr in widgetOrTabPageArray) { myTabPageHandling.DocuForceControlOrWidgetClose(ctr); }
@@ -724,12 +737,19 @@ namespace Gate.Dock
       private void TabCtrl_VisiblePageChanged(object? sender, Control? newVisibleControl) =>
          OnTabPageCurrentChanged?.Invoke(this, PpTabPageCurrent);
 
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="sender"></param>
-      /// <param name="isSelected"></param>
-      private void Widget_OnSelectedChanged(object? sender, bool isSelected) =>
-         OnWidgetSelectedChange?.Invoke(this, isSelected ? sender as GateDockWidgetCtrl : null);
+      private void PpAllFocusedFormsObserver_OnFocusedControlChanged(
+         ControlObservableFocusedAllForms sender, Control? oldFocusedControl, Control? focusedControl)
+      {
+         var wdg =
+            focusedControl?.
+            MthGetAnchestorsAndMe()?.
+            OfType<GateDockWidgetCtrl>().
+            FirstOrDefault();
+
+         if (!ReferenceEquals(wdg, PpSelectedWidget))
+         {
+            OnWidgetSelectedChange?.Invoke(this, PpSelectedWidget = wdg);
+         }
+      }
    }
 }

@@ -1,5 +1,4 @@
-﻿using Gate.Tools;
-using Gate.Tools.Extensions;
+﻿using Gate.Tools.Extensions;
 using Gate.ToolsView.Extensions;
 
 namespace Gate.ToolsView.Dockable

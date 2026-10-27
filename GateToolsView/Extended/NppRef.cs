@@ -1,10 +1,7 @@
 using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Windows.Forms;
 
 namespace Gate.ToolsView.Extended
 {

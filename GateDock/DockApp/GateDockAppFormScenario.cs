@@ -595,15 +595,10 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         public void ReadWidgets(GateDockApp app)
-         {
-            foreach (var wdg_rec in Widgets.Items)
-            {
-               var wdg = wdg_rec.ReadFromRepo(app).NnOrCrash();
-
-               app.MainForm.MthWidgetShow(wdg, wdg_rec.DockStateParam.Value);
-            }
-         }
+         public void ReadWidgets(GateDockApp app) => 
+            app.MainForm.MthInitGroup(
+               Widgets.Items.Select(
+                  i => i.ReadFromRepo(app)).Nn().ToArray(), AnchorMode.Value, Size);
       }
 
       public class WidgetRecord : AppParam.Record, IWithDockOrder

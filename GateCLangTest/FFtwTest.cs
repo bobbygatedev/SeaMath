@@ -1,5 +1,4 @@
-﻿using Gate.CLanguage;
-using Gate.CLanguage.Types;
+﻿using Gate.CLanguage.Types;
 using Gate.LangBase;
 using Gate.LangBase.ExtraTypes;
 using Gate.LangBase.Runtime.DbgEng;
@@ -8,13 +7,10 @@ using Gate.SeaMath.Sea;
 using Gate.Tools;
 using Gate.Tools.Arry;
 using Gate.Tools.Arry.Extensions;
-using Gate.Tools.Extensions;
-using Gate.Tools.Programming;
 using Gate.Tools.Text;
 using Gate.Tools.Text.Elab;
 using System.Data;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Gate.CLanguageTest
 {

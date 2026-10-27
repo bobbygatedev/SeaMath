@@ -76,7 +76,7 @@ namespace Gate.Dock.DockAppMenu
             CmdContainer?.CmdMainMenus.FirstOrDefault(
                m => m.Id == GateDockAppMenuCmdContainerBuilder.CMD_MAIN_MENU_ID);
          ControlWithCommandObserver = new CmdManagedByControlObserver(
-            App.MainForm.AllFocusedFormsObserver, CmdContainer ?? throw new Crash());
+            App.MainForm.PpAllFocusedFormsObserver, CmdContainer ?? throw new Crash());
 
          foreach (var fac in App.DocuFactories) { fac.AddExtraMenus(CmdContainer); }
 

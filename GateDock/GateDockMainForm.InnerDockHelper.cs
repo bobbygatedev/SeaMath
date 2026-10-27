@@ -40,8 +40,8 @@ namespace Gate.Dock
          }
 
          public static void AddNoGroupedWidget(
-            GateDockMainForm mainForm, 
-            GateDockWidgetCtrl widget, 
+            GateDockMainForm mainForm,
+            GateDockWidgetCtrl widget,
             DockableAreaCtrlSlotAnchorModeEnum anchorMode)
          {
             var dck_ctr = mainForm.CtrlDockArea;
@@ -145,6 +145,32 @@ namespace Gate.Dock
                dck_ctr.MthControlReplace(widgetGroup, wdg);
             }
             else { throw new Crash(); }
+         }
+
+         public static GateDockWidgetGroupCtrl InitGroupWidget(
+            GateDockMainForm mainForm,
+            GateDockWidgetCtrl[] widgets,
+            DockableAreaCtrlSlotAnchorModeEnum anchorMode,
+            Size size)
+         {
+            if (widgets.All(w => w.PpDockState == GateDockWidgetStateFlags.invisible))
+            {
+               var gru = new GateDockWidgetGroupCtrl();
+
+               foreach (var wdg in widgets) { wdg.PpMainFrm = mainForm; }
+
+               gru.MthWidgetAdd(widgets);
+               gru.PpMainFrm = mainForm;
+               gru.Size = size;
+               gru.PpAnchorMode = anchorMode;
+               mainForm.CtrlDockArea.MthControlDock(gru, anchorMode);
+
+               return gru;
+            }
+            else
+            {
+               throw new Crash();
+            }
          }
       }
    }

@@ -10,7 +10,6 @@ using Gate.ToolsView.Dockable;
 using Gate.ToolsView.Extended;
 using Gate.ToolsView.Extensions;
 using Gate.ToolsView.MenuCommand;
-using Gate.ToolsView.Native;
 using static Gate.ToolsView.Extended.CustomCaptionCtrl;
 
 namespace Gate.Dock.DockWidget
@@ -25,18 +24,6 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       /// 
       /// </summary>
-      /// <param name="sender"></param>
-      /// <param name="isSelected"></param>
-      public delegate void OnSelectedChangedHandler(object? sender, bool isSelected);
-
-      /// <summary>
-      /// 
-      /// </summary>
-      public event OnSelectedChangedHandler? OnSelectedChanged;
-
-      /// <summary>
-      /// 
-      /// </summary>
       public event EventHandler? OnTitleChange;
 
       /// <summary>
@@ -44,13 +31,10 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       public event OnChangingMainFormHandler? OnChangingMainForm;
 
-      private ControlObservableFocused myControlFocusedObservable;
-      private ControlObservableParent myParentObservable;
       private Color myBorderColor = GateDockSkin.DefaultValues.BorderColor;
       private int myBorderPixels;
       private GateDockMainForm? myMainFrm = null;
       private GateDockWidgetSkinDispatcher? mySkinChildCtrlDispatcher = null;
-      private bool myIsSelected = false;
       private string myTitle = "";
 
       /// <summary>
@@ -61,11 +45,6 @@ namespace Gate.Dock.DockWidget
          InitializeComponent();
 
          PpSkinChildCtrlDispatcher = new GateDockWidgetSkinDispatcher(this);
-         myControlFocusedObservable = new ControlObservableFocused(this);
-         myControlFocusedObservable.OnIsFocusedChanged += MyControlFocusedObservable_OnIsFocusedChanged;
-         myParentObservable = new ControlObservableParent(this);
-         myParentObservable.OnControlAdded += MyParentObservable_OnControlAddedOrRemoved;
-         myParentObservable.OnControlRemoved += MyParentObservable_OnControlAddedOrRemoved;
          PpBorderWidth = GateDockSkin.Constants.WIDGET_DOCUTAB_BORDER;
          CtrlWidgetCaption.Height = GateDockSkin.Constants.WIDGET_CAPTION_HEIGHT;
 
@@ -134,7 +113,7 @@ namespace Gate.Dock.DockWidget
 
                case GateDockWidgetStateFlags.tabbed: return DockableAreaCtrlSlotAnchorModeEnum.center;
 
-               default: throw new Crash();
+               default: throw new Gate.Tools.ToolsException($"Invalid dock state");
             }
          }
       }
@@ -167,23 +146,18 @@ namespace Gate.Dock.DockWidget
 
                   PpRestoreSize = Size;
                   myMainFrm.OnSkinChange += MyMainFrm_OnSkinChange;
-                  PpIsSelected = myControlFocusedObservable.IsSelected;
+                  myMainFrm.PpAllFocusedFormsObserver.OnFocusedControlChanged += PpAllFocusedFormsObserver_OnFocusedControlChanged;
                }
 
-               myDoIsSelectedEvaluate();
                OnChangingMainForm?.Invoke(this, myMainFrm);
             }
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public Size PpRestoreSize { get; private set; }
-
-      protected override void OnResize(EventArgs e)
-      {
-         if (myMainFrm?.WindowState != FormWindowState.Minimized) { PpRestoreSize = Size; }
-
-         base.OnResize(e);
-      }
 
       /// <summary>
       /// Is widget is visible independently from dock-state (not necessary equal to Control.Visible)?
@@ -222,16 +196,10 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       ///  
       /// </summary>
-      public bool PpIsSelected
-      {
-         get => myIsSelected;
-
-         private set
-         {
-            myIsSelected = value;
-            OnSelectedChanged?.Invoke(this, value);
-         }
-      }
+      public bool PpIsSelected => 
+         ReferenceEquals(
+            PpMainFrm?.PpAllFocusedFormsObserver.FocusedControl?.
+               MthGetAnchestorsAndMe().OfType<GateDockWidgetCtrl>().FirstOrDefault(), this);
 
       /// <summary>
       /// 
@@ -294,8 +262,14 @@ namespace Gate.Dock.DockWidget
          }
       }
 
+      /// <summary>
+      /// <see cref="PpDockState"/> saved on state repository.
+      /// </summary>
       public GateDockWidgetStateFlags PpSavedDockState { get; private set; } = GateDockWidgetStateFlags.invisible;
 
+      /// <summary>
+      /// 
+      /// </summary>
       public GateDockSkin? PpSkin
       {
          get => PpSkinChildCtrlDispatcher?.Skin;
@@ -308,8 +282,14 @@ namespace Gate.Dock.DockWidget
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public GateDockWidgetFactory? PpFactory { get; internal set; }
 
+      /// <summary>
+      /// 
+      /// </summary>
       public string PpTitle
       {
          get => myTitle;
@@ -358,7 +338,8 @@ namespace Gate.Dock.DockWidget
 
             if (dck_sta == GateDockWidgetStateFlags.invisible)
             {
-               dck_sta = PpFactory != null ? PpFactory.DefaultState : GateDockWidgetStateFlags.floating;
+               dck_sta = PpFactory != null ? 
+                  PpFactory.DefaultState : GateDockWidgetStateFlags.floating;
             }
 
             PpMainFrm.MthWidgetShow(this, dck_sta, PpSavedFloatLocation);
@@ -371,6 +352,13 @@ namespace Gate.Dock.DockWidget
       public int? PpGroupIndex =>
          PpWidgetGroup?.PpWidgets.ToList().IndexOf(this) is int idx && idx != -1 ?
             idx : (int?)null;
+
+      protected override void OnResize(EventArgs e)
+      {
+         if (myMainFrm?.WindowState != FormWindowState.Minimized) { PpRestoreSize = Size; }
+
+         base.OnResize(e);
+      }
 
       private void myDoSaveSize()
       {
@@ -404,8 +392,8 @@ namespace Gate.Dock.DockWidget
       {
          myDoSaveSize();
 
-         if 
-            (PpDockState != GateDockWidgetStateFlags.invisible && 
+         if
+            (PpDockState != GateDockWidgetStateFlags.invisible &&
             (PpSavedDockState = PpDockState) == GateDockWidgetStateFlags.floating)
          {
             PpSavedFloatLocation = Parent?.PointToScreen(Location);
@@ -430,18 +418,6 @@ namespace Gate.Dock.DockWidget
       {
          if (ParentForm is GateDockFloatContainerForm) { ParentForm.Visible = false; }
          Parent = null;
-      }
-
-      private void myDoIsSelectedEvaluate()
-      {
-         //if widget is invisible (not bound to any visible control) sel = false
-         if (ParentForm == null) { PpIsSelected = false; }
-         else if (NativeMethods.GetActiveWindow() != IntPtr.Zero)//focus to another application
-         {
-            //if is focused change to false (moving to another control)
-            //the selected state is mantained when focus is moving outside application(active window == null)
-            PpIsSelected = myControlFocusedObservable.IsSelected;
-         }
       }
 
       private static GateDockWidgetStateFlags myGetPosFromAnchor(DockableAreaCtrlSlotAnchorModeEnum anchor)
@@ -495,13 +471,9 @@ namespace Gate.Dock.DockWidget
 
       private void MyMainFrm_OnSkinChange(object? sender, GateDockSkin? skin) => PpSkin = skin;
 
-      private void MyParentObservable_OnControlAddedOrRemoved(Control control) => myDoIsSelectedEvaluate();
-
-      private void MyControlFocusedObservable_OnIsFocusedChanged(
-         Control? observable, Control? focusedControl, bool isSelected)
+      private void PpAllFocusedFormsObserver_OnFocusedControlChanged(
+         ControlObservableFocusedAllForms sender, Control? oldFocusedControl, Control? focusedControl)
       {
-         myDoIsSelectedEvaluate();
-
          var col_sel = PpSkin != null ? PpSkin.Params.WidgetSelectedColor.Value : GateDockSkin.DefaultValues.WidgetSelectedColor;
          var col_bor = PpSkin != null ? PpSkin.Params.BorderColor.Value : GateDockSkin.DefaultValues.BorderColor;
 

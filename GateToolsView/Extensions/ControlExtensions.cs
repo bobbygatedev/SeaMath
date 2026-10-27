@@ -131,7 +131,8 @@ namespace Gate.ToolsView.Extensions
       }
 
       /// <summary>
-      /// Calls <see cref="Control.ResumeLayout()"/> for <paramref name="control"/> and all its nephews (<see cref="MthGetNephews(Control)"/>.
+      /// Calls <see cref="Control.ResumeLayout()"/> for <paramref name="control"/> and all its nephews 
+      /// (<see cref="MthGetNephews(Control)"/>.
       /// </summary>
       /// <param name="control"></param>
       public static void MthResumeLayoutNephews(this Control control)
@@ -145,7 +146,15 @@ namespace Gate.ToolsView.Extensions
       }
 
       /// <summary>
-      /// Returns parent hierarchy excluding child itself eg {control.Parent , control.Parent.Parent , .. }.
+      /// Returns parent hierarchy eg {control, control.Parent , control.Parent.Parent , .. }.
+      /// </summary>
+      /// <param name="control"></param>
+      /// <returns></returns>
+      public static Control[] MthGetAnchestorsAndMe(this Control control) => 
+         [control, .. control.MthGetAnchestors()];
+
+      /// <summary>
+      /// Returns parent hierarchy excluding <paramref name="control"/> itself eg {control.Parent , control.Parent.Parent , .. }.
       /// </summary>
       /// <param name="control"></param>
       /// <returns></returns>
