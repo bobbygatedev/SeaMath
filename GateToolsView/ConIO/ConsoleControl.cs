@@ -67,11 +67,6 @@ namespace Gate.ToolsView.ConIO
          for (int i = 0; i < myScintilla.Margins.Count; i++) { myScintilla.Margins[i].Width = 0; }
       }
 
-      /// <summary>
-      /// If true direct commands action are used (cut, copy, paste), otherwise the commands are synthetized as key events.
-      /// </summary>
-      public bool PpIsUseDirectCommandsAction { get; set; } = false;
-
       private abstract class InnerCmd : CmdManagedByControlImpl
       {
          public InnerCmd(ConsoleControl parent, string id) : base(parent, id) { }
@@ -103,6 +98,14 @@ namespace Gate.ToolsView.ConIO
          }
       }
 
+      /// <summary>
+      /// If true direct commands action are used (cut, copy, paste), otherwise the commands are synthetized as key events.
+      /// </summary>
+      public bool PpIsUseDirectCommandsAction { get; set; } = false;
+
+      /// <summary>
+      /// 
+      /// </summary>
       public string[]? PpScreenBuffer
       {
          get

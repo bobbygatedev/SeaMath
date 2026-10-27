@@ -253,6 +253,14 @@ namespace Gate.ToolsView.MenuCommand
          return slt;
       }
 
+      public void InsertCommandRange(int atIndex , bool isDefault , params Cmd[] commandRange)
+      {
+         foreach (var cmd in commandRange)
+         {
+            InsertCommandSlot(new Cmd.Slot(cmd, isDefault), atIndex++);
+         }
+      }
+
       public bool AddItem(ICmdMenuItem itm) => InsertItem(itm, -1);
 
       public bool InsertItem(ICmdMenuItem item, int endIndex)

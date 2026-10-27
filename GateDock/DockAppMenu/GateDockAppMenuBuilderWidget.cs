@@ -19,6 +19,7 @@ namespace Gate.Dock.DockAppMenu
 
       protected override Image? myGetCmdImage(Cmd cmd) => null;
 
-      protected override void myCustomInit(CmdMenu cmdMenu) => cmdMenu.AddCommandRange(true, App.WidgetFactories.Select(f => f.Cmd).ToArray());
+      protected override void myCustomInit(CmdMenu cmdMenu) => 
+         cmdMenu.InsertCommandRange(0 , true, App.WidgetFactories.Select(f => f.Cmd).ToArray());
    }
 }
