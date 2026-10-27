@@ -5,9 +5,9 @@ using Gate.Tools.Extensions;
 namespace Gate.ToolsView.MenuCommand
 {
    /// <summary>
-   /// 
+   /// Represent a menu/toolbar command.
    /// </summary>
-   public class Cmd : ICmdWithId, ICmdWithCaption
+   public class Cmd : ICmdWithId, ICmdWithCaption , ICloneable
    {
       private string? myCaption = null;
       private Image? myImage = null;
@@ -251,6 +251,17 @@ namespace Gate.ToolsView.MenuCommand
       }
 
       /// <summary>
+      /// Get a memberwise copy of the command.
+      /// </summary>
+      /// <returns></returns>
+      public Cmd Clone()
+      {
+         var cmd = MemberwiseClone();
+
+         return cmd.ConvertOrCrash<Cmd>();
+      }
+
+      /// <summary>
       /// 
       /// </summary>
       /// <returns></returns>
@@ -274,5 +285,7 @@ namespace Gate.ToolsView.MenuCommand
 
          return san_id == null ? Guid.NewGuid().ToString() : san_id;
       }
+
+      object ICloneable.Clone() => Clone();
    }
 }

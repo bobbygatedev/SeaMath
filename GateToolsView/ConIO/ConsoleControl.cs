@@ -27,6 +27,8 @@ namespace Gate.ToolsView.ConIO
       private readonly TxtStore myTxtStore = new TxtStore();
       private TxtPos myCurrentPos = new TxtPos(1, 1);
       private int? myTime;
+      private CmdMenu? myContextMenu;
+
 
       event OnCmdStateUpdateHandler IControlWithManagedCmds.OnCmdStateUpdate
       {
@@ -112,10 +114,7 @@ namespace Gate.ToolsView.ConIO
          {
             var res = null as string[];
 
-            myScintilla.MthInvoke(() =>
-            {
-               res = myTxtStore.Lines.Select(l => l.Content).ToArray();
-            });
+            myScintilla.MthInvoke(() => res = myTxtStore.Lines.Select(l => l.Content).ToArray());
 
             return res;
          }
@@ -617,24 +616,32 @@ namespace Gate.ToolsView.ConIO
       /// <param name="action"></param>
       void IConsoleControl.InQueueInvoke(Action action) => this.MthInvoke(action);
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="cmdContainer"></param>
       void IControlWithManagedCmds.OnConnected(CmdContainer cmdContainer)
       {
-         var mm = myScintilla.ContextMenuStrip.ConvertOrCrash<ExtendedMenuDropDown>();
-         var cms = myCommands.Select(c => cmdContainer.AllCmds.FirstOrDefault(c => c.Id == c.Id)).ToArray();
-         var men = new CmdMenu(false);
-
-         for (var i = 0; i < myCommands.Length; i++)
+         if (myContextMenu == null)
          {
-            var cmd = myCommands[i];
-            var c = cmdContainer.AllCmds.FirstOrDefault(c => c.Id == myCommands[i].Id);
+            var mm = myScintilla.ContextMenuStrip.ConvertOrCrash<ExtendedMenuDropDown>();
+            var cms = myCommands.Select(c => cmdContainer.AllCmds.FirstOrDefault(c => c.Id == c.Id)).ToArray();
 
-            if (c != null)
+            myContextMenu = new CmdMenu(false);
+
+            for (var i = 0; i < myCommands.Length; i++)
             {
-               men.AddCommand(c, false).Cmd.Action = c => cmd.ActionImpl();
-            }
-         }
+               var cmd = myCommands[i];
+               var c = cmdContainer.AllCmds.FirstOrDefault(c => c.Id == myCommands[i].Id);
 
-         mm.PpCmdMenuRef = new CmdMenu.Ref(men, false);
+               if (c != null)
+               {
+                  myContextMenu.AddCommand(c.Clone(), false).Cmd.Action = c => cmd.ActionImpl();
+               }
+            }
+
+            mm.PpCmdMenuRef = new CmdMenu.Ref(myContextMenu, false);
+         }
       }
    }
 }

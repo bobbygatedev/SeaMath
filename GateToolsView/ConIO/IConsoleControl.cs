@@ -1,7 +1,5 @@
 ﻿using Gate.Tools.Text;
 using Gate.ToolsView.MenuCommand;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace Gate.ToolsView.ConIO
 {
