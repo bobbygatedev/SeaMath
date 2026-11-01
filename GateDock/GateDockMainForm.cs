@@ -56,7 +56,6 @@ namespace Gate.Dock
       private bool myIsCloseActionStarted = false;
       private CmdMainMenu? myCmdMainMenu;
       private GateDockTabCtrl? myTabCurrent;
-      private Image? myImage;
 
       /// <summary>
       /// Constructor.
@@ -299,32 +298,8 @@ namespace Gate.Dock
       /// </summary>
       public Image? PpImage
       {
-         get => myImage;
-         set
-         {
-            myImage = value;
-
-            if (myImage != null)
-            {
-               var bmp = new Bitmap(myImage);
-
-               CtrlCaption.PpImage = myImage = value;
-
-               for (var x = 0; x < bmp.Height; x++)
-               {
-                  for (var y = 0; y < bmp.Width; y++)
-                  {
-                     if (bmp.GetPixel(x, y).A != 0) { bmp.SetPixel(x, y, Color.DarkGray); }
-                  }
-               }
-
-               Icon = Icon.FromHandle(bmp.GetHicon());
-            }
-            else
-            {
-               Icon = null;
-            }
-         }
+         get => CtrlCaption.PpImage; 
+         set => CtrlCaption.PpImage = value;
       }
 
       /// <summary>

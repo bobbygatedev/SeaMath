@@ -1,3 +1,4 @@
+using GatePad.Properties;
 using System.Diagnostics;
 
 namespace Gate.Pad   
@@ -11,9 +12,9 @@ namespace Gate.Pad
       static void Main(string[] cmdLine)
       {
          var app = new GatePadApp();
-         var ico_fac = new GatePadIconFactory(Color.White, 64, 64);
 
-         app.MainForm.PpImage = ico_fac.MakeImage();
+         app.MainForm.PpImage = Resources.GatePadPng;
+         app.MainForm.Icon = Resources.GatePadIcon;   
          app.Start(cmdLine);
          Process.GetCurrentProcess().Kill();
       }
