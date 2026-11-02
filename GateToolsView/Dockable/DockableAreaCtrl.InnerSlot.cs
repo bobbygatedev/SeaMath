@@ -1,4 +1,5 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlObserve;
 
 namespace Gate.ToolsView.Dockable
@@ -23,7 +24,7 @@ namespace Gate.ToolsView.Dockable
          {
             public RowSubSlot() : base(null, DockableAreaCtrlSlotAnchorModeEnum.center) { }
 
-            public RowSubSlot(SplitContainer splitContainer) : base(null, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer) => 
+            public RowSubSlot(SplitContainer splitContainer) : base(null, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer) =>
                SplitCont.Panel1.Controls.Clear();
 
             public void AddSubRow(InnerSlotRow.SubRow subRow) => myAddSubItem(subRow);
@@ -44,7 +45,8 @@ namespace Gate.ToolsView.Dockable
             /// <param name="userControl"></param>
             /// <param name="anchorMode"></param>
             /// <param name="initSize"></param>
-            public User(Control userControl, DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size initSize) : base(userControl, anchorMode)
+            public User(Control userControl, DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size initSize) :
+               base(userControl, anchorMode)
             {
                InitSize = initSize;
                myInit();
@@ -55,7 +57,8 @@ namespace Gate.ToolsView.Dockable
             /// </summary>
             /// <param name="userControl"></param>
             /// <param name="splitContainer"></param>
-            public User(Control userControl, SplitContainer splitContainer) : base(userControl, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer)
+            public User(Control userControl, SplitContainer splitContainer) :
+               base(userControl, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer)
             {
                InitSize = userControl.Size;
                FramedControl = userControl;
@@ -67,29 +70,29 @@ namespace Gate.ToolsView.Dockable
             /// </summary>
             public Control? UserControl => FramedControl;
 
-            public override string ToString() => string.Format(
-                  "{0} slot of {1}({2}) bound to {3}: FloSize: {4}(Prog:{5})",
-                  AnchorMode,
-                  FramedControl?.Name,
-                  FramedControl?.GetType().Name,
-                  ParentRow != null ? ParentRow.ToString() : "",
-                  FloatSize,
-                  FloatSizeToProgram);
+            public override string ToString() =>
+               $"{AnchorMode} slot of {FramedControl?.Name}({FramedControl?.GetType().Name}) " +
+               $"bound to {ParentRow?.ToString()}: FloSize: {FloatSize}(Prog:{FloatSizeToProgram})";
 
             private void myInit()
             {
-               SplitCont.SplitterMoved += SplitCont_SplitterMoved;
                myWindowState = ParentForm?.WindowState;
                myControlObservableParent = new ControlObservableParent(SplitCont);
                myControlObservableParent.OnControlAdded += MyControlObservableParent_OnControlChange;
                myControlObservableParent.OnControlRemoved += MyControlObservableParent_OnControlChange;
             }
 
+            public SplitContainer? SplitContainerForSet =>
+               SplitCont?.FixedPanel == FixedPanel.Panel1 ?
+                  SplitCont.Parent?.Parent as SplitContainer : SplitCont;
+
             private void MyControlObservableParent_OnControlChange(Control control)
             {
                var old_par_frm = ParentForm;
 
                ParentForm = SplitCont?.ParentForm;
+
+               if (SplitContainerForSet != null) { SplitContainerForSet.SplitterMoved += SplitCont_SplitterMoved; }
 
                if (old_par_frm != null) { old_par_frm.Resize -= ParentForm_Resize; }
 
@@ -103,20 +106,32 @@ namespace Gate.ToolsView.Dockable
 
             private void ParentForm_Resize(object? sender, EventArgs e)
             {
-               if (SplitCont != null && myWindowState == FormWindowState.Minimized && ParentForm?.WindowState != FormWindowState.Minimized)
+               if (
+                  SplitCont != null &&
+                  myWindowState == FormWindowState.Minimized &&
+                  ParentForm?.WindowState != FormWindowState.Minimized)
                {
-                  SplitCont.SplitterDistance = myFloatSize;
+                  SplitContainerForSet.NnOrCrash().SplitterDistance = FloatSize;
                }
 
                myWindowState = ParentForm?.WindowState;
             }
 
+            //tododo
             private void SplitCont_SplitterMoved(object? sender, SplitterEventArgs e)
             {
-               if (ParentItem == null) { return; }
-               else if (myWindowState != FormWindowState.Minimized && ParentForm?.WindowState != FormWindowState.Minimized)
+               Console.WriteLine($"SplitCont_SplitterMoved");
+
+               var sc = sender.ConvertOrCrash<SplitContainer>();
+
+               if (
+                  myWindowState != FormWindowState.Minimized &&
+                  ParentForm?.WindowState != FormWindowState.Minimized)
                {
-                  myFloatSize = Direction == DockableCtrlRowDirectionEnum.up_2_down ? SplitCont.Panel1.Height : SplitCont.Panel1.Width;
+                  myFloatSize =
+                     Direction == DockableCtrlRowDirectionEnum.up_2_down ?
+                        sc.Panel1.Height : sc.Panel1.Width;
+                  Console.WriteLine($"myFloatSize: {myFloatSize}");
                }
             }
          }
@@ -224,7 +239,8 @@ namespace Gate.ToolsView.Dockable
             spl.Panel1MinSize = 0;
             spl.Panel2MinSize = 0;
             spl.SplitterWidth = SPLITTER_WIDTH;
-            spl.FixedPanel = anchorMode == DockableAreaCtrlSlotAnchorModeEnum.center ? FixedPanel.None : FixedPanel.Panel1;
+            //tododo
+            //spl.FixedPanel = anchorMode == DockableAreaCtrlSlotAnchorModeEnum.center ? FixedPanel.None : FixedPanel.Panel1;
 
             switch (anchorMode)
             {

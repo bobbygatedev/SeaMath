@@ -518,9 +518,10 @@ namespace Gate.ToolsView.Dockable
 
             var cnt_sls = SlotsAnyCenter;
 
-            foreach (var slt in cnt_sls.Take(cnt_sls.Length - 1)) { slt.SplitCont.FixedPanel = FixedPanel.None; }
+            //tododo test
+            //foreach (var slt in cnt_sls.Take(cnt_sls.Length - 1)) { slt.SplitCont.FixedPanel = FixedPanel.None; }
 
-            cnt_sls.Last().SplitCont.FixedPanel = FixedPanel.Panel2;
+            //cnt_sls.Last().SplitCont.FixedPanel = FixedPanel.Panel2;
          }
 
          private void mySetFloatSizeToProgram()

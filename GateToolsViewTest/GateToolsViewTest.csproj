@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <StartupObject>Gate.ToolsViewTest.CmdMenuTest</StartupObject>
+    <StartupObject>GateToolsViewTest.DockAreaTest</StartupObject>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
