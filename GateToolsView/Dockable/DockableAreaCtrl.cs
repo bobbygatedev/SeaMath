@@ -1,4 +1,5 @@
-﻿using Gate.Tools.Extensions;
+﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Extensions;
 
 namespace Gate.ToolsView.Dockable
@@ -14,19 +15,14 @@ namespace Gate.ToolsView.Dockable
       private const int MIN_CENTER_WIDTH = 20;
       private const int MIN_CENTER_HEIGHT = 20;
 
-      private readonly InnerSlotRow.Root mySlotRowRoot;
-      private Control? myControlUnderWork = null;
-
       /// <summary>
       /// Constructor.
       /// </summary>
       public DockableAreaCtrl()
       {
-         mySlotRowRoot = new InnerSlotRow.Root(this, DockableCtrlRowDirectionEnum.left_2_right);
-
          InitializeComponent();
-
-         mySlotRowRoot.FlushChanges();
+         CtrlAreaRowCtrl.PpDirection = DockableCtrlRowDirectionEnum.left_2_right;
+         CtrlAreaRowCtrl.MthControlDock(null, DockableAreaCtrlSlotAnchorModeEnum.center);
       }
 
       /// <summary>
@@ -44,77 +40,70 @@ namespace Gate.ToolsView.Dockable
       }
 
       /// <summary>
-      /// Orientation of the center docked controls. Setting has no effect when more than a center control is docked.
+      /// Orientation of the center docked controls. 
+      /// Setting has no effect when more than a center control is docked.
       /// </summary>
       public DockableCtrlRowDirectionEnum PpCenterDirectionToSet { get; set; } = DockableCtrlRowDirectionEnum.left_2_right;
 
       /// <summary>
       /// Effective direction, property has value if more than one center slot has created.
       /// </summary>
-      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective =>
-         mySlotRowRoot.AllRows.Last().SlotsAnyCenter.Length >= 2 ? mySlotRowRoot.AllRows.Last().Direction : null;
+      public DockableCtrlRowDirectionEnum? PpCenterDirectionEffective => myGetAllRowCtrl().Last().PpDirection;
 
       /// <summary>
       /// Array with all docked controls.
       /// </summary>
       public Control[] PpControlsDocked =>
-         mySlotRowRoot.SlotsAllControlUser.Select(s => s.UserControl).Nn().ToArray() ?? [];
+         [.. PpSlotsAll.Select(s => s.Control).Nn()];
 
       /// <summary>
       /// Left-docked controls.
       /// </summary>
       public Control[] PpControlsDockedLeft =>
-         mySlotRowRoot.SlotsAllControlUser.
+         [.. PpSlotsAll.
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.left).
-         Select(s => s.UserControl).
-         Nn().
-         ToArray();
+         Select(s => s.Control).Nn()];
 
       /// <summary>
       ///  right-docked controls.
       /// </summary>
       public Control[] PpControlsDockedRight =>
-         mySlotRowRoot.SlotsAllControlUser.
+         [.. PpSlotsAll.
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.right).
-         Select(s => s.UserControl).
-         Nn().
-         ToArray();
+         Select(s => s.Control).Nn()];
 
       /// <summary>
       ///  up-docked controls.
       /// </summary>
       public Control[] PpControlsDockedUp =>
-         mySlotRowRoot.SlotsAllControlUser.
+         [.. myGetAllRowCtrl().SelectMany(c => c.PpSlots).
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.up).
-         Select(s => s.UserControl).
-         Nn().
-         ToArray();
+         Select(s => s.Control).Nn()];
 
       /// <summary>
       /// Down-docked controls.
       /// </summary>
       public Control[] PpControlsDockedDown =>
-         mySlotRowRoot.SlotsAllControlUser.
+         [.. PpSlotsAll.
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.down).
-         Select(s => s.UserControl).
-         Nn().
-         ToArray();
+         Select(s => s.Control).Nn()];
 
       /// <summary>
       /// Center-docked controls.
       /// </summary>
       public Control[] PpControlsDockedCenter =>
-         mySlotRowRoot.
-         SlotsAllControlUser.
+         [.. PpSlotsAll.
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).
-         Select(s => s.UserControl).
-         Nn().
-         ToArray();
+         Select(s => s.Control).Nn()];
 
       /// <summary>
       /// Minimum size of the contol, which has been st to a fixed value.
       /// </summary>
-      public override Size MinimumSize { get => new Size(MIN_WIDTH, MIN_HEIGHT); set => Console.WriteLine("MinimumSize has fixed value, setting has not effect!"); }
+      public override Size MinimumSize
+      {
+         get => new Size(MIN_WIDTH, MIN_HEIGHT);
+         set => Console.WriteLine("MinimumSize has fixed value, setting has not effect!");
+      }
 
       /// <summary>
       /// 
@@ -123,10 +112,10 @@ namespace Gate.ToolsView.Dockable
       {
          get
          {
-            var lst_slt = mySlotRowRoot.AllRows.LastOrDefault();
-            var cnt_sls = lst_slt?.SlotsAnyCenter;
-            var frs_sp1 = cnt_sls?.FirstOrDefault()?.SplitCont.Panel1;
-            var lst_sp1 = cnt_sls?.LastOrDefault()?.SplitCont.Panel1;
+            var cur_row_ctr = myGetTopRowCtrl();
+            var cnt_sls = cur_row_ctr.PpSlotsCenter;
+            var frs_sp1 = cnt_sls?.FirstOrDefault()?.Panel;
+            var lst_sp1 = cnt_sls?.LastOrDefault()?.Panel;
             var frs_rc_scr = frs_sp1?.Parent?.RectangleToScreen(frs_sp1.ClientRectangle);
             var lst_rc_scr = lst_sp1?.Parent?.RectangleToScreen(lst_sp1.ClientRectangle);
 
@@ -148,7 +137,50 @@ namespace Gate.ToolsView.Dockable
       /// <param name="anchorMode"></param>
       /// <param name="controls"></param>
       /// <returns>Number of added controls.</returns>
-      public int MthControlsDock(DockableAreaCtrlSlotAnchorModeEnum anchorMode, params Control[] controls) => controls.Count(c => MthControlDock(c, anchorMode));
+      public int MthControlsDock(DockableAreaCtrlSlotAnchorModeEnum anchorMode, params Control[] controls) =>
+         controls.Count(c => MthControlDock(c, anchorMode));
+
+      /// <summary>
+      /// 
+      /// </summary>
+      public DockableAreaRowCtrl.SlotType[] PpSlotsAll =>
+         [.. this.MthGetNephews().
+            OfType<DockableAreaRowCtrl>().SelectMany(c => c.PpSlots).
+            Where(s => !(s.Control is DockableAreaRowCtrl))];
+
+      private DockableAreaRowCtrl[] myGetAllRowCtrl() =>
+         this.MthGetNephews().OfType<DockableAreaRowCtrl>().ToArray();
+
+
+      private DockableAreaRowCtrl[] myGetAllRows() => this.MthGetNephews().OfType<DockableAreaRowCtrl>().ToArray();
+
+
+      private DockableAreaRowCtrl myGetTopRowCtrl() => this.MthGetNephews().OfType<DockableAreaRowCtrl>().LastOrCrash();
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="anchorMode"></param>
+      /// <returns></returns>
+      /// <exception cref="Crash">if different from up,down,right,left</exception>
+      private DockableCtrlRowDirectionEnum? myGetDirection(DockableAreaCtrlSlotAnchorModeEnum anchorMode)
+      {
+         switch (anchorMode)
+         {
+            case DockableAreaCtrlSlotAnchorModeEnum.left:
+            case DockableAreaCtrlSlotAnchorModeEnum.right:
+               return DockableCtrlRowDirectionEnum.left_2_right;
+
+            case DockableAreaCtrlSlotAnchorModeEnum.up:
+            case DockableAreaCtrlSlotAnchorModeEnum.down:
+               return DockableCtrlRowDirectionEnum.up_2_down;
+
+            case DockableAreaCtrlSlotAnchorModeEnum.center:
+            case DockableAreaCtrlSlotAnchorModeEnum.none:
+            default:
+               return null;
+         }
+      }
 
       /// <summary>
       /// Adds a docked control to me. 
@@ -159,56 +191,158 @@ namespace Gate.ToolsView.Dockable
       /// <exception cref="Gate.ToolsView.GateDockException">Control is null or already contained.</exception>
       public bool MthControlDock(Control control, DockableAreaCtrlSlotAnchorModeEnum anchorMode)
       {
-         if (control == null) { return false; }
-
-         myControlUnderWork = control;
-
-         if (PpControlsDocked.Contains(control)) { throw new Gate.Tools.ToolsException("Control is already contained, remove before!"); }
-         else if (mySlotRowRoot.SlotsAllControlUser.Length + 1 < PpMaxNumDocked)
+         if (!PpControlsDocked.ContainsRef(control))
          {
-            var par_frm = control.MthGetParentForm();
-            var all_sls = mySlotRowRoot.SlotsAllControlUser;
-            var top_row = mySlotRowRoot.AllRows.Last();
+            /// current dock row <see cref="DockableAreaRowCtrl"/>  
+            var all_rws = myGetAllRows();
+            var top_row = myGetTopRowCtrl();
+            var new_dir = myGetDirection(anchorMode);
 
-            if (par_frm != null)
+            if (PpControlsDocked.Length < PpMaxNumDocked)
             {
-               par_frm.Controls.Remove(control);//removes the control from parent form
-               par_frm.Close();
-            }
-
-            mySlotRowRoot.UpdateCache();
-
-            if (anchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
-            {
-               if (top_row.RowSubSlot != null) { top_row.ReplaceRowSubWithUser(control); }
-               else { top_row.InsertSlotOnly(new InnerSlot.User(control, anchorMode, control.Size)); }
-            }
-            else
-            {
-               var new_slt = new InnerSlot.User(control, anchorMode, control.Size);
-
-               //if any slot has same anchor of an left/right/up/down new slot it is inserted at interior of that row
-               if (all_sls.Any(s => s.AnchorMode == anchorMode))
+               if (PpControlsDocked.Length == 0)
                {
-                  all_sls.LastOrDefault(s => s.AnchorMode == anchorMode)?.ParentRow?.InsertSlotOnly(new_slt);
+                  //if empty calculate direction (default eg for center is left-2-right)
+                  top_row.PpDirection =
+                     new_dir ?? DockableCtrlRowDirectionEnum.left_2_right;
+               }
+
+               if (anchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
+               {
+                  if (top_row.PpSlotsCenter.Length == 1)
+                  {
+                     //associated center slot
+                     var slo = top_row.PpSlotsCenter.FirstOrCrash();
+
+                     if (slo.Control == null)
+                     {
+                        slo.Control = control;
+
+                        return true;
+                     }
+
+                     /// if there one only center control and <see cref="PpCenterDirectionToSet"/>
+                     /// is different from current row direction a subcontrol is created
+                     if (top_row.PpDirection != PpCenterDirectionToSet)
+                     {
+                        //adds a subrow
+                        top_row = myDoAddSubRow(
+                           top_row.PpSlotsCenter.FirstOrCrash(), PpCenterDirectionToSet, true);
+                     }
+                  }
+
+                  top_row.MthControlDock(control, anchorMode);
+
+                  return true;
                }
                else
                {
-                  if (mySlotRowRoot == top_row && mySlotRowRoot.SlotsUser.Length == 0)
+                  var dir_row = all_rws.FirstOrDefault(r => r.PpSlots.Any(s => s.AnchorMode == anchorMode));
+
+                  if (dir_row != null)
                   {
-                     mySlotRowRoot.SetDirection(
-                        new_slt.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.left ||
-                        new_slt.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.right ?
-                           DockableCtrlRowDirectionEnum.left_2_right : DockableCtrlRowDirectionEnum.up_2_down);
+                     dir_row.MthControlDock(control, anchorMode);
+
+                     return true;
                   }
+                  else if (new_dir.NnOrCrash() != top_row.PpDirection)
+                  {
+                     if (top_row.PpSlotsCenter.Length == 1)
+                     {
+                        //adds a subrow
+                        top_row = myDoAddSubRow(
+                           top_row.PpSlotsCenter.FirstOrCrash(), new_dir.NnOrCrash(), true);
+                     }
+                     else
+                     {
+                        var cts = top_row.PpSlotsCenter.Select(s => s.Control).Nn().ToArray();
+                        var old_dir = top_row.PpDirection;
 
-                  top_row.InsertSlotOnly(new_slt);
+                        // remains one only centers-slot
+                        top_row.MthRemoveSlots(top_row.PpSlotsCenter.Skip(1).ToArray());
+
+                        var new_top_row =
+                           myDoAddSubRow(top_row.PpSlotsCenter.FirstOrCrash(), new_dir.NnOrCrash(), false);
+
+                        new_top_row.MthControlDock(control, anchorMode);
+
+                        var new_top_row_2 =
+                           myDoAddSubRow(new_top_row.PpSlotsCenter.FirstOrCrash(), old_dir, false);
+
+                        new_top_row_2.PpSlotsCenter.FirstOrCrash().Control = cts[0];
+
+                        foreach (var ctr in cts.Skip(1))
+                        {
+                           new_top_row_2.MthControlDock(ctr, DockableAreaCtrlSlotAnchorModeEnum.center);
+                        }
+
+                        return true;
+                     }
+                  }
                }
-            }
 
-            mySlotRowRoot.FlushChanges();
-            control.VisibleChanged += Control_VisibleChanged;
-            myControlUnderWork = null;
+               top_row.MthControlDock(control, anchorMode);
+
+               return true;
+            }
+            else
+            {
+               return false;
+            }
+         }
+         else
+         {
+            throw new Gate.Tools.ToolsException(
+               "Control is already contained, remove before!");
+         }
+      }
+
+      private DockableAreaRowCtrl myDoAddSubRow(
+         DockableAreaRowCtrl.SlotType slot, DockableCtrlRowDirectionEnum direction, bool isOldToReAdd)
+      {
+         var old_ctr = isOldToReAdd ? slot.Control : null;
+         var sub_dck = new DockableAreaRowCtrl { PpDirection = direction, Dock = DockStyle.Fill };
+
+         slot.Control = sub_dck;
+
+         if (slot.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
+         {
+            sub_dck.MthControlDock(old_ctr, DockableAreaCtrlSlotAnchorModeEnum.center);
+         }
+         else { throw new Crash(); }
+
+         return sub_dck;
+      }
+
+      public bool MthControlUndock(Control control)
+      {
+         if (PpControlsDocked.ContainsRef(control))
+         {
+            /// <see cref="DockableAreaRowCtrl"/> associated control to undock  
+            var row = PpSlotsAll.
+               FirstOrCrash(s => ReferenceEquals(s.Control, control)).
+               Parent.NnOrCrash();
+
+            row.MthRemoveControl(control);
+
+            if (
+               row.PpControlsAll.ContainsRef(control) &&
+               !ReferenceEquals(row, CtrlAreaRowCtrl) &&
+               row.PpSlots.Length == 1 &&
+               row.PpSlotsCenter.Length == 1)
+            {
+               var cts = myGetAllRowCtrl();
+               var ctr = row.PpSlotsCenter.FirstOrCrash().Control;
+               var par_ctr = cts[cts.Length - 2];
+               var slo = par_ctr.PpSlots.FirstOrCrash(s => ReferenceEquals(s, row));
+
+               if (ctr != null)
+               {
+                  row.MthRemoveControl(ctr);
+               }
+
+               slo.Control = control;
+            }
 
             return true;
          }
@@ -216,70 +350,20 @@ namespace Gate.ToolsView.Dockable
          return false;
       }
 
-      public bool MthControlUndock(Control control)
-      {
-         if (control != null)
-         {
-            var slt = mySlotRowRoot.SlotsAllControlUser.FirstOrDefault(s => s.FramedControl == control);
-
-            myControlUnderWork = control;
-
-            if (slt != null)
-            {
-               var row = slt.ParentRow;
-
-               if (row?.SlotsAnyCenter.Length == 1 && slt.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
-               {
-                  row.ReplaceCenterWithSubRowSlot(slt);
-               }
-               else
-               {
-                  mySlotRowRoot.UpdateCache();
-                  slt?.ParentRow?.RemoveSlot(slt);
-                  mySlotRowRoot.FlushChanges();
-               }
-
-               control.VisibleChanged -= Control_VisibleChanged;
-               myControlUnderWork = null;
-      
-               return true;
-            }
-         }
-
-         return false;
-      }
-
       public DockableAreaCtrlSlotAnchorModeEnum MthGetAnchorFromControl(Control control)
       {
-         var slt = mySlotRowRoot.SlotsAllControlUser.FirstOrDefault(s => s.UserControl == control);
+         var slo = PpSlotsAll.FirstOrDefault(s => ReferenceEquals(s.Control, control));
 
-         if (slt != null) { return slt.AnchorMode; }
-         else { throw new Gate.Tools.ToolsException($"Control '{control.Name}' not belongs to this '{GetType().Name}'"); }
+         if (slo != null) { return slo.AnchorMode; }
+         else { throw new Gate.Tools.ToolsException($""); }
       }
 
       public void MthControlReplace(Control oldControl, Control? newControl)
       {
-         var slo =
-            mySlotRowRoot.
-            SlotsAllControlUser.
-            FirstOrDefault(
-               s => ReferenceEquals(s.UserControl, oldControl)) ??
-               throw new Gate.Tools.ToolsException(
-                  $"Control {oldControl.Name}({oldControl.GetType().Name}) not existing!");
+         var slo = PpSlotsAll.FirstOrDefault(s => ReferenceEquals(s.Control, oldControl));
 
-         myControlUnderWork = oldControl;//avoid slot remove from hierarchy
-         slo.FramedControl = null;
-         myControlUnderWork = newControl;//avoid slot remove from hierarchy
-         slo.FramedControl = newControl;
-         mySlotRowRoot.FlushChanges();
-      }
-
-      private void Control_VisibleChanged(object? sender, EventArgs e)
-      {
-         var ctr = sender.ConvertOrCrash<Control>();
-
-         //avoid spurious deletion
-         if (!ctr.Visible && ctr != myControlUnderWork) { MthControlUndock(ctr); }
+         if (slo != null) { slo.Control = newControl; }
+         else { throw new Gate.Tools.ToolsException($""); }
       }
    }
 }

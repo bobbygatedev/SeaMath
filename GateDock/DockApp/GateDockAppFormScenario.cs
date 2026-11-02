@@ -549,10 +549,6 @@ namespace Gate.Dock.DockApp
 
          public readonly Simple<string> DocuName = new Simple<string>();
 
-         public readonly Simple<int> Width = new Simple<int>();
-
-         public readonly Simple<int> Height = new Simple<int>();
-
          public readonly Simple<string> ContentDescriptor = new Simple<string>();
       }
 

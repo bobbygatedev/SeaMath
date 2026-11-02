@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace Gate.ToolsView.ControlObserve
+﻿namespace Gate.ToolsView.ControlObserve
 {
    public abstract class ControlObservableHierarchical : ControlObservableBase
    {

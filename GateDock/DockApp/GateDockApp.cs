@@ -5,7 +5,6 @@ using Gate.Dock.DockFactories;
 using Gate.Dock.DockFactories.Text;
 using Gate.Dock.DockTab;
 using Gate.Dock.DockWidget;
-using Gate.Tools;
 using Gate.Tools.AppParams;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
@@ -215,7 +214,7 @@ namespace Gate.Dock.DockApp
       protected virtual bool myActionOnClose()
       {
          DefaultFormScenario.Save();
-         (MarkerHandler ?? throw new Crash()).ActionOnClosing();
+         MarkerHandler.NnOrCrash().ActionOnClosing();
 
          var res = MainForm.PpDocuHandler.DocuClosing(MainForm, MainForm.PpTabPagesAll.OfType<IGateDockDocu>().ToArray(), false);
 
@@ -233,7 +232,7 @@ namespace Gate.Dock.DockApp
             }
          }
 
-         (PlugInManager ?? throw new Crash()).Unload(Messages);
+         PlugInManager.NnOrCrash().Unload(Messages);
 
          return res != SaveResultEnum.cancel;
       }
@@ -277,7 +276,10 @@ namespace Gate.Dock.DockApp
             Environment.Exit(-1);
          }
 
-         (MarkerHandler ?? throw new Crash()).Load();
+         MarkerHandler.NnOrCrash().Load();
+
+         foreach (var wdg in WidgetFactories.Select(w => w.Widget)) { wdg.PpMainFrm = MainForm; }
+
          DefaultFormScenario.Load(msg);
 
          //todo define program log and put err msgs in

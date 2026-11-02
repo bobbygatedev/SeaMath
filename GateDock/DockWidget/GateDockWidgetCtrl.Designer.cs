@@ -32,78 +32,74 @@ namespace Gate.Dock.DockWidget
       /// </summary>
       private void InitializeComponent()
       {
-         this.CtrlWidgetCaption = new Gate.Dock.DockWidget.GateDockWidgetCaption();
-         this.CtrlWidgetLayout = new DockableWidgetLayout();
-         this.CtrlPanel = new ExtendedPanelCtrl();
-         this.CtrlWidgetLayout.SuspendLayout();
-         this.CtrlPanel.PpPanel.SuspendLayout();
-         this.SuspendLayout();
+         CtrlWidgetCaption = new GateDockWidgetCaption();
+         CtrlWidgetLayout = new DockableWidgetLayout();
+         CtrlPanel = new ExtendedPanelCtrl();
+         CtrlWidgetLayout.SuspendLayout();
+         SuspendLayout();
          // 
          // CtrlWidgetCaption
          // 
-         this.CtrlWidgetCaption.BackColor = System.Drawing.SystemColors.Control;
-         this.CtrlWidgetCaption.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.CtrlWidgetCaption.ForeColor = System.Drawing.SystemColors.ControlText;
-         this.CtrlWidgetCaption.Location = new System.Drawing.Point(0, 0);
-         this.CtrlWidgetCaption.Name = "CtrlWidgetCaption";
-         this.CtrlWidgetCaption.PpIsWidgetSelected = false;
-         this.CtrlWidgetCaption.PpSkin = null;
-         this.CtrlWidgetCaption.Size = new System.Drawing.Size(207, 19);
-         this.CtrlWidgetCaption.TabIndex = 0;
-         this.CtrlWidgetCaption.OnDockCaptionEvent += new CustomCaptionCtrl.OnDockCaptionEventHandler(this.CtrlWidgetCaption_OnDockCaptionEvent);
+         CtrlWidgetCaption.BackColor = SystemColors.Control;
+         CtrlWidgetCaption.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+         CtrlWidgetCaption.ForeColor = SystemColors.ControlText;
+         CtrlWidgetCaption.Location = new Point(0, 0);
+         CtrlWidgetCaption.Margin = new Padding(7, 8, 7, 8);
+         CtrlWidgetCaption.Name = "CtrlWidgetCaption";
+         CtrlWidgetCaption.PpCmdMenuRef = null;
+         CtrlWidgetCaption.PpIsWidgetSelected = false;
+         CtrlWidgetCaption.PpSkin = null;
+         CtrlWidgetCaption.Size = new Size(277, 29);
+         CtrlWidgetCaption.TabIndex = 0;
+         CtrlWidgetCaption.OnDockCaptionEvent += CtrlWidgetCaption_OnDockCaptionEvent;
          // 
          // CtrlWidgetLayout
          // 
-         this.CtrlWidgetLayout.Controls.Add(this.CtrlWidgetCaption);
-         this.CtrlWidgetLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.CtrlWidgetLayout.Location = new System.Drawing.Point(0, 0);
-         this.CtrlWidgetLayout.MinimumSize = new System.Drawing.Size(0, 29);
-         this.CtrlWidgetLayout.Name = "CtrlWidgetLayout";
-         this.CtrlWidgetLayout.PpBody = null;
-         this.CtrlWidgetLayout.PpCaptionControl = this.CtrlWidgetCaption;
-         this.CtrlWidgetLayout.Size = new System.Drawing.Size(207, 29);
-         this.CtrlWidgetLayout.TabIndex = 1;
+         CtrlWidgetLayout.Controls.Add(CtrlWidgetCaption);
+         CtrlWidgetLayout.Dock = DockStyle.Fill;
+         CtrlWidgetLayout.Location = new Point(0, 0);
+         CtrlWidgetLayout.MinimumSize = new Size(0, 39);
+         CtrlWidgetLayout.Name = "CtrlWidgetLayout";
+         CtrlWidgetLayout.PpBody = null;
+         CtrlWidgetLayout.PpCaptionControl = CtrlWidgetCaption;
+         CtrlWidgetLayout.Size = new Size(277, 321);
+         CtrlWidgetLayout.TabIndex = 1;
          // 
          // CtrlPanel
          // 
-         this.CtrlPanel.BackColor = System.Drawing.SystemColors.Control;
-         this.CtrlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.CtrlPanel.Location = new System.Drawing.Point(0, 0);
-         this.CtrlPanel.Name = "CtrlPanel";
-         this.CtrlPanel.PpBorderColor = System.Drawing.Color.DarkGray;
-         this.CtrlPanel.PpBorderWidth = 2;
-         this.CtrlPanel.PpIsAutoScrollActive = false;
-         this.CtrlPanel.PpIsScrollHBarActive = false;
-         this.CtrlPanel.PpIsScrollVBarActive = false;
-         // 
-         // CtrlPanel.PpPanel
-         // 
-         this.CtrlPanel.PpPanel.BackColor = System.Drawing.SystemColors.Control;
-         this.CtrlPanel.PpPanel.Controls.Add(this.CtrlWidgetLayout);
-         this.CtrlPanel.PpPanel.Location = new System.Drawing.Point(0, 0);
-         this.CtrlPanel.PpPanel.Name = "PpPanel";
-         this.CtrlPanel.PpPanel.Size = new System.Drawing.Size(207, 207);
-         this.CtrlPanel.PpPanel.TabIndex = 0;
-         this.CtrlPanel.PpScrollBarsSize = 20;
-         this.CtrlPanel.PpScrollHBackColor = System.Drawing.SystemColors.Control;
-         this.CtrlPanel.PpScrollHGripActiveColor = System.Drawing.Color.Gray;
-         this.CtrlPanel.PpScrollVBackColor = System.Drawing.SystemColors.Control;
-         this.CtrlPanel.PpScrollVGripActiveColor = System.Drawing.Color.Gray;
-         this.CtrlPanel.PpSingleControlBased = this.CtrlWidgetLayout;
-         this.CtrlPanel.Size = new System.Drawing.Size(211, 211);
-         this.CtrlPanel.TabIndex = 0;
+         CtrlPanel.BackColor = Color.DarkGray;
+         CtrlPanel.Dock = DockStyle.Fill;
+         CtrlPanel.Location = new Point(0, 0);
+         CtrlPanel.Margin = new Padding(5, 8, 5, 8);
+         CtrlPanel.Name = "CtrlPanel";
+         CtrlPanel.PpBorderColor = Color.DarkGray;
+         CtrlPanel.PpBorderWidth = 2;
+         CtrlPanel.PpIsAutoScrollActive = false;
+         CtrlPanel.PpIsScrollHBarActive = false;
+         CtrlPanel.PpIsScrollVBarActive = false;
+         CtrlPanel.PpScrollBarsSize = 20;
+         CtrlPanel.PpScrollHBackColor = SystemColors.Control;
+         CtrlPanel.PpScrollHGripActiveColor = Color.Gray;
+         CtrlPanel.PpScrollHValue = 0;
+         CtrlPanel.PpScrollVBackColor = SystemColors.Control;
+         CtrlPanel.PpScrollVGripActiveColor = Color.Gray;
+         CtrlPanel.PpScrollVValue = 0;
+         CtrlPanel.PpSingleControlBased = CtrlWidgetLayout;
+         CtrlPanel.PpSingleControlContentSizeCalculator = null;
+         CtrlPanel.Size = new Size(281, 325);
+         CtrlPanel.TabIndex = 0;
          // 
          // GateDockWidgetCtrl
          // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.Controls.Add(this.CtrlPanel);
-         this.DoubleBuffered = true;
-         this.Name = "GateDockWidgetCtrl";
-         this.Size = new System.Drawing.Size(211, 211);
-         this.CtrlWidgetLayout.ResumeLayout(false);
-         this.CtrlPanel.PpPanel.ResumeLayout(false);
-         this.ResumeLayout(false);
+         AutoScaleDimensions = new SizeF(8F, 20F);
+         AutoScaleMode = AutoScaleMode.Font;
+         Controls.Add(CtrlPanel);
+         DoubleBuffered = true;
+         Margin = new Padding(4, 5, 4, 5);
+         Name = "GateDockWidgetCtrl";
+         Size = new Size(281, 325);
+         CtrlWidgetLayout.ResumeLayout(false);
+         ResumeLayout(false);
 
       }
 

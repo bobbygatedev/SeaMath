@@ -1,6 +1,5 @@
 ﻿using Gate.Tools.AppParams;
 using Gate.Tools.Text;
-using System.IO;
 
 namespace Gate.Dock.DockApp
 {

@@ -5,7 +5,7 @@ using Gate.ToolsView.MenuExtended;
 namespace Gate.Dock.DockSkin
 {
    /// <summary>
-   /// 
+   ///   
    /// </summary>
    public class GateDockSkinChildCtrlDispatcher
    {
@@ -36,21 +36,22 @@ namespace Gate.Dock.DockSkin
          /// <param name="control"></param>
          protected override void myAddObservedControl(Control control)
          {
-            var is_2_add = true;
+            /// if any [control,control.parent,control.parent.parent .. RootControl.child]
+            /// is subtype of <see cref="IGateDockCtrlWithSkin"/> is not added to collection
+            var is_2_add =
+               !control.MthGetAnchestors().Except(RootControl?.MthGetAnchestorsAndMe() ?? []).
+               OfType<IGateDockCtrlWithSkin>().
+               Any();
 
-            if (control != RootControl)
+            if (is_2_add && !myParentDispatcher.myListObservedControls.Contains(control))
             {
-               //hierarchy ( {control.parent,control.parent.parent, ... RootControl.child, RootControl , RootControl.parent ,... , Form }
-               var hie = control.MthGetAnchestors();
-               //parent hierarchy cut to Root Control ({control.parent,control.parent.parent, ... ,RootControl.child} )
-             
-               var hie_roo = RootControl == null ? [] : hie.Take(hie.ToList().IndexOf(RootControl)).ToArray();
+               myParentDispatcher.myListObservedControls.Add(control);
 
-               //control if excluded if any anchestor to root is 
-               is_2_add = !hie_roo.Any(c => c is IGateDockCtrlWithSkin);
+               if (myParentDispatcher.Skin != null)
+               {
+                  myParentDispatcher.myDoUpdate(control);
+               }
             }
-
-            if (is_2_add && !myParentDispatcher.myListObservedControls.Contains(control)) { myParentDispatcher.myListObservedControls.Add(control); }
 
             base.myAddObservedControl(control);
          }
@@ -109,18 +110,20 @@ namespace Gate.Dock.DockSkin
 
             //perform update of control with double dispatching:
             // - controls implementing IGateDockCtrlWithSkin PpSkin property is updated
-            // - otherwise abstarct myUpdate is called(sub-class implement behaviour)
+            // - otherwise abstract myUpdate is called(sub-class implement behaviour)
             foreach (var ctr in myListObservedControls)
             {
                if (ctr is IGateDockCtrlWithSkin skin && ctr != RootControl) { skin.PpSkin = mySkin; }
-               else
-               {
-                  myUpdate(mySkin, ctr);
-
-                  if (ctr.ContextMenuStrip != null) { myUpdateContextMenu(ctr.ContextMenuStrip); }
-               }
+               else { myDoUpdate(ctr); }
             }
          }
+      }
+
+      private void myDoUpdate(Control ctr)
+      {
+         myUpdate(mySkin, ctr);
+
+         if (ctr.ContextMenuStrip != null) { myUpdateContextMenu(ctr.ContextMenuStrip); }
       }
 
       /// <summary>
@@ -130,6 +133,7 @@ namespace Gate.Dock.DockSkin
 
       protected virtual void myUpdateContextMenu(ContextMenuStrip contextMenu) => myUpdateContextMenuVisitor.Visit(mySkin, (dynamic)contextMenu);
 
-      protected virtual void myUpdate(GateDockSkin skin, Control control) => myUpdateVisitor.Visit(skin, (dynamic)control);
+      protected virtual void myUpdate(GateDockSkin skin, Control control) =>
+         myUpdateVisitor.Visit(skin, (dynamic)control);
    }
 }
