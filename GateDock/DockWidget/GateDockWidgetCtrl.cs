@@ -19,17 +19,10 @@ namespace Gate.Dock.DockWidget
    /// </summary>
    public partial class GateDockWidgetCtrl : UserControl, IGateDockCtrlWithSkin
    {
-      public delegate void OnChangingMainFormHandler(object? sender, GateDockMainForm? mainForm);
-
       /// <summary>
       /// 
       /// </summary>
       public event EventHandler? OnTitleChange;
-
-      /// <summary>
-      /// 
-      /// </summary>
-      public event OnChangingMainFormHandler? OnChangingMainForm;
 
       private Color myBorderColor = GateDockSkin.DefaultValues.BorderColor;
       private int myBorderPixels;
@@ -121,35 +114,30 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       ///  
       /// </summary>
-      public GateDockMainForm? PpMainFrm
+      public virtual GateDockMainForm? PpMainFrm
       {
          get => myMainFrm;
 
-         internal set
+         set
          {
-            if (myMainFrm != value)
+            if (!ReferenceEquals(value = value.NnOrCrash(), myMainFrm))
             {
-               if (myMainFrm != null) { myMainFrm.OnSkinChange -= MyMainFrm_OnSkinChange; }
+               PpSkin = (myMainFrm = value).PpSkin;
 
-               if ((myMainFrm = value) != null)
+               if (
+                  myMainFrm.PpCmdMainMenu != null &&
+                  myMainFrm.PpCmdMainMenu.CmdContainer != null)
                {
-                  if (myMainFrm.PpSkin != null) { PpSkin = myMainFrm.PpSkin; }
+                  //searches for widget drop down menu
+                  var men = myMainFrm.PpCmdMainMenu.CmdContainer.AllMenus.
+                     FirstOrDefault(m => m.Id == GateDockWidgetCommandsBuilder.MENU_ID);
 
-                  if (myMainFrm.PpCmdMainMenu != null && myMainFrm.PpCmdMainMenu.CmdContainer != null)
-                  {
-                     //searches for widget drop down menu
-                     var men = myMainFrm.PpCmdMainMenu.CmdContainer.AllMenus.
-                        FirstOrDefault(m => m.Id == GateDockWidgetCommandsBuilder.MENU_ID);
-
-                     if (men != null) { CtrlWidgetCaption.PpCmdMenuRef = new CmdMenu.Ref(men, true); }
-                  }
-
-                  PpRestoreSize = Size;
-                  myMainFrm.OnSkinChange += MyMainFrm_OnSkinChange;
-                  myMainFrm.PpAllFocusedFormsObserver.OnFocusedControlChanged += PpAllFocusedFormsObserver_OnFocusedControlChanged;
+                  if (men != null) { CtrlWidgetCaption.PpCmdMenuRef = new CmdMenu.Ref(men, true); }
                }
 
-               OnChangingMainForm?.Invoke(this, myMainFrm);
+               PpRestoreSize = Size;
+               myMainFrm.OnSkinChange += MyMainFrm_OnSkinChange;
+               myMainFrm.PpAllFocusedFormsObserver.OnFocusedControlChanged += PpAllFocusedFormsObserver_OnFocusedControlChanged;
             }
          }
       }
@@ -196,7 +184,7 @@ namespace Gate.Dock.DockWidget
       /// <summary>
       ///  
       /// </summary>
-      public bool PpIsSelected => 
+      public bool PpIsSelected =>
          ReferenceEquals(
             PpMainFrm?.PpAllFocusedFormsObserver.FocusedControl?.
                MthGetAnchestorsAndMe().OfType<GateDockWidgetCtrl>().FirstOrDefault(), this);
@@ -338,7 +326,7 @@ namespace Gate.Dock.DockWidget
 
             if (dck_sta == GateDockWidgetStateFlags.invisible)
             {
-               dck_sta = PpFactory != null ? 
+               dck_sta = PpFactory != null ?
                   PpFactory.DefaultState : GateDockWidgetStateFlags.floating;
             }
 

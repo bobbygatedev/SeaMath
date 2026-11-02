@@ -354,6 +354,7 @@ namespace Gate.Dock
       {
          var sm = new InnerWdgStateTransitionHandler(this, widget);
 
+         widget.PpMainFrm = this;
          sm.SetState(dockState, floatLocation);
 
          if (widget.PpDockState != GateDockWidgetStateFlags.invisible)

@@ -2,6 +2,7 @@ using Gate.Dock.DockApp;
 using Gate.Dock.DockDocu;
 using Gate.Dock.DockFactories;
 using Gate.Dock.DockWidget;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.Extended;
 using Gate.ToolsView.MenuCommand;
 
@@ -42,8 +43,11 @@ namespace Gate.Dock.DockAppWidgets
 
       public MsgListControl PpMessageListControl { get; }
 
-      private void GateDockWidgetMessageCtrl_OnChangingMainForm(object? sender, GateDockMainForm mainForm) =>
-         PpMessageListControl.PpTextOpener = new GateDockTextOpener(mainForm);
+      public override GateDockMainForm? PpMainFrm
+      {
+         get => base.PpMainFrm; 
+         set => PpMessageListControl.PpTextOpener = new GateDockTextOpener(base.PpMainFrm = value.NnOrCrash());
+      }
    }
 }
 

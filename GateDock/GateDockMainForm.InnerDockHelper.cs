@@ -157,8 +157,6 @@ namespace Gate.Dock
             {
                var gru = new GateDockWidgetGroupCtrl();
 
-               foreach (var wdg in widgets) { wdg.PpMainFrm = mainForm; }
-
                gru.MthWidgetAdd(widgets);
                gru.PpMainFrm = mainForm;
                gru.Size = size;

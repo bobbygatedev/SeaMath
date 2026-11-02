@@ -108,7 +108,7 @@ namespace Gate.Dock.DockAppMenu
          cms[CMD_NEW_HORIZONTAL_GROUP].IsVisible = myIsHorizontalGroupingPossible(MainForm);
          cms[CMD_NEW_VERTICAL_GROUP].IsVisible = myIsVerticalGroupingPossible(MainForm);
          cms[CMD_FLOAT_ALL].IsEnabled = cms[CMD_FLOAT].IsEnabled = myIsFloatPossible(MainForm);
-         cms[CMD_UNFLOAT].IsEnabled = myIsUnfloatPossible(MainForm);
+         cms[CMD_UNFLOAT].IsVisible = myIsUnfloatPossible(MainForm);
          cms[CMD_MOVE_TO_NEXT_GROUP].IsVisible = myIsMoveToNextPossible(MainForm);
          cms[CMD_MOVE_TO_PREVIOUS_GROUP].IsVisible = myIsMoveToPreviousPossible(MainForm);
       }

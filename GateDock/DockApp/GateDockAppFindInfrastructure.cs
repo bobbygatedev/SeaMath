@@ -1,7 +1,6 @@
 ﻿using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.TextCtrl;
 using Gate.ToolsView.TextSearch;
-using System.Windows.Forms;
 
 namespace Gate.Dock.DockApp
 {

@@ -36,7 +36,6 @@ namespace Gate.Dock.DockAppWidgets
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.Name = "GateDockWidgetMessageCtrl";
-         this.OnChangingMainForm += new Gate.Dock.DockWidget.GateDockWidgetCtrl.OnChangingMainFormHandler(this.GateDockWidgetMessageCtrl_OnChangingMainForm);
          this.ResumeLayout(false);
 
       } 

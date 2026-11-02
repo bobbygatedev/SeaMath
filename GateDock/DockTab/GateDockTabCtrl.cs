@@ -270,7 +270,6 @@ namespace Gate.Dock.DockTab
       {
          PpMainFrm?.MthWidgetShow(widget, GateDockWidgetStateFlags.invisible, null);
          widget.PpIsCaptionVisible = false;
-         widget.PpMainFrm = PpMainFrm;
          CtrlTabbed.MthControlAdd(widget);
          CtrlTabbed.MthGetButton(widget).PpText = widget.PpTitle;
          widget.OnTitleChange += Widget_OnTitleChange;

@@ -35,7 +35,7 @@ namespace Gate.Dock
          public InnerWdgStateTransitionHandler(GateDockMainForm mainForm, GateDockWidgetCtrl widget)
          {
             Widget = widget;
-            Widget.PpMainFrm = MainFrm = mainForm;
+            MainFrm = mainForm;
             myWidgetCurrentState = myGetWidgetState(widget.PpDockState);
          }
 
@@ -70,7 +70,11 @@ namespace Gate.Dock
             /// <param name="mainForm"></param>
             /// <param name="widget"></param>
             /// <param name="floatLocation"></param>
-            public abstract void HandlerCleanup(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation);
+            public abstract void HandlerCleanup(
+               WidgetState stateOnSetup, 
+               GateDockMainForm mainForm, 
+               GateDockWidgetCtrl widget, 
+               ref Point? floatLocation);
 
             /// <summary>
             /// State setup: called whenever widget is going to enter into this state.
@@ -80,7 +84,11 @@ namespace Gate.Dock
             /// <param name="widget"></param>
             /// <param name="floatLocation"></param>
             /// <seealso cref="Gate.Dock.GateDockMainForm.InnerWdgStateTransitionHandler.SetState"/>
-            public abstract void HandlerSetup(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation);
+            public abstract void HandlerSetup(
+               WidgetState stateOnCleanup, 
+               GateDockMainForm mainForm, 
+               GateDockWidgetCtrl widget, 
+               Point? floatLocation);
 
             /// <summary>
             /// Action to call whenever client class is attempting to reset same state.
@@ -111,16 +119,25 @@ namespace Gate.Dock
          {
             public abstract class IsVisible : WidgetState
             {
-               public override void HandlerNoChangeState(GateDockMainForm mainForm, GateDockWidgetCtrl widget) => widget.MthBringWidget2Front();
+               public override void HandlerNoChangeState(
+                  GateDockMainForm mainForm, GateDockWidgetCtrl widget) => widget.MthBringWidget2Front();
 
-               public sealed override void HandlerSetup(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
+               public sealed override void HandlerSetup(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation)
                {
                   //common settings
                   myHandlerShow(stateOnCleanup, mainForm, widget, floatLocation);
                   myCommonOnAfterShow(stateOnCleanup, mainForm, widget, floatLocation);
                }
 
-               public sealed override void HandlerCleanup(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               public sealed override void HandlerCleanup(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation)
                {
                   //common de-settings
                   widget.MthSaveLast();
@@ -128,30 +145,52 @@ namespace Gate.Dock
                   myCommonOnAfterHide(stateOnSetup, mainForm, widget, ref floatLocation);
                }
 
-               protected abstract void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation);
+               protected abstract void myHandlerShow(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation);
 
-               protected abstract void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation);
+               protected abstract void myHandlerHide(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation);
 
-               protected virtual void myCommonOnAfterShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation) =>
+               protected virtual void myCommonOnAfterShow(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation) =>
                   widget.MthBringWidget2Front();
 
-               protected virtual void myCommonOnAfterHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) { }
+               protected virtual void myCommonOnAfterHide(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation) { }
             }
 
             public class Invisible : WidgetState
             {
                public override GateDockWidgetStateFlags StateFlags => GateDockWidgetStateFlags.invisible;
 
-               public override void HandlerCleanup(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               public override void HandlerCleanup(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation)
                {
-                  //at first call of Show/Hide widget is at 'none' state
-                  if (widget.PpMainFrm == null) { widget.PpMainFrm = mainForm; }
-                  else if (mainForm != widget.PpMainFrm) { throw new Crash($"Widget '{widget.PpTitle}' already registered to other main form"); }
                }
 
-               public override void HandlerSetup(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation) { }
+               public override void HandlerSetup(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, Point? floatLocation) { }
 
-               public override void HandlerNoChangeState(GateDockMainForm mainForm, GateDockWidgetCtrl widget) { }
+               public override void HandlerNoChangeState(
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget) { }
 
                public override bool IsTransactionToMePossible(
                   WidgetState stateOnCleanup,
@@ -278,10 +317,15 @@ namespace Gate.Dock
                   out GateDockWidgetStateFlags? alternateState)
                {
                   alternateState = null;
+                
                   return true;
                }
 
-               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation)
+               protected override void myHandlerHide(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation)
                {
                   if (stateOnSetup is not Grouped || stateOnSetup.DirectionFlags != DirectionFlags)
                   {
@@ -289,10 +333,15 @@ namespace Gate.Dock
                   }
                }
 
-               protected override void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation)
+               protected override void myHandlerShow(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation)
                {
                   widget.PpIsCaptionVisible = true;
-                  InnerDockHelper.AddNoGroupedWidget(mainForm, widget, InnerDockHelper.GetAnchorFromDockState(StateFlags));
+                  InnerDockHelper.AddNoGroupedWidget(
+                     mainForm, widget, InnerDockHelper.GetAnchorFromDockState(StateFlags));
                   widget.MthBringWidget2Front();
                }
             }
@@ -308,13 +357,23 @@ namespace Gate.Dock
                   out GateDockWidgetStateFlags? alternateState)
                {
                   alternateState = null;
+                  
                   return true;
                }
 
-               protected override void myHandlerHide(WidgetState stateOnSetup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, ref Point? floatLocation) =>
+               protected override void myHandlerHide(
+                  WidgetState stateOnSetup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  ref Point? floatLocation) =>
                   mainForm.myTabPageHandling.DocuForceControlOrWidgetClose(widget);
 
-               protected override void myHandlerShow(WidgetState stateOnCleanup, GateDockMainForm mainForm, GateDockWidgetCtrl widget, Point? floatLocation) => mainForm.myTabPageHandling.TabWidgetOrDocu(widget);
+               protected override void myHandlerShow(
+                  WidgetState stateOnCleanup, 
+                  GateDockMainForm mainForm, 
+                  GateDockWidgetCtrl widget, 
+                  Point? floatLocation) => 
+                  mainForm.myTabPageHandling.TabWidgetOrDocu(widget);
             }
          }
 
@@ -342,7 +401,9 @@ namespace Gate.Dock
          {
             var sta = null as WidgetState;
 
-            return (sta = myStates.FirstOrDefault(s => s.StateFlags == dockState)) == null ? throw new Crash($"Nor a valid state flag {dockState}") : sta;
+            return (sta = myStates.FirstOrDefault(s => s.StateFlags == dockState)) == null ? 
+               throw new Crash($"Nor a valid state flag {dockState}") : 
+               sta;
          }
 
          /// <summary>

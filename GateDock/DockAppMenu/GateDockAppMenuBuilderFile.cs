@@ -92,6 +92,10 @@ namespace Gate.Dock.DockAppMenu
          cms[CMD_CLOSE_TAB].IsEnabled = is_doc;
          cms[CMD_REDO].IsEnabled = is_doc;
          cms[CMD_UNDO].IsEnabled = is_doc;
+         cms[GateDockAppMenuBuilderWindow.CMD_FILE_PATH_TO_CLIP].IsVisible = is_doc;
+         cms[GateDockAppMenuBuilderWindow.CMD_FILE_DIR_TO_CLIP].IsVisible = is_doc;
+         cms[GateDockAppMenuBuilderWindow.CMD_FILE_NAME_TO_CLIP].IsVisible = is_doc;
+         cms[GateDockAppMenuBuilderWindow.CMD_OPEN_CONTAINING_FOLDER].IsVisible = is_doc;
       }
 
       private void myTabCloseOrOpen(object? sender, GateDockTabPageCtrl? tabPage)

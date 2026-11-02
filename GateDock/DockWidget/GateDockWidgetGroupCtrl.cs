@@ -124,7 +124,6 @@ namespace Gate.Dock.DockWidget
 
             but.PpText = wdg.PpTitle;
             wdg.OnTitleChange += Wdg_OnTitleChange;
-            wdg.PpMainFrm = PpMainFrm;
          }
       }
 
