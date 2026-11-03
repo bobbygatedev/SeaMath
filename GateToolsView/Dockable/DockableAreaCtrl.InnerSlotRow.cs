@@ -1,14 +1,24 @@
 ﻿using Gate.Tools;
 using Gate.Tools.Extensions;
+using Gate.ToolsView.ControlObserve;
 using System.Data;
+using static Gate.ToolsView.Dockable.DockableAreaCtrl.InnerSlot;
 
 namespace Gate.ToolsView.Dockable
 {
    public partial class DockableAreaCtrl
    {
-      private abstract class InnerSlotRow : HierarchicalItem
+      /// <summary>
+      /// 
+      /// </summary>
+      public abstract class InnerSlotRow : HierarchicalItem
       {
          public const int MIN_FLOAT_SIZE = 10;
+
+         /// <summary>
+         /// 
+         /// </summary>
+         protected InnerSlotRow() { }
 
          /// <summary>
          /// 
@@ -18,6 +28,8 @@ namespace Gate.ToolsView.Dockable
             private readonly Cache myCache;
             private DockableAreaCtrl? myParentDockCtrl;
             private DockableCtrlRowDirectionEnum myDirection;
+            private readonly ControlObservableParent myControlObservableParent;
+            private readonly ControlObservableChild myControlObservableChild;
 
             /// <summary>
             /// 
@@ -28,7 +40,137 @@ namespace Gate.ToolsView.Dockable
                myDirection = direction;
                myParentDockCtrl = parentDockCtrl;
                myCache = new Cache(this);
-               mySlotAddInCollection(new InnerSlot.RowSubSlot());
+               mySlotAddInCollection(new CenterSlot());
+               myControlObservableParent = new ControlObservableParent(parentDockCtrl);
+               myControlObservableParent.OnControlAdded += MyControlObservableParent_OnControlAdded;
+               myControlObservableParent.OnControlRemoved += MyControlObservableParent_OnControlRemoved;
+               myControlObservableChild = new ControlObservableChild(parentDockCtrl);
+               myControlObservableChild.OnControlAdded += MyControlObservableChild_OnControlAdded;
+               myControlObservableChild.OnControlRemoved += MyControlObservableChild_OnControlRemoved;
+            }
+
+            private void MyControlObservableChild_OnControlAdded(Control control)
+            {
+               if (control is SplitContainer sc)
+               {
+                  sc.SplitterMoving += myOnSplitterMoving;
+                  sc.SplitterMoved += myOnSplitterMoved;
+               }
+            }
+
+            private void myOnSplitterMoved(object? sender, SplitterEventArgs e) => myReset(sender);
+
+            private void myReset(object? sender)
+            {
+               var sc = sender.ConvertOrCrash<SplitContainer>();
+               var slo =
+                  AllDescendant.OfType<InnerSlot>().
+                  FirstOrCrash(s => ReferenceEquals(s.SplitContainer, sc));
+
+               var row = slo.ParentRow;
+
+               foreach (var ss in row?.SlotsLeftUp ?? []) { ss.SplitContainer.FixedPanel = FixedPanel.Panel1; }
+
+               var cns = row?.SlotsAny.Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center) ?? [];
+
+               cns.FirstOrCrash().SplitContainer.FixedPanel = FixedPanel.Panel2;
+
+               foreach (var ss in cns.Skip(1)) { ss.SplitContainer.FixedPanel = FixedPanel.None; }
+
+               var srs = row?.SlotsRightDown ?? [];
+
+               foreach (var ss in srs.Skip(1)) { ss.SplitContainer.FixedPanel = FixedPanel.None; }
+
+               if (srs.Length > 0)
+               {
+                  srs.First().SplitContainer.FixedPanel = FixedPanel.Panel2;
+                  //srs.Last().SplitContainer.FixedPanel = FixedPanel.Panel2;//tododo
+               }
+            }
+
+            private void MyControlObservableChild_OnControlRemoved(Control control)
+            {
+               if (control is SplitContainer sc)
+               {
+                  sc.SplitterMoving -= myOnSplitterMoving;
+                  sc.SplitterMoved -= myOnSplitterMoved;
+               }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            private void myOnSplitterMoving(object? sender, SplitterCancelEventArgs e)
+            {
+               var sc = sender.ConvertOrCrash<SplitContainer>();
+               var slo =
+                  AllDescendant.OfType<InnerSlot>().
+                  FirstOrCrash(s => ReferenceEquals(s.SplitContainer, sc));
+               var row = slo.ParentRow.NnOrCrash();
+
+               myReset(sender);
+
+               if (
+                  slo.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.down ||
+                  slo.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.right)
+               {
+                  slo = row.SlotsAny[row.SlotsAny.ToList().IndexOf(slo) + 1];
+               }
+
+               switch (slo.SplitContainer.FixedPanel)
+               {
+                  case FixedPanel.None: break;
+                  case FixedPanel.Panel1:
+                     slo.SplitContainer.FixedPanel = FixedPanel.Panel2;
+                     break;
+
+                  case FixedPanel.Panel2:
+                     slo.SplitContainer.FixedPanel = FixedPanel.Panel1;
+                     break;
+
+                  default: throw new Crash();
+               }
+            }
+
+            private void MyControlObservableParent_OnControlRemoved(Control control)
+            {
+               if (control is Form frm)
+               {
+                  frm.ResizeBegin -= ParentForm_ResizeBegin;
+                  frm.ResizeEnd -= ParentForm_ResizeEnd;
+               }
+            }
+
+            private void MyControlObservableParent_OnControlAdded(Control control)
+            {
+               if (control is Form frm)
+               {
+                  frm.ResizeBegin += ParentForm_ResizeBegin;
+                  frm.ResizeEnd += ParentForm_ResizeEnd;
+               }
+            }
+
+            private void ParentForm_ResizeEnd(object? sender, EventArgs e)
+            {
+               foreach (var ss in AllDescendant.OfType<InnerSlot>())
+               {
+                  ss.SplitContainer.FixedPanel = FixedPanel.None;
+               }
+            }
+
+            private void ParentForm_ResizeBegin(object? sender, EventArgs e)
+            {
+               foreach (var ss in AllDescendant.OfType<CenterSlot>())
+               {
+                  ss.SplitContainer.FixedPanel = FixedPanel.Panel2;
+               }
+
+               foreach (var ss in AllDescendant.OfType<User>())
+               {
+                  ss.SplitContainer.FixedPanel = FixedPanel.Panel1;
+               }
             }
 
             /// <summary>
@@ -71,9 +213,9 @@ namespace Gate.ToolsView.Dockable
                   //removes any child controls to last row
                   var lst_row = mySlotRowRoot.AllRows.Last();
 
-                  if (lst_row.RowSubSlot != null && lst_row.RowSubSlot.SplitCont.Panel1.Controls.Count > 0)
+                  if (lst_row.CenterSlot != null && lst_row.CenterSlot.SplitContainer.Panel1.Controls.Count > 0)
                   {
-                     lst_row.RowSubSlot.SplitCont.Panel1.Controls.Clear();
+                     lst_row.CenterSlot.SplitContainer.Panel1.Controls.Clear();
                   }
                }
 
@@ -125,7 +267,7 @@ namespace Gate.ToolsView.Dockable
             /// <summary>
             /// Array of all slots (not sub row slot) contained in dock control.
             /// </summary>
-            public InnerSlot.User[] SlotsAllControlUser => AllRows.SelectMany(r => r.SlotsUser).ToArray();
+            public User[] SlotsAllControlUser => AllRows.SelectMany(r => r.SlotsUser).ToArray();
 
             public void SetDirection(DockableCtrlRowDirectionEnum direction) => myDirection = direction;
 
@@ -140,17 +282,18 @@ namespace Gate.ToolsView.Dockable
             public override string ToString() => $"{base.ToString()}(root)";
          }
 
-         public class SubRow : InnerSlotRow
+         /// <summary>
+         /// 
+         /// </summary>
+         public class NotRoot : InnerSlotRow
          {
-            private DockableCtrlRowDirectionEnum myDirection;
-
-            public SubRow(DockableCtrlRowDirectionEnum direction) => myDirection = direction;
+            public NotRoot(DockableCtrlRowDirectionEnum direction) => Direction = direction;
 
             public override DockableAreaCtrl? ParentDockCtrl => ParentItemChain.OfType<Root>().FirstOrDefault()?.ParentDockCtrl;
 
-            public override Control? ParentCtrl => SlotParentSubRow?.SplitCont.Panel1;
+            public override Control? ParentCtrl => ParentCenterSlot?.SplitContainer.Panel1;
 
-            public override DockableCtrlRowDirectionEnum Direction => myDirection;
+            public override DockableCtrlRowDirectionEnum Direction { get; }
          }
 
          /// <summary>
@@ -171,15 +314,15 @@ namespace Gate.ToolsView.Dockable
          /// <summary>
          /// Depth(info) value, where 0 is row direct bound to DockCtrl and Max is top value (which contains center controls).
          /// </summary>
-         public int Depth => ParentDockCtrl == ParentCtrl ? 0 : (SlotParentSubRow?.ParentRow?.Depth ?? 0) + 1;
+         public int Depth => ParentDockCtrl == ParentCtrl ? 0 : (ParentCenterSlot?.ParentRow?.Depth ?? 0) + 1;
 
-         public InnerSlot.RowSubSlot? SlotParentSubRow => ParentItem as InnerSlot.RowSubSlot;
+         public CenterSlot? ParentCenterSlot => ParentItem as CenterSlot;
 
-         public InnerSlot.User[] SlotsLeftUp =>
+         public User[] SlotsLeftUp =>
             SlotsAny.Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.left || s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.up).
-               Cast<InnerSlot.User>().ToArray();
+               Cast<User>().ToArray();
 
-         public InnerSlot.User[] SlotsUser => SlotsAny.OfType<InnerSlot.User>().ToArray();
+         public User[] SlotsUser => SlotsAny.OfType<User>().ToArray();
 
          /// <summary>
          /// 
@@ -188,20 +331,20 @@ namespace Gate.ToolsView.Dockable
 
          public InnerSlot[] SlotsAnyCenter => SlotsAny.Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).ToArray();
 
-         public InnerSlot.User[] SlotsCenterUser => SlotsUser.Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).ToArray();
+         public User[] SlotsCenterUser => SlotsUser.Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).ToArray();
 
-         public InnerSlot.User[] SlotsRightDown =>
+         public User[] SlotsRightDown =>
             SlotsUser.Where(
                s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.right || s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.down).
-               Cast<InnerSlot.User>().ToArray();
+               Cast<User>().ToArray();
 
          /// <summary>
          /// 
          /// </summary>
-         public InnerSlot.RowSubSlot? RowSubSlot => SlotsAny.FirstOrDefault(s => s is InnerSlot.RowSubSlot) as InnerSlot.RowSubSlot;
+         public CenterSlot? CenterSlot => SlotsAny.FirstOrDefault(s => s is CenterSlot) as CenterSlot;
 
          /// <summary>
-         ///  programmed center size, ie float size minus float size of all right/down/left/up slots
+         /// Programmed center size, ie float size minus float size of all right/down/left/up slots
          /// </summary>
          public int CenterSizeToProgram
          {
@@ -220,7 +363,7 @@ namespace Gate.ToolsView.Dockable
          {
             get
             {
-               var sls_all_ctr = ParentDockCtrl?.mySlotRowRoot.SlotsAllControlUser;//all control slots            
+               var sls_all_ctr = ParentDockCtrl?.PpRowRoot.SlotsAllControlUser;//all control slots            
                var sls_sel = null as InnerSlot[];
 
                if (Direction == DockableCtrlRowDirectionEnum.up_2_down)
@@ -273,11 +416,11 @@ namespace Gate.ToolsView.Dockable
          /// <param name="control"></param>
          public void ReplaceRowSubWithUser(Control? control)
          {
-            if (RowSubSlot != null && control != null)
+            if (CenterSlot != null && control != null)
             {
-               var rep_slt = new InnerSlot.User(control, RowSubSlot.SplitCont);
+               var rep_slt = new InnerSlot.User(control, CenterSlot.SplitContainer);
 
-               myRemoveSubItem(RowSubSlot);
+               myRemoveSubItem(CenterSlot);
                mySlotAddInCollection(rep_slt);
             }
          }
@@ -288,11 +431,11 @@ namespace Gate.ToolsView.Dockable
          /// <param name="slot"></param>
          public void ReplaceCenterWithSubRowSlot(InnerSlot.User slot)
          {
-            var rep_slt = new InnerSlot.RowSubSlot(slot.SplitCont);
+            var rep_slt = new InnerSlot.CenterSlot(slot.SplitContainer);
 
             myRemoveSubItem(slot);
             mySlotAddInCollection(rep_slt);
-            ParentDockCtrl.NnOrCrash().mySlotRowRoot.FlushChanges();
+            ParentDockCtrl.NnOrCrash().PpRowRoot.FlushChanges();
          }
 
          /// <summary>
@@ -321,7 +464,7 @@ namespace Gate.ToolsView.Dockable
             row.myRemoveSubItem(slot);
 
             if (row is Root roo)
-            {           
+            {
                if (row.SlotsUser.Length == 0 && row_pls_1 != null)
                {
                   var sls = row_pls_1.SlotsUser;
@@ -329,12 +472,12 @@ namespace Gate.ToolsView.Dockable
                   row_pls_1.myRemoveSubItemRange(sls);
                   row.mySlotAddInCollection(sls);
 
-                  if (RowSubSlot != null && row.SlotsCenterUser.Length > 0)
+                  if (CenterSlot != null && row.SlotsCenterUser.Length > 0)
                   {
-                     row.myRemoveSubItem(RowSubSlot);
+                     row.myRemoveSubItem(CenterSlot);
                   }
 
-                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row.RowSubSlot); }
+                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row.CenterSlot); }
 
                   roo.SetDirection(row_pls_1.Direction);
                }
@@ -350,12 +493,12 @@ namespace Gate.ToolsView.Dockable
                   row_pls_1.myRemoveSubItemRange(row_p1_sls);//empties row slot 1 
                   row_min_1.mySlotAddInCollection(row_p1_sls);
 
-                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row_min_1.RowSubSlot); }
+                  if (row_pls_2 != null) { row_pls_2.myReplaceParent(row_min_1.CenterSlot); }
                   else { row.myReplaceParent(null); }
                }
             }
             else if (
-               row.SlotsUser.Length == 1 && 
+               row.SlotsUser.Length == 1 &&
                row.SlotsUser[0].AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center)
             {
                if (all_rws.Last() != row) { throw new Crash("Center rows shall be the last one!"); }//check 
@@ -363,14 +506,13 @@ namespace Gate.ToolsView.Dockable
                var oth_cnt_slt = row.SlotsUser[0];//other center slot (not removed)
 
                row.myRemoveSubItem(oth_cnt_slt);//empties row
-               row.ParentItem = null;//remove row as child row-sub-slot of lower-level row
+               row.ParentItem = null;//remove row as child center-slot of lower-level row
                all_rws = roo_row.AllRows;
                row = all_rws.Last();
 
-               if (row.RowSubSlot != null) { row.ReplaceRowSubWithUser(oth_cnt_slt?.UserControl); }
-               else { throw new Crash(); }//row lower than top should have row-sub-slot
+               if (row.CenterSlot != null) { row.ReplaceRowSubWithUser(oth_cnt_slt?.FramedControl); }
+               else { throw new Crash(); }//row lower than top should have center-slot
             }
-
 
             if (slot.FramedControl != null) { slot.FramedControl.Parent = null; }
          }
@@ -386,11 +528,11 @@ namespace Gate.ToolsView.Dockable
             if (num_new_row >= 1)
             {
                //new slot has differential new level(top row) is needed.
-               var new_top_row = new SubRow(myGetInvertedDirection(Direction));
+               var new_top_row = new NotRoot(myGetInvertedDirection(Direction));
                var cnt_sls = SlotsCenterUser;
 
                mySlotRemoveFromCollection(cnt_sls);
-               RowSubSlot?.AddSubRow(new_top_row ?? throw new Crash());
+               CenterSlot?.AddSubRow(new_top_row ?? throw new Crash());
 
                if (num_new_row >= 2)
                {
@@ -398,12 +540,12 @@ namespace Gate.ToolsView.Dockable
                   // cnt-cnt
                   // up-(row_slot)
                   // lft-(row_slot)
-                  var new_top_top_row = new SubRow(Direction);
+                  var new_top_top_row = new NotRoot(Direction);
 
                   // in this case a new slot with direction different from top 
                   // and center slots are > 2 so they have put to new 
                   new_top_row.myCreateRowSubSlotIfNecessary();
-                  new_top_row.RowSubSlot?.AddSubRow(new_top_top_row);
+                  new_top_row.CenterSlot?.AddSubRow(new_top_top_row);
                   new_top_row.mySlotAddInCollection(newSlot);
                   new_top_top_row.mySlotAddInCollection(cnt_sls);//sub-sub(top) row receives center
                }
@@ -492,36 +634,29 @@ namespace Gate.ToolsView.Dockable
 
             foreach (var slt in sls)
             {
-               if (slt.SplitCont.Orientation != ori) { slt.SplitCont.Orientation = ori; }
+               if (slt.SplitContainer.Orientation != ori) { slt.SplitContainer.Orientation = ori; }
             }
 
-            if (sls.First().SplitCont.Parent != ParentCtrl && ParentCtrl != null)
+            if (sls.First().SplitContainer.Parent != ParentCtrl && ParentCtrl != null)
             {
                ParentCtrl.Controls.Clear();
-               ParentCtrl.Controls.Add(sls.First().SplitCont);
+               ParentCtrl.Controls.Add(sls.First().SplitContainer);
             }
 
             for (int i = 0; i < sls.Length - 1; i++)
             {
-               sls[i].SplitCont.Panel2Collapsed = false;
+               sls[i].SplitContainer.Panel2Collapsed = false;
 
-               if (sls[i].SplitCont.Panel2.Controls.Count == 0 || sls[i].SplitCont.Panel2.Controls[0] != sls[i + 1].SplitCont)
+               if (sls[i].SplitContainer.Panel2.Controls.Count == 0 || sls[i].SplitContainer.Panel2.Controls[0] != sls[i + 1].SplitContainer)
                {
-                  sls[i + 1].SplitCont.Parent = null;
-                  sls[i].SplitCont.Panel2.Controls.Clear();
-                  sls[i].SplitCont.Panel2.Controls.Add(sls[i + 1].SplitCont);
+                  sls[i + 1].SplitContainer.Parent = null;
+                  sls[i].SplitContainer.Panel2.Controls.Clear();
+                  sls[i].SplitContainer.Panel2.Controls.Add(sls[i + 1].SplitContainer);
                }
             }
 
-            sls.Last().SplitCont.Panel2Collapsed = true;
-            sls.Last().SplitCont.Panel2.Controls.Clear();
-
-            var cnt_sls = SlotsAnyCenter;
-
-            //tododo test
-            //foreach (var slt in cnt_sls.Take(cnt_sls.Length - 1)) { slt.SplitCont.FixedPanel = FixedPanel.None; }
-
-            //cnt_sls.Last().SplitCont.FixedPanel = FixedPanel.Panel2;
+            sls.Last().SplitContainer.Panel2Collapsed = true;
+            sls.Last().SplitContainer.Panel2.Controls.Clear();
          }
 
          private void mySetFloatSizeToProgram()
@@ -530,7 +665,7 @@ namespace Gate.ToolsView.Dockable
             //not center slot 
             var sls_new = sls.Where(s => s.AnchorMode != DockableAreaCtrlSlotAnchorModeEnum.center && s.FloatSizeToProgram == -1).ToArray();
 
-            //program all sizes (includes center and row-sub-slot)
+            //program all sizes (includes center and center-slot)
             foreach (var slt in sls.Where(s => s.FloatSizeToProgram == -1))
             {
                slt.FloatSizeToProgram = Math.Max(MIN_FLOAT_SIZE, slt.FloatSizeInit);
@@ -573,7 +708,7 @@ namespace Gate.ToolsView.Dockable
          /// </summary>
          private void myCreateRowSubSlotIfNecessary()
          {
-            if (SlotsAnyCenter.Length == 0) { myInsertSubItem(new InnerSlot.RowSubSlot(), SlotsLeftUp.Length); }
+            if (SlotsAnyCenter.Length == 0) { myInsertSubItem(new InnerSlot.CenterSlot(), SlotsLeftUp.Length); }
          }
 
          /// <summary>

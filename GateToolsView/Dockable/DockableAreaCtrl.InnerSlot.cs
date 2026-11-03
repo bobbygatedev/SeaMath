@@ -6,32 +6,39 @@ namespace Gate.ToolsView.Dockable
 {
    public partial class DockableAreaCtrl
    {
-      private abstract class InnerSlot : HierarchicalItem
+      /// <summary>
+      /// 
+      /// </summary>
+      public abstract class InnerSlot : HierarchicalItem
       {
          private int myFloatSize;
+         private static int myCnt = 0;
 
-         public InnerSlot(Control? control, DockableAreaCtrlSlotAnchorModeEnum anchorMode, SplitContainer? splitContainer = null)
+         protected InnerSlot(Control? control, DockableAreaCtrlSlotAnchorModeEnum anchorMode, SplitContainer? splitContainer)
          {
             AnchorMode = anchorMode;
-            SplitCont = splitContainer ?? myMakeSplitContainer(anchorMode);
-            ParentForm = SplitCont?.ParentForm;
+            SplitContainer = splitContainer ?? myMakeSplitContainer(anchorMode) ?? throw new Crash();
+            SplitContainer.Tag = this;
+            ParentForm = SplitContainer.ParentForm;
             FramedControl = control;
-
-            if (SplitCont == null) { throw new Crash(); }
+            Idx = ++myCnt;
          }
 
-         public class RowSubSlot : InnerSlot
+         /// <summary>
+         /// 
+         /// </summary>
+         public class CenterSlot : InnerSlot
          {
-            public RowSubSlot() : base(null, DockableAreaCtrlSlotAnchorModeEnum.center) { }
+            public CenterSlot() : base(null, DockableAreaCtrlSlotAnchorModeEnum.center, null) { }
 
-            public RowSubSlot(SplitContainer splitContainer) : base(null, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer) =>
-               SplitCont.Panel1.Controls.Clear();
+            public CenterSlot(SplitContainer splitContainer) : base(null, DockableAreaCtrlSlotAnchorModeEnum.center, splitContainer) =>
+               SplitContainer.Panel1.Controls.Clear();
 
-            public void AddSubRow(InnerSlotRow.SubRow subRow) => myAddSubItem(subRow);
+            public void AddSubRow(InnerSlotRow.NotRoot subRow) => myAddSubItem(subRow);
 
             public override string ToString() => ParentRow != null ?
-               $"row-sub-slot to row {ParentRow}: FloSize: {FloatSize}(Prog:{FloatSizeToProgram})" :
-               $"row-sub-slot unbound : FloSize: {FloatSize}(Prog:{FloatSizeToProgram})";
+               $"center-slot to row {ParentRow}: FloSize: {FloatSize}(Prog:{FloatSizeToProgram})" :
+               $"center-slot unbound : FloSize: {FloatSize}(Prog:{FloatSizeToProgram})";
          }
 
          public class User : InnerSlot
@@ -46,7 +53,7 @@ namespace Gate.ToolsView.Dockable
             /// <param name="anchorMode"></param>
             /// <param name="initSize"></param>
             public User(Control userControl, DockableAreaCtrlSlotAnchorModeEnum anchorMode, Size initSize) :
-               base(userControl, anchorMode)
+               base(userControl, anchorMode, null)
             {
                InitSize = initSize;
                myInit();
@@ -70,31 +77,26 @@ namespace Gate.ToolsView.Dockable
             /// </summary>
             public Control? UserControl => FramedControl;
 
-            public override string ToString() =>
-               $"{AnchorMode} slot of {FramedControl?.Name}({FramedControl?.GetType().Name}) " +
-               $"bound to {ParentRow?.ToString()}: FloSize: {FloatSize}(Prog:{FloatSizeToProgram})";
-
             private void myInit()
             {
                myWindowState = ParentForm?.WindowState;
-               myControlObservableParent = new ControlObservableParent(SplitCont);
+               myControlObservableParent = new ControlObservableParent(SplitContainer);
                myControlObservableParent.OnControlAdded += MyControlObservableParent_OnControlChange;
                myControlObservableParent.OnControlRemoved += MyControlObservableParent_OnControlChange;
             }
-
-            public SplitContainer? SplitContainerForSet =>
-               SplitCont?.FixedPanel == FixedPanel.Panel1 ?
-                  SplitCont.Parent?.Parent as SplitContainer : SplitCont;
 
             private void MyControlObservableParent_OnControlChange(Control control)
             {
                var old_par_frm = ParentForm;
 
-               ParentForm = SplitCont?.ParentForm;
+               ParentForm = SplitContainer?.ParentForm;
 
-               if (SplitContainerForSet != null) { SplitContainerForSet.SplitterMoved += SplitCont_SplitterMoved; }
+               if (SplitContainer != null) { SplitContainer.SplitterMoved += SplitCont_SplitterMoved; }
 
-               if (old_par_frm != null) { old_par_frm.Resize -= ParentForm_Resize; }
+               if (old_par_frm != null)
+               {
+                  old_par_frm.Resize -= ParentForm_Resize;
+               }
 
                if (ParentForm != null)
                {
@@ -107,11 +109,11 @@ namespace Gate.ToolsView.Dockable
             private void ParentForm_Resize(object? sender, EventArgs e)
             {
                if (
-                  SplitCont != null &&
+                  SplitContainer != null &&
                   myWindowState == FormWindowState.Minimized &&
                   ParentForm?.WindowState != FormWindowState.Minimized)
                {
-                  SplitContainerForSet.NnOrCrash().SplitterDistance = FloatSize;
+                  SplitContainer.NnOrCrash().SplitterDistance = FloatSize;
                }
 
                myWindowState = ParentForm?.WindowState;
@@ -120,8 +122,6 @@ namespace Gate.ToolsView.Dockable
             //tododo
             private void SplitCont_SplitterMoved(object? sender, SplitterEventArgs e)
             {
-               Console.WriteLine($"SplitCont_SplitterMoved");
-
                var sc = sender.ConvertOrCrash<SplitContainer>();
 
                if (
@@ -134,10 +134,19 @@ namespace Gate.ToolsView.Dockable
                   Console.WriteLine($"myFloatSize: {myFloatSize}");
                }
             }
+
+            public override string ToString() =>
+               $"{AnchorMode} slot of {FramedControl?.Name}({FramedControl?.GetType().Name}) " +
+               $"bound to {ParentRow?.ToString()}: FloSize: {FloatSize}(Prog:{FloatSizeToProgram})";
+
          }
 
-         public Form? ParentForm { get; private set; }
+         public int Idx { get; }
 
+         /// <summary>
+         /// 
+         /// </summary>
+         public Form? ParentForm { get; private set; }
 
          /// <summary>
          /// 
@@ -186,8 +195,8 @@ namespace Gate.ToolsView.Dockable
 
             set
             {
-               try { myFloatSize = SplitCont.SplitterDistance = value; }
-               catch { myFloatSize = SplitCont.SplitterDistance = 0; }
+               try { myFloatSize = SplitContainer.NnOrCrash().SplitterDistance = value; }
+               catch { myFloatSize = SplitContainer.NnOrCrash().SplitterDistance = 0; }
             }
          }
 
@@ -205,27 +214,27 @@ namespace Gate.ToolsView.Dockable
          /// </summary>
          public Control? FramedControl
          {
-            get => SplitCont.Panel1.Controls.Count > 0 ? SplitCont.Panel1.Controls[0] : null;
+            get => SplitContainer.Panel1.Controls.Count > 0 ? SplitContainer.Panel1.Controls[0] : null;
 
             set
             {
-               SplitCont.Panel1.Controls.Clear();
+               SplitContainer.Panel1.Controls.Clear();
 
                if (value != null)
                {
                   value.Dock = DockStyle.Fill;
-                  SplitCont.Panel1.Controls.Add(value);
+                  SplitContainer.Panel1.Controls.Add(value);
                }
             }
          }
 
-         public SplitContainer SplitCont { get; }
+         public SplitContainer SplitContainer { get; }
 
-         public Size? Size => SplitCont?.Panel1.ClientSize;
+         public Size? Size => SplitContainer?.Panel1.ClientSize;
 
          public DockableAreaCtrlSlotAnchorModeEnum AnchorMode { get; }
 
-         public Orientation? Orientation => SplitCont?.Orientation;
+         public Orientation? Orientation => SplitContainer?.Orientation;
 
          public InnerSlotRow? ParentRow => ParentItem as InnerSlotRow;
 
@@ -239,8 +248,6 @@ namespace Gate.ToolsView.Dockable
             spl.Panel1MinSize = 0;
             spl.Panel2MinSize = 0;
             spl.SplitterWidth = SPLITTER_WIDTH;
-            //tododo
-            //spl.FixedPanel = anchorMode == DockableAreaCtrlSlotAnchorModeEnum.center ? FixedPanel.None : FixedPanel.Panel1;
 
             switch (anchorMode)
             {

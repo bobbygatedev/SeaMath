@@ -1,8 +1,5 @@
 ﻿using Gate.Tools.Extensions;
 using Gate.Tools.Text.Encode;
-using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Gate.ToolsViewTest

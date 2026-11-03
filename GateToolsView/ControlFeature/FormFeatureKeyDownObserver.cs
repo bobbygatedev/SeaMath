@@ -1,4 +1,5 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlObserve;
 
 namespace Gate.ToolsView.ControlFeature
@@ -30,7 +31,7 @@ namespace Gate.ToolsView.ControlFeature
 
          protected override void myRemoveObservedControl(Control? control)
          {
-            (control ?? throw new Crash()).KeyDown -= Control_KeyDown;
+            control.NnOrCrash().KeyDown -= Control_KeyDown;
 
             base.myRemoveObservedControl(control);
          }
