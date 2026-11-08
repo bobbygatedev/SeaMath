@@ -1,4 +1,4 @@
-﻿namespace GateToolsViewTest
+﻿namespace Gate.ToolsView.Dockable
 {
    partial class DockAreaRowCtrl
    {
@@ -28,8 +28,15 @@
       /// </summary>
       private void InitializeComponent()
       {
-         components = new System.ComponentModel.Container();
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+         SuspendLayout();
+         // 
+         // DockAreRowTest
+         // 
+         AutoScaleDimensions = new SizeF(8F, 20F);
+         AutoScaleMode = AutoScaleMode.Font;
+         Name = "DockAreRowTest";
+         Size = new Size(840, 310);
+         ResumeLayout(false);
       }
 
       #endregion

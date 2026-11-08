@@ -94,16 +94,33 @@
       }
 
       /// <summary>
-      /// 
+      /// First item of <paramref name="source"/> or <see cref="Crash"/>.
       /// </summary>
       /// <typeparam name="TSource"></typeparam>
       /// <param name="source"></param>
       /// <param name="predicate"></param>
       /// <returns></returns>
       /// <exception cref="Crash"></exception>
-      public static TSource FirstOrCrash<TSource>(this IEnumerable<TSource> source, Func<TSource, bool>? predicate = null)
+      public static TSource FirstOrCrash<TSource>(
+         this IEnumerable<TSource> source, Func<TSource, bool>? predicate = null)
       {
          var res = predicate != null? source.FirstOrDefault(predicate): source.FirstOrDefault();
+
+         return res != null ? res : throw new Crash();
+      }
+
+      /// <summary>
+      /// Last item of <paramref name="source"/> or <see cref="Crash"/>.
+      /// </summary>
+      /// <typeparam name="TSource"></typeparam>
+      /// <param name="source"></param>
+      /// <param name="predicate"></param>
+      /// <returns></returns>
+      /// <exception cref="Crash"></exception>
+      public static TSource LastOrCrash<TSource>(
+         this IEnumerable<TSource> source, Func<TSource, bool>? predicate = null)
+      {
+         var res = predicate != null ? source.LastOrDefault(predicate) : source.LastOrDefault();
 
          return res != null ? res : throw new Crash();
       }

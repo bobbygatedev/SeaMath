@@ -1,11 +1,9 @@
 ﻿using Gate.Dock.DockWidget;
-using Gate.Tools;
 using Gate.ToolsView.Dockable;
-using Gate.ToolsView.Extensions;
-using static Gate.ToolsView.Dockable.DockableAreaCtrl;
 
 namespace GateToolsViewTest
 {
+
    public class DockAreaTest
    {
       private static int myCounter = 1;
@@ -31,17 +29,14 @@ namespace GateToolsViewTest
 
       static void Main(string[] args)
       {
-         var sc = new SplitContainer();
-         var lst = new List<SplitContainer>();
+         myTestNew();
 
-         myForm.Size = new Size(1800, 400);
-         myTest1();
          return;
 
-         myTest2();
+         myTestOld();
       }
 
-      private static void myTest2()
+      private static void myTestOld()
       {
          var wds = Enumerable.Range(0, 9).Select(_ => myAddWidget()).ToArray();
          var dck = new DockableAreaCtrl();
@@ -68,28 +63,59 @@ namespace GateToolsViewTest
          myForm.ShowDialog();
       }
 
-      private static void myTest1()
+
+      private static int myIndex = 0;
+      
+      private static Label myGetLabel(Color? color=null)
       {
-         var wds = Enumerable.Range(0, 9).Select(_ => myAddWidget()).ToArray();
-         var tst = new DockAreaRowCtrl();
+         var lab = new Label();
 
-         tst.Dock = DockStyle.Fill;
-         myForm.Controls.Add(tst);
+         lab.Tag = $"Label{++myIndex}";
+         lab.Text = lab.Tag as string;
+         lab.TextAlign = ContentAlignment.MiddleCenter;
 
-         //tst.MthControlDock(wds[0], DockableAreaCtrlSlotAnchorModeEnum.left);
-         //tst.MthControlDock(wds[1], DockableAreaCtrlSlotAnchorModeEnum.left);
-         //tst.MthControlDock(wds[2], DockableAreaCtrlSlotAnchorModeEnum.left);
-         tst.MthControlDock(wds[3], DockableAreaCtrlSlotAnchorModeEnum.center);
-         tst.MthControlDock(wds[4], DockableAreaCtrlSlotAnchorModeEnum.center);
-         //tst.MthControlDock(wds[4], DockableAreaCtrlSlotAnchorModeEnum.center);
-         tst.MthControlDock(wds[5], DockableAreaCtrlSlotAnchorModeEnum.center);
-         tst.MthControlDock(wds[6], DockableAreaCtrlSlotAnchorModeEnum.right);
-         tst.MthControlDock(wds[7], DockableAreaCtrlSlotAnchorModeEnum.right);
-         tst.MthControlDock(wds[8], DockableAreaCtrlSlotAnchorModeEnum.right);
+         if (color.HasValue)
+         {
+            lab.BackColor = color.Value;
+         }
+
+         return lab;
+      }
+
+      private static void myTestNew()
+      {
+         var lab = Enumerable.Range(0, 9).Select(_ => myGetLabel()).ToArray();
+         var dck = new DockAreaRowCtrl();
+
+         dck.Dock = DockStyle.Fill;
+         myForm.Size = new Size(800, 400);
+         myForm.Controls.Add(dck);
+         myForm.Load += (s, e) =>
+         {
+            var idx = 0;
+            var sz0 = new Size(170,70);
+
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.left, sz0);
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.left,sz0);
+
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.center,sz0).BackColor = Color.Gray;
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.center, sz0).BackColor = Color.Gray;
+
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.right, sz0);
+            dck.MthControlDock(lab[idx++], DockableAreaCtrlSlotAnchorModeEnum.right, sz0);
+         };
 
          myForm.ShowDialog();
+      }
 
-         return;
+      private static TextBox myGeyTextBox()
+      {
+         var tb = new TextBox();
+
+         tb.Dock = DockStyle.Fill;
+         tb.Multiline = true;
+
+         return tb;
       }
    }
 }
