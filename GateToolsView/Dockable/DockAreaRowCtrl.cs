@@ -1,4 +1,5 @@
-﻿using Gate.Tools.Extensions;
+﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 
 namespace Gate.ToolsView.Dockable
 {
@@ -17,6 +18,7 @@ namespace Gate.ToolsView.Dockable
       /// Default splitter color.
       /// </summary>
       private Color mySplitBackColor = new Splitter().BackColor;
+      private DockableCtrlRowDirectionEnum myDirection = DockableCtrlRowDirectionEnum.left_2_right;
 
       public DockAreaRowCtrl()
       {
@@ -37,7 +39,21 @@ namespace Gate.ToolsView.Dockable
             InitialSize = initialSize;
          }
 
-         public Control? Control => Panel.Controls.Cast<Control>().FirstOrDefault();
+         public Control? Control
+         {
+            get => Panel.Controls.Cast<Control>().FirstOrDefault();
+
+            set
+            {
+               Panel.Controls.Clear();
+
+               if (value != null)
+               {
+                  value.Dock = DockStyle.Fill;
+                  Panel.Controls.Add(value);
+               }
+            }
+         }
 
          public Panel Panel { get; } = new Panel
          {
@@ -50,9 +66,28 @@ namespace Gate.ToolsView.Dockable
          public Size InitialSize { get; set; }
       };
 
-      public bool PpIsHorizontal { get; set; } = true;
+      /// <summary>
+      /// <see cref="DockableCtrlRowDirectionEnum"/> of the control.
+      /// </summary> 
+      public DockableCtrlRowDirectionEnum PpDirection
+      {
+         get => myDirection;
+
+         set
+         {
+            myDirection = value;
+            myDoRebuild();
+         }
+      }
+
+      public Control[] PpControlsAll => myListSlots.Select(c => c.Control).Nn().ToArray();
 
       public SlotType[] PpSlots => myListSlots.ToArray();
+
+      public SlotType[] PpSlotsCenter =>
+         myListSlots.
+         Where(x => x.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).
+         ToArray();
 
       public void MthRemove(int index)
       {
@@ -73,6 +108,81 @@ namespace Gate.ToolsView.Dockable
          if (i >= 0) { MthRemove(i); }
       }
 
+      private int myDoReviewIndex(int? atIndex, DockableAreaCtrlSlotAnchorModeEnum anchorMode)
+      {
+         var acs = null as DockableAreaCtrlSlotAnchorModeEnum[];
+
+         //anchor modes
+         acs = PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+            [
+               DockableAreaCtrlSlotAnchorModeEnum.left,
+               DockableAreaCtrlSlotAnchorModeEnum.center,
+               DockableAreaCtrlSlotAnchorModeEnum.right] :
+            [
+               DockableAreaCtrlSlotAnchorModeEnum.up,
+               DockableAreaCtrlSlotAnchorModeEnum.center,
+               DockableAreaCtrlSlotAnchorModeEnum.down];
+
+         var a_idx = acs.ToList().IndexOf(anchorMode);
+
+         if (a_idx >= 0)
+         {
+            var sc = acs.Select(a => PpSlots.Count(s => s.AnchorMode == a)).ToArray();
+
+            //anchor mode per slot
+            var ars = PpSlots.Select(s => s.AnchorMode).ToArray();
+            var idx = 0;
+
+            var lst = new List<(int fro, int to)>();
+
+            foreach (var a in acs)
+            {
+               if (ars.Any(a1 => a1 == a))
+               {
+                  var max = Enumerable.Range(0, ars.Length).Where(i => ars[i] == a).Max();
+
+                  lst.Add((idx, max));
+               }
+               else
+               {
+                  lst.Add((idx, idx - 1));
+               }
+
+               idx = lst.Last().to + 1;
+            }
+
+            if (atIndex.HasValue)
+            {
+               return atIndex.Value >= lst[a_idx].fro && atIndex.Value <= lst[a_idx].to + 1 ?
+                  atIndex.Value :
+                  throw new Gate.Tools.ToolsException(
+                     $"Index {atIndex.Value} not valid for anchor {anchorMode}" +
+                     $"({lst[a_idx].fro}-{lst[a_idx].to + 1})");
+            }
+            else
+            {
+               switch (anchorMode)
+               {
+                  case DockableAreaCtrlSlotAnchorModeEnum.center:
+                  case DockableAreaCtrlSlotAnchorModeEnum.right:
+                  case DockableAreaCtrlSlotAnchorModeEnum.down:
+                     return lst[a_idx].to + 1;
+
+                  case DockableAreaCtrlSlotAnchorModeEnum.left:
+                  case DockableAreaCtrlSlotAnchorModeEnum.up:
+                     return lst[a_idx].fro;
+
+                  default: throw new Crash();
+               }
+
+            }
+         }
+         else
+         {
+            throw new Gate.Tools.ToolsException($"Not valid anchor {anchorMode}");
+         }
+      }
+
       public Control? MthControlDock(
          Control? control,
          DockableAreaCtrlSlotAnchorModeEnum anchorMode,
@@ -80,8 +190,8 @@ namespace Gate.ToolsView.Dockable
          int? atIndex = null)
       {
          initialSize = initialSize ?? control?.Size ?? new Size(15, 15);
-         atIndex = atIndex ?? myListSlots.Count;
-         myListSlots.Insert(atIndex.Value, new SlotType(control, anchorMode, initialSize.NnOrCrash()));
+         myListSlots.Insert(
+            myDoReviewIndex(atIndex, anchorMode), new SlotType(control, anchorMode, initialSize.NnOrCrash()));
          myDoRebuild();
 
          return control;
@@ -98,8 +208,7 @@ namespace Gate.ToolsView.Dockable
          set
          {
             myPanelMinSize = Math.Max(15, value);
-
-            foreach (var spl in myListSplitters) { spl.MinSize = myPanelMinSize; }
+            myDoRebuild();
          }
       }
 
@@ -110,8 +219,7 @@ namespace Gate.ToolsView.Dockable
          set
          {
             myPanelCenterMinSize = Math.Max(10, value);
-
-            foreach (var spl in myListSplitters) { spl.MinSize = myPanelCenterMinSize; }
+            myDoRebuild();
          }
       }
 
@@ -122,8 +230,7 @@ namespace Gate.ToolsView.Dockable
          set
          {
             mySplitBackColor = value;
-
-            foreach (var spl in myListSplitters) { spl.BackColor = mySplitBackColor; }
+            myDoRebuild();
          }
       }
 
@@ -153,8 +260,10 @@ namespace Gate.ToolsView.Dockable
 
          if (n != 0)
          {
-            var nea = PpIsHorizontal ? DockStyle.Left : DockStyle.Top;
-            var far = PpIsHorizontal ? DockStyle.Right : DockStyle.Bottom;
+            var nea = PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+               DockStyle.Left : DockStyle.Top;
+            var far = PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+               DockStyle.Right : DockStyle.Bottom;
 
             // 2) Fill slot = last slot that is not "far" (if all are far, the first one)
             var fil = 0;
@@ -170,11 +279,17 @@ namespace Gate.ToolsView.Dockable
             {
                var spl = myDoMakeSplitter();
 
-               spl.Name = "splitter" + i;
+               spl.Name = $"Splitter{i}";
                spl.Dock = myIsFar(myListSlots[i + 1]) ? far : nea;
 
-               if (PpIsHorizontal) { spl.Width = 5; }
-               else { spl.Height = 5; }
+               if (PpDirection == DockableCtrlRowDirectionEnum.left_2_right)
+               {
+                  spl.Width = 5;
+               }
+               else
+               {
+                  spl.Height = 5;
+               }
 
                myListSplitters.Add(spl);
             }
@@ -196,38 +311,64 @@ namespace Gate.ToolsView.Dockable
                   p.Dock = myIsFar(myListSlots[i]) ? far : nea;
 
                   // keep current size if already set
-                  if (PpIsHorizontal) { p.Width = slo.InitialSize.Width; }
-                  if (!PpIsHorizontal) { p.Height = slo.InitialSize.Height; }
+                  switch (PpDirection)
+                  {
+                     case DockableCtrlRowDirectionEnum.left_2_right:
+                        p.Width = slo.InitialSize.Width;
+                        break;
+
+                     case DockableCtrlRowDirectionEnum.up_2_down:
+                        p.Height = slo.InitialSize.Height;
+                        break;
+
+                     default: throw new Crash();
+                  }
                }
             }
 
             // 5) Dock order, outer first, for each side: panel, then its splitter
-            var new_ord = new List<Control>();//near order
-            var far_ord = new List<Control>();//far order
+            var lst_new_ord = new List<Control>();//near order
+            var lst_far_ord = new List<Control>();//far order
 
             for (int i = 0; i < fil; i++)
             {
-               new_ord.Add(myListSlots[i].Panel);
-               new_ord.Add(myListSplitters[i]);
+               lst_new_ord.Add(myListSlots[i].Panel);
+               lst_new_ord.Add(myListSplitters[i]);
             }
 
             for (int i = n - 1; i > fil; i--)
             {
-               far_ord.Add(myListSlots[i].Panel);
-               far_ord.Add(myListSplitters[i - 1]);
+               lst_far_ord.Add(myListSlots[i].Panel);
+               lst_far_ord.Add(myListSplitters[i - 1]);
             }
 
             // Controls.Add in reverse dock order: fill first, outermost last
             Controls.Add(myListSlots[fil].Panel);
 
-            for (int i = far_ord.Count - 1; i >= 0; i--) { Controls.Add(far_ord[i]); }
-            for (int i = new_ord.Count - 1; i >= 0; i--) { Controls.Add(new_ord[i]); }
+            for (int i = lst_far_ord.Count - 1; i >= 0; i--) { Controls.Add(lst_far_ord[i]); }
+            for (int i = lst_new_ord.Count - 1; i >= 0; i--) { Controls.Add(lst_new_ord[i]); }
 
             ResumeLayout(true);
          }
          else
          {
             ResumeLayout(true);
+         }
+      }
+
+      public bool MthRemove(Control control)
+      {
+         var slo = PpSlots.FirstOrDefault(x => ReferenceEquals(x.Control, control));
+
+         if (slo != null)
+         {
+            MthRemove(slo);
+
+            return true;
+         }
+         else
+         {
+            return false;
          }
       }
    }

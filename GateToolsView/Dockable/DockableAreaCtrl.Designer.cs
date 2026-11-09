@@ -28,19 +28,36 @@
       /// </summary>
       private void InitializeComponent()
       {
-         this.SuspendLayout();
+         CtrlAreaRowCtrl = new DockAreaRowCtrl();
+         SuspendLayout();
          // 
-         // DockCtrl
+         // CtrlAreaRowCtrl
          // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.DoubleBuffered = true;
-         this.Name = "DockCtrl";
-         this.Size = new System.Drawing.Size(90, 133);
-         this.ResumeLayout(false);
+         CtrlAreaRowCtrl.Dock = DockStyle.Fill;
+         CtrlAreaRowCtrl.Location = new Point(0, 0);
+         CtrlAreaRowCtrl.Name = "CtrlAreaRowCtrl";
+         CtrlAreaRowCtrl.PpDirection = DockableCtrlRowDirectionEnum.left_2_right;
+         CtrlAreaRowCtrl.PpPanelCenterMinSize = 25;
+         CtrlAreaRowCtrl.PpPanelMinSize = 25;
+         CtrlAreaRowCtrl.PpSplitBackColor = SystemColors.Control;
+         CtrlAreaRowCtrl.Size = new Size(730, 205);
+         CtrlAreaRowCtrl.TabIndex = 0;
+         // 
+         // DockableAreaCtrl2
+         // 
+         AutoScaleDimensions = new SizeF(8F, 20F);
+         AutoScaleMode = AutoScaleMode.Font;
+         Controls.Add(CtrlAreaRowCtrl);
+         DoubleBuffered = true;
+         Margin = new Padding(4, 5, 4, 5);
+         Name = "DockableAreaCtrl2";
+         Size = new Size(730, 205);
+         ResumeLayout(false);
 
       }
 
       #endregion
+
+      private DockAreaRowCtrl CtrlAreaRowCtrl;
    }
 }

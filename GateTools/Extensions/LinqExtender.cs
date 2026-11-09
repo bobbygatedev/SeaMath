@@ -136,5 +136,15 @@
 
       public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector) =>
          source.Select(selector).Where(t => t != null);
+
+      /// <summary>
+      /// Similar to Contains but using <see cref="object.ReferenceEquals(object?, object?)"/>  
+      /// </summary>
+      /// <typeparam name="TSource"></typeparam>
+      /// <param name="source"></param>
+      /// <param name="item"></param>
+      /// <returns></returns>
+      public static bool ContainsRef<TSource>(this IEnumerable<TSource> source, TSource item) => 
+         source.Any(i => ReferenceEquals(i, item));
    }
 }
