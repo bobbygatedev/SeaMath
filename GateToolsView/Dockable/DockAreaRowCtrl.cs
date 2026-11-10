@@ -41,17 +41,21 @@ namespace Gate.ToolsView.Dockable
 
          public Control? Control
          {
-            get => Panel.Controls.Cast<Control>().FirstOrDefault();
-
+            get => Panel.Controls.Count > 0 ? Panel.Controls[0] : null;
             set
             {
-               Panel.Controls.Clear();
+               Panel.SuspendLayout();
+
+               // detach, NOT dispose
+               foreach (var c in Panel.Controls.Cast<Control>().ToArray()) { Panel.Controls.Remove(c); }
 
                if (value != null)
                {
                   value.Dock = DockStyle.Fill;
                   Panel.Controls.Add(value);
                }
+
+               Panel.ResumeLayout(true);
             }
          }
 
@@ -76,7 +80,8 @@ namespace Gate.ToolsView.Dockable
          set
          {
             myDirection = value;
-            myDoRebuild();
+
+            if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
 
@@ -89,23 +94,32 @@ namespace Gate.ToolsView.Dockable
          Where(x => x.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).
          ToArray();
 
-      public void MthRemove(int index)
+      public void MthRemoveIndex(int index)
       {
          if (myListSlots.Count > 1 && index >= 0 && index < myListSlots.Count)
          {
             var p = myListSlots[index];
 
             myListSlots.RemoveAt(index);
-            myDoRebuild();
-            p.Panel.Dispose();
+
+            if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
 
-      public void MthRemove(SlotType slot)
-      {
-         int i = myListSlots.IndexOf(slot);
+      public bool PpIsAutoRebuild { get; set; } = true;
 
-         if (i >= 0) { MthRemove(i); }
+      public void MthRemoveSlots(params SlotType[] slotsToRemove)
+      {
+         if (slotsToRemove.All(s => myListSlots.ContainsRef(s)))
+         {
+            foreach (var slo in slotsToRemove) { myListSlots.Remove(slo); }
+
+            if (PpIsAutoRebuild) { MthRebuild(); }
+         }
+         else
+         {
+            throw new Gate.Tools.ToolsException($"Not all slots belong to this {GetType().Name}");
+         }
       }
 
       private int myDoReviewIndex(int? atIndex, DockableAreaCtrlSlotAnchorModeEnum anchorMode)
@@ -192,7 +206,8 @@ namespace Gate.ToolsView.Dockable
          initialSize = initialSize ?? control?.Size ?? new Size(15, 15);
          myListSlots.Insert(
             myDoReviewIndex(atIndex, anchorMode), new SlotType(control, anchorMode, initialSize.NnOrCrash()));
-         myDoRebuild();
+
+         if (PpIsAutoRebuild) { MthRebuild(); }
 
          return control;
       }
@@ -208,7 +223,8 @@ namespace Gate.ToolsView.Dockable
          set
          {
             myPanelMinSize = Math.Max(15, value);
-            myDoRebuild();
+            
+            if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
 
@@ -219,7 +235,8 @@ namespace Gate.ToolsView.Dockable
          set
          {
             myPanelCenterMinSize = Math.Max(10, value);
-            myDoRebuild();
+
+            if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
 
@@ -230,7 +247,8 @@ namespace Gate.ToolsView.Dockable
          set
          {
             mySplitBackColor = value;
-            myDoRebuild();
+
+            if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
 
@@ -241,7 +259,7 @@ namespace Gate.ToolsView.Dockable
          MinExtra = PpPanelCenterMinSize
       };
 
-      private void myDoRebuild()
+      public void MthRebuild()
       {
          SuspendLayout();
 
@@ -348,7 +366,10 @@ namespace Gate.ToolsView.Dockable
             for (int i = lst_far_ord.Count - 1; i >= 0; i--) { Controls.Add(lst_far_ord[i]); }
             for (int i = lst_new_ord.Count - 1; i >= 0; i--) { Controls.Add(lst_new_ord[i]); }
 
+            //tododo gestione dello z-order
+
             ResumeLayout(true);
+
          }
          else
          {
@@ -356,13 +377,13 @@ namespace Gate.ToolsView.Dockable
          }
       }
 
-      public bool MthRemove(Control control)
+      public bool MthRemoveControl(Control control)
       {
          var slo = PpSlots.FirstOrDefault(x => ReferenceEquals(x.Control, control));
 
          if (slo != null)
          {
-            MthRemove(slo);
+            MthRemoveSlots(slo);
 
             return true;
          }
