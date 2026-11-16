@@ -1,7 +1,6 @@
 ﻿using Gate.Dock.DockTab;
 using Gate.Dock.DockWidget;
 using Gate.Tools;
-using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.ControlObserve;

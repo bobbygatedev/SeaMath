@@ -3,7 +3,7 @@
    /// <summary>
    /// Direction, docked controls are placed. 
    /// </summary>
-   public enum DockableCtrlRowDirectionEnum
+   public enum DockableRowDirection
    {
       /// <summary>
       /// Docked controls place from left 2 right(ie vertical doc group).

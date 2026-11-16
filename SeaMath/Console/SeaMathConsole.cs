@@ -8,7 +8,7 @@ using Gate.Tools;
 using Gate.Tools.Extensions;
 using Gate.Tools.Message;
 using Gate.Tools.Text;
-using System.Collections.Concurrent;
+using System.Collections.Concurrent;   
 
 namespace Gate.SeaMath.Console
 {

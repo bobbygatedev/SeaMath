@@ -92,12 +92,7 @@ namespace Gate.Tools.Extensions
       /// <param name="obj">The object to validate for non-nullity.</param>
       /// <returns>The original object if it is not null.</returns>
       /// <exception cref="Crash">Thrown if obj is null.</exception>
-      public static T NnOrCrash<T>(this T? obj) where T : struct => obj ?? throw new Crash($"Object of type {typeof(T).Name} is null");
-
-      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : class => 
-         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash();
-
-      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : struct =>
-         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash<T>();
+      public static T NnOrCrash<T>(this T? obj) where T : struct => 
+         obj ?? throw new Crash($"Object of type {typeof(T).Name} is null");
    }
 }

@@ -1,7 +1,9 @@
 ﻿using Gate.Tools;
+using Gate.Tools.Extensions;
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.Extended;
 using Gate.ToolsView.Native;
+using System.Diagnostics;
 
 namespace Gate.Dock
 {
@@ -58,6 +60,9 @@ namespace Gate.Dock
 
                if (myControlMovingFormIsOver != null)
                {
+                  //tododo
+                  Console.WriteLine($"Moving over {myControlMovingFormIsOver?.GetType().Name}");
+
                   myMarkerForm = new ExtendedRectMarkerForm();
                   myMarkerForm.PpAssociatedControl = control;
                }
@@ -82,10 +87,10 @@ namespace Gate.Dock
 
                if (to_dck != null && myLastCursorPos.HasValue)
                {
-                  var str = myCurrentMovingOverStrategy ?? throw new Crash();
+                  var str = myCurrentMovingOverStrategy.NnOrCrash();
 
                   SetControlMovingOver(null, MovingForm);
-                  str.Dock(to_dck, MovingForm ?? throw new Crash(), myLastCursorPos.Value);
+                  str.Dock(to_dck, MovingForm.NnOrCrash(), myLastCursorPos.Value);
                }
 
                MovingForm = null;
@@ -126,7 +131,8 @@ namespace Gate.Dock
                {
                   myCurrentMovingOverStrategy =
                      myMovingOverStrategies.FirstOrDefault(s =>
-                     (dck_ctr = s.GetSelectControl(cwr_u_me.WinFormControl, MovingForm ?? throw new Crash(), cur_pos)) != null);
+                     (dck_ctr = s.GetSelectControl(
+                        cwr_u_me.WinFormControl, MovingForm.NnOrCrash(), cur_pos)) != null);
                }
 
                SetControlMovingOver(dck_ctr, MovingForm);
@@ -134,9 +140,9 @@ namespace Gate.Dock
                if (myCurrentMovingOverStrategy != null)
                {
                   myCurrentMovingOverStrategy.MarkerMove(
-                     myMarkerForm ?? throw new Crash(),
-                     ControlMovingFormIsOver ?? throw new Crash(),
-                     MovingForm ?? throw new Crash(),
+                     myMarkerForm.NnOrCrash(),
+                     ControlMovingFormIsOver.NnOrCrash(),
+                     MovingForm.NnOrCrash(),
                      (myLastCursorPos = cur_pos).Value);
                }
             }

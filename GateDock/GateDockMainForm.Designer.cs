@@ -86,7 +86,7 @@ namespace Gate.Dock
          this.CtrlDockArea.Location = new System.Drawing.Point(10, 77);
          this.CtrlDockArea.MinimumSize = new System.Drawing.Size(100, 100);
          this.CtrlDockArea.Name = "CtrlDockArea";
-         this.CtrlDockArea.PpCenterDirectionToSet = DockableCtrlRowDirectionEnum.left_2_right;
+         this.CtrlDockArea.PpCenterDirectionToSet = DockableRowDirection.left_2_right;
          this.CtrlDockArea.Size = new System.Drawing.Size(1180, 648);
          this.CtrlDockArea.TabIndex = 2;
          this.CtrlDockArea.DragDrop += new System.Windows.Forms.DragEventHandler(this.CtrlDockArea_DragDrop);

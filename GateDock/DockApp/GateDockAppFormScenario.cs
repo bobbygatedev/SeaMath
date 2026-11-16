@@ -42,7 +42,7 @@ namespace Gate.Dock.DockApp
       {
          public DockItemsRecord() { }
 
-         public readonly Simple<DockableCtrlRowDirectionEnum> TabDirection = new Simple<DockableCtrlRowDirectionEnum>(DockableCtrlRowDirectionEnum.left_2_right);
+         public readonly Simple<DockableRowDirection> TabDirection = new Simple<DockableRowDirection>(DockableRowDirection.left_2_right);
          public readonly Arry<TabRecord> Tabs = new Arry<TabRecord>();
          public readonly Arry<WidgetRecord> Widgets = new Arry<WidgetRecord>();
 

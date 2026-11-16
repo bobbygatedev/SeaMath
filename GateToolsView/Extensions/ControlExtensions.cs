@@ -238,6 +238,14 @@ namespace Gate.ToolsView.Extensions
          return frm;
       }
 
+      /// <summary>
+      /// Returns a description of the control
+      /// </summary>
+      /// <param name="control"></param>
+      /// <returns></returns>
+      public static string GetDescriptor(this Control control) => 
+         $"{control?.GetType().Name} N={control?.Name} T={control?.Text}";
+
       private static object? myMessageLooplInvokeWrapper(CriticalSection[] threadsCriticalSection, Delegate method, object[] args)
       {
          var res = null as object;

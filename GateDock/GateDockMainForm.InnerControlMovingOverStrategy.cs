@@ -51,7 +51,7 @@ namespace Gate.Dock
 
                if (dck_are != null)
                {
-                  var dck_sta = my_GetInState((dynamic)controlMovingFormIsOver);
+                  var dck_sta = myGetInState((dynamic)controlMovingFormIsOver);
                   var pss = new GateDockWidgetStateFlags[] {
                         GateDockWidgetStateFlags.left , GateDockWidgetStateFlags.right , GateDockWidgetStateFlags.up , GateDockWidgetStateFlags.down };
 
@@ -63,7 +63,7 @@ namespace Gate.Dock
 
                         if (css.Last() == controlMovingFormIsOver)
                         {
-                           var rc_app_cli = my_GetRectangle(controlMovingFormIsOver.ClientRectangle, my_GetOpposite(pos));
+                           var rc_app_cli = myGetRectangle(controlMovingFormIsOver.ClientRectangle, myGetOpposite(pos));
                            var rc_app_scr = controlMovingFormIsOver.RectangleToScreen(rc_app_cli);
 
                            if (rc_app_scr.Contains(currentPos))
@@ -90,12 +90,15 @@ namespace Gate.Dock
                return GateDockWidgetStateFlags.invisible;
             }
 
-            private static GateDockWidgetStateFlags my_GetInState(GateDockWidgetCtrl widget) => widget.PpDockState;
-            private static GateDockWidgetStateFlags my_GetInState(GateDockWidgetGroupCtrl widgetGroup) => widgetGroup.PpDockState;
-            private static GateDockWidgetStateFlags my_GetOutState(GateDockWidgetGroupCtrl widgetGroup, GateDockWidgetStateFlags posFlag) => GateDockWidgetStateFlags.group | posFlag;
-            private static GateDockWidgetStateFlags my_GetOutState(GateDockWidgetCtrl widget, GateDockWidgetStateFlags posFlag) => GateDockWidgetStateFlags.dock | posFlag;
+            private static GateDockWidgetStateFlags myGetInState(GateDockWidgetCtrl widget) => widget.PpDockState;
+            private static GateDockWidgetStateFlags myGetInState(GateDockWidgetGroupCtrl widgetGroup) => widgetGroup.PpDockState;
+            private static GateDockWidgetStateFlags myGetOutState(
+               GateDockWidgetGroupCtrl widgetGroup, GateDockWidgetStateFlags posFlag) => GateDockWidgetStateFlags.group | posFlag;
+            private static GateDockWidgetStateFlags myGetOutState(
+               GateDockWidgetCtrl widget, GateDockWidgetStateFlags posFlag) => 
+               GateDockWidgetStateFlags.dock | posFlag;
 
-            private static GateDockWidgetStateFlags my_GetOpposite(GateDockWidgetStateFlags flags)
+            private static GateDockWidgetStateFlags myGetOpposite(GateDockWidgetStateFlags flags)
             {
                switch (flags & (GateDockWidgetStateFlags.left | GateDockWidgetStateFlags.right | GateDockWidgetStateFlags.up | GateDockWidgetStateFlags.down))
                {
@@ -125,7 +128,11 @@ namespace Gate.Dock
          {
             public Widget(GateDockMainForm mainForm) : base(mainForm) { }
 
-            public override void MarkerMove(ExtendedRectMarkerForm markerForm, Control controlMovingFormIsOver, GateDockFloatContainerForm movingFloatForm, Point currentPos)
+            public override void MarkerMove(
+               ExtendedRectMarkerForm markerForm, 
+               Control controlMovingFormIsOver, 
+               GateDockFloatContainerForm movingFloatForm, 
+               Point currentPos)
             {
                StateHelperWidgetAndGroup.GetState(controlMovingFormIsOver, currentPos, out var rc);
 
@@ -206,7 +213,8 @@ namespace Gate.Dock
                new_tab_down
             }
 
-            private DockingActionEnum myGetDockingAction(GateDockTabCtrl movingOverDocuTab, Point cursorPos, out Rectangle? selectedRectangle)
+            private DockingActionEnum myGetDockingAction(
+               GateDockTabCtrl movingOverDocuTab, Point cursorPos, out Rectangle? selectedRectangle)
             {
                var rc = movingOverDocuTab.ClientRectangle;
                var is_dck = movingOverDocuTab.PpState == GateDockTabStateEnum.docked;
@@ -215,15 +223,19 @@ namespace Gate.Dock
                var dwn_rc = new Rectangle(0, (int)(rc.Height * 0.8), rc.Width, (int)(rc.Height * 0.2));
                var rgt_rc = new Rectangle((int)(rc.Width * 0.8), 0, (int)(rc.Width * 0.2), rc.Height);
 
-               selectedRectangle = null as Rectangle?;
+               selectedRectangle = null;
 
-               if (is_dck && (!dir_eff.HasValue || dir_eff.Value == DockableCtrlRowDirectionEnum.left_2_right) && dwn_rc.Contains(ctr_pos))
+               if (is_dck &&
+                  (!dir_eff.HasValue || dir_eff.Value == DockableRowDirection.left_2_right) &&
+                  dwn_rc.Contains(ctr_pos))
                {
                   selectedRectangle = dwn_rc;
 
                   return DockingActionEnum.new_tab_down;
                }
-               else if (is_dck && (!dir_eff.HasValue || dir_eff.Value == DockableCtrlRowDirectionEnum.up_2_down) && rgt_rc.Contains(ctr_pos))
+               else if (is_dck && (
+                  !dir_eff.HasValue ||
+                  dir_eff.Value == DockableRowDirection.up_2_down) && rgt_rc.Contains(ctr_pos))
                {
                   selectedRectangle = rgt_rc;
 
@@ -232,14 +244,19 @@ namespace Gate.Dock
                else { return DockingActionEnum.new_doc_in_tab; }
             }
 
-            public override void MarkerMove(ExtendedRectMarkerForm markerForm, Control controlMovingFormIsOver, GateDockFloatContainerForm movingFloatForm, Point currentPos)
+            public override void MarkerMove(
+               ExtendedRectMarkerForm markerForm, 
+               Control controlMovingFormIsOver, 
+               GateDockFloatContainerForm movingFloatForm, 
+               Point currentPos)
             {
                myGetDockingAction((GateDockTabCtrl)controlMovingFormIsOver, currentPos, out var sel_rc);
                markerForm.PpAssociatedControl = controlMovingFormIsOver;
                markerForm.PpAssociatedControlRectangle = sel_rc;
             }
 
-            protected override void myDock(GateDockTabCtrl movingOverTab, GateDockFloatContainerForm movingFloatForm, Point currentPos)
+            protected override void myDock(
+               GateDockTabCtrl movingOverTab, GateDockFloatContainerForm movingFloatForm, Point currentPos)
             {
                var dck_act = myGetDockingAction(movingOverTab, currentPos, out _);
 
@@ -279,7 +296,7 @@ namespace Gate.Dock
                      if (movingOverTab.PpState == GateDockTabStateEnum.docked)
                      {
                         var dir = dck_act == DockingActionEnum.new_tab_right ?
-                           DockableCtrlRowDirectionEnum.left_2_right : DockableCtrlRowDirectionEnum.up_2_down;
+                           DockableRowDirection.left_2_right : DockableRowDirection.up_2_down;
 
                         MainForm.myTabPageHandling.TabWidgetOrDocuDocked(cts_2_mov, movingOverTab, dir);
                      }
@@ -293,7 +310,7 @@ namespace Gate.Dock
             protected override bool myIsToSelect(GateDockTabCtrl movingOverTab, GateDockFloatContainerForm movingFloatForm, Point currentPos) => true;
          }
 
-         private static Rectangle my_GetRectangle(Rectangle clientRect, GateDockWidgetStateFlags flags)
+         private static Rectangle myGetRectangle(Rectangle clientRect, GateDockWidgetStateFlags flags)
          {
             if ((flags & GateDockWidgetStateFlags.left) != 0) { return new Rectangle(clientRect.Left, clientRect.Top, (int)(clientRect.Width * 0.2), clientRect.Height); }
             else if ((flags & GateDockWidgetStateFlags.right) != 0) { return new Rectangle(clientRect.Left + (int)(clientRect.Width * 0.8), clientRect.Top, (int)(clientRect.Width * 0.2), clientRect.Height); }
@@ -340,7 +357,7 @@ namespace Gate.Dock
                {
                   if (dct_dck[widgetStateFlags = flg] == 0)
                   {
-                     var rc = my_GetRectangle(rc_cli, flg);
+                     var rc = myGetRectangle(rc_cli, flg);
 
                      if (controlMovingFormIsOver.RectangleToScreen(rc).Contains(currentPos)) { return rc; }
                   }

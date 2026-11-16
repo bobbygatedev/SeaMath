@@ -28,25 +28,12 @@
       /// </summary>
       private void InitializeComponent()
       {
-         CtrlAreaRowCtrl = new DockableAreaRowCtrl();
          SuspendLayout();
-         // 
-         // CtrlAreaRowCtrl
-         // 
-         CtrlAreaRowCtrl.Dock = DockStyle.Fill;
-         CtrlAreaRowCtrl.Location = new Point(0, 0);
-         CtrlAreaRowCtrl.Name = "CtrlAreaRowCtrl";
-         CtrlAreaRowCtrl.PpDirection = DockableCtrlRowDirectionEnum.left_2_right;
-         CtrlAreaRowCtrl.PpIsAutoRebuild = true;
-         CtrlAreaRowCtrl.PpSplitBackColor = SystemColors.Control;
-         CtrlAreaRowCtrl.Size = new Size(730, 205);
-         CtrlAreaRowCtrl.TabIndex = 0;
          // 
          // DockableAreaCtrl
          // 
          AutoScaleDimensions = new SizeF(8F, 20F);
          AutoScaleMode = AutoScaleMode.Font;
-         Controls.Add(CtrlAreaRowCtrl);
          DoubleBuffered = true;
          Margin = new Padding(4, 5, 4, 5);
          Name = "DockableAreaCtrl";
@@ -56,7 +43,5 @@
       }
 
       #endregion
-
-      private DockableAreaRowCtrl CtrlAreaRowCtrl;
    }
 }

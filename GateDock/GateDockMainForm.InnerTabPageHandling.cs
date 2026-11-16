@@ -198,7 +198,7 @@ namespace Gate.Dock
          /// <param name="widgetsOrDocus"></param>
          /// <param name="afterTab"></param>
          /// <param name="direction"></param>
-         public void TabWidgetOrDocuDocked(Control[] widgetsOrDocus, GateDockTabCtrl afterTab, DockableCtrlRowDirectionEnum direction)
+         public void TabWidgetOrDocuDocked(Control[] widgetsOrDocus, GateDockTabCtrl afterTab, DockableRowDirection direction)
          {
             if (afterTab != null && afterTab.PpState == GateDockTabStateEnum.floating)
             {

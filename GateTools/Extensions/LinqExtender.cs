@@ -146,5 +146,28 @@
       /// <returns></returns>
       public static bool ContainsRef<TSource>(this IEnumerable<TSource> source, TSource item) => 
          source.Any(i => ReferenceEquals(i, item));
+
+      /// <summary>
+      /// Equal to <see cref="System.Linq.Enumerable.ElementAtOrDefault{TSource}(IEnumerable{TSource}, Index)"/> 
+      /// but raises<see cref="Crash"/> if item is not found at <paramref name="index"/>
+      /// </summary>
+      /// <typeparam name="T"></typeparam>
+      /// <param name="source"></param>
+      /// <param name="index"></param>
+      /// <returns></returns>
+      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : class =>
+         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash();
+
+      /// <summary>
+      /// Equal to <see cref="System.Linq.Enumerable.ElementAtOrDefault{TSource}(IEnumerable{TSource}, Index)"/> 
+      /// but raises<see cref="Crash"/> if item is not found at <paramref name="index"/>
+      /// Version for <see cref="ValueType"/>
+      /// </summary>
+      /// <typeparam name="T"></typeparam>
+      /// <param name="source"></param>
+      /// <param name="index"></param>
+      /// <returns></returns>
+      public static T ElementAtOrCrash<T>(this IEnumerable<T?>? source, int index) where T : struct =>
+         source.NnOrCrash().ElementAtOrDefault(index).NnOrCrash<T>();
    }
 }

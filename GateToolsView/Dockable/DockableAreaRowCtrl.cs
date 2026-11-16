@@ -1,6 +1,5 @@
 ﻿using Gate.Tools;
 using Gate.Tools.Extensions;
-using System.Management;
 
 namespace Gate.ToolsView.Dockable
 {
@@ -20,7 +19,7 @@ namespace Gate.ToolsView.Dockable
       /// Splitter back color.
       /// </summary>
       private Color? mySplitBackColor = null;
-      private DockableCtrlRowDirectionEnum myDirection = DockableCtrlRowDirectionEnum.left_2_right;
+      private DockableRowDirection myDirection = DockableRowDirection.left_2_right;
       private int mySplitWidth = 0;
 
       public DockableAreaRowCtrl()
@@ -96,24 +95,24 @@ namespace Gate.ToolsView.Dockable
          internal int NoCenterSpace
          {
             get =>
-               Parent?.PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+               Parent?.PpDirection == DockableRowDirection.left_2_right ?
                   NoCenterSpaces.Width : NoCenterSpaces.Height;
 
             set => NoCenterSpaces =
-               Parent?.PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+               Parent?.PpDirection == DockableRowDirection.left_2_right ?
                   new Size(value, NoCenterSpaces.Height) : new Size(NoCenterSpaces.Width, value);
          }
 
          internal int PanelSpaceInternal
          {
-            get => Parent?.PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+            get => Parent?.PpDirection == DockableRowDirection.left_2_right ?
                Panel.Width : Panel.Height;
 
             set
             {
                if (Parent.IsDisposed) { throw new Gate.Tools.ToolsException($"{GetType().Name} was disposed"); }
 
-               if (Parent.PpDirection == DockableCtrlRowDirectionEnum.left_2_right)
+               if (Parent.PpDirection == DockableRowDirection.left_2_right)
                {
                   Panel.Width = value;
                }
@@ -126,7 +125,7 @@ namespace Gate.ToolsView.Dockable
 
          /// <summary>
          /// <br> Significant dimension of Panel: </br> 
-         /// <br> Width for <see cref="DockableCtrlRowDirectionEnum.left_2_right"/> </br>
+         /// <br> Width for <see cref="DockableRowDirection.left_2_right"/> </br>
          /// </summary>
          public int PanelSpace
          {
@@ -169,7 +168,7 @@ namespace Gate.ToolsView.Dockable
             get
             {
                var dir = Parent?.PpDirection ?? throw new Gate.Tools.ToolsException();
-               var is_lft = dir == DockableCtrlRowDirectionEnum.left_2_right;
+               var is_lft = dir == DockableRowDirection.left_2_right;
 
                if (IsFar)
                {
@@ -202,9 +201,16 @@ namespace Gate.ToolsView.Dockable
       }
 
       /// <summary>
-      /// <see cref="DockableCtrlRowDirectionEnum"/> of the control.
+      /// Direction is not effective when only center slot are present and number of them is <= 1s
+      /// </summary>
+      public DockableRowDirection? PpDirectionEffective => 
+         PpSlotsCenter.Length == PpSlots.Length && 
+         PpSlotsCenterNotNull.Length <= 1 ? null : PpDirection;
+
+      /// <summary>
+      /// <see cref="DockableRowDirection"/> of the control.
       /// </summary> 
-      public DockableCtrlRowDirectionEnum PpDirection
+      public DockableRowDirection PpDirection
       {
          get => myDirection;
 
@@ -215,14 +221,22 @@ namespace Gate.ToolsView.Dockable
             if (PpIsAutoRebuild) { MthRebuild(); }
          }
       }
-
       public Control[] PpControlsAll => myListSlots.Select(c => c.Control).Nn().ToArray();
 
       public SlotType[] PpSlots => myListSlots.ToArray();
 
+      public SlotType[] PpSlotsNotCenter=> PpSlots.Except(PpSlotsCenter).ToArray();
+
+      public SlotType[] PpSlotsNotNull => myListSlots.Where(s=>s.Control != null).ToArray();
+
       public SlotType[] PpSlotsCenter =>
          myListSlots.
          Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).
+         ToArray();
+
+      public SlotType[] PpSlotsCenterNotNull =>
+         myListSlots.
+         Where(s => s.AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center && s.Control != null).
          ToArray();
 
       /// <summary>
@@ -279,16 +293,47 @@ namespace Gate.ToolsView.Dockable
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="controls"></param>
+      /// <param name="anchorMode"></param>
+      /// <param name="atIndex"></param>
+      /// <returns></returns>
+      public SlotType[] MthControlsDock(
+         Control[] controls, DockableAreaCtrlSlotAnchorModeEnum anchorMode, int? atIndex = null)
+      {
+         if (controls.Length == 0) { return []; }
+
+         var lst = new List<SlotType>();
+         var idx = atIndex;
+
+         foreach (var ctr in controls)
+         {
+            var slo = new SlotType(this, ctr, anchorMode, ctr?.Size ?? new Size(15, 15));
+            var pos = myDoReviewIndex(idx, anchorMode);
+
+            lst.Add(slo);
+            myListSlots.Insert(pos, slo);
+
+            if (idx.HasValue) { idx = pos + 1; }
+         }
+
+         if (PpIsAutoRebuild) { MthRebuild(); }
+
+         return lst.ToArray();
+      }
+
       public Control? MthControlDock(
          Control? control,
          DockableAreaCtrlSlotAnchorModeEnum anchorMode,
-         Size? initialSize = null,
+         Size? noCenterSpaces = null,
          int? atIndex = null)
       {
-         initialSize = initialSize ?? control?.Size ?? new Size(15, 15);
+         noCenterSpaces = noCenterSpaces ?? control?.Size ?? new Size(15, 15);
          myListSlots.Insert(
             myDoReviewIndex(atIndex, anchorMode),
-            new SlotType(this, control, anchorMode, initialSize.NnOrCrash()));
+            new SlotType(this, control, anchorMode, noCenterSpaces.NnOrCrash()));
 
          if (PpIsAutoRebuild) { MthRebuild(); }
 
@@ -300,6 +345,14 @@ namespace Gate.ToolsView.Dockable
          var n = myListSlots.Count;
 
          SuspendLayout();
+
+         // 0) Dispose old splitters (and unhook handlers), panels are kept
+         foreach (var spl in Controls.OfType<Splitter>().ToArray())
+         {
+            spl.SplitterMoved -= Spl_SplitterMoved;
+            spl.Dispose();
+         }
+
          Controls.Clear();
 
          if (n != 0)
@@ -310,60 +363,53 @@ namespace Gate.ToolsView.Dockable
             // 2) Splitters: the one before a "far" slot is docked far (resizes that slot),
             //    the others are docked near (resize the slot on their left/top)
             var sps = Enumerable.Range(0, n - 1).Select(i => myDoMakeSplitter(i)).ToArray();
-            var pan_scs = myGetPanelSpaces(sps);
+            var pan_scs = myGetPanelSpaces();
 
             // 3) Dock and size of the panels
             for (var i = 0; i < n; i++)
             {
                var slo = myListSlots[i];
-               var pan = myListSlots[i].Panel;
+               var pan = slo.Panel;
 
                pan.Name = $"Panel#{i}";
-               pan.Dock = i == fil ? DockStyle.Fill : myListSlots[i].DockToSet;
-               slo.PanelSpaceInternal = pan_scs[i];
+               pan.Dock = i == fil ? DockStyle.Fill : slo.DockToSet;
+
+               if (i != fil) { slo.PanelSpaceInternal = pan_scs[i]; }
             }
 
-            foreach (var spl in sps)
-            {
-               spl.SplitterMoved += Spl_SplitterMoved;
-            }
+            foreach (var spl in sps) { spl.SplitterMoved += Spl_SplitterMoved; }
 
             // 4) Dock order, outer first, for each side: panel, then its splitter
-            var lst_nea_ord = new List<Control>();//near order
-            var lst_far_ord = new List<Control>();//far order
+            var lst_nea_ord = new List<Control>();
+            var lst_far_ord = new List<Control>();
 
-            for (int i = 0; i < fil; i++)
+            for (var i = 0; i < fil; i++)
             {
                lst_nea_ord.Add(myListSlots[i].Panel);
                lst_nea_ord.Add(sps[i]);
             }
 
-            for (int i = n - 1; i > fil; i--)
+            for (var i = n - 1; i > fil; i--)
             {
                lst_far_ord.Add(myListSlots[i].Panel);
                lst_far_ord.Add(sps[i - 1]);
             }
 
             // Controls.Add in reverse dock order: fill first, outermost last
+            lst_far_ord.Reverse();
+            lst_nea_ord.Reverse();
+
             Controls.Add(myListSlots[fil].Panel);
-            Controls.AddRange(lst_far_ord.ToArray().Reverse().ToArray());
-            Controls.AddRange(lst_nea_ord.ToArray().Reverse().ToArray());
+            Controls.AddRange(lst_far_ord.ToArray());
+            Controls.AddRange(lst_nea_ord.ToArray());
          }
 
          ResumeLayout(true);
       }
-
-      private void Spl_SplitterMoved(object? sender, SplitterEventArgs e)
-      {
-         var spl = sender.ConvertOrCrash<Splitter>();
-
-         /// update <see cref="SlotType.NoCenterSpace"/> of all no center slots with current panel space
-         foreach (var slo in 
-            myListSlots.Where(s=>s.AnchorMode != DockableAreaCtrlSlotAnchorModeEnum.center))
-         {
-            slo.NoCenterSpace = slo.PanelSpace;
-         }
-      }
+      public void MthDirectionChange() => PpDirection =
+            PpDirection == DockableRowDirection.left_2_right ?
+               DockableRowDirection.up_2_down :
+               DockableRowDirection.left_2_right;
 
       public bool MthRemoveControl(Control control)
       {
@@ -393,120 +439,96 @@ namespace Gate.ToolsView.Dockable
 
       protected override void OnResize(EventArgs e)
       {
+         base.OnResize(e);
+
+         if (myListSlots.Count == 0) { return; }
+
          SuspendLayout();
 
-         // spaces(width/height according direction)
-         var sps = myGetPanelSpaces(Controls.OfType<Splitter>().ToArray());
+         var pan_scs = myGetPanelSpaces();
 
-         // keep current (left,top) 
-         var x = 0;
-
-         // space index
-         var sp_i = 0;
-
-         /// order by position (left/top) since <see cref="MthRebuild"/>
-         /// has its special ordering
-         var cts = PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
-            Controls.Cast<Control>().OrderBy(c => c.Left).ToArray() :
-            Controls.Cast<Control>().OrderBy(c => c.Top).ToArray();
-
-         // place controls:
-         // - preserve left/right/top/bottom spaces(width/height according direction)
-         // - divide equally remaining space among remaining center spaces
-         foreach (var c in cts)
+         for (var i = 0; i < myListSlots.Count; i++)
          {
-            if (PpDirection == DockableCtrlRowDirectionEnum.left_2_right)
+            var slo = myListSlots[i];
+
+            // Fill panel is sized by the dock layout
+            if (slo.Panel.Dock != DockStyle.Fill && !slo.IsDisposed)
             {
-               c.Left = x;
-               c.Height = Height;
-
-               if (c is not Splitter)
-               {
-                  c.Width = sps[sp_i++];
-               }
-
-               x = c.Right;
-            }
-            else
-            {
-               c.Top = x;
-               c.Width = Width;
-
-               if (c is not Splitter)
-               {
-                  c.Height = sps[sp_i++];
-               }
-
-               x = c.Bottom;
+               slo.PanelSpaceInternal = pan_scs[i];
             }
          }
 
          ResumeLayout(true);
       }
-
-      private int[] myGetPanelSpaces(Splitter[] splitter)
+      private int myGetTotalPanelSpace()
       {
-         //total space (Width/Height)
-         var tot_spa = myGetTotalPanelSpace(splitter);
-         var sls_no_cnt = myListSlots.Except(PpSlotsCenter).ToArray();
+         var spl_tot = Math.Max(0, myListSlots.Count - 1) * PpSplitWidth;
 
-         // space for center Panel's 
-         var cnt_spa = tot_spa - sls_no_cnt.Sum(s => s.NoCenterSpace);
-         var szs = new int[myListSlots.Count];
+         var tot = PpDirection == DockableRowDirection.left_2_right ?
+            ClientSize.Width : ClientSize.Height;
 
-         // id's [0-(nslot-1)] of center slots 
-         var cnt_ids =
-            Enumerable.Range(0, szs.Length).
+         return Math.Max(0, tot - spl_tot);
+      }
+
+      /// <summary>
+      /// Distributes <paramref name="total"/> among <paramref name="ids"/> proportionally
+      /// to <paramref name="weights"/> (equally if weights sum is 0), last one takes the remainder.
+      /// </summary>
+      private static void myDoDistribute(int[] szs, int[] ids, Func<int, int> weights, int total)
+      {
+         if (ids.Length == 0) { return; }
+
+         var sum = ids.Sum(weights);
+         var rem = total;
+
+         foreach (var i in ids)
+         {
+            var s = i == ids.Last() ? rem :
+               sum > 0 ? (int)((long)total * weights(i) / sum) : total / ids.Length;
+
+            szs[i] = Math.Max(0, s);
+            rem -= szs[i];
+         }
+      }
+
+      private int[] myGetPanelSpaces()
+      {
+         var n = myListSlots.Count;
+         var szs = new int[n];
+
+         if (n == 0) { return szs; }
+
+         var tot_spa = myGetTotalPanelSpace();
+
+         // id's of center / no-center slots
+         var cnt_ids = Enumerable.Range(0, n).
             Where(i => myListSlots[i].AnchorMode == DockableAreaCtrlSlotAnchorModeEnum.center).
             ToArray();
+         var no_cnt_ids = Enumerable.Range(0, n).Except(cnt_ids).ToArray();
 
-         // id's [0-(nslot-1)] of no-center slots
-         var no_cnt_ids = Enumerable.Range(0, szs.Length).Except(cnt_ids).ToArray();
+         var no_cnt_sum = no_cnt_ids.Sum(i => myListSlots[i].NoCenterSpace);
+         var cnt_spa = tot_spa - no_cnt_sum;
+         var cnt_lim = MIN_CENTER_SLOT_SPACE * cnt_ids.Length;
 
-         // if a single slot   
-         var cnt_lim = MIN_CENTER_SLOT_SPACE * PpSlots.Length;
-
-         if (cnt_spa < cnt_lim)
+         if (cnt_ids.Length > 0 && cnt_spa < cnt_lim)
          {
-            cnt_spa = Math.Min(cnt_lim, (int)(0.8 * Width));
+            // not enough space for centers: they get their minimum (max 80%),
+            // no-center slots share the rest proportionally to their preferred space
+            cnt_spa = Math.Min(cnt_lim, (int)(0.8 * tot_spa));
 
-            if (cnt_ids.Length > 0)
-            {
-               foreach (var i in cnt_ids)
-               {
-                  szs[i] = cnt_spa / cnt_ids.Length;
-                  tot_spa -= szs[i];
-               }
-            }
-
-            var w = (double)tot_spa / no_cnt_ids.Sum(i => myListSlots[i].NoCenterSpace); //weight
-
-            foreach (var i in no_cnt_ids)
-            {
-               szs[i] = i == no_cnt_ids.Last() ? tot_spa : (int)(myListSlots[i].NoCenterSpace * w);
-               tot_spa -= szs[i];
-            }
+            myDoDistribute(szs, cnt_ids, _ => 1, cnt_spa);
+            myDoDistribute(szs, no_cnt_ids, i => myListSlots[i].NoCenterSpace, tot_spa - cnt_spa);
          }
          else
          {
-            foreach (var i in no_cnt_ids)
-            {
-               szs[i] = myListSlots[i].NoCenterSpace;
-               tot_spa -= szs[i];
-            }
+            // no-center slots keep their space, centers share the rest equally
+            foreach (var i in no_cnt_ids) { szs[i] = Math.Max(0, myListSlots[i].NoCenterSpace); }
 
-            var ini_to_siz = tot_spa;
-
-            foreach (var i in cnt_ids)
-            {
-               szs[i] = i == cnt_ids.Last() ? tot_spa : ini_to_siz / myListSlots.Count;
-               tot_spa -= szs[i];
-            }
+            myDoDistribute(szs, cnt_ids, _ => 1, Math.Max(0, cnt_spa));
          }
 
          return szs;
       }
-
       private Splitter myDoMakeSplitter(int index) => new Splitter
       {
          Width = Height = PpSplitWidth,
@@ -520,7 +542,7 @@ namespace Gate.ToolsView.Dockable
          var acs = null as DockableAreaCtrlSlotAnchorModeEnum[];
 
          //anchor modes
-         acs = PpDirection == DockableCtrlRowDirectionEnum.left_2_right ?
+         acs = PpDirection == DockableRowDirection.left_2_right ?
             [
                DockableAreaCtrlSlotAnchorModeEnum.left,
                DockableAreaCtrlSlotAnchorModeEnum.center,
@@ -560,6 +582,7 @@ namespace Gate.ToolsView.Dockable
 
             if (atIndex.HasValue)
             {
+               //tododo bug
                return atIndex.Value >= lst[a_idx].fro && atIndex.Value <= lst[a_idx].to + 1 ?
                   atIndex.Value :
                   throw new Gate.Tools.ToolsException(
@@ -590,18 +613,45 @@ namespace Gate.ToolsView.Dockable
          }
       }
 
-      private int myGetTotalPanelSpace(Splitter[] splitters)
+      private void Spl_SplitterMoved(object? sender, SplitterEventArgs e)
       {
-         switch (PpDirection)
+         var spl = sender.ConvertOrCrash<Splitter>();
+
+         /// update <see cref="SlotType.NoCenterSpace"/> of all no center slots with current panel space
+         foreach (var slo in
+            myListSlots.Where(s => s.AnchorMode != DockableAreaCtrlSlotAnchorModeEnum.center))
          {
-            case DockableCtrlRowDirectionEnum.left_2_right:
-               return Width - splitters.Sum(s => s.Width);
-
-            case DockableCtrlRowDirectionEnum.up_2_down:
-               return Height - splitters.Sum(s => s.Height);
-
-            default: throw new Crash();
+            slo.NoCenterSpace = slo.PanelSpace;
          }
+      }
+
+      /// <summary>
+      /// Adds <paramref name="slots"/> from other <see cref="DockableAreaRowCtrl"/> 
+      /// </summary>
+      /// <param name="slots"></param>
+      public void MthAddSlotsFromOther(SlotType[] slots)
+      {
+         var old_auto = PpIsAutoRebuild;
+
+         PpIsAutoRebuild = false;
+
+         try
+         {
+            foreach (var slo in slots)
+            {
+               var ctr = slo.Control;
+
+               if (ctr != null) { ctr.Parent = null; }
+
+               MthControlDock(ctr, slo.AnchorMode, slo.NoCenterSpaces);
+            }
+         }
+         finally
+         {
+            PpIsAutoRebuild = old_auto;
+         }
+
+         if (PpIsAutoRebuild) { MthRebuild(); }
       }
    }
 }

@@ -161,7 +161,7 @@ namespace Gate.Dock
       /// <summary>
       /// Direction tab group are placed.
       /// </summary>
-      public DockableCtrlRowDirectionEnum? PpTabGroupDirection => PpTabsAll.Length >= 2 ? CtrlDockArea.PpCenterDirectionToSet : null;
+      public DockableRowDirection? PpTabGroupDirection => PpTabsAll.Length >= 2 ? CtrlDockArea.PpCenterDirectionToSet : null;
 
       /// <summary>
       /// All widgets
@@ -463,7 +463,7 @@ namespace Gate.Dock
       public GateDockTabCtrl? MthTabAdd(
          Control[] tabPages,
          GateDockTabStateEnum docuTabState,
-         DockableCtrlRowDirectionEnum? direction = null,
+         DockableRowDirection? direction = null,
          Point? floatLocation = null)
       {
          var dcs_to_sgn = tabPages.OfType<GateDockTabPageCtrl>().Where(d => !PpTabPagesAll.Contains(d)).ToArray();

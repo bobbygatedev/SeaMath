@@ -33,7 +33,7 @@ namespace Gate.Dock.DockAppMenu
 
             if (tab_pgs != null)
             {
-               MainForm.MthTabAdd(tab_pgs, GateDockTabStateEnum.docked, DockableCtrlRowDirectionEnum.up_2_down);
+               MainForm.MthTabAdd(tab_pgs, GateDockTabStateEnum.docked, DockableRowDirection.up_2_down);
                MainForm.PpTabPageCurrent = tab_pag_cur;
             }
          }
@@ -49,7 +49,7 @@ namespace Gate.Dock.DockAppMenu
 
             if (tab_pgs != null)
             {
-               MainForm.MthTabAdd(tab_pgs, GateDockTabStateEnum.docked, DockableCtrlRowDirectionEnum.left_2_right);
+               MainForm.MthTabAdd(tab_pgs, GateDockTabStateEnum.docked, DockableRowDirection.left_2_right);
                MainForm.PpTabPageCurrent = tab_pag_cur;
             }
          }
@@ -131,11 +131,11 @@ namespace Gate.Dock.DockAppMenu
 
       private static bool myIsVerticalGroupingPossible(GateDockMainForm mainForm) =>
          myGetTabPagesForGrouping(mainForm) != null &&
-            (!mainForm.PpTabGroupDirection.HasValue || mainForm.PpTabGroupDirection == DockableCtrlRowDirectionEnum.left_2_right);
+            (!mainForm.PpTabGroupDirection.HasValue || mainForm.PpTabGroupDirection == DockableRowDirection.left_2_right);
 
       private static bool myIsHorizontalGroupingPossible(GateDockMainForm mainForm) =>
          myGetTabPagesForGrouping(mainForm) != null &&
-            (!mainForm.PpTabGroupDirection.HasValue || mainForm.PpTabGroupDirection == DockableCtrlRowDirectionEnum.up_2_down);
+            (!mainForm.PpTabGroupDirection.HasValue || mainForm.PpTabGroupDirection == DockableRowDirection.up_2_down);
 
       private static Control[]? myGetTabPagesForGrouping(GateDockMainForm mainForm) =>
          mainForm.PpTabPageCurrent != null && mainForm.PpTabCurrent != null && mainForm.PpTabCurrent.PpTabControls.Length >= 2 ?

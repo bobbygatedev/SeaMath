@@ -2,6 +2,7 @@
 using Gate.ToolsView.ControlFeature;
 using Gate.ToolsView.ControlFeature.Extensions;
 using Gate.ToolsView.Extensions;
+using System.Drawing.Drawing2D;
 
 namespace Gate.ToolsView.Extended
 {
@@ -26,6 +27,8 @@ namespace Gate.ToolsView.Extended
          myFeatureBorder = this.AddFeature<CtrlFeatureBorder>();
          myFeatureBorder.BorderColor = Color.Yellow;
          myFeatureBorder.BorderWidth = 5.0f;
+         myFeatureBorder.BorderDashStyle = DashStyle.DashDot;
+         
          Refresh();
          myFormAssociation = new InnerFormAssociation(this);
       }
@@ -133,7 +136,7 @@ namespace Gate.ToolsView.Extended
       public Control? PpAssociatedControl { get => myFormAssociation.AssociatedControl; set => myFormAssociation.AssociatedControl = value; }
 
       /// <summary>
-      ///  the rectangle inside the associaed control
+      /// Rectangle inside the associated control
       /// </summary>
       public Rectangle? PpAssociatedControlRectangle { get => myFormAssociation.RelativeRectangle; set => myFormAssociation.RelativeRectangle = value; }
 
@@ -146,6 +149,38 @@ namespace Gate.ToolsView.Extended
       /// 
       /// </summary>
       public float PpBorderWidth { get => myFeatureBorder.BorderWidth; set => myFeatureBorder.BorderWidth = value; }
+
+      /// <summary>
+      /// Width/Heigth of <see cref="PpTargetSquareRectangle"/>
+      /// </summary>
+      public int PpTargetSquareSize { get; set; } = 100;
+
+      /// <summary>
+      /// Rectangle traced inside dock area preview, indicates target where release left button to dock control.
+      /// </summary>
+      public Rectangle PpTargetSquareRectangle => 
+         new Rectangle(
+            Left + Width / 2 - PpTargetSquareSize, 
+            Top + Height / 2 - PpTargetSquareSize, 
+            PpTargetSquareSize, 
+            PpTargetSquareSize);
+
+
+      public Color PpTargetSquareColor { get; set; } = Color.Red;
+
+      public float PpTargetSquarePenWidth { get; set; } = 4.0f;
+
+      protected override void OnPaint(PaintEventArgs e)
+      {
+         base.OnPaint(e);
+
+         var pen = new Pen(PpTargetSquareColor, PpTargetSquarePenWidth);
+         var rc = PpTargetSquareRectangle;
+
+         e.Graphics.DrawRectangle(pen, rc);  
+         e.Graphics.DrawLine(pen, new Point(rc.Left, rc.Top), new PointF(rc.Right, rc.Bottom));
+         e.Graphics.DrawLine(pen, new Point(rc.Left, rc.Bottom), new PointF(rc.Right, rc.Top));
+      }
 
       protected override void OnClosed(EventArgs e)
       {

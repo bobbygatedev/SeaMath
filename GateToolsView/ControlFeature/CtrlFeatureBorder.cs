@@ -1,4 +1,6 @@
-﻿namespace Gate.ToolsView.ControlFeature
+﻿using System.Drawing.Drawing2D;
+
+namespace Gate.ToolsView.ControlFeature
 {
    /// <summary>
    /// 
@@ -8,6 +10,7 @@
       private Color myBorderColor = Color.Yellow;
       private float myBorderWidth = 5.0f;
       private Lazy<Pen> myLazyBorderPen;
+      private DashStyle myBorderDashStyle = DashStyle.Solid;
 
       public CtrlFeatureBorder() => myLazyBorderPen = new Lazy<Pen>(myMakePen);
 
@@ -33,6 +36,17 @@
          }
       }
 
+      public DashStyle BorderDashStyle
+      {
+         get => myBorderDashStyle;
+
+         set
+         {
+            myBorderDashStyle = value;
+            myLazyBorderPen = new Lazy<Pen>(myMakePen);
+         }
+      }
+
       protected override void myOnControlAssociate(Control control)
       {
          mySetStyle(control, ControlStyles.ResizeRedraw, true);
@@ -41,9 +55,16 @@
 
       protected override void myOnControlDeassociate(Control control) => control.Paint -= Control_Paint;
 
-      private Pen myMakePen() => new Pen(BorderColor, BorderWidth);
+      private Pen myMakePen()
+      {
+         var pen = new Pen(BorderColor, BorderWidth);
 
-      private void Control_Paint(object? sender, PaintEventArgs e) => 
+         pen.DashStyle = BorderDashStyle;
+
+         return pen;
+      }
+
+      private void Control_Paint(object? sender, PaintEventArgs e) =>
          e.Graphics.DrawRectangle(myLazyBorderPen.Value, BoundControl?.DisplayRectangle ?? Rectangle.Empty);
    }
 }
