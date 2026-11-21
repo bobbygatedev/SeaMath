@@ -1,4 +1,5 @@
 ﻿using Gate.CLanguage.Expressions;
+using Gate.CLanguage.Expressions.COperators;
 using Gate.CLanguage.Runtime;
 using Gate.CLanguage.Runtime.Object;
 using Gate.CLanguage.Types;
@@ -192,7 +193,11 @@ namespace Gate.SeaMath.Sea
       {
          var ope_pnc = operatorNode.Operator as OperatorPunctuator;
 
-         if (ope_pnc == null || ope_pnc.Punctuator == "," || ope_pnc.Punctuator == "=")
+         if (
+            ope_pnc == null || 
+            ope_pnc is COperatorSizeof || 
+            ope_pnc.Punctuator == "," || 
+            ope_pnc.Punctuator == "=")
          {
             rtmArgs = null;
 

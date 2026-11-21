@@ -349,8 +349,8 @@ namespace Gate.CLanguage.Runtime
 
       public unsafe virtual CRtmObj Assign(CRtmObj lObj, RtmObj rObj)
       {
-         var l_typ = lObj.DeclType as CTypeAlias ?? throw new Crash();
-         var r_typ = rObj.DeclType as CTypeAlias ?? throw new Crash();
+         var l_typ = lObj.DeclType.ConvertOrCrash<CTypeAlias>();
+         var r_typ = rObj.DeclType.ConvertOrCrash<CTypeAlias>();
 
          if (lObj is IRtmObjFunction lfp)
          {
@@ -378,13 +378,24 @@ namespace Gate.CLanguage.Runtime
          }
          else if (lObj is CRtmObjRecord l_rec)
          {
-            if (r_typ.TypeBase == l_typ.TypeBase)
-            {
-               var r_rec = rObj as CRtmObjRecord ?? throw new Crash();
-               var lb = (byte*)(lObj.Address ?? throw new Crash());
-               var rb = (byte*)(rObj.Address ?? throw new Crash());
+            //type base left/right
+            var tbr = r_typ.TypeBase.NnOrCrash();
+            var tbl = l_typ.TypeBase.NnOrCrash();
 
-               for (int i = 0; i < l_typ.SizeOf; i++) { lb[i] = rb[i]; }
+            if (tbr.Signature == tbl.NnOrCrash().Signature)
+            {
+               if (tbl.SizeOf == tbr.SizeOf)
+               {
+                  var r_rec = rObj.ConvertOrCrash<CRtmObjRecord>();
+                  var lb = (byte*)(lObj.Address.NnOrCrash());
+                  var rb = (byte*)(rObj.Address.NnOrCrash());
+
+                  for (int i = 0; i < l_typ.SizeOf; i++) { lb[i] = rb[i]; }
+               }
+               else
+               {
+                  throw new Gate.LangBase.Runtime.RtmException($"Can't assign struct type {l_typ} with {r_typ}");
+               }
             }
             else
             {
